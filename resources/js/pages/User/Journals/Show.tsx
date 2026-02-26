@@ -70,7 +70,7 @@ interface Journal {
     accreditation_end_year: number | null;
     accreditation_sk_number: string | null;
     accreditation_sk_date: string | null;
-    indexations: Record<string, { indexed_at: string }> | null;
+    indexations: Record<string, { url: string }> | null;
     approval_status: 'pending' | 'approved' | 'rejected';
     approval_status_label: string;
     rejection_reason: string | null;
@@ -339,7 +339,7 @@ export default function JournalShow({ journal, statistics }: Props) {
                                                 <p className="mb-2 text-sm text-muted-foreground">Terindeks Di</p>
                                                 <div className="flex flex-wrap gap-2">
                                                     {Object.entries(journal.indexations).map(([platform, data]) => (
-                                                        <IndexationBadge key={platform} platform={platform} indexed_date={data.indexed_at} />
+                                                        <IndexationBadge key={platform} platform={platform} url={data.url} />
                                                     ))}
                                                 </div>
                                             </div>
