@@ -18,10 +18,11 @@ This runbook provides step-by-step procedures for common operational tasks, inci
 1. [Daily Operations](#daily-operations)
 2. [Weekly Maintenance](#weekly-maintenance)
 3. [Monthly Tasks](#monthly-tasks)
-4. [Incident Response](#incident-response)
-5. [Common Scenarios](#common-scenarios)
-6. [Disaster Recovery](#disaster-recovery)
-7. [Contact & Escalation](#contact--escalation)
+4. [Database Backup Procedures](#database-backup-procedures)
+5. [Incident Response](#incident-response)
+6. [Common Scenarios](#common-scenarios)
+7. [Disaster Recovery](#disaster-recovery)
+8. [Contact & Escalation](#contact--escalation)
 
 ---
 
@@ -237,7 +238,206 @@ npm run test
 
 ---
 
-## 🚨 Incident Response
+## � Database Backup Procedures
+
+### Overview
+
+| Type | Frequency | Retention | Method |
+|------|-----------|-----------|--------|
+| Full Backup | Daily (02:00 AM) | 30 days | `mysqldump` |
+| Weekly Snapshot | Every Sunday | 90 days | `mysqldump` + compress |
+| Pre-deployment Backup | Before every deploy | 7 days | Manual |
+| Monthly Archive | First day of month | 1 year | `mysqldump` + offsite |
+
+---
+
+### Manual Backup
+
+**Use before deployments, major changes, or on demand.**
+
+```bash
+# Navigate to project root
+cd /path/to/jurnal_mu
+
+# Set variables
+DB_NAME="jurnal_mu"
+DB_USER="root"
+DB_PASS="your_password"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_DIR="storage/app/backups"
+
+# Create backup directory if not exists
+mkdir -p $BACKUP_DIR
+
+# 1. Full database backup (uncompressed, for quick inspection)
+mysqldump -u $DB_USER -p$DB_PASS $DB_NAME > $BACKUP_DIR/backup_${TIMESTAMP}.sql
+# Expected: File created, no errors
+
+# 2. Full database backup (compressed, recommended for storage)
+mysqldump -u $DB_USER -p$DB_PASS \
+  --single-transaction \
+  --routines \
+  --triggers \
+  --events \
+  $DB_NAME | gzip > $BACKUP_DIR/backup_${TIMESTAMP}.sql.gz
+# Expected: .sql.gz file created
+
+# 3. Verify backup was created
+ls -lh $BACKUP_DIR/backup_${TIMESTAMP}*
+# Expected: Non-zero file size
+
+# 4. Verify backup integrity
+gunzip -t $BACKUP_DIR/backup_${TIMESTAMP}.sql.gz
+# Expected: No errors (exit code 0)
+
+# 5. Log the action
+echo "$(date): Manual backup created: backup_${TIMESTAMP}.sql.gz by $(whoami)" \
+  >> storage/logs/backup.log
+```
+
+---
+
+### Automated Daily Backup (Cron)
+
+**Setup — run once on the server:**
+
+```bash
+# Open crontab editor
+crontab -e
+
+# Add the following lines:
+# Daily full backup at 02:00 AM
+0 2 * * * /bin/bash /path/to/jurnal_mu/scripts/backup_db.sh >> /path/to/jurnal_mu/storage/logs/backup.log 2>&1
+
+# Weekly backup on Sunday at 03:00 AM (kept 90 days)
+0 3 * * 0 /bin/bash /path/to/jurnal_mu/scripts/backup_db_weekly.sh >> /path/to/jurnal_mu/storage/logs/backup.log 2>&1
+```
+
+**Create the daily backup script** (`scripts/backup_db.sh`):
+
+```bash
+#!/bin/bash
+set -e
+
+APP_DIR="/path/to/jurnal_mu"
+BACKUP_DIR="$APP_DIR/storage/app/backups/daily"
+DB_NAME="jurnal_mu"
+DB_USER="root"
+DB_PASS="your_password"
+RETENTION_DAYS=30
+
+mkdir -p $BACKUP_DIR
+
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+FILENAME="daily_${TIMESTAMP}.sql.gz"
+
+echo "[$(date)] Starting daily backup: $FILENAME"
+
+mysqldump -u $DB_USER -p$DB_PASS \
+  --single-transaction \
+  --routines \
+  --triggers \
+  $DB_NAME | gzip > $BACKUP_DIR/$FILENAME
+
+# Verify
+gunzip -t $BACKUP_DIR/$FILENAME
+
+# Delete backups older than RETENTION_DAYS
+find $BACKUP_DIR -name "*.sql.gz" -mtime +$RETENTION_DAYS -delete
+
+echo "[$(date)] Daily backup completed: $FILENAME ($(du -sh $BACKUP_DIR/$FILENAME | cut -f1))"
+```
+
+```bash
+# Make scripts executable
+chmod +x /path/to/jurnal_mu/scripts/backup_db.sh
+chmod +x /path/to/jurnal_mu/scripts/backup_db_weekly.sh
+```
+
+---
+
+### Backup Verification
+
+**Run after each backup (automated or manual):**
+
+```bash
+# 1. Check file exists and has reasonable size
+ls -lh storage/app/backups/daily/ | tail -5
+# Expected: Latest file > 1 MB (varies by data volume)
+
+# 2. Test gzip integrity
+BACKUP_FILE="storage/app/backups/daily/daily_YYYYMMDD_HHMMSS.sql.gz"
+gunzip -t $BACKUP_FILE && echo "OK: Backup integrity verified" || echo "ERROR: Backup file corrupted!"
+
+# 3. Inspect backup content (check for key tables)
+gunzip -c $BACKUP_FILE | grep -c "CREATE TABLE"
+# Expected: Number matching total tables in schema (e.g., 15+)
+
+# 4. Verify row counts are plausible
+gunzip -c $BACKUP_FILE | grep -i "INSERT INTO \`journals\`" | wc -l
+# Expected: > 0 if journals exist in DB
+```
+
+---
+
+### Backup Restoration (Test / Emergency)
+
+> ⚠️ **Never restore directly to production without testing on staging first.**
+
+```bash
+# 1. Create a new empty database for testing
+mysql -u root -p -e "CREATE DATABASE jurnal_mu_restore_test;"
+
+# 2. Restore backup into test database
+gunzip -c storage/app/backups/daily/daily_YYYYMMDD_HHMMSS.sql.gz \
+  | mysql -u root -p jurnal_mu_restore_test
+
+# 3. Verify key tables and row counts
+mysql -u root -p jurnal_mu_restore_test -e "
+  SELECT 'users' AS tbl, COUNT(*) AS rows FROM users
+  UNION SELECT 'journals', COUNT(*) FROM journals
+  UNION SELECT 'journal_assessments', COUNT(*) FROM journal_assessments;
+"
+# Expected: Counts match production values
+
+# 4. If verified OK and emergency restore to production is required:
+#    a. Put application in maintenance mode
+php artisan down
+
+#    b. Drop and recreate production database
+mysql -u root -p -e "DROP DATABASE jurnal_mu; CREATE DATABASE jurnal_mu;"
+
+#    c. Restore
+gunzip -c storage/app/backups/daily/daily_YYYYMMDD_HHMMSS.sql.gz \
+  | mysql -u root -p jurnal_mu
+
+#    d. Run any pending migrations
+php artisan migrate --force
+
+#    e. Clear caches and bring back online
+php artisan optimize:clear
+php artisan up
+
+# 5. Clean up test database
+mysql -u root -p -e "DROP DATABASE jurnal_mu_restore_test;"
+```
+
+---
+
+### Backup Retention Policy
+
+| Backup Type | Location | Retention | Action on Expiry |
+|-------------|----------|-----------|------------------|
+| Daily | `storage/app/backups/daily/` | 30 days | Auto-deleted by script |
+| Weekly | `storage/app/backups/weekly/` | 90 days | Auto-deleted by script |
+| Pre-deploy | `storage/app/backups/predeploy/` | 7 days | Auto-deleted by script |
+| Monthly archive | Offsite / cloud storage | 1 year | Manual review before delete |
+
+> **Note:** For production, offsite backup (e.g., Google Drive, S3, or external server) is strongly recommended. Do not rely solely on local storage.
+
+---
+
+## �🚨 Incident Response
 
 ### Incident Severity Matrix
 
