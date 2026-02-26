@@ -62,7 +62,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
         about: '',
         scope: '',
         // Indexations
-        indexations: [] as Array<{ platform: string; indexed_at: string }>,
+        indexations: [] as Array<{ platform: string; url: string }>,
     });
 
     const handleSubmit: FormEventHandler = (e) => {
@@ -457,7 +457,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                                             if (e.target.checked) {
                                                                 setData('indexations', [
                                                                     ...data.indexations,
-                                                                    { platform: option.value, indexed_at: '' },
+                                                                    { platform: option.value, url: '' },
                                                                 ]);
                                                             } else {
                                                                 setData(
@@ -474,21 +474,21 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                                         </Label>
                                                         {isSelected && (
                                                             <div className="mt-2">
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Indexed Date</Label>
+                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">URL (opsional)</Label>
                                                                 <Input
-                                                                    type="date"
-                                                                    value={selectedItem?.indexed_at || ''}
+                                                                    type="url"
+                                                                    value={selectedItem?.url || ''}
                                                                     onChange={(e) => {
                                                                         setData(
                                                                             'indexations',
                                                                             data.indexations.map((i) =>
                                                                                 i.platform === option.value
-                                                                                    ? { ...i, indexed_at: e.target.value }
+                                                                                    ? { ...i, url: e.target.value }
                                                                                     : i,
                                                                             ),
                                                                         );
                                                                     }}
-                                                                    max={new Date().toISOString().split('T')[0]}
+                                                                    placeholder={`https://example.com/journal/${option.value.toLowerCase().replace(' ', '-')}`}
                                                                     className="mt-1"
                                                                 />
                                                             </div>

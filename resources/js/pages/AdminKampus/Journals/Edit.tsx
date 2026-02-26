@@ -42,7 +42,7 @@ interface Journal {
     about?: string | null;
     scope?: string | null;
     // Indexations
-    indexations?: Record<string, { indexed_at: string }> | null;
+    indexations?: Record<string, { url: string }> | null;
 }
 
 interface Props {
@@ -63,7 +63,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
     const existingIndexations = journal.indexations
         ? Object.entries(journal.indexations).map(([platform, data]) => ({
             platform,
-            indexed_at: data.indexed_at || '',
+            url: data.url || '',
         }))
         : [];
 
@@ -90,7 +90,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
         about: journal.about || '',
         scope: journal.scope || '',
         // Indexations
-        indexations: existingIndexations as Array<{ platform: string; indexed_at: string }>,
+        indexations: existingIndexations as Array<{ platform: string; url: string }>,
     });
 
     const handleSubmit: FormEventHandler = (e) => {
@@ -461,7 +461,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                             if (e.target.checked) {
                                                                 setData('indexations', [
                                                                     ...data.indexations,
-                                                                    { platform: option.value, indexed_at: '' },
+                                                                    { platform: option.value, url: '' },
                                                                 ]);
                                                             } else {
                                                                 setData(
@@ -478,21 +478,21 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                         </Label>
                                                         {isSelected && (
                                                             <div className="mt-2">
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Indexed Date</Label>
+                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">URL (opsional)</Label>
                                                                 <Input
-                                                                    type="date"
-                                                                    value={selectedItem?.indexed_at || ''}
+                                                                    type="url"
+                                                                    value={selectedItem?.url || ''}
                                                                     onChange={(e) => {
                                                                         setData(
                                                                             'indexations',
                                                                             data.indexations.map((i) =>
                                                                                 i.platform === option.value
-                                                                                    ? { ...i, indexed_at: e.target.value }
+                                                                                    ? { ...i, url: e.target.value }
                                                                                     : i,
                                                                             ),
                                                                         );
                                                                     }}
-                                                                    max={new Date().toISOString().split('T')[0]}
+                                                                    placeholder={`https://example.com/journal/${option.value.toLowerCase().replace(' ', '-')}`}
                                                                     className="mt-1"
                                                                 />
                                                             </div>
