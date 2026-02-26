@@ -3,12 +3,14 @@ import { Database, Globe } from 'lucide-react';
 
 interface IndexationBadgeProps {
     platform: string;
+    /** @deprecated Use url instead */
     indexed_date?: string | null;
+    url?: string | null;
     showDate?: boolean;
     variant?: 'default' | 'outline';
 }
 
-export default function IndexationBadge({ platform, indexed_date, showDate = false, variant = 'default' }: IndexationBadgeProps) {
+export default function IndexationBadge({ platform, url, indexed_date, showDate = false, variant = 'default' }: IndexationBadgeProps) {
     // Color mapping for different indexation platforms
     const platformColors: Record<string, string> = {
         Scopus: 'bg-orange-600 text-white border-orange-700 hover:bg-orange-700',
@@ -35,7 +37,17 @@ export default function IndexationBadge({ platform, indexed_date, showDate = fal
                 <Icon className="mr-1 h-3 w-3" />
                 {platform}
             </Badge>
-            {showDate && indexed_date && (
+            {url && (
+                <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-500 hover:underline truncate max-w-[160px]"
+                >
+                    Lihat halaman
+                </a>
+            )}
+            {showDate && indexed_date && !url && (
                 <span className="text-xs text-gray-500">
                     Terindeks:{' '}
                     {new Date(indexed_date).toLocaleDateString('id-ID', {
