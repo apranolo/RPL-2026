@@ -399,6 +399,10 @@ Route::middleware(['auth'])->group(function () {
         // Profil (Dashboard)
         Route::get('profil', [ProfilController::class, 'index'])
             ->name('profil.index');
+        Route::get('profil/edit', [ProfilController::class, 'edit'])
+            ->name('profil.edit');
+        Route::patch('profil/edit', [ProfilController::class, 'update'])
+            ->name('profil.update');
         Route::post('profil/notifications/{id}/read', [ProfilController::class, 'markNotificationAsRead'])
             ->name('profil.notifications.read');
         Route::post('profil/notifications/read-all', [ProfilController::class, 'markAllNotificationsAsRead'])
