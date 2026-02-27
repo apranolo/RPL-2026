@@ -40,6 +40,13 @@ class JournalController extends Controller
 
         $authUser = $request->user();
 
+        // Guard: Admin Kampus must have a university assigned
+        abort_if(
+            is_null($authUser->university_id),
+            403,
+            'Akun Admin Kampus Anda belum terhubung ke universitas. Hubungi Super Admin.'
+        );
+
         // Base query - scoped to Admin Kampus's university
         $query = Journal::query()
             ->with(['university', 'user', 'scientificField', 'latestAssessment'])
@@ -103,7 +110,7 @@ class JournalController extends Controller
             ->orderBy('title')
             ->paginate(10)
             ->withQueryString()
-            ->through(fn($journal) => [
+            ->through(fn ($journal) => [
                 'id' => $journal->id,
                 'title' => $journal->title,
                 'issn' => $journal->issn,
@@ -137,7 +144,7 @@ class JournalController extends Controller
             ->get();
 
         $sintaRanks = collect(Journal::getSintaRankOptions())
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values();
 
         // Deprecated: Status filter is no longer used in Admin Kampus Journals
@@ -148,7 +155,7 @@ class JournalController extends Controller
         // ]);
 
         $indexationOptions = collect(Journal::getIndexationPlatforms())
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values();
 
         // Deprecated: Dikti Accreditation Grade filter is no longer used in Admin Kampus Journals
@@ -157,7 +164,7 @@ class JournalController extends Controller
         //     ->values();
 
         $indexationOptions = collect(Journal::getIndexationPlatforms())
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values();
 
         // Phase 2: Get pembinaan periods and years for filters
@@ -166,7 +173,7 @@ class JournalController extends Controller
             ->distinct()
             ->orderBy('name')
             ->pluck('name')
-            ->map(fn($name) => ['value' => $name, 'label' => $name])
+            ->map(fn ($name) => ['value' => $name, 'label' => $name])
             ->values();
 
         $pembinaanYears = \App\Models\PembinaanRegistration::query()
@@ -174,7 +181,7 @@ class JournalController extends Controller
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year')
-            ->map(fn($year) => ['value' => (string) $year, 'label' => (string) $year])
+            ->map(fn ($year) => ['value' => (string) $year, 'label' => (string) $year])
             ->values();
 
         $participationOptions = collect([
@@ -234,8 +241,8 @@ class JournalController extends Controller
 
         // Calculate totals
         // Note: "Indexed journals" means Scopus-indexed only (as per meeting notes 02 Feb 2026)
-        $indexedJournals = $journals->filter(fn($j) => isset($j->indexations['Scopus']))->count();
-        $sintaJournals = $journals->filter(fn($j) => $j->sinta_rank !== null)->count();
+        $indexedJournals = $journals->filter(fn ($j) => isset($j->indexations['Scopus']))->count();
+        $sintaJournals = $journals->filter(fn ($j) => $j->sinta_rank !== null)->count();
         $nonSintaJournals = $totalJournals - $sintaJournals;
 
         // Aggregate by indexation
@@ -249,7 +256,7 @@ class JournalController extends Controller
         }
 
         $byIndexation = collect($indexationCounts)
-            ->map(fn($count, $name) => [
+            ->map(fn ($count, $name) => [
                 'name' => $name,
                 'count' => $count,
                 'percentage' => $totalJournals > 0 ? round(($count / $totalJournals) * 100, 1) : 0,
@@ -282,7 +289,7 @@ class JournalController extends Controller
         }
 
         // Aggregate by scientific field
-        $fieldGroups = $journals->filter(fn($j) => $j->scientificField !== null)
+        $fieldGroups = $journals->filter(fn ($j) => $j->scientificField !== null)
             ->groupBy('scientific_field_id');
 
         $byScientificField = $fieldGroups->map(function ($group) use ($totalJournals) {
@@ -381,7 +388,7 @@ class JournalController extends Controller
                     'id' => $journal->scientificField->id,
                     'name' => $journal->scientificField->name,
                 ] : null,
-                'assessments' => $journal->assessments->map(fn($assessment) => [
+                'assessments' => $journal->assessments->map(fn ($assessment) => [
                     'id' => $assessment->id,
                     'assessment_date' => $assessment->assessment_date,
                     'period' => $assessment->period,
@@ -535,7 +542,7 @@ class JournalController extends Controller
     private function getIndexationOptions(): array
     {
         return collect(Journal::getIndexationPlatforms())
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values()
             ->toArray();
     }
@@ -615,7 +622,7 @@ class JournalController extends Controller
             DB::rollBack();
 
             return redirect()->route('admin-kampus.journals.import')
-                ->with('error', 'Terjadi kesalahan saat memproses file CSV: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan saat memproses file CSV: '.$e->getMessage());
         }
     }
 
@@ -640,7 +647,7 @@ class JournalController extends Controller
             $file = fopen('php://output', 'w');
 
             // Add BOM for UTF-8
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             // CSV Headers
             fputcsv($file, [

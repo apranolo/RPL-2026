@@ -110,11 +110,7 @@ export default function JournalsShow() {
                     <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                         <Link href={route('home')} className="flex items-center gap-3 transition-opacity hover:opacity-90">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
-                                <img 
-                                    src="logo_dark.png" 
-                                    alt="Majelis Diktilitbang" 
-                                    className="h-8 w-8 object-contain"
-                                />
+                                <img src="logo_dark.png" alt="Majelis Diktilitbang" className="h-8 w-8 object-contain" />
                             </div>
                             <span className="font-heading text-2xl font-bold" style={{ fontFamily: '"El Messiri", sans-serif' }}>
                                 Journal MU
@@ -339,9 +335,7 @@ export default function JournalsShow() {
                                             <BookOpen className="h-5 w-5 text-primary" />
                                             About Journal
                                         </h2>
-                                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-                                            {journal.about}
-                                        </p>
+                                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">{journal.about}</p>
                                     </div>
                                 )}
                                 {journal.scope && (
@@ -350,9 +344,7 @@ export default function JournalsShow() {
                                             <Target className="h-5 w-5 text-primary" />
                                             Scope and Focus
                                         </h2>
-                                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-                                            {journal.scope}
-                                        </p>
+                                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">{journal.scope}</p>
                                     </div>
                                 )}
                             </div>
@@ -481,10 +473,11 @@ export default function JournalsShow() {
                                             <Link
                                                 key={i}
                                                 href={link.url}
-                                                className={`flex h-9 w-9 items-center justify-center rounded-lg border text-sm transition-all ${link.active
+                                                className={`flex h-9 w-9 items-center justify-center rounded-lg border text-sm transition-all ${
+                                                    link.active
                                                         ? 'border-[hsl(var(--accent-red))] bg-[hsl(var(--accent-red))] font-semibold text-white shadow-md'
                                                         : 'border-border bg-card text-foreground hover:bg-muted dark:bg-card dark:hover:bg-muted'
-                                                    }`}
+                                                }`}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                             />
                                         ) : (
@@ -565,10 +558,11 @@ export default function JournalsShow() {
                                                 handleFilter('volume', item.volume);
                                                 handleFilter('issue', item.issue);
                                             }}
-                                            className={`block w-full text-left text-xs transition-colors ${queries.volume == item.volume && queries.issue == item.issue
+                                            className={`block w-full text-left text-xs transition-colors ${
+                                                queries.volume == item.volume && queries.issue == item.issue
                                                     ? 'font-bold text-[hsl(var(--accent-red))]'
                                                     : 'text-primary hover:text-primary/80'
-                                                }`}
+                                            }`}
                                         >
                                             {item.label} ({item.year})
                                         </button>

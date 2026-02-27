@@ -114,15 +114,7 @@ interface Props {
     indexationOptions: FilterOption[];
 }
 
-export default function JournalsIndex({
-    journals,
-    filters,
-    universities,
-    scientificFields,
-    sintaRanks,
-    statusOptions,
-    indexationOptions,
-}: Props) {
+export default function JournalsIndex({ journals, filters, universities, scientificFields, sintaRanks, statusOptions, indexationOptions }: Props) {
     const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
     const [search, setSearch] = useState(filters.search || '');
     const [universityFilter, setUniversityFilter] = useState(filters.university_id?.toString() || '');
@@ -179,8 +171,7 @@ export default function JournalsIndex({
         return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
     };
 
-    const hasActiveFilters =
-        search || universityFilter || statusFilter || sintaRankFilter || scientificFieldFilter || indexationFilter;
+    const hasActiveFilters = search || universityFilter || statusFilter || sintaRankFilter || scientificFieldFilter || indexationFilter;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

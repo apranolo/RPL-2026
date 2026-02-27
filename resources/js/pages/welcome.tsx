@@ -2,7 +2,7 @@ import JournalCard from '@/components/journal-card';
 import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowRight, BookOpen, LayoutDashboard, Search } from 'lucide-react';
+import { ArrowRight, LayoutDashboard, Search } from 'lucide-react';
 import { useState } from 'react';
 
 interface WelcomeProps extends SharedData {
@@ -51,11 +51,7 @@ export default function Welcome() {
                     <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-                                <img 
-                                    src="logo_dark.png" 
-                                    alt="Majelis Diktilitbang" 
-                                    className="h-8 w-8 object-contain"
-                                />
+                                <img src="logo_dark.png" alt="Majelis Diktilitbang" className="h-8 w-8 object-contain" />
                             </div>
                             <span className="font-heading text-2xl font-bold" style={{ fontFamily: '"El Messiri", sans-serif' }}>
                                 Journal MU

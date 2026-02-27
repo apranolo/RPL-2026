@@ -21,8 +21,8 @@ The application uses a **strict hierarchical ownership model**:
 - **User**: Manages their own journals only (enforced by `user_id`)
 
 Authorization is implemented through:
-1. **Policies** (e.g., [JournalPolicy.php](app/Policies/JournalPolicy.php), [UserPolicy.php](app/Policies/UserPolicy.php)) - Define what each role can do
-2. **Middleware** ([CheckRole.php](app/Http/Middleware/CheckRole.php)) - Applied via route groups in [web.php](routes/web.php)
+1. **Policies** (e.g., [JournalPolicy.php](../app/Policies/JournalPolicy.php), [UserPolicy.php](../app/Policies/UserPolicy.php)) - Define what each role can do
+2. **Middleware** ([CheckRole.php](../app/Http/Middleware/CheckRole.php)) - Applied via route groups in [web.php](../routes/web.php)
 3. **Scopes** on models (e.g., `User::forUniversity($universityId)`) - Filter queries by ownership
 
 **Example Policy Pattern**:
@@ -35,9 +35,9 @@ public function view(User $user, Journal $journal): bool {
 ```
 
 #### Laravel Conventions
-- **Routes**: Named routes grouped by role in [web.php](routes/web.php) - `admin.*`, `admin-kampus.*`, `user.*`
+- **Routes**: Named routes grouped by role in [web.php](../routes/web.php) - `admin.*`, `admin-kampus.*`, `user.*`
 - **Controllers**: Organized by role in namespaces (e.g., `App\Http\Controllers\AdminKampus\UserController`)
-- **Models**: Use soft deletes, fillable attributes, and relationship methods ([User.php](app/Models/User.php))
+- **Models**: Use soft deletes, fillable attributes, and relationship methods ([User.php](../app/Models/User.php))
 - **Migrations**: Follow Laravel naming (`2025_11_06_*_create_*_table.php`)
 
 #### Inertia.js Pattern
@@ -46,7 +46,7 @@ public function view(User $user, Journal $journal): bool {
 - **Navigation**: Use `<Link>` from `@inertiajs/react` for SPA-like navigation
 - **Forms**: Use `router.post/put/delete()` with automatic CSRF handling
 
-**Page Structure Example** ([Show.tsx](resources/js/pages/AdminKampus/Users/Show.tsx)):
+**Page Structure Example** ([Show.tsx](../resources/js/pages/AdminKampus/Users/Show.tsx)):
 ```tsx
 // JSDoc header documents route and features
 /**
@@ -68,7 +68,7 @@ export default function UsersShow({ user, journals }: Props) {
 **JSDoc Convention**: All page components use structured JSDoc with `@description`, `@features`, and `@route` tags.
 
 ## Database Schema (ERD)
-See [ERD Database.md](docs/ERD Database.md) for full schema. Key tables:
+See [ERD Database.md](../docs/database/ERD%20Database.md) for full schema. Key tables:
 - `users` - All roles with `role_id` and `university_id`
 - `roles` - Super Admin, Admin Kampus, User
 - `universities` - PTM institutions
@@ -118,7 +118,7 @@ php artisan dusk          # Run browser tests (requires ChromeDriver)
 ### Testing
 - **Unit/Feature Tests**: Use Pest in `tests/Feature/` and `tests/Unit/`
 - **Browser Tests**: Laravel Dusk in `tests/Browser/`
-- **Test Database**: Uses `:memory:` SQLite (configured in [phpunit.xml](phpunit.xml))
+- **Test Database**: Uses `:memory:` SQLite (configured in [phpunit.xml](../phpunit.xml))
 
 ### Common Commands
 ```bash
@@ -155,21 +155,40 @@ npm run build:ssr         # SSR support
 - **Policies**: `app/Policies/{Resource}Policy.php`
 - **Models**: `app/Models/{Resource}.php`
 - **Pages**: `resources/js/pages/{Role}/{Resource}/{Action}.tsx`
-- **Routes**: [web.php](routes/web.php) (main), [auth.php](routes/auth.php), [api.php](routes/api.php)
+- **Routes**: [web.php](../routes/web.php) (main), [auth.php](../routes/auth.php), [api.php](../routes/api.php)
 
 ## External Integrations
-- **Google OAuth**: Laravel Socialite in [SocialAuthController.php](app/Http/Controllers/Auth/SocialAuthController.php)
+- **Google OAuth**: Laravel Socialite in [SocialAuthController.php](../app/Http/Controllers/Auth/SocialAuthController.php)
 - **Ziggy**: Laravel route helper for frontend (`route('name')` in TypeScript)
 - **Sanctum**: API authentication (configured but not actively used in MVP)
 
 ## Documentation
-- **MVP Scope**: [jurnal_mu MVP.md](docs/jurnal_mu MVP.md) - Feature priorities and user stories
-- **Project Plan**: [jurnal_mu project plan.md](docs/jurnal_mu project plan.md)
-- **Automation**: [AUTOMATION_SETUP.md](AUTOMATION_SETUP.md) - GitHub Actions workflows
-- **Policy Testing**: [policy testing.md](docs/policy testing.md)
+- **MVP Scope**: [jurnal_mu MVP.md](../docs/jurnal_mu MVP.md) - Feature priorities and user stories
+- **Project Plan**: [jurnal_mu project plan.md](../docs/jurnal_mu project plan.md)
+- **Automation**: [AUTOMATION_SETUP.md](../AUTOMATION_SETUP.md) - GitHub Actions workflows
+- **Policy Testing**: [policy testing.md](../docs/policy testing.md)
+
+## Agentic Skills Reference
+The `.agents` folder contains reusable skill definitions for AI agents working on this project. Each skill provides specialized knowledge and capabilities in a specific domain:
+
+### Available Skills
+- **[laravel-expert](../.agents/skills/laravel-expert/SKILL.md)** - Laravel framework expertise, architecture patterns, best practices for the PHP backend
+- **[react-expert](../.agents/skills/react-expert/SKILL.md)** - React 19 and modern React patterns, with references for hooks, performance optimization, server components, state management, and testing
+- **[frontend-design](../.agents/skills/frontend-design/SKILL.md)** - Frontend design principles, UI/UX patterns, component design, accessibility
+- **[qa-test-engineer](../.agents/skills/qa-test-engineer/SKILL.md)** - QA processes, test engineering, test automation (Pest, Dusk, Jest/Vitest), with AI agent configuration
+- **[security-auditor](../.agents/skills/security-auditor/SKILL.md)** - Security best practices, vulnerability assessment, secure coding patterns for Laravel and React
+
+### Usage
+Agents should reference these skills when:
+- Working on backend features (use **laravel-expert**)
+- Building UI components (use **react-expert** + **frontend-design**)
+- Writing tests (use **qa-test-engineer**)
+- Reviewing security implications (use **security-auditor**)
+
+Each skill includes SKILL.md with detailed guidelines. Some skills include additional references and agent configurations (e.g., react-expert has hook patterns, performance guides; qa-test-engineer has OpenAI agent config).
 
 ## GitHub Actions (PR Automation)
-Automated checks run on every PR (see [.github/workflows/](.github/workflows/)):
+Automated checks run on every PR (see [.github/workflows/](workflows/)):
 - PHP linting, JS/TS linting, formatting, type checking, tests
 - Auto-labeling by file changes and PR size
 - Status updates posted as comments

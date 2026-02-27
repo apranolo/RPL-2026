@@ -24,6 +24,13 @@ class UserController extends Controller
 
         $authUser = $request->user();
 
+        // Guard: Admin Kampus must have a university assigned
+        abort_if(
+            is_null($authUser->university_id),
+            403,
+            'Akun Admin Kampus Anda belum terhubung ke universitas. Hubungi Super Admin.'
+        );
+
         // Base query: Users from admin's university (excluding Super Admin)
         $query = User::query()
             ->with(['role', 'roles', 'university'])

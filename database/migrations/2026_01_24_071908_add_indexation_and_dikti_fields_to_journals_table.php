@@ -36,15 +36,32 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('journals', function (Blueprint $table) {
-            $table->dropIndex(['accreditation_expiry_date']);
-            $table->dropColumn([
-                'dikti_accreditation_number',
-                'accreditation_issued_date',
-                'accreditation_expiry_date',
-                'indexations',
-                'sinta_indexed_date',
-            ]);
-        });
+        // Drop the index in a separate schema call with its own try/catch.
+        // Blueprint batches SQL execution AFTER the closure returns, so a
+        // try-catch inside the closure cannot catch SQL-level exceptions.
+        // The index may already be gone (dropped by a later migration or by
+        // MySQL when its column was removed), so we guard it explicitly.
+        if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+            try {
+                Schema::table('journals', function (Blueprint $table) {
+                    $table->dropIndex('journals_accreditation_expiry_date_index');
+                });
+            } catch (\Throwable $e) {
+                // Index already absent — safe to continue.
+            }
+        }
+
+        // Drop columns that belong ONLY to this migration.
+        $columnsToDrop = array_filter(
+            ['dikti_accreditation_number', 'accreditation_issued_date',
+                'accreditation_expiry_date', 'indexations', 'sinta_indexed_date'],
+            fn ($col) => Schema::hasColumn('journals', $col)
+        );
+
+        if (! empty($columnsToDrop)) {
+            Schema::table('journals', function (Blueprint $table) use ($columnsToDrop) {
+                $table->dropColumn(array_values($columnsToDrop));
+            });
+        }
     }
 };

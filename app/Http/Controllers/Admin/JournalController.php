@@ -66,13 +66,12 @@ class JournalController extends Controller
             $query->byIndexation($request->indexation);
         }
 
-
         // Paginate results
         $journals = $query
             ->orderBy('title')
             ->paginate(10)
             ->withQueryString()
-            ->through(fn($journal) => [
+            ->through(fn ($journal) => [
                 'id' => $journal->id,
                 'title' => $journal->title,
                 'issn' => $journal->issn,
@@ -112,7 +111,7 @@ class JournalController extends Controller
             ->get();
 
         $sintaRanks = collect(Journal::getSintaRankOptions())
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values();
 
         $statusOptions = collect([
@@ -122,9 +121,8 @@ class JournalController extends Controller
         ]);
 
         $indexationOptions = collect(Journal::getIndexationPlatforms())
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values();
-
 
         return Inertia::render('Admin/Journals/Index', [
             'journals' => $journals,
@@ -206,7 +204,7 @@ class JournalController extends Controller
                     'id' => $journal->scientificField->id,
                     'name' => $journal->scientificField->name,
                 ] : null,
-                'assessments' => $journal->assessments->map(fn($assessment) => [
+                'assessments' => $journal->assessments->map(fn ($assessment) => [
                     'id' => $assessment->id,
                     'assessment_date' => $assessment->assessment_date,
                     'period' => $assessment->period,

@@ -14,6 +14,7 @@
  *
  * @route GET /user/journals
  */
+import SintaBadge from '@/components/badges/SintaBadge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,9 +25,8 @@ import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { AlertCircle, BookOpen, ChevronLeft, ChevronRight, Edit, Eye, ExternalLink, FileText, Plus, Search, Trash2, XCircle } from 'lucide-react';
+import { AlertCircle, BookOpen, ChevronLeft, ChevronRight, Edit, ExternalLink, Eye, FileText, Plus, Search, Trash2, XCircle } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
-import SintaBadge from '@/components/badges/SintaBadge';
 
 interface Assessment {
     id: number;
@@ -126,13 +126,20 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
         };
 
         // Fallback labels if backend doesn't provide them (though they should be in $appends now)
-        const displayLabel = label || {
-            pending: 'Pending Approval',
-            approved: 'Approved',
-            rejected: 'Rejected'
-        }[status] || status;
+        const displayLabel =
+            label ||
+            {
+                pending: 'Pending Approval',
+                approved: 'Approved',
+                rejected: 'Rejected',
+            }[status] ||
+            status;
 
-        return <Badge variant="outline" className={cn("px-2 py-0.5 font-medium", colors[status])}>{displayLabel}</Badge>;
+        return (
+            <Badge variant="outline" className={cn('px-2 py-0.5 font-medium', colors[status])}>
+                {displayLabel}
+            </Badge>
+        );
     };
 
     return (
@@ -161,8 +168,16 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                     </div>
 
                     {/* Flash Messages */}
-                    {flash?.success && <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">{flash.success}</div>}
-                    {flash?.error && <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">{flash.error}</div>}
+                    {flash?.success && (
+                        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
+                            {flash.success}
+                        </div>
+                    )}
+                    {flash?.error && (
+                        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+                            {flash.error}
+                        </div>
+                    )}
 
                     {/* Search & Filters */}
                     <div className="mb-6 rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
@@ -170,7 +185,7 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
                                 <div className="md:col-span-2">
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                                         <Input
                                             type="text"
                                             placeholder="Search by title, ISSN..."
@@ -181,7 +196,10 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                                     </div>
                                 </div>
 
-                                <Select value={filters.sinta_rank} onValueChange={(value) => setFilters({ ...filters, sinta_rank: value === 'all' ? '' : value })}>
+                                <Select
+                                    value={filters.sinta_rank}
+                                    onValueChange={(value) => setFilters({ ...filters, sinta_rank: value === 'all' ? '' : value })}
+                                >
                                     <SelectTrigger>
                                         <SelectValue placeholder="SINTA Rank" />
                                     </SelectTrigger>
@@ -197,7 +215,10 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                                     </SelectContent>
                                 </Select>
 
-                                <Select value={filters.scientific_field_id} onValueChange={(value) => setFilters({ ...filters, scientific_field_id: value === 'all' ? '' : value })}>
+                                <Select
+                                    value={filters.scientific_field_id}
+                                    onValueChange={(value) => setFilters({ ...filters, scientific_field_id: value === 'all' ? '' : value })}
+                                >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Scientific Field" />
                                     </SelectTrigger>
@@ -211,7 +232,10 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                                     </SelectContent>
                                 </Select>
 
-                                <Select value={filters.approval_status} onValueChange={(value) => setFilters({ ...filters, approval_status: value === 'all' ? '' : value })}>
+                                <Select
+                                    value={filters.approval_status}
+                                    onValueChange={(value) => setFilters({ ...filters, approval_status: value === 'all' ? '' : value })}
+                                >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Approval Status" />
                                     </SelectTrigger>
@@ -254,7 +278,10 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                                 {journals.data.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={6} className="py-8 text-center text-gray-500 dark:text-gray-400">
-                                            No journals found. {filters.search || filters.sinta_rank || filters.scientific_field_id || filters.approval_status ? 'Try adjusting your filters.' : 'Click "Add New Journal" to start.'}
+                                            No journals found.{' '}
+                                            {filters.search || filters.sinta_rank || filters.scientific_field_id || filters.approval_status
+                                                ? 'Try adjusting your filters.'
+                                                : 'Click "Add New Journal" to start.'}
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -262,7 +289,10 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                                         <TableRow key={journal.id}>
                                             <TableCell>
                                                 <div className="flex flex-col">
-                                                    <Link href={route('user.journals.show', journal.id)} className="font-semibold text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400">
+                                                    <Link
+                                                        href={route('user.journals.show', journal.id)}
+                                                        className="font-semibold text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
+                                                    >
                                                         {journal.title}
                                                     </Link>
                                                     {journal.url && (
@@ -334,7 +364,12 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                                                     </Link>
 
                                                     {journal.approval_status !== 'approved' && (
-                                                        <Button variant="ghost" size="sm" onClick={() => handleDelete(journal.id, journal.title)} title="Delete">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => handleDelete(journal.id, journal.title)}
+                                                            title="Delete"
+                                                        >
                                                             <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                                                         </Button>
                                                     )}

@@ -47,12 +47,12 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 {/* Stats Cards - Conditional Grid Based on Role */}
                 <div
-                    className={`grid auto-rows-min gap-4 ${
+                    className={`grid auto-rows-min grid-cols-1 gap-4 ${
                         isSuperAdmin && stats.pending_lppm_count !== undefined
-                            ? 'md:grid-cols-3'
+                            ? 'md:grid-cols-2 lg:grid-cols-4'
                             : isUser && stats.journals_by_status
-                              ? 'md:grid-cols-4'
-                              : 'md:grid-cols-2'
+                              ? 'sm:grid-cols-2 lg:grid-cols-5'
+                              : 'md:grid-cols-3'
                     }`}
                 >
                     {/* Total Assessments */}
@@ -108,7 +108,7 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                             <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Jurnal Pending</p>
+                                        <p className="text-sm font-medium text-muted-foreground">Pending</p>
                                         <h3 className="mt-2 text-3xl font-bold">{stats.journals_by_status.pending}</h3>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/20">
@@ -121,7 +121,7 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                             <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Jurnal Disetujui</p>
+                                        <p className="text-sm font-medium text-muted-foreground">Disetujui</p>
                                         <h3 className="mt-2 text-3xl font-bold">{stats.journals_by_status.approved}</h3>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
@@ -134,7 +134,7 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                             <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Jurnal Ditolak</p>
+                                        <p className="text-sm font-medium text-muted-foreground">Ditolak</p>
                                         <h3 className="mt-2 text-3xl font-bold">{stats.journals_by_status.rejected}</h3>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
@@ -192,14 +192,14 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                 )}
 
                 {/* Journal Statistics Visualization */}
-                {statistics && statistics.totals.total_journals > 0 && (
+                {stats.total_journals > 0 && statistics && (
                     <div className="mt-2">
                         <StatisticsDashboard statistics={statistics} />
                     </div>
                 )}
 
                 {/* Empty State */}
-                {statistics && statistics.totals.total_journals === 0 && (
+                {stats.total_journals === 0 && (
                     <div className="relative min-h-[400px] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-neutral-950">
                         <div className="flex h-full flex-col items-center justify-center p-8 text-center">
                             <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />

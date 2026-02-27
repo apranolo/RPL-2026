@@ -8,11 +8,10 @@
 import { AccreditationBadge, IndexationBadge, SintaBadge } from '@/components/badges';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowLeft, Bookmark, BookOpen, Building2, Calendar, ExternalLink, Eye, FileText, Globe, Mail, TrendingUp, User } from 'lucide-react';
+import { ArrowLeft, Bookmark, BookOpen, Building2, Calendar, ExternalLink, FileText, Globe, Mail, User } from 'lucide-react';
 
 interface University {
     id: number;

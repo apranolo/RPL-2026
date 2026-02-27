@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Hash;
 
 /**
  * Presentation Demo Seeder
- * 
+ *
  * Seeds minimal data for presentation purposes (February 12, 2026 at 1 PM).
  * Creates only essential data: roles, scientific fields, universities, and 3 demo users.
- * 
+ *
  * Usage:
  * php artisan migrate:fresh
  * php artisan db:seed --class=PresentationDemoSeeder

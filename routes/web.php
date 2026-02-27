@@ -26,7 +26,6 @@ use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
-use App\Http\Controllers\User\JurnalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
@@ -49,7 +48,7 @@ Route::get('/', function () {
         ->orderBy('sinta_rank')
         ->limit(4)
         ->get()
-        ->map(fn($journal) => [
+        ->map(fn ($journal) => [
             'id' => $journal->id,
             'title' => $journal->title,
             'sinta_rank' => $journal->sinta_rank,
@@ -142,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
     | Super Admin Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:' . Role::SUPER_ADMIN])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['role:'.Role::SUPER_ADMIN])->prefix('admin')->name('admin.')->group(function () {
 
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
@@ -290,7 +289,7 @@ Route::middleware(['auth'])->group(function () {
     | Admin Kampus Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:' . Role::ADMIN_KAMPUS])->prefix('admin-kampus')->name('admin-kampus.')->group(function () {
+    Route::middleware(['role:'.Role::ADMIN_KAMPUS])->prefix('admin-kampus')->name('admin-kampus.')->group(function () {
 
         // User Approval Workflow (Two-Step Approval Phase 1)
         Route::prefix('users')->name('users.')->group(function () {
@@ -394,11 +393,19 @@ Route::middleware(['auth'])->group(function () {
     | User (Pengelola Jurnal) Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:' . Role::USER])->prefix('user')->name('user.')->group(function () {
+    Route::middleware(['role:'.Role::USER])->prefix('user')->name('user.')->group(function () {
 
-        // Profil (Placeholder)
+        // Profil (Dashboard)
         Route::get('profil', [ProfilController::class, 'index'])
             ->name('profil.index');
+        Route::get('profil/edit', [ProfilController::class, 'edit'])
+            ->name('profil.edit');
+        Route::patch('profil/edit', [ProfilController::class, 'update'])
+            ->name('profil.update');
+        Route::post('profil/notifications/{id}/read', [ProfilController::class, 'markNotificationAsRead'])
+            ->name('profil.notifications.read');
+        Route::post('profil/notifications/read-all', [ProfilController::class, 'markAllNotificationsAsRead'])
+            ->name('profil.notifications.read-all');
 
         // Journals Management
         Route::resource('journals', UserJournalController::class)
@@ -482,7 +489,7 @@ Route::middleware(['auth'])->group(function () {
     | Reviewer Routes (v1.1)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:' . Role::REVIEWER])->prefix('reviewer')->name('reviewer.')->group(function () {
+    Route::middleware(['role:'.Role::REVIEWER])->prefix('reviewer')->name('reviewer.')->group(function () {
 
         // Assignments Management
         Route::prefix('assignments')->name('assignments.')->group(function () {
@@ -521,5 +528,5 @@ Route::middleware(['auth'])->group(function () {
     // });
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

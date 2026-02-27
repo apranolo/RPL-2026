@@ -279,7 +279,9 @@ export default function AdminKampusCreate({ universities }: Props) {
                                         placeholder="Select University"
                                         error={errors.university_id}
                                     />
-                                    <p className="mt-1 text-sm text-muted-foreground">This admin will manage journals and users for this university</p>
+                                    <p className="mt-1 text-sm text-muted-foreground">
+                                        This admin will manage journals and users for this university
+                                    </p>
                                 </div>
                             </div>
                         </div>

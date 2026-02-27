@@ -62,6 +62,7 @@ export default function Password() {
 
                             <Input
                                 id="current_password"
+                                name="current_password"
                                 ref={currentPasswordInput}
                                 value={data.current_password}
                                 onChange={(e) => setData('current_password', e.target.value)}
@@ -79,6 +80,7 @@ export default function Password() {
 
                             <Input
                                 id="password"
+                                name="password"
                                 ref={passwordInput}
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
@@ -96,6 +98,7 @@ export default function Password() {
 
                             <Input
                                 id="password_confirmation"
+                                name="password_confirmation"
                                 value={data.password_confirmation}
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 type="password"

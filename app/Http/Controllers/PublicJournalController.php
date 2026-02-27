@@ -57,13 +57,12 @@ class PublicJournalController extends Controller
             $query->byIndexation($request->indexation);
         }
 
-
         // Paginate results
         $journals = $query
             ->orderBy('title')
             ->paginate(12)
             ->withQueryString()
-            ->through(fn($journal) => [
+            ->through(fn ($journal) => [
                 'id' => $journal->id,
                 'title' => $journal->title,
                 'issn' => $journal->issn,
@@ -94,13 +93,12 @@ class PublicJournalController extends Controller
             ->get();
 
         $sintaRanks = collect(Journal::getSintaRankOptions())
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values();
 
         $indexationOptions = collect(Journal::getIndexationPlatforms())
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values();
-
 
         return Inertia::render('Journals/Index', [
             'journals' => $journals,
@@ -122,7 +120,7 @@ class PublicJournalController extends Controller
     public function show(Request $request, Journal $journal): Response
     {
         // Only show active journals to public
-        if (!$journal->is_active) {
+        if (! $journal->is_active) {
             abort(404);
         }
 
@@ -167,7 +165,7 @@ class PublicJournalController extends Controller
         // Get paginated articles
         $articles = $articlesQuery->paginate(10)
             ->withQueryString()
-            ->through(fn($article) => [
+            ->through(fn ($article) => [
                 'id' => $article->id,
                 'title' => $article->title,
                 'abstract' => $article->abstract,
@@ -195,7 +193,7 @@ class PublicJournalController extends Controller
             ->orderBy('volume', 'desc')
             ->orderBy('issue', 'desc')
             ->get()
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'volume' => $item->volume,
                 'issue' => $item->issue,
                 'label' => $item->issue ? "Vol {$item->volume}, No {$item->issue}" : "Vol {$item->volume}",
@@ -302,7 +300,7 @@ class PublicJournalController extends Controller
                     ->orderBy('title')
                     ->paginate(12)
                     ->withQueryString()
-                    ->through(fn($journal) => [
+                    ->through(fn ($journal) => [
                         'id' => $journal->id,
                         'title' => $journal->title,
                         'issn' => $journal->issn,

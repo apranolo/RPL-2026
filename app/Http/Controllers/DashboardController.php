@@ -166,7 +166,7 @@ class DashboardController extends Controller
         // Calculate totals
         // Note: "Indexed journals" means Scopus-indexed only (as per meeting notes 02 Feb 2026)
         $indexedJournals = $journals->filter(fn ($j) => isset($j->indexations['Scopus']))->count();
-        $sintaJournals = $journals->filter(fn ($j) => $j->sinta_rank !== null)->count();
+        $sintaJournals = $journals->filter(fn ($j) => $j->sinta_rank !== null && $j->sinta_rank !== 'non_sinta')->count();
         $nonSintaJournals = $totalJournals - $sintaJournals;
 
         // Aggregate by indexation
@@ -195,7 +195,7 @@ class DashboardController extends Controller
 
         // Non-Sinta journals
         $byAccreditation[] = [
-            'sinta_rank' => null,
+            'sinta_rank' => 'non_sinta',
             'label' => 'Non-Sinta',
             'count' => $nonSintaJournals,
             'percentage' => $totalJournals > 0 ? round(($nonSintaJournals / $totalJournals) * 100, 1) : 0,
@@ -203,9 +203,10 @@ class DashboardController extends Controller
 
         // SINTA 1-6
         for ($rank = 1; $rank <= 6; $rank++) {
-            $count = $sintaGroups->get($rank)?->count() ?? 0;
+            $sintaRankKey = "sinta_{$rank}";
+            $count = $sintaGroups->get($sintaRankKey)?->count() ?? 0;
             $byAccreditation[] = [
-                'sinta_rank' => $rank,
+                'sinta_rank' => $sintaRankKey,
                 'label' => "SINTA {$rank}",
                 'count' => $count,
                 'percentage' => $totalJournals > 0 ? round(($count / $totalJournals) * 100, 1) : 0,

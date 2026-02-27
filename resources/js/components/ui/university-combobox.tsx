@@ -10,7 +10,7 @@
  * - Keyboard navigation (arrow keys, enter, escape)
  * - Mobile-friendly with responsive design
  * - "No results" feedback
- * - Displays "CODE - Name" format for clarity
+ * - Displays "Name (PTM Code)" format for better readability
  *
  * @author JurnalMU Team
  */
@@ -37,6 +37,7 @@ interface UniversityComboboxProps {
     placeholder?: string;
     emptyText?: string;
     disabled?: boolean;
+    loading?: boolean;
     className?: string;
     error?: string;
 }
@@ -48,17 +49,31 @@ export function UniversityCombobox({
     placeholder = 'Select university...',
     emptyText = 'No university found.',
     disabled = false,
+    loading = false,
     className,
     error,
 }: UniversityComboboxProps) {
     const [open, setOpen] = React.useState(false);
+    const [searchQuery, setSearchQuery] = React.useState('');
+
+    // Performance-optimized filtering for large lists
+    const filteredUniversities = React.useMemo(() => {
+        if (!searchQuery.trim()) return universities;
+        const query = searchQuery.toLowerCase();
+        return universities.filter(
+            (uni) =>
+                uni.code.toLowerCase().includes(query) ||
+                uni.name.toLowerCase().includes(query) ||
+                uni.short_name?.toLowerCase().includes(query),
+        );
+    }, [universities, searchQuery]);
 
     // Find selected university
     const selectedUniversity = universities.find((uni) => uni.id.toString() === value);
 
-    // Format display text: "CODE - Name"
+    // Format display text: "Name (PTM Code)"
     const getDisplayText = (uni: University) => {
-        return `${uni.code} - ${uni.short_name || uni.name}`;
+        return `${uni.short_name || uni.name} (${uni.code})`;
     };
 
     return (
@@ -70,37 +85,39 @@ export function UniversityCombobox({
                         role="combobox"
                         aria-expanded={open}
                         className={cn(
-                            'w-full justify-between',
+                            'w-full justify-between h-auto py-2',
                             !selectedUniversity && 'text-muted-foreground',
                             error && 'border-red-500',
                             className,
                         )}
-                        disabled={disabled}
+                        disabled={disabled || loading}
                     >
-                        {selectedUniversity ? getDisplayText(selectedUniversity) : placeholder}
+                        <span className="text-left break-words overflow-hidden flex-1">
+                            {loading ? 'Loading universities...' : selectedUniversity ? getDisplayText(selectedUniversity) : placeholder}
+                        </span>
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                    <Command>
-                        <CommandInput placeholder="Search by name or code..." />
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0 z-50" align="start">
+                    <Command shouldFilter={false}>
+                        <CommandInput placeholder="Search by name or code..." value={searchQuery} onValueChange={setSearchQuery} />
                         <CommandList>
                             <CommandEmpty>{emptyText}</CommandEmpty>
                             <CommandGroup>
-                                {universities.map((uni) => (
+                                {filteredUniversities.map((uni) => (
                                     <CommandItem
                                         key={uni.id}
-                                        value={`${uni.code} ${uni.short_name} ${uni.name}`} // Search by all fields
+                                        value={uni.id.toString()}
                                         onSelect={() => {
                                             onValueChange(uni.id.toString());
+                                            setSearchQuery('');
                                             setOpen(false);
                                         }}
                                     >
                                         <Check className={cn('mr-2 h-4 w-4', value === uni.id.toString() ? 'opacity-100' : 'opacity-0')} />
-                                        <div className="flex flex-col">
-                                            <span className="font-medium">{uni.code}</span>
-                                            <span className="text-sm text-muted-foreground">{uni.short_name || uni.name}</span>
-                                        </div>
+                                        <span className="flex-1 truncate">
+                                            {uni.short_name || uni.name} <span className="text-muted-foreground">({uni.code})</span>
+                                        </span>
                                     </CommandItem>
                                 ))}
                             </CommandGroup>

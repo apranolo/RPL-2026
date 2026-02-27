@@ -132,15 +132,7 @@ export default function Import({ errors, flash }: Props) {
 
     const requiredColumns = ['title', 'publisher', 'e_issn'];
 
-    const optionalColumns = [
-        'issn',
-        'publication_year',
-        'sinta_rank',
-        'url',
-        'oai_url',
-        'email',
-        'phone',
-    ];
+    const optionalColumns = ['issn', 'publication_year', 'sinta_rank', 'url', 'oai_url', 'email', 'phone'];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -216,13 +208,13 @@ export default function Import({ errors, flash }: Props) {
                             <Card>
                                 <CardContent className="pt-6">
                                     <form onSubmit={handleSubmit} className="space-y-6">
-
                                         {/* Auto-Assign Info */}
                                         <Alert>
                                             <Info className="h-4 w-4" />
                                             <AlertTitle>Informasi Pengelola</AlertTitle>
                                             <AlertDescription>
-                                                Semua jurnal yang diimport akan ditugaskan kepada Anda (<strong>{auth.user.name}</strong>) sebagai pengelola awal. Anda dapat menugaskan ulang jurnal ke pengelola lain setelah import selesai.
+                                                Semua jurnal yang diimport akan ditugaskan kepada Anda (<strong>{auth.user.name}</strong>) sebagai
+                                                pengelola awal. Anda dapat menugaskan ulang jurnal ke pengelola lain setelah import selesai.
                                             </AlertDescription>
                                         </Alert>
 
@@ -287,11 +279,7 @@ export default function Import({ errors, flash }: Props) {
 
                                         {/* Submit Button */}
                                         <div className="flex flex-col gap-3 pt-4 sm:flex-row">
-                                            <Button
-                                                type="submit"
-                                                disabled={!selectedFile || isProcessing}
-                                                className="w-full min-w-[150px] sm:w-auto"
-                                            >
+                                            <Button type="submit" disabled={!selectedFile || isProcessing} className="w-full min-w-[150px] sm:w-auto">
                                                 {isProcessing ? (
                                                     <>
                                                         <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />

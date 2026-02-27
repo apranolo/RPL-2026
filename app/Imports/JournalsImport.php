@@ -41,14 +41,14 @@ class JournalsImport
     {
         $file = fopen($filePath, 'r');
 
-        if (!$file) {
+        if (! $file) {
             throw new \Exception('Unable to open CSV file');
         }
 
         // Read header row
         $headers = fgetcsv($file);
 
-        if (!$headers) {
+        if (! $headers) {
             fclose($file);
             throw new \Exception('CSV file is empty or invalid');
         }
@@ -162,7 +162,7 @@ class JournalsImport
         } catch (\Exception $e) {
             $this->errors[] = [
                 'row' => $rowNumber,
-                'errors' => ['Error: ' . $e->getMessage()],
+                'errors' => ['Error: '.$e->getMessage()],
             ];
             $this->errorCount++;
         }
@@ -180,7 +180,7 @@ class JournalsImport
         $intVal = (int) $value;
 
         if ($intVal >= 1 && $intVal <= 6) {
-            return 'sinta_' . $intVal;
+            return 'sinta_'.$intVal;
         }
 
         return 'non_sinta';
@@ -206,7 +206,7 @@ class JournalsImport
                 'max:20',
                 'regex:/^\d{4}-\d{4}$/',
             ],
-            'publication_year' => 'nullable|integer|min:1900|max:' . (now()->year + 1),
+            'publication_year' => 'nullable|integer|min:1900|max:'.(now()->year + 1),
             'sinta_rank' => 'nullable|integer|min:1|max:6',
             'url' => 'nullable|url|max:500',
             'oai_url' => 'nullable|url|max:500',
@@ -241,14 +241,14 @@ class JournalsImport
     {
         $query = Journal::where('university_id', $this->universityId);
 
-        if (!empty($validated['issn'])) {
+        if (! empty($validated['issn'])) {
             $exists = (clone $query)->where('issn', $validated['issn'])->exists();
             if ($exists) {
                 return true;
             }
         }
 
-        if (!empty($validated['e_issn'])) {
+        if (! empty($validated['e_issn'])) {
             $exists = (clone $query)->where('e_issn', $validated['e_issn'])->exists();
             if ($exists) {
                 return true;

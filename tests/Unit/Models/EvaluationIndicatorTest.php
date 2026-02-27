@@ -3,10 +3,6 @@
 use App\Models\AccreditationTemplate;
 use App\Models\EvaluationIndicator;
 use App\Models\EvaluationSubCategory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-
-uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     // Create hierarchy for testing

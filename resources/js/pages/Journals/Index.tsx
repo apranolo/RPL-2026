@@ -137,11 +137,7 @@ export default function JournalsIndex({ journals, filters, universities, scienti
                         <div className="flex items-center gap-3">
                             <Link href={route('home')} className="flex items-center gap-3 transition-opacity hover:opacity-90">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-                                    <img 
-                                        src="logo_dark.png" 
-                                        alt="Majelis Diktilitbang" 
-                                        className="h-8 w-8 object-contain"
-                                    />
+                                    <img src="logo_dark.png" alt="Majelis Diktilitbang" className="h-8 w-8 object-contain" />
                                 </div>
                                 <span className="font-heading text-2xl font-bold" style={{ fontFamily: '"El Messiri", sans-serif' }}>
                                     Journal MU

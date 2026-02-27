@@ -22,8 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UniversityFilterCombobox } from '@/components/ui/university-filter-combobox';
-import { type SharedData } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { BookOpen, Building2, ChevronLeft, ChevronRight, Home } from 'lucide-react';
 import { useState } from 'react';
 
@@ -112,9 +111,7 @@ export default function BrowseUniversities({ universityStats, selectedUniversity
                         <div className="flex items-center justify-between">
                             <div>
                                 <h1 className="text-3xl font-bold">Browse by University</h1>
-                                <p className="mt-1 text-muted-foreground">
-                                    Explore journals from Muhammadiyah universities across Indonesia
-                                </p>
+                                <p className="mt-1 text-muted-foreground">Explore journals from Muhammadiyah universities across Indonesia</p>
                             </div>
                             <Link href={route('home')}>
                                 <Button variant="outline">
@@ -132,9 +129,7 @@ export default function BrowseUniversities({ universityStats, selectedUniversity
                         <Card>
                             <CardHeader>
                                 <CardTitle>Select University</CardTitle>
-                                <CardDescription>
-                                    Choose a university to view all its journals, or browse the list below
-                                </CardDescription>
+                                <CardDescription>Choose a university to view all its journals, or browse the list below</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <UniversityFilterCombobox
@@ -159,9 +154,7 @@ export default function BrowseUniversities({ universityStats, selectedUniversity
                                     <CardHeader>
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
-                                                <CardTitle className="text-2xl">
-                                                    {selectedUniversity.name}
-                                                </CardTitle>
+                                                <CardTitle className="text-2xl">{selectedUniversity.name}</CardTitle>
                                                 <CardDescription className="mt-2">
                                                     <Badge variant="secondary" className="font-mono">
                                                         {selectedUniversity.code}
@@ -171,11 +164,7 @@ export default function BrowseUniversities({ universityStats, selectedUniversity
                                                     </span>
                                                 </CardDescription>
                                             </div>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handleUniversityChange('all')}
-                                            >
+                                            <Button variant="outline" size="sm" onClick={() => handleUniversityChange('all')}>
                                                 <ChevronLeft className="mr-2 h-4 w-4" />
                                                 Back to All
                                             </Button>
@@ -212,8 +201,7 @@ export default function BrowseUniversities({ universityStats, selectedUniversity
                                                             size="sm"
                                                             onClick={() =>
                                                                 handlePageChange(
-                                                                    journals.links.find((link) => link.label === '&laquo; Previous')
-                                                                        ?.url || null,
+                                                                    journals.links.find((link) => link.label === '&laquo; Previous')?.url || null,
                                                                 )
                                                             }
                                                             disabled={journals.current_page === 1}
@@ -243,8 +231,7 @@ export default function BrowseUniversities({ universityStats, selectedUniversity
                                                             size="sm"
                                                             onClick={() =>
                                                                 handlePageChange(
-                                                                    journals.links.find((link) => link.label === 'Next &raquo;')?.url ||
-                                                                    null,
+                                                                    journals.links.find((link) => link.label === 'Next &raquo;')?.url || null,
                                                                 )
                                                             }
                                                             disabled={journals.current_page === journals.last_page}
@@ -262,9 +249,7 @@ export default function BrowseUniversities({ universityStats, selectedUniversity
                         ) : (
                             /* University Grid View */
                             <div>
-                                <h2 className="mb-4 text-xl font-semibold">
-                                    All Universities ({universityStats.length})
-                                </h2>
+                                <h2 className="mb-4 text-xl font-semibold">All Universities ({universityStats.length})</h2>
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                     {universityStats.map((university) => (
                                         <Card

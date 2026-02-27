@@ -256,7 +256,7 @@ class Journal extends Model
      */
     public function scopeByApprovalStatus($query, ?string $status)
     {
-        if (!$status) {
+        if (! $status) {
             return $query;
         }
 
@@ -266,8 +266,12 @@ class Journal extends Model
     /**
      * Scope to filter by university
      */
-    public function scopeForUniversity($query, int $universityId)
+    public function scopeForUniversity($query, ?int $universityId)
     {
+        if (is_null($universityId) || $universityId <= 0) {
+            return $query;
+        }
+
         return $query->where('university_id', $universityId);
     }
 
@@ -286,7 +290,7 @@ class Journal extends Model
      */
     public function scopeBySintaRank($query, $rank)
     {
-        if (!$rank) {
+        if (! $rank) {
             return $query;
         }
 
@@ -298,7 +302,7 @@ class Journal extends Model
      */
     public function scopeSearch($query, ?string $search)
     {
-        if (!$search) {
+        if (! $search) {
             return $query;
         }
 
@@ -314,7 +318,7 @@ class Journal extends Model
      */
     public function scopeByAssessmentStatus($query, ?string $status)
     {
-        if (!$status) {
+        if (! $status) {
             return $query;
         }
 
@@ -328,13 +332,13 @@ class Journal extends Model
      */
     public function scopeByIndexation($query, ?string $platform)
     {
-        if (!$platform) {
+        if (! $platform) {
             return $query;
         }
 
         return $query->whereNotNull('indexations')
             ->where(function ($q) use ($platform) {
-                $q->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$." . $platform . "')");
+                $q->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.".$platform."')");
             });
     }
 
@@ -364,7 +368,7 @@ class Journal extends Model
      */
     public function scopeByAccreditationGrade($query, ?string $grade)
     {
-        if (!$grade) {
+        if (! $grade) {
             return $query;
         }
 
@@ -378,7 +382,7 @@ class Journal extends Model
      */
     public function scopeByPembinaanPeriod($query, ?string $period)
     {
-        if (!$period) {
+        if (! $period) {
             return $query;
         }
 
@@ -394,7 +398,7 @@ class Journal extends Model
      */
     public function scopeByPembinaanYear($query, ?string $year)
     {
-        if (!$year) {
+        if (! $year) {
             return $query;
         }
 
@@ -409,7 +413,7 @@ class Journal extends Model
      */
     public function scopeByParticipation($query, ?string $status)
     {
-        if (!$status) {
+        if (! $status) {
             return $query;
         }
 
@@ -429,7 +433,7 @@ class Journal extends Model
      */
     public function scopeByAssessmentApprovalStatus($query, ?string $status)
     {
-        if (!$status) {
+        if (! $status) {
             return $query;
         }
 
@@ -482,7 +486,7 @@ class Journal extends Model
      */
     public function getAccreditationLabelAttribute(): string
     {
-        if (!$this->sinta_rank || $this->sinta_rank === 'non_sinta') {
+        if (! $this->sinta_rank || $this->sinta_rank === 'non_sinta') {
             return 'Non Sinta';
         }
 
@@ -516,7 +520,7 @@ class Journal extends Model
      */
     public function getIsAccreditationExpiredAttribute(): bool
     {
-        if (!$this->accreditation_end_year) {
+        if (! $this->accreditation_end_year) {
             return false;
         }
 
@@ -530,7 +534,7 @@ class Journal extends Model
      */
     public function getAccreditationExpiryStatusAttribute(): string
     {
-        if (!$this->accreditation_end_year) {
+        if (! $this->accreditation_end_year) {
             return 'none';
         }
 
@@ -552,7 +556,7 @@ class Journal extends Model
      */
     public function getDiktiAccreditationLabelAttribute(): string
     {
-        if (!$this->accreditation_sk_number) {
+        if (! $this->accreditation_sk_number) {
             return 'Belum Ada SK';
         }
 
@@ -573,7 +577,7 @@ class Journal extends Model
      */
     public function getIndexationLabelsAttribute(): array
     {
-        if (!$this->indexations || !is_array($this->indexations)) {
+        if (! $this->indexations || ! is_array($this->indexations)) {
             return [];
         }
 

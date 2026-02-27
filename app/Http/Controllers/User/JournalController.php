@@ -81,7 +81,7 @@ class JournalController extends Controller
         $user = Auth::user();
 
         // Ensure user has a university assigned
-        if (!$user->university_id) {
+        if (! $user->university_id) {
             return back()->withErrors(['university_id' => 'Anda belum terdaftar di kampus manapun. Hubungi Admin Kampus.']);
         }
 
@@ -104,8 +104,8 @@ class JournalController extends Controller
         $journal->load([
             'scientificField',
             'university',
-            'assessments' => fn($q) => $q->latest()->limit(10),
-            'articles' => fn($q) => $q->latest()->limit(10),
+            'assessments' => fn ($q) => $q->latest()->limit(10),
+            'articles' => fn ($q) => $q->latest()->limit(10),
         ]);
 
         return Inertia::render('User/Journals/Show', [
@@ -165,7 +165,7 @@ class JournalController extends Controller
     private function getIndexationOptions(): array
     {
         return collect(Journal::getIndexationPlatforms())
-            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values()
             ->toArray();
     }

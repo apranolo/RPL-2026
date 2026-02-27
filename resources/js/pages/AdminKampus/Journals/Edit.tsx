@@ -42,7 +42,7 @@ interface Journal {
     about?: string | null;
     scope?: string | null;
     // Indexations
-    indexations?: Record<string, { indexed_at: string }> | null;
+    indexations?: Record<string, { url: string }> | null;
 }
 
 interface Props {
@@ -62,9 +62,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
     // Transform existing indexations from object to array format
     const existingIndexations = journal.indexations
         ? Object.entries(journal.indexations).map(([platform, data]) => ({
-            platform,
-            indexed_at: data.indexed_at || '',
-        }))
+              platform,
+              url: data.url || '',
+          }))
         : [];
 
     const { data, setData, put, processing, errors } = useForm({
@@ -90,7 +90,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
         about: journal.about || '',
         scope: journal.scope || '',
         // Indexations
-        indexations: existingIndexations as Array<{ platform: string; indexed_at: string }>,
+        indexations: existingIndexations as Array<{ platform: string; url: string }>,
     });
 
     const handleSubmit: FormEventHandler = (e) => {
@@ -133,7 +133,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Basic Info */}
                             <div className="space-y-4">
-                                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:text-gray-100 dark:border-gray-700">Journal Information</h3>
+                                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">
+                                    Journal Information
+                                </h3>
 
                                 <div>
                                     <Label htmlFor="title">
@@ -198,7 +200,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
 
                             {/* Classification */}
                             <div className="space-y-4">
-                                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:text-gray-100 dark:border-gray-700">Classification & Metadata</h3>
+                                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">
+                                    Classification & Metadata
+                                </h3>
 
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div>
@@ -230,7 +234,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {Object.entries(sintaRankOptions).map(([value, label]) => (
-                                                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                                                    <SelectItem key={value} value={value}>
+                                                        {label}
+                                                    </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -254,7 +260,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                     placeholder="e.g. 2024"
                                                     className="mt-1"
                                                 />
-                                                {errors.accreditation_start_year && <p className="mt-1 text-sm text-red-600">{errors.accreditation_start_year}</p>}
+                                                {errors.accreditation_start_year && (
+                                                    <p className="mt-1 text-sm text-red-600">{errors.accreditation_start_year}</p>
+                                                )}
                                             </div>
                                             <div>
                                                 <Label htmlFor="accreditation_end_year">Tahun Berakhir Akreditasi</Label>
@@ -268,7 +276,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                     placeholder="e.g. 2029"
                                                     className="mt-1"
                                                 />
-                                                {errors.accreditation_end_year && <p className="mt-1 text-sm text-red-600">{errors.accreditation_end_year}</p>}
+                                                {errors.accreditation_end_year && (
+                                                    <p className="mt-1 text-sm text-red-600">{errors.accreditation_end_year}</p>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -281,7 +291,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                     placeholder="e.g. 105/E/KPT/2024"
                                                     className="mt-1"
                                                 />
-                                                {errors.accreditation_sk_number && <p className="mt-1 text-sm text-red-600">{errors.accreditation_sk_number}</p>}
+                                                {errors.accreditation_sk_number && (
+                                                    <p className="mt-1 text-sm text-red-600">{errors.accreditation_sk_number}</p>
+                                                )}
                                             </div>
                                             <div>
                                                 <Label htmlFor="accreditation_sk_date">Tanggal SK</Label>
@@ -293,7 +305,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                     max={new Date().toISOString().split('T')[0]}
                                                     className="mt-1"
                                                 />
-                                                {errors.accreditation_sk_date && <p className="mt-1 text-sm text-red-600">{errors.accreditation_sk_date}</p>}
+                                                {errors.accreditation_sk_date && (
+                                                    <p className="mt-1 text-sm text-red-600">{errors.accreditation_sk_date}</p>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -351,7 +365,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
 
                             {/* Contact & Additional Info */}
                             <div className="space-y-4">
-                                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:text-gray-100 dark:border-gray-700">Contact & Additional Information</h3>
+                                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">
+                                    Contact & Additional Information
+                                </h3>
 
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div>
@@ -442,7 +458,9 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
 
                             {/* Indexations */}
                             <div className="space-y-4">
-                                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:text-gray-100 dark:border-gray-700">Indexations (Optional)</h3>
+                                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">
+                                    Indexations (Optional)
+                                </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Select databases where this journal is indexed</p>
 
                                 <div className="space-y-3">
@@ -459,10 +477,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                         checked={isSelected}
                                                         onChange={(e) => {
                                                             if (e.target.checked) {
-                                                                setData('indexations', [
-                                                                    ...data.indexations,
-                                                                    { platform: option.value, indexed_at: '' },
-                                                                ]);
+                                                                setData('indexations', [...data.indexations, { platform: option.value, url: '' }]);
                                                             } else {
                                                                 setData(
                                                                     'indexations',
@@ -478,21 +493,19 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                         </Label>
                                                         {isSelected && (
                                                             <div className="mt-2">
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Indexed Date</Label>
+                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">URL (opsional)</Label>
                                                                 <Input
-                                                                    type="date"
-                                                                    value={selectedItem?.indexed_at || ''}
+                                                                    type="url"
+                                                                    value={selectedItem?.url || ''}
                                                                     onChange={(e) => {
                                                                         setData(
                                                                             'indexations',
                                                                             data.indexations.map((i) =>
-                                                                                i.platform === option.value
-                                                                                    ? { ...i, indexed_at: e.target.value }
-                                                                                    : i,
+                                                                                i.platform === option.value ? { ...i, url: e.target.value } : i,
                                                                             ),
                                                                         );
                                                                     }}
-                                                                    max={new Date().toISOString().split('T')[0]}
+                                                                    placeholder={`https://example.com/journal/${option.value.toLowerCase().replace(' ', '-')}`}
                                                                     className="mt-1"
                                                                 />
                                                             </div>

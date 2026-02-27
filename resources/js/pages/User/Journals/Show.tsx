@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { AlertCircle, ArrowLeft, BookOpen, Calendar, CheckCircle, Edit, ExternalLink, FileText, Globe, Mail, Plus, TrendingUp, Trash2, XCircle } from 'lucide-react';
+import { AlertCircle, ArrowLeft, BookOpen, CheckCircle, Edit, ExternalLink, FileText, Globe, Mail, Trash2, XCircle } from 'lucide-react';
 
 interface University {
     id: number;
@@ -70,7 +70,7 @@ interface Journal {
     accreditation_end_year: number | null;
     accreditation_sk_number: string | null;
     accreditation_sk_date: string | null;
-    indexations: Record<string, { indexed_at: string }> | null;
+    indexations: Record<string, { url: string }> | null;
     approval_status: 'pending' | 'approved' | 'rejected';
     approval_status_label: string;
     rejection_reason: string | null;
@@ -146,8 +146,16 @@ export default function JournalShow({ journal, statistics }: Props) {
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-4">
                 {/* Flash Messages */}
-                {flash?.success && <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">{flash.success}</div>}
-                {flash?.error && <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">{flash.error}</div>}
+                {flash?.success && (
+                    <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
+                        {flash.success}
+                    </div>
+                )}
+                {flash?.error && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+                        {flash.error}
+                    </div>
+                )}
 
                 {/* Approval Status Banner */}
                 {journal.approval_status !== 'approved' && (
@@ -155,8 +163,12 @@ export default function JournalShow({ journal, statistics }: Props) {
                         {getApprovalStatusIcon()}
                         <div className="flex-1">
                             <h4 className="font-semibold">{journal.approval_status_label}</h4>
-                            {journal.approval_status === 'pending' && <p className="mt-1 text-sm">Your journal is awaiting approval from LPPM Admin Kampus.</p>}
-                            {journal.approval_status === 'rejected' && journal.rejection_reason && <p className="mt-1 text-sm">Reason: {journal.rejection_reason}</p>}
+                            {journal.approval_status === 'pending' && (
+                                <p className="mt-1 text-sm">Your journal is awaiting approval from LPPM Admin Kampus.</p>
+                            )}
+                            {journal.approval_status === 'rejected' && journal.rejection_reason && (
+                                <p className="mt-1 text-sm">Reason: {journal.rejection_reason}</p>
+                            )}
                         </div>
                     </div>
                 )}
@@ -207,7 +219,11 @@ export default function JournalShow({ journal, statistics }: Props) {
                                 </TabsTrigger> */}
                                 <TabsTrigger value="articles">
                                     Articles
-                                    {statistics.total_articles > 0 && <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs dark:bg-blue-900/30 dark:text-blue-400">{statistics.total_articles}</span>}
+                                    {statistics.total_articles > 0 && (
+                                        <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs dark:bg-blue-900/30 dark:text-blue-400">
+                                            {statistics.total_articles}
+                                        </span>
+                                    )}
                                 </TabsTrigger>
                             </TabsList>
 
@@ -244,7 +260,12 @@ export default function JournalShow({ journal, statistics }: Props) {
                                         <div className="md:col-span-2">
                                             <p className="text-sm text-muted-foreground">Website</p>
                                             {journal.url ? (
-                                                <a href={journal.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                                                <a
+                                                    href={journal.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                                                >
                                                     <Globe className="h-4 w-4" />
                                                     {journal.url}
                                                     <ExternalLink className="h-3 w-3" />
@@ -276,7 +297,10 @@ export default function JournalShow({ journal, statistics }: Props) {
                                             {journal.email && (
                                                 <div>
                                                     <p className="text-sm text-muted-foreground">Email</p>
-                                                    <a href={`mailto:${journal.email}`} className="flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                                                    <a
+                                                        href={`mailto:${journal.email}`}
+                                                        className="flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                                                    >
                                                         <Mail className="h-4 w-4" />
                                                         {journal.email}
                                                     </a>
@@ -339,7 +363,7 @@ export default function JournalShow({ journal, statistics }: Props) {
                                                 <p className="mb-2 text-sm text-muted-foreground">Terindeks Di</p>
                                                 <div className="flex flex-wrap gap-2">
                                                     {Object.entries(journal.indexations).map(([platform, data]) => (
-                                                        <IndexationBadge key={platform} platform={platform} indexed_date={data.indexed_at} />
+                                                        <IndexationBadge key={platform} platform={platform} url={data.url} />
                                                     ))}
                                                 </div>
                                             </div>

@@ -8,19 +8,29 @@
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint resources/ --ext .js,.jsx,.ts,.tsx --fix",
-        "types": "tsc --noEmit"
+        "types": "tsc --noEmit",
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest --coverage"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@testing-library/user-event": "^14.6.1",
         "@types/node": "^22.13.5",
+        "@vitest/ui": "^4.0.18",
         "eslint": "^9.17.0",
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-react": "^7.37.3",
         "eslint-plugin-react-hooks": "^5.1.0",
+        "happy-dom": "^20.6.1",
+        "jsdom": "^28.1.0",
         "prettier": "^3.4.2",
         "prettier-plugin-organize-imports": "^4.1.0",
         "prettier-plugin-tailwindcss": "^0.6.11",
-        "typescript-eslint": "^8.23.0"
+        "typescript-eslint": "^8.23.0",
+        "vitest": "^4.0.18"
     },
     "dependencies": {
         "@base-ui/react": "^1.1.0",

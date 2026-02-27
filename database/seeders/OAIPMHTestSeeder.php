@@ -20,13 +20,14 @@ class OAIPMHTestSeeder extends Seeder
         $testUrls = [
             'https://journal1.uad.ac.id/index.php/BAHASTRA/oai', // BAHASTRA - UAD
             'https://journal.ugm.ac.id/v3/BEI/oai', // Berkala Ilmu Kedokteran - UGM
-            'https://journal.ugm.ac.id/jurnal-humaniora/oai', // Jurnal Humaniora - UGM  
+            'https://journal.ugm.ac.id/jurnal-humaniora/oai', // Jurnal Humaniora - UGM
         ];
 
         $journals = Journal::take(3)->get();
 
         if ($journals->count() < 3) {
             $this->command->warn('⚠️  Not enough journals in database. Please run DatabaseSeeder first.');
+
             return;
         }
 

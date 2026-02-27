@@ -173,9 +173,16 @@ class User extends Authenticatable
 
     /**
      * Scope to filter by university
+     *
+     * Accepts nullable int to prevent TypeError when user has no university assigned.
+     * Returns unscoped query when universityId is null (safe fallback).
      */
-    public function scopeForUniversity($query, int $universityId)
+    public function scopeForUniversity($query, ?int $universityId)
     {
+        if (is_null($universityId)) {
+            return $query;
+        }
+
         return $query->where('university_id', $universityId);
     }
 

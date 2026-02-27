@@ -27,7 +27,22 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { BookOpen, Check, ChevronLeft, ChevronRight, ExternalLink, Eye, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2, Upload, X } from 'lucide-react';
+import {
+    BookOpen,
+    Check,
+    ChevronLeft,
+    ChevronRight,
+    ExternalLink,
+    Eye,
+    MoreHorizontal,
+    Pencil,
+    Plus,
+    RefreshCw,
+    Search,
+    Trash2,
+    Upload,
+    X,
+} from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -158,9 +173,13 @@ export default function JournalsIndex({
 
     const handleApprove = (journal: Journal) => {
         if (confirm(`Approve journal "${journal.title}"?`)) {
-            router.post(route('admin-kampus.journals.approve', journal.id), {}, {
-                preserveScroll: true,
-            });
+            router.post(
+                route('admin-kampus.journals.approve', journal.id),
+                {},
+                {
+                    preserveScroll: true,
+                },
+            );
         }
     };
 
@@ -590,11 +609,15 @@ export default function JournalsIndex({
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem onClick={() => router.visit(route('admin-kampus.journals.show', journal.id))}>
+                                                        <DropdownMenuItem
+                                                            onClick={() => router.visit(route('admin-kampus.journals.show', journal.id))}
+                                                        >
                                                             <Eye className="mr-2 h-4 w-4" />
                                                             View Details
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => router.visit(route('admin-kampus.journals.edit', journal.id))}>
+                                                        <DropdownMenuItem
+                                                            onClick={() => router.visit(route('admin-kampus.journals.edit', journal.id))}
+                                                        >
                                                             <Pencil className="mr-2 h-4 w-4" />
                                                             Edit
                                                         </DropdownMenuItem>
@@ -602,11 +625,17 @@ export default function JournalsIndex({
                                                         {journal.approval_status === 'pending' && (
                                                             <>
                                                                 <DropdownMenuSeparator />
-                                                                <DropdownMenuItem onClick={() => handleApprove(journal)} className="text-green-600 dark:text-green-400">
+                                                                <DropdownMenuItem
+                                                                    onClick={() => handleApprove(journal)}
+                                                                    className="text-green-600 dark:text-green-400"
+                                                                >
                                                                     <Check className="mr-2 h-4 w-4" />
                                                                     Approve
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => handleReject(journal)} className="text-red-600 dark:text-red-400">
+                                                                <DropdownMenuItem
+                                                                    onClick={() => handleReject(journal)}
+                                                                    className="text-red-600 dark:text-red-400"
+                                                                >
                                                                     <X className="mr-2 h-4 w-4" />
                                                                     Reject
                                                                 </DropdownMenuItem>
@@ -622,7 +651,10 @@ export default function JournalsIndex({
                                                         {journal.approval_status !== 'approved' && (
                                                             <>
                                                                 <DropdownMenuSeparator />
-                                                                <DropdownMenuItem onClick={() => handleDelete(journal)} className="text-red-600 dark:text-red-400">
+                                                                <DropdownMenuItem
+                                                                    onClick={() => handleDelete(journal)}
+                                                                    className="text-red-600 dark:text-red-400"
+                                                                >
                                                                     <Trash2 className="mr-2 h-4 w-4" />
                                                                     Delete
                                                                 </DropdownMenuItem>
@@ -716,7 +748,9 @@ export default function JournalsIndex({
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
+                            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+                                Cancel
+                            </Button>
                             <Button
                                 variant="destructive"
                                 onClick={submitReject}
@@ -738,8 +772,12 @@ export default function JournalsIndex({
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-                            <Button variant="destructive" onClick={confirmDelete}>Delete Journal</Button>
+                            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button variant="destructive" onClick={confirmDelete}>
+                                Delete Journal
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
@@ -750,17 +788,14 @@ export default function JournalsIndex({
                         <DialogHeader>
                             <DialogTitle>Reassign Journal Manager</DialogTitle>
                             <DialogDescription>
-                                Transfer "{reassigningJournal?.title}" to another manager in your university.
-                                Current manager: {reassigningJournal?.user.name}
+                                Transfer "{reassigningJournal?.title}" to another manager in your university. Current manager:{' '}
+                                {reassigningJournal?.user.name}
                             </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
                             <div>
                                 <Label htmlFor="new-manager">New Manager</Label>
-                                <Select
-                                    value={reassignForm.data.new_user_id}
-                                    onValueChange={(value) => reassignForm.setData('new_user_id', value)}
-                                >
+                                <Select value={reassignForm.data.new_user_id} onValueChange={(value) => reassignForm.setData('new_user_id', value)}>
                                     <SelectTrigger className="mt-1">
                                         <SelectValue placeholder="Select new manager..." />
                                     </SelectTrigger>
@@ -791,11 +826,10 @@ export default function JournalsIndex({
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setReassignDialogOpen(false)}>Cancel</Button>
-                            <Button
-                                onClick={submitReassign}
-                                disabled={reassignForm.processing || !reassignForm.data.new_user_id}
-                            >
+                            <Button variant="outline" onClick={() => setReassignDialogOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button onClick={submitReassign} disabled={reassignForm.processing || !reassignForm.data.new_user_id}>
                                 Reassign Journal
                             </Button>
                         </DialogFooter>

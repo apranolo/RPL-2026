@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Schema;
  * - Make e_issn and oai_pmh_url NOT NULLable (with default empty string)
  * - Drop deprecated columns (accreditation_grade, accreditation_status, sinta_indexed_date)
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         // Step 1: Add new columns

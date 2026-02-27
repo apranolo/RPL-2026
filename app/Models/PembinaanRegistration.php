@@ -153,9 +153,16 @@ class PembinaanRegistration extends Model
 
     /**
      * Scope to filter by university
+     *
+     * Accepts nullable int to prevent TypeError when user has no university assigned.
+     * Returns empty result set when universityId is null to avoid data leakage.
      */
-    public function scopeForUniversity($query, int $universityId)
+    public function scopeForUniversity($query, ?int $universityId)
     {
+        if (is_null($universityId)) {
+            return $query->whereRaw('1 = 0');
+        }
+
         return $query->whereHas('journal', function ($q) use ($universityId) {
             $q->where('university_id', $universityId);
         });

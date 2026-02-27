@@ -3,10 +3,6 @@
 use App\Models\AccreditationTemplate;
 use App\Models\EssayQuestion;
 use App\Models\EvaluationCategory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-
-uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     $this->template = AccreditationTemplate::create([
