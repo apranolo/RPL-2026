@@ -1,8 +1,8 @@
 /**
  * Journal Show/Detail Page - Admin Kampus
  *
- * @description Display journal details and all assessments (read-only)
- * @features View journal info, list assessments, view assessment details, download attachments
+ * @description Display journal details, OAI-PMH harvest controls, and all assessments (read-only)
+ * @features View journal info, trigger OAI harvest via queue, list assessments
  * @route GET /admin-kampus/journals/{id}
  */
 import { AccreditationBadge, IndexationBadge, SintaBadge } from '@/components/badges';
@@ -10,8 +10,27 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowLeft, Bookmark, BookOpen, Building2, Calendar, ExternalLink, FileText, Globe, Mail, User } from 'lucide-react';
+import { type OaiHarvestingLog } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import {
+    AlertCircle,
+    ArrowLeft,
+    Bookmark,
+    BookOpen,
+    Building2,
+    Calendar,
+    CheckCircle2,
+    Clock,
+    Database,
+    ExternalLink,
+    FileText,
+    Globe,
+    Mail,
+    RefreshCw,
+    User,
+    XCircle,
+} from 'lucide-react';
+import { useState } from 'react';
 
 interface University {
     id: number;
@@ -74,6 +93,8 @@ interface Journal {
     // Indexations
     indexations?: Record<string, { indexed_at: string }> | null;
     indexation_labels?: string[];
+    // OAI-PMH
+    oai_pmh_url?: string | null;
     is_active: boolean;
     created_at: string;
     updated_at: string;
@@ -85,16 +106,31 @@ interface Journal {
 
 interface Props {
     journal: Journal;
+    articlesCount: number;
+    lastHarvestLog: OaiHarvestingLog | null;
+    isHarvestPending: boolean;
 }
 
-export default function JournalShow({ journal }: Props) {
+export default function JournalShow({ journal, articlesCount, lastHarvestLog, isHarvestPending }: Props) {
     const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
+    const [harvesting, setHarvesting] = useState(false);
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
         { title: 'Journals', href: route('admin-kampus.journals.index') },
         { title: journal.title, href: route('admin-kampus.journals.show', journal.id) },
     ];
+
+    const handleHarvest = () => {
+        setHarvesting(true);
+        router.post(
+            route('admin-kampus.journals.harvest', journal.id),
+            {},
+            {
+                onFinish: () => setHarvesting(false),
+            },
+        );
+    };
 
     const getStatusBadge = (assessment: Assessment) => {
         const variants: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
@@ -316,6 +352,145 @@ export default function JournalShow({ journal }: Props) {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* OAI-PMH Harvest Section */}
+                    <div className="mb-8 overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                        <div className="flex items-center justify-between border-b border-sidebar-border/70 p-6 dark:border-sidebar-border">
+                            <div className="flex items-center gap-2">
+                                <Database className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                <h3 className="text-lg font-semibold text-foreground">Artikel OAI-PMH</h3>
+                                <Badge variant="secondary" className="ml-1">
+                                    {articlesCount} artikel
+                                </Badge>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {isHarvestPending && (
+                                    <span className="flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-400">
+                                        <Clock className="h-4 w-4 animate-pulse" />
+                                        Dalam antrian...
+                                    </span>
+                                )}
+                                <Button
+                                    onClick={handleHarvest}
+                                    disabled={harvesting || isHarvestPending || !journal.oai_pmh_url}
+                                    size="sm"
+                                    className="gap-2"
+                                    title={!journal.oai_pmh_url ? 'Tambahkan OAI-PMH URL di form edit jurnal terlebih dahulu' : 'Sync artikel dari OAI-PMH endpoint'}
+                                >
+                                    <RefreshCw className={`h-4 w-4 ${harvesting ? 'animate-spin' : ''}`} />
+                                    {harvesting ? 'Mengirim...' : isHarvestPending ? 'Antrian Aktif' : 'Sync Artikel'}
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div className="p-6">
+                            {/* OAI-PMH URL */}
+                            {journal.oai_pmh_url ? (
+                                <div className="mb-4 flex items-start gap-2 rounded-md bg-muted/50 p-3 text-sm">
+                                    <Globe className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                                    <div>
+                                        <span className="text-muted-foreground">OAI-PMH Endpoint: </span>
+                                        <a
+                                            href={journal.oai_pmh_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="break-all font-mono text-blue-600 hover:underline dark:text-blue-400"
+                                        >
+                                            {journal.oai_pmh_url}
+                                            <ExternalLink className="ml-1 inline h-3 w-3" />
+                                        </a>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="mb-4 flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+                                    <AlertCircle className="h-4 w-4 shrink-0" />
+                                    <span>
+                                        OAI-PMH URL belum dikonfigurasi. Tambahkan melalui{' '}
+                                        <Link
+                                            href={route('admin-kampus.journals.edit', journal.id)}
+                                            className="font-medium underline"
+                                        >
+                                            form edit jurnal
+                                        </Link>
+                                        .
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Last harvest log */}
+                            {lastHarvestLog ? (
+                                <div className="space-y-3">
+                                    <p className="text-sm font-medium text-foreground">Riwayat Harvest Terakhir</p>
+                                    <div className="flex flex-wrap items-center gap-4 rounded-md border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                                        {/* Status */}
+                                        <div className="flex items-center gap-1.5 text-sm">
+                                            {lastHarvestLog.status === 'success' && (
+                                                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                            )}
+                                            {lastHarvestLog.status === 'partial' && (
+                                                <AlertCircle className="h-4 w-4 text-amber-500" />
+                                            )}
+                                            {lastHarvestLog.status === 'failed' && (
+                                                <XCircle className="h-4 w-4 text-red-500" />
+                                            )}
+                                            <Badge
+                                                variant={
+                                                    lastHarvestLog.status === 'success'
+                                                        ? 'outline'
+                                                        : lastHarvestLog.status === 'partial'
+                                                          ? 'default'
+                                                          : 'destructive'
+                                                }
+                                                className={
+                                                    lastHarvestLog.status === 'success'
+                                                        ? 'border-green-300 text-green-700 dark:text-green-400'
+                                                        : ''
+                                                }
+                                            >
+                                                {lastHarvestLog.status === 'success'
+                                                    ? 'Berhasil'
+                                                    : lastHarvestLog.status === 'partial'
+                                                      ? 'Sebagian'
+                                                      : 'Gagal'}
+                                            </Badge>
+                                        </div>
+
+                                        {/* Stats */}
+                                        <div className="flex gap-4 text-sm text-muted-foreground">
+                                            <span>
+                                                Ditemukan:{' '}
+                                                <span className="font-medium text-foreground">{lastHarvestLog.records_found}</span>
+                                            </span>
+                                            <span>
+                                                Diimpor:{' '}
+                                                <span className="font-medium text-foreground">{lastHarvestLog.records_imported}</span>
+                                            </span>
+                                        </div>
+
+                                        {/* Timestamp */}
+                                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                            <Clock className="h-3.5 w-3.5" />
+                                            {new Date(lastHarvestLog.harvested_at).toLocaleString('id-ID', {
+                                                dateStyle: 'medium',
+                                                timeStyle: 'short',
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* Error message */}
+                                    {lastHarvestLog.status === 'failed' && lastHarvestLog.error_message && (
+                                        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+                                            <span className="font-medium">Error:</span> {lastHarvestLog.error_message}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    Belum pernah di-harvest. Klik <strong>Sync Artikel</strong> untuk memulai.
+                                </p>
+                            )}
                         </div>
                     </div>
 
