@@ -320,6 +320,10 @@ Route::middleware(['auth'])->group(function () {
             // Journal reassignment
             Route::post('{journal}/reassign', [\App\Http\Controllers\AdminKampus\JournalController::class, 'reassign'])
                 ->name('reassign');
+
+            // OAI-PMH Article Harvest (dispatches to queue)
+            Route::post('{journal}/harvest', [\App\Http\Controllers\AdminKampus\JournalController::class, 'harvest'])
+                ->name('harvest');
         });
 
         // View journals from their university
