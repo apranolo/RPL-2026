@@ -44,15 +44,13 @@ class JournalSeeder extends Seeder
                 'scientific_field_id' => $compFieldId,
 
                 // SINTA
-                'sinta_rank' => 3,
-                'sinta_indexed_date' => '2020-06-15',
+                'sinta_rank' => 'sinta_3',
 
                 // Dikti Accreditation
-                'accreditation_status' => 'Terakreditasi',
-                'accreditation_grade' => 'S3',
-                'dikti_accreditation_number' => '105/E/KPT/2023',
-                'accreditation_issued_date' => '2023-03-15',
-                'accreditation_expiry_date' => '2028-03-14', // Valid (5 years)
+                'accreditation_start_year' => 2023,
+                'accreditation_end_year' => 2028,
+                'accreditation_sk_number' => '105/E/KPT/2023',
+                'accreditation_sk_date' => '2023-03-15', // Valid (5 years)
 
                 // Indexations (SINTA 3 → DOAJ + Google Scholar + Garuda)
                 'indexations' => json_encode([
@@ -80,15 +78,13 @@ class JournalSeeder extends Seeder
                 'scientific_field_id' => $eduFieldId,
 
                 // SINTA
-                'sinta_rank' => 4,
-                'sinta_indexed_date' => '2021-09-10',
+                'sinta_rank' => 'sinta_4',
 
                 // Dikti Accreditation (Expiring Soon - 25 days left)
-                'accreditation_status' => 'Terakreditasi',
-                'accreditation_grade' => 'S4',
-                'dikti_accreditation_number' => '087/E/KPT/2020',
-                'accreditation_issued_date' => '2020-02-20',
-                'accreditation_expiry_date' => now()->addDays(25)->format('Y-m-d'), // Expiring soon
+                'accreditation_start_year' => 2020,
+                'accreditation_end_year' => 2026, // Expiring soon
+                'accreditation_sk_number' => '087/E/KPT/2020',
+                'accreditation_sk_date' => '2020-02-20',
 
                 // Indexations (SINTA 4 → Google Scholar + Garuda)
                 'indexations' => json_encode([
@@ -117,15 +113,13 @@ class JournalSeeder extends Seeder
                 'scientific_field_id' => $ecoFieldId,
 
                 // SINTA
-                'sinta_rank' => 2,
-                'sinta_indexed_date' => '2019-04-10',
+                'sinta_rank' => 'sinta_2',
 
                 // Dikti Accreditation
-                'accreditation_status' => 'Terakreditasi',
-                'accreditation_grade' => 'S2',
-                'dikti_accreditation_number' => '042/E/KPT/2022',
-                'accreditation_issued_date' => '2022-07-10',
-                'accreditation_expiry_date' => '2027-07-09', // Valid
+                'accreditation_start_year' => 2022,
+                'accreditation_end_year' => 2027,
+                'accreditation_sk_number' => '042/E/KPT/2022',
+                'accreditation_sk_date' => '2022-07-10', // Valid
 
                 // Indexations (SINTA 2 → Scopus + WoS + DOAJ + Google Scholar)
                 'indexations' => json_encode([
@@ -155,15 +149,13 @@ class JournalSeeder extends Seeder
                 'scientific_field_id' => $medFieldId,
 
                 // SINTA
-                'sinta_rank' => 3,
-                'sinta_indexed_date' => '2020-11-05',
+                'sinta_rank' => 'sinta_3',
 
                 // Dikti Accreditation (Expired 30 days ago)
-                'accreditation_status' => 'Terakreditasi',
-                'accreditation_grade' => 'S3',
-                'dikti_accreditation_number' => '061/E/KPT/2019',
-                'accreditation_issued_date' => '2019-12-15',
-                'accreditation_expiry_date' => now()->subDays(30)->format('Y-m-d'), // Expired
+                'accreditation_start_year' => 2019,
+                'accreditation_end_year' => 2025, // Expired
+                'accreditation_sk_number' => '061/E/KPT/2019',
+                'accreditation_sk_date' => '2019-12-15',
 
                 // Indexations (SINTA 3 → DOAJ + Google Scholar + Copernicus)
                 'indexations' => json_encode([
@@ -194,15 +186,13 @@ class JournalSeeder extends Seeder
                 'scientific_field_id' => $engFieldId,
 
                 // SINTA
-                'sinta_rank' => 4,
-                'sinta_indexed_date' => '2021-05-20',
+                'sinta_rank' => 'sinta_4',
 
                 // Dikti Accreditation
-                'accreditation_status' => 'Terakreditasi',
-                'accreditation_grade' => 'S4',
-                'dikti_accreditation_number' => '098/E/KPT/2021',
-                'accreditation_issued_date' => '2021-10-05',
-                'accreditation_expiry_date' => '2026-10-04', // Valid
+                'accreditation_start_year' => 2021,
+                'accreditation_end_year' => 2026,
+                'accreditation_sk_number' => '098/E/KPT/2021',
+                'accreditation_sk_date' => '2021-10-05', // Valid
 
                 // Indexations (SINTA 4 → DOAJ + Google Scholar)
                 'indexations' => json_encode([

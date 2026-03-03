@@ -7,6 +7,7 @@ use App\Http\Requests\ImportJournalRequest;
 use App\Http\Requests\StoreJournalRequest;
 use App\Http\Requests\UpdateJournalRequest;
 use App\Imports\JournalsImport;
+use App\Jobs\HarvestJournalArticlesJob;
 use App\Models\Journal;
 use App\Models\Role;
 use App\Models\ScientificField;
@@ -342,6 +343,23 @@ class JournalController extends Controller
             },
         ]);
 
+        // OAI-PMH: fetch last harvest log
+        $lastHarvestLog = DB::table('oai_harvesting_logs')
+            ->where('journal_id', $journal->id)
+            ->orderByDesc('harvested_at')
+            ->first();
+
+        // OAI-PMH: check for pending queue job (best-effort UI hint; ShouldBeUnique on the job
+        // is the authoritative duplicate prevention mechanism).
+        // PHP-serialized integer i:X; is how the journal ID appears in the payload command string.
+        $isHarvestPending = DB::table('jobs')
+            ->where('queue', 'harvesting')
+            ->where('payload', 'like', '%HarvestJournalArticlesJob%')
+            ->where('payload', 'like', '%i:'.$journal->id.';%')
+            ->exists();
+
+        $articlesCount = $journal->articles()->count();
+
         return Inertia::render('AdminKampus/Journals/Show', [
             'journal' => [
                 'id' => $journal->id,
@@ -370,6 +388,9 @@ class JournalController extends Controller
                 // Indexations
                 'indexations' => $journal->indexations,
                 'indexation_labels' => $journal->indexation_labels,
+
+                // OAI-PMH
+                'oai_pmh_url' => $journal->oai_pmh_url,
 
                 'is_active' => $journal->is_active,
                 'created_at' => $journal->created_at->format('Y-m-d H:i'),
@@ -407,7 +428,36 @@ class JournalController extends Controller
                     ],
                 ]),
             ],
+            'articlesCount' => $articlesCount,
+            'lastHarvestLog' => $lastHarvestLog ? (array) $lastHarvestLog : null,
+            'isHarvestPending' => $isHarvestPending,
         ]);
+    }
+
+    /**
+     * Dispatch OAI-PMH harvest job to the queue.
+     *
+     * @route POST /admin-kampus/journals/{journal}/harvest
+     *
+     * @features Dispatch background job to harvest articles from OAI-PMH endpoint
+     */
+    public function harvest(Journal $journal): RedirectResponse
+    {
+        $this->authorize('update', $journal);
+
+        if (empty($journal->oai_pmh_url)) {
+            return redirect()
+                ->route('admin-kampus.journals.show', $journal)
+                ->with('error', 'Jurnal ini belum memiliki OAI-PMH URL. Tambahkan URL-nya terlebih dahulu melalui form edit jurnal.');
+        }
+
+        // ShouldBeUnique on the job prevents duplicate dispatches silently.
+        // Dispatch — if an identical job is already queued, Laravel discards this one.
+        HarvestJournalArticlesJob::dispatch($journal)->onQueue('harvesting');
+
+        return redirect()
+            ->route('admin-kampus.journals.show', $journal)
+            ->with('success', 'Harvest artikel dijadwalkan. Proses berjalan di background — silakan refresh halaman beberapa saat kemudian untuk melihat hasilnya.');
     }
 
     /**

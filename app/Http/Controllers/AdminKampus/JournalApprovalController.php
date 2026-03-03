@@ -28,7 +28,7 @@ class JournalApprovalController extends Controller
         $query = Journal::query()
             ->where('university_id', auth()->user()->university_id)
             ->where('approval_status', 'pending')
-            ->with(['user', 'scientific_field', 'university']);
+            ->with(['user', 'scientificField', 'university']);
 
         // Search filter
         if ($request->filled('search')) {

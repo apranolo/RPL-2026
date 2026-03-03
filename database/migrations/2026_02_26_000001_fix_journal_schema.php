@@ -9,20 +9,25 @@ return new class extends Migration
     /**
      * Run the migrations.
      *
-     * Cleans up three stale Dikti accreditation columns that are no longer used
-     * by the application. All new columns (accreditation_start_year, *_end_year,
-     * *_sk_number, *_sk_date, cover_image) and the sinta_rank type change (varchar)
-     * were already applied to this database outside of migration tracking.
+     * Drops three stale Dikti accreditation columns that were removed from the
+     * application model. These were added by the Jan-24 indexation migration and
+     * superseded by the accreditation_start/end_year + sk_number/sk_date model
+     * introduced in the Feb-11 simplify migration.
+     *
+     * Column existence is checked to make the migration idempotent for databases
+     * where the columns may already have been dropped manually.
      */
     public function up(): void
     {
         Schema::table('journals', function (Blueprint $table) {
-            // Drop stale Dikti accreditation columns — replaced by sk_number/sk_date
-            $table->dropColumn([
-                'dikti_accreditation_number',
-                'accreditation_issued_date',
-                'accreditation_expiry_date',
-            ]);
+            $columnsToDrop = array_filter(
+                ['dikti_accreditation_number', 'accreditation_issued_date', 'accreditation_expiry_date'],
+                fn ($col) => Schema::hasColumn('journals', $col)
+            );
+
+            if (! empty($columnsToDrop)) {
+                $table->dropColumn(array_values($columnsToDrop));
+            }
         });
     }
 
@@ -32,9 +37,15 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('journals', function (Blueprint $table) {
-            $table->string('dikti_accreditation_number', 50)->nullable();
-            $table->date('accreditation_issued_date')->nullable();
-            $table->date('accreditation_expiry_date')->nullable();
+            if (! Schema::hasColumn('journals', 'dikti_accreditation_number')) {
+                $table->string('dikti_accreditation_number', 50)->nullable();
+            }
+            if (! Schema::hasColumn('journals', 'accreditation_issued_date')) {
+                $table->date('accreditation_issued_date')->nullable();
+            }
+            if (! Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+                $table->date('accreditation_expiry_date')->nullable();
+            }
         });
     }
 };

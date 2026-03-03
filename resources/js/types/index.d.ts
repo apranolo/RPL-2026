@@ -133,6 +133,16 @@ export interface Article {
     updated_at: string;
 }
 
+export interface OaiHarvestingLog {
+    id: number;
+    journal_id: number;
+    harvested_at: string;
+    records_found: number;
+    records_imported: number;
+    status: 'success' | 'partial' | 'failed';
+    error_message?: string | null;
+}
+
 export interface Journal {
     id: number;
     title: string;

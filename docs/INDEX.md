@@ -36,6 +36,7 @@ Dokumentasi fitur-fitur dan implementasinya
 - **OAI-PMH & Scraper**
   - `OAI_PMH_IMPLEMENTATION.md`
   - `OAI_PMH_IMPLEMENTATION_SUMMARY.md`
+  - `OAI_PMH_HARVEST_QUEUE.md` - ✨ **NEW** Harvest button + queue di dashboard Admin Kampus
   - `SCRAPER_QUICK_REFERENCE.md`
 
 - **Pembinaan**
@@ -54,6 +55,7 @@ Dokumentasi fitur-fitur dan implementasinya
 Panduan setup, deployment, dan automation
 - `PRODUCTION_MIGRATION_GUIDE.md` - Panduan migrasi ke production
 - `PR_AUTOMATION_FLOW.md` - Workflow automation GitHub Actions
+- `QUEUE_WORKER_PRODUCTION.md` - ✨ **NEW** Setup Supervisor + Queue Worker di production server
 
 ### 🧪 [testing](./testing/)
 Dokumentasi testing dan quality assurance
@@ -112,4 +114,4 @@ Screenshot dan dokumentasi visual
 
 ---
 
-**Last Updated**: February 2026
+**Last Updated**: Maret 2026
