@@ -26,17 +26,16 @@ class JournalCoverService
     /**
      * Upload a new cover image for a journal.
      *
-     * Deletes the existing local cover (if any) before storing the new one.
+     * Stores the new cover and, on success, deletes the existing local cover (if any).
      * Returns the public URL path (e.g. "/storage/journal-covers/cover_1_xxx.jpg").
      */
     public function upload(UploadedFile $file, Journal $journal): string
     {
-        // Delete the old local cover file if it exists
-        $this->deleteExisting($journal);
-
         $filename = 'cover_' . $journal->id . '_' . time() . '.' . $file->extension();
         $path = $file->storeAs(self::STORAGE_DIR, $filename, self::DISK);
 
+        // Delete the old local cover file if it exists, now that the new one is stored
+        $this->deleteExisting($journal);
         return '/storage/' . $path;
     }
 
