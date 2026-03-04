@@ -49,11 +49,21 @@ use Inertia\Inertia;
 | so this route is never reached and adds zero overhead.
 */
 Route::get('/storage/{path}', function (string $path) {
-    if (! Storage::disk('public')->exists($path)) {
-        abort(404);
+    // Basic path hardening: reject traversal, backslashes, and absolute paths
+    if (str_contains($path, '..') || str_contains($path, '\\') || str_starts_with($path, '/')) {
+        abort(400);
     }
 
-    return Storage::disk('public')->response($path);
+    try {
+        if (! Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->response($path);
+    } catch (\Throwable $e) {
+        // Avoid leaking storage layer errors
+        abort(404);
+    }
 })->where('path', '.+')->name('storage.serve');
 
 
