@@ -131,7 +131,7 @@ export function JournalCoverUpload({ currentCover, onChange, error }: JournalCov
                             type="button"
                             onClick={clearFile}
                             className="absolute top-2 right-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
-                            aria-label="Hapus cover"
+                            aria-label="Batalkan pilihan cover"
                         >
                             <X className="h-3.5 w-3.5" />
                         </button>
