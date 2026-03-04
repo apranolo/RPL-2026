@@ -34,50 +34,80 @@ class OAIPMHHarvester
 
         try {
             $url = $this->buildListRecordsUrl($journal->oai_pmh_url, $fromDate);
-            $response = Http::timeout(30)->get($url);
+            $pageCount = 0;
+            $maxPages = 500; // Safety cap to prevent infinite loops
 
-            if (! $response->successful()) {
-                throw new \Exception("Failed to harvest from OAI-PMH endpoint: HTTP {$response->status()}");
-            }
+            // Loop through all pages using OAI-PMH resumption tokens
+            while ($url !== null && $pageCount < $maxPages) {
+                $pageCount++;
 
-            // Suppress XML errors and handle them gracefully
-            libxml_use_internal_errors(true);
-            $xml = simplexml_load_string($response->body());
+                $response = Http::timeout(60)->get($url);
 
-            if ($xml === false) {
-                $errors = libxml_get_errors();
-                libxml_clear_errors();
-                $errorMessage = 'Failed to parse XML response';
-                if (! empty($errors)) {
-                    $errorMessage .= ': '.$errors[0]->message;
+                if (! $response->successful()) {
+                    throw new \Exception("Failed to harvest from OAI-PMH endpoint: HTTP {$response->status()}");
                 }
-                throw new \Exception($errorMessage);
+
+                // Suppress XML errors and handle them gracefully
+                libxml_use_internal_errors(true);
+                $xml = simplexml_load_string($response->body());
+
+                if ($xml === false) {
+                    $errors = libxml_get_errors();
+                    libxml_clear_errors();
+                    $errorMessage = 'Failed to parse XML response';
+                    if (! empty($errors)) {
+                        $errorMessage .= ': '.$errors[0]->message;
+                    }
+                    throw new \Exception($errorMessage);
+                }
+
+                // Register OAI namespaces
+                $xml->registerXPathNamespace('oai', 'http://www.openarchives.org/OAI/2.0/');
+                $xml->registerXPathNamespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/');
+                $xml->registerXPathNamespace('dc', 'http://purl.org/dc/elements/1.1/');
+
+                // Extract and process records from this page
+                $records = $xml->xpath('//oai:record');
+
+                if (! empty($records)) {
+                    $stats['records_found'] += count($records);
+
+                    foreach ($records as $record) {
+                        try {
+                            $this->processRecord($journal, $record, $stats);
+                        } catch (\Exception $e) {
+                            $stats['errors'][] = $e->getMessage();
+                            Log::error("Error processing OAI record: {$e->getMessage()}");
+                        }
+                    }
+                }
+
+                // Check for a resumption token to determine if there are more pages
+                $resumptionTokenNodes = $xml->xpath('//oai:resumptionToken');
+                $resumptionToken = null;
+
+                if (! empty($resumptionTokenNodes)) {
+                    $token = trim((string) $resumptionTokenNodes[0]);
+                    if ($token !== '') {
+                        $resumptionToken = $token;
+                    }
+                }
+
+                if ($resumptionToken) {
+                    // Fetch next page using the resumption token
+                    $url = $this->buildResumptionUrl($journal->oai_pmh_url, $resumptionToken);
+                    Log::info("Harvesting page {$pageCount} for journal: {$journal->title} (resumptionToken: {$resumptionToken})");
+                } else {
+                    $url = null; // No more pages
+                }
             }
 
-            // Register OAI namespaces
-            $xml->registerXPathNamespace('oai', 'http://www.openarchives.org/OAI/2.0/');
-            $xml->registerXPathNamespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/');
-            $xml->registerXPathNamespace('dc', 'http://purl.org/dc/elements/1.1/');
+            if ($pageCount >= $maxPages) {
+                Log::warning("Harvest for journal '{$journal->title}' reached the max page limit ({$maxPages}). Some records may not have been imported.");
+            }
 
-            // Extract records from XML
-            $records = $xml->xpath('//oai:record');
-
-            if (empty($records)) {
+            if ($stats['records_found'] === 0) {
                 Log::info("No records found for journal: {$journal->title}");
-
-                return $stats;
-            }
-
-            $stats['records_found'] = count($records);
-
-            // Process each record
-            foreach ($records as $record) {
-                try {
-                    $this->processRecord($journal, $record, $stats);
-                } catch (\Exception $e) {
-                    $stats['errors'][] = $e->getMessage();
-                    Log::error("Error processing OAI record: {$e->getMessage()}");
-                }
             }
 
             // Log harvesting activity
@@ -90,7 +120,7 @@ class OAIPMHHarvester
                 'error_message' => empty($stats['errors']) ? null : implode('; ', $stats['errors']),
             ]);
 
-            Log::info("Harvested {$stats['records_imported']} articles for journal: {$journal->title}");
+            Log::info("Harvested {$stats['records_imported']} articles for journal: {$journal->title} ({$pageCount} page(s) fetched)");
 
             return $stats;
 
@@ -313,12 +343,13 @@ class OAIPMHHarvester
             $data['issue'] = $matches[2];
         }
 
-        // Pattern: "5(1)" or "5 (1)"
+        // Pattern: "5(1)" or "5 (1)" — only treat the parenthesised number as an issue if it
+        // is NOT a 4-digit year (e.g. "Vol. 1 (2026)" must NOT yield issue = 2026)
         if (preg_match('/(\d+)\s*\((\d+)\)/', $source, $matches)) {
             if (! $data['volume']) {
                 $data['volume'] = $matches[1];
             }
-            if (! $data['issue']) {
+            if (! $data['issue'] && (int) $matches[2] < 1000) {
                 $data['issue'] = $matches[2];
             }
         }
@@ -347,5 +378,19 @@ class OAIPMHHarvester
         $baseUrl = rtrim($baseUrl, '/');
 
         return $baseUrl.'?'.http_build_query($params);
+    }
+
+    /**
+     * Build the URL to fetch the next page of records using a resumption token.
+     * Per OAI-PMH spec, resumption token requests must NOT include metadataPrefix.
+     */
+    protected function buildResumptionUrl(string $baseUrl, string $resumptionToken): string
+    {
+        $baseUrl = rtrim($baseUrl, '/');
+
+        return $baseUrl.'?'.http_build_query([
+            'verb' => 'ListRecords',
+            'resumptionToken' => $resumptionToken,
+        ]);
     }
 }
