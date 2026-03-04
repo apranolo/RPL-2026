@@ -7,9 +7,9 @@
  *
  * @route PUT /admin-kampus/journals/{id}
  */
+import { JournalCoverUpload } from '@/components/JournalCoverUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { JournalCoverUpload } from '@/components/JournalCoverUpload';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';

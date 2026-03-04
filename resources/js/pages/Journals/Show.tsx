@@ -41,13 +41,8 @@ export default function JournalsShow() {
 
     // Dynamic year range from article data
     const minYear =
-        articlesByYear.length > 0
-            ? Math.min(...articlesByYear.map((d) => d.year))
-            : (journal.first_published_year ?? new Date().getFullYear() - 5);
-    const maxYear =
-        articlesByYear.length > 0
-            ? Math.max(...articlesByYear.map((d) => d.year))
-            : new Date().getFullYear();
+        articlesByYear.length > 0 ? Math.min(...articlesByYear.map((d) => d.year)) : (journal.first_published_year ?? new Date().getFullYear() - 5);
+    const maxYear = articlesByYear.length > 0 ? Math.max(...articlesByYear.map((d) => d.year)) : new Date().getFullYear();
 
     // Chart Configuration for "Articles Per Year"
     const chartOptions: ApexCharts.ApexOptions = {
@@ -178,7 +173,11 @@ export default function JournalsShow() {
                         <div className="overflow-hidden rounded-xl border bg-card shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
                             <div className="aspect-[3/4] w-full bg-muted dark:bg-muted">
                                 {journal.cover_image || journal.cover_image_url ? (
-                                    <img src={journal.cover_image ?? journal.cover_image_url} alt={journal.title} className="h-full w-full object-cover" />
+                                    <img
+                                        src={journal.cover_image ?? journal.cover_image_url}
+                                        alt={journal.title}
+                                        className="h-full w-full object-cover"
+                                    />
                                 ) : (
                                     <div className="flex h-full items-center justify-center">
                                         <BookOpen className="h-16 w-16 text-gray-300" />
@@ -348,7 +347,7 @@ export default function JournalsShow() {
                         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                             {journal.frequency_label && (
                                 <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
-                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                         <Calendar className="h-3.5 w-3.5" />
                                         Frequency
                                     </div>
@@ -357,7 +356,7 @@ export default function JournalsShow() {
                             )}
                             {journal.first_published_year && (
                                 <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
-                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                         <Info className="h-3.5 w-3.5" />
                                         Since
                                     </div>
@@ -366,7 +365,7 @@ export default function JournalsShow() {
                             )}
                             {(journal.accreditation_start_year || journal.accreditation_end_year) && (
                                 <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
-                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                         <BadgeCheck className="h-3.5 w-3.5" />
                                         Accreditation Period
                                     </div>
@@ -377,11 +376,11 @@ export default function JournalsShow() {
                             )}
                             {journal.accreditation_sk_number && (
                                 <div className="col-span-2 rounded-xl border bg-card p-4 shadow-sm sm:col-span-1 dark:border-border dark:bg-card">
-                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                                         <FileText className="h-3.5 w-3.5" />
                                         SK Number
                                     </div>
-                                    <p className="break-all text-xs font-medium text-foreground">{journal.accreditation_sk_number}</p>
+                                    <p className="text-xs font-medium break-all text-foreground">{journal.accreditation_sk_number}</p>
                                 </div>
                             )}
                         </div>
@@ -452,116 +451,121 @@ export default function JournalsShow() {
                                         <>
                                             <p className="text-sm font-semibold text-foreground">No articles matched your filter</p>
                                             <p className="max-w-xs text-xs text-muted-foreground">Try adjusting your search or filter criteria</p>
-                                            <button onClick={clearFilters} className="mt-1 text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80">
+                                            <button
+                                                onClick={clearFilters}
+                                                className="mt-1 text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80"
+                                            >
                                                 Clear all filters
                                             </button>
                                         </>
                                     ) : (
                                         <>
                                             <p className="text-sm font-semibold text-foreground">No articles available yet</p>
-                                            <p className="max-w-xs text-xs text-muted-foreground">Articles will appear here once they are harvested from the journal source.</p>
+                                            <p className="max-w-xs text-xs text-muted-foreground">
+                                                Articles will appear here once they are harvested from the journal source.
+                                            </p>
                                         </>
                                     )}
                                 </div>
                             ) : (
                                 articles.data.map((article) => (
-                                <div
-                                    key={article.id}
-                                    className="group rounded-xl border bg-card p-6 shadow-sm transition-all hover:border-primary hover:shadow-lg dark:border-border dark:bg-card dark:hover:border-primary"
-                                >
-                                    {article.article_url ? (
-                                        <a
-                                            href={article.article_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="mb-2 block text-lg font-bold text-primary decoration-2 underline-offset-2 transition-colors hover:text-primary/80 hover:underline"
-                                        >
-                                            {article.title}
-                                        </a>
-                                    ) : (
-                                        <span className="mb-2 block text-lg font-bold text-foreground">{article.title}</span>
-                                    )}
-
-                                    <div className="mb-2 text-xs text-muted-foreground">{article.authors_list || 'Unknown Author'}</div>
-
-                                    <div className="mb-3 text-xs text-muted-foreground/80 italic">
-                                        {journal.title}; Vol {article.volume || 0} No {article.issue || 0} (
-                                        {new Date(article.publication_date).getFullYear()}); {article.pages ? `pp. ${article.pages}` : ''}
-                                    </div>
-
-                                    <div className="mb-4 flex items-center gap-4 text-xs">
-                                        <span className="text-muted-foreground">Publisher: {journal.university.name}</span>
-                                    </div>
-
-                                    <div className="flex flex-wrap gap-2 text-xs">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-6 px-0 text-primary transition-colors hover:text-primary/80"
-                                            onClick={() => {
-                                                const el = document.getElementById(`abs-${article.id}`);
-                                                if (el) el.classList.toggle('hidden');
-                                            }}
-                                        >
-                                            Show Abstract
-                                        </Button>
-                                        <span className="text-border">|</span>
-                                        {article.pdf_url && (
+                                    <div
+                                        key={article.id}
+                                        className="group rounded-xl border bg-card p-6 shadow-sm transition-all hover:border-primary hover:shadow-lg dark:border-border dark:bg-card dark:hover:border-primary"
+                                    >
+                                        {article.article_url ? (
                                             <a
-                                                href={article.pdf_url}
+                                                href={article.article_url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
+                                                className="mb-2 block text-lg font-bold text-primary decoration-2 underline-offset-2 transition-colors hover:text-primary/80 hover:underline"
                                             >
-                                                <Download className="h-3 w-3" /> Download Original
+                                                {article.title}
                                             </a>
+                                        ) : (
+                                            <span className="mb-2 block text-lg font-bold text-foreground">{article.title}</span>
                                         )}
-                                        {article.article_url && (
-                                            <>
-                                                <span className="text-border">|</span>
+
+                                        <div className="mb-2 text-xs text-muted-foreground">{article.authors_list || 'Unknown Author'}</div>
+
+                                        <div className="mb-3 text-xs text-muted-foreground/80 italic">
+                                            {journal.title}; Vol {article.volume || 0} No {article.issue || 0} (
+                                            {new Date(article.publication_date).getFullYear()}); {article.pages ? `pp. ${article.pages}` : ''}
+                                        </div>
+
+                                        <div className="mb-4 flex items-center gap-4 text-xs">
+                                            <span className="text-muted-foreground">Publisher: {journal.university.name}</span>
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2 text-xs">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-6 px-0 text-primary transition-colors hover:text-primary/80"
+                                                onClick={() => {
+                                                    const el = document.getElementById(`abs-${article.id}`);
+                                                    if (el) el.classList.toggle('hidden');
+                                                }}
+                                            >
+                                                Show Abstract
+                                            </Button>
+                                            <span className="text-border">|</span>
+                                            {article.pdf_url && (
                                                 <a
-                                                    href={article.article_url}
+                                                    href={article.pdf_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
                                                 >
-                                                    Original Source
+                                                    <Download className="h-3 w-3" /> Download Original
                                                 </a>
-                                            </>
-                                        )}
-                                        <span className="text-border">|</span>
-                                        <a
-                                            href={article.google_scholar_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
-                                        >
-                                            Check in Google Scholar
-                                        </a>
-                                    </div>
+                                            )}
+                                            {article.article_url && (
+                                                <>
+                                                    <span className="text-border">|</span>
+                                                    <a
+                                                        href={article.article_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
+                                                    >
+                                                        Original Source
+                                                    </a>
+                                                </>
+                                            )}
+                                            <span className="text-border">|</span>
+                                            <a
+                                                href={article.google_scholar_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
+                                            >
+                                                Check in Google Scholar
+                                            </a>
+                                        </div>
 
-                                    <div
-                                        id={`abs-${article.id}`}
-                                        className="mt-4 hidden rounded-lg border border-border bg-muted p-4 text-sm text-foreground shadow-inner dark:border-border dark:bg-muted"
-                                    >
-                                        <h4 className="mb-1 font-bold">Abstract</h4>
-                                        {article.abstract || 'No abstract available.'}
+                                        <div
+                                            id={`abs-${article.id}`}
+                                            className="mt-4 hidden rounded-lg border border-border bg-muted p-4 text-sm text-foreground shadow-inner dark:border-border dark:bg-muted"
+                                        >
+                                            <h4 className="mb-1 font-bold">Abstract</h4>
+                                            {article.abstract || 'No abstract available.'}
+                                        </div>
                                     </div>
-                                </div>
-                            ))
+                                ))
                             )}
 
                             {/* Pagination */}
                             {articles.data.length > 0 && (
                                 <div className="flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
                                     <span>
-                                        Showing{' '}
-                                        <span className="font-semibold text-foreground">{articles.from ?? 0}</span>–
-                                        <span className="font-semibold text-foreground">{articles.to ?? 0}</span>{' '}
-                                        of{' '}
+                                        Showing <span className="font-semibold text-foreground">{articles.from ?? 0}</span>–
+                                        <span className="font-semibold text-foreground">{articles.to ?? 0}</span> of{' '}
                                         <span className="font-semibold text-foreground">{articles.total}</span> articles
                                     </span>
-                                    <span>Page {articles.current_page} of {articles.last_page}</span>
+                                    <span>
+                                        Page {articles.current_page} of {articles.last_page}
+                                    </span>
                                 </div>
                             )}
                             {articles.last_page > 1 && (
@@ -569,7 +573,7 @@ export default function JournalsShow() {
                                     {articles.links.map((link, i) => {
                                         const isNavButton = link.label.includes('Previous') || link.label.includes('Next');
                                         const buttonClass = isNavButton ? 'px-3 py-2' : 'h-9 w-9';
-                                        
+
                                         return link.url ? (
                                             <Link
                                                 key={i}

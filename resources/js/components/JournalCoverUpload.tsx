@@ -118,7 +118,7 @@ export function JournalCoverUpload({ currentCover, onChange, error }: JournalCov
                 onDragOver={(e) => e.preventDefault()}
                 className={[
                     'relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+                    'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none',
                     combinedError
                         ? 'border-red-400 bg-red-50 dark:border-red-600 dark:bg-red-950/20'
                         : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800/50 dark:hover:border-blue-500 dark:hover:bg-blue-950/20',
@@ -127,12 +127,8 @@ export function JournalCoverUpload({ currentCover, onChange, error }: JournalCov
             >
                 {displayedImage ? (
                     <>
-                        <img
-                            src={displayedImage}
-                            alt="Cover preview"
-                            className="block max-h-56 w-full object-contain"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity hover:opacity-100 rounded-lg">
+                        <img src={displayedImage} alt="Cover preview" className="block max-h-56 w-full object-contain" />
+                        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity hover:opacity-100">
                             <div className="text-center text-white">
                                 <UploadCloud className="mx-auto mb-1 h-8 w-8" />
                                 <p className="text-sm font-medium">Klik untuk ganti cover</p>
@@ -158,14 +154,7 @@ export function JournalCoverUpload({ currentCover, onChange, error }: JournalCov
             </div>
 
             {/* Hidden file input */}
-            <input
-                ref={inputRef}
-                type="file"
-                name="cover_image"
-                accept={ACCEPTED_EXTENSIONS}
-                onChange={handleInputChange}
-                className="hidden"
-            />
+            <input ref={inputRef} type="file" name="cover_image" accept={ACCEPTED_EXTENSIONS} onChange={handleInputChange} className="hidden" />
 
             {/* Error message */}
             {combinedError && <p className="text-sm text-red-600 dark:text-red-400">{combinedError}</p>}

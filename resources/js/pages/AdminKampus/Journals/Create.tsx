@@ -7,9 +7,9 @@
  *
  * @route POST /admin-kampus/journals
  */
+import { JournalCoverUpload } from '@/components/JournalCoverUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { JournalCoverUpload } from '@/components/JournalCoverUpload';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -457,10 +457,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                 <div>
                                     <Label>Cover Image (Opsional)</Label>
                                     <div className="mt-1">
-                                        <JournalCoverUpload
-                                            onChange={(file) => setData('cover_image', file)}
-                                            error={errors.cover_image}
-                                        />
+                                        <JournalCoverUpload onChange={(file) => setData('cover_image', file)} error={errors.cover_image} />
                                     </div>
                                 </div>
                             </div>

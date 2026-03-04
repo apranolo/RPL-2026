@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, router, usePage, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { AlertCircle, ArrowLeft, BookOpen, Camera, CheckCircle, Edit, ExternalLink, FileText, Globe, Mail, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -202,8 +202,11 @@ export default function JournalShow({ journal, statistics }: Props) {
                                 </Link>
                                 <div className="flex items-center gap-3">
                                     {/* Journal cover thumbnail */}
-                                    <div className="group relative flex w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-100 shadow-md dark:bg-blue-900/20" style={{ aspectRatio: '2/3' }}>
-                                        {(journal.cover_image || journal.cover_image_url) ? (
+                                    <div
+                                        className="group relative flex w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-100 shadow-md dark:bg-blue-900/20"
+                                        style={{ aspectRatio: '2/3' }}
+                                    >
+                                        {journal.cover_image || journal.cover_image_url ? (
                                             <img
                                                 src={journal.cover_image ?? journal.cover_image_url ?? ''}
                                                 alt={journal.title ? `Sampul jurnal "${journal.title}"` : 'Sampul jurnal'}
@@ -215,11 +218,11 @@ export default function JournalShow({ journal, statistics }: Props) {
                                         <button
                                             type="button"
                                             onClick={() => setShowCoverForm((prev) => !prev)}
-                                            className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 rounded-lg"
+                                            className="absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-lg bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
                                             title="Ganti cover"
                                         >
                                             <Camera className="h-5 w-5 text-white" />
-                                            <span className="text-xs text-white font-medium">Ganti Cover</span>
+                                            <span className="text-xs font-medium text-white">Ganti Cover</span>
                                         </button>
                                     </div>
                                     <div>
@@ -246,7 +249,10 @@ export default function JournalShow({ journal, statistics }: Props) {
 
                         {/* Cover upload form */}
                         {showCoverForm && (
-                            <form onSubmit={handleCoverSubmit} className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/20">
+                            <form
+                                onSubmit={handleCoverSubmit}
+                                className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/20"
+                            >
                                 <div className="mb-3 flex items-center justify-between">
                                     <h4 className="font-semibold text-gray-900 dark:text-gray-100">Ganti Cover Jurnal</h4>
                                     <button

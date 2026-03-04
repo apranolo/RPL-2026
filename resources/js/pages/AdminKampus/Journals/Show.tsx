@@ -10,9 +10,8 @@ import { JournalCoverUpload } from '@/components/JournalCoverUpload';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { type OaiHarvestingLog } from '@/types';
-import { Head, Link, router, usePage, useForm } from '@inertiajs/react';
+import { type BreadcrumbItem, type OaiHarvestingLog } from '@/types';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
     AlertCircle,
     ArrowLeft,
@@ -197,8 +196,11 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                         <div className="flex items-start justify-between">
                             <div className="flex items-center gap-4">
                                 {/* Journal Cover / Icon */}
-                                <div className="group relative flex w-28 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-100 shadow-sm dark:bg-blue-900/20" style={{ aspectRatio: '2/3' }}>
-                                    {(journal.cover_image || journal.cover_image_url) ? (
+                                <div
+                                    className="group relative flex w-28 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-100 shadow-sm dark:bg-blue-900/20"
+                                    style={{ aspectRatio: '2/3' }}
+                                >
+                                    {journal.cover_image || journal.cover_image_url ? (
                                         <img
                                             src={journal.cover_image ?? journal.cover_image_url ?? ''}
                                             alt="Cover"
@@ -210,7 +212,7 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                     <button
                                         type="button"
                                         onClick={() => setShowCoverForm((prev) => !prev)}
-                                        className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 rounded-lg"
+                                        className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
                                         title="Ganti cover"
                                         aria-label="Ganti cover jurnal"
                                     >
@@ -249,7 +251,10 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
 
                     {/* Cover Upload Form (inline, shown on hover click) */}
                     {showCoverForm && (
-                        <form onSubmit={handleCoverSubmit} className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/20">
+                        <form
+                            onSubmit={handleCoverSubmit}
+                            className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/20"
+                        >
                             <div className="mb-3 flex items-center justify-between">
                                 <h4 className="font-semibold text-gray-900 dark:text-gray-100">Ganti Cover Jurnal</h4>
                                 <button
@@ -441,7 +446,11 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                     disabled={harvesting || isHarvestPending || !journal.oai_pmh_url}
                                     size="sm"
                                     className="gap-2"
-                                    title={!journal.oai_pmh_url ? 'Tambahkan OAI-PMH URL di form edit jurnal terlebih dahulu' : 'Sync artikel dari OAI-PMH endpoint'}
+                                    title={
+                                        !journal.oai_pmh_url
+                                            ? 'Tambahkan OAI-PMH URL di form edit jurnal terlebih dahulu'
+                                            : 'Sync artikel dari OAI-PMH endpoint'
+                                    }
                                 >
                                     <RefreshCw className={`h-4 w-4 ${harvesting ? 'animate-spin' : ''}`} />
                                     {harvesting ? 'Mengirim...' : isHarvestPending ? 'Antrian Aktif' : 'Sync Artikel'}
@@ -460,7 +469,7 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                             href={journal.oai_pmh_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="break-all font-mono text-blue-600 hover:underline dark:text-blue-400"
+                                            className="font-mono break-all text-blue-600 hover:underline dark:text-blue-400"
                                         >
                                             {journal.oai_pmh_url}
                                             <ExternalLink className="ml-1 inline h-3 w-3" />
@@ -472,10 +481,7 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                     <AlertCircle className="h-4 w-4 shrink-0" />
                                     <span>
                                         OAI-PMH URL belum dikonfigurasi. Tambahkan melalui{' '}
-                                        <Link
-                                            href={route('admin-kampus.journals.edit', journal.id)}
-                                            className="font-medium underline"
-                                        >
+                                        <Link href={route('admin-kampus.journals.edit', journal.id)} className="font-medium underline">
                                             form edit jurnal
                                         </Link>
                                         .
@@ -493,12 +499,8 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                             {lastHarvestLog.status === 'success' && (
                                                 <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                                             )}
-                                            {lastHarvestLog.status === 'partial' && (
-                                                <AlertCircle className="h-4 w-4 text-amber-500" />
-                                            )}
-                                            {lastHarvestLog.status === 'failed' && (
-                                                <XCircle className="h-4 w-4 text-red-500" />
-                                            )}
+                                            {lastHarvestLog.status === 'partial' && <AlertCircle className="h-4 w-4 text-amber-500" />}
+                                            {lastHarvestLog.status === 'failed' && <XCircle className="h-4 w-4 text-red-500" />}
                                             <Badge
                                                 variant={
                                                     lastHarvestLog.status === 'success'
@@ -508,9 +510,7 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                                           : 'destructive'
                                                 }
                                                 className={
-                                                    lastHarvestLog.status === 'success'
-                                                        ? 'border-green-300 text-green-700 dark:text-green-400'
-                                                        : ''
+                                                    lastHarvestLog.status === 'success' ? 'border-green-300 text-green-700 dark:text-green-400' : ''
                                                 }
                                             >
                                                 {lastHarvestLog.status === 'success'
@@ -524,12 +524,10 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                         {/* Stats */}
                                         <div className="flex gap-4 text-sm text-muted-foreground">
                                             <span>
-                                                Ditemukan:{' '}
-                                                <span className="font-medium text-foreground">{lastHarvestLog.records_found}</span>
+                                                Ditemukan: <span className="font-medium text-foreground">{lastHarvestLog.records_found}</span>
                                             </span>
                                             <span>
-                                                Diimpor:{' '}
-                                                <span className="font-medium text-foreground">{lastHarvestLog.records_imported}</span>
+                                                Diimpor: <span className="font-medium text-foreground">{lastHarvestLog.records_imported}</span>
                                             </span>
                                         </div>
 
