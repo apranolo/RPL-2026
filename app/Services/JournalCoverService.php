@@ -27,7 +27,8 @@ class JournalCoverService
      * Upload a new cover image for a journal.
      *
      * Stores the new cover and, on success, deletes the existing local cover (if any).
-     * Returns the public URL path (e.g. "/storage/journal-covers/cover_1_xxx.jpg").
+     * Returns a fully-qualified public URL (e.g. "http://localhost/jurnal_mu/storage/journal-covers/cover_1_xxx.jpg").
+     * Using Storage::url() respects APP_URL so the path is correct under any subdirectory deployment.
      */
     public function upload(UploadedFile $file, Journal $journal): string
     {
@@ -37,16 +38,37 @@ class JournalCoverService
         // Delete the old local cover file if it exists, now that the new one is stored
         $this->deleteExisting($journal);
 
-        return '/storage/'.$path;
+        return Storage::disk(self::DISK)->url($path);
     }
 
     /**
      * Delete the existing local cover file for a journal (if stored locally).
+     *
+     * Handles two stored formats:
+     *  - Legacy relative path: /storage/journal-covers/cover_1_xxx.jpg
+     *  - Full URL (new format): http://host/storage/journal-covers/cover_1_xxx.jpg
      */
     public function deleteExisting(Journal $journal): void
     {
-        if ($journal->cover_image && str_starts_with($journal->cover_image, '/storage/')) {
-            $storagePath = str_replace('/storage/', '', $journal->cover_image);
+        // Use getRawOriginal to bypass the accessor so we always get the raw DB value
+        $raw = $journal->getRawOriginal('cover_image');
+
+        if (! $raw) {
+            return;
+        }
+
+        // Legacy relative path: /storage/journal-covers/...
+        if (str_starts_with($raw, '/storage/')) {
+            $storagePath = ltrim(str_replace('/storage/', '', $raw), '/');
+            Storage::disk(self::DISK)->delete($storagePath);
+
+            return;
+        }
+
+        // Full URL format: http://...APP_URL.../storage/journal-covers/...
+        $storageBaseUrl = rtrim(Storage::disk(self::DISK)->url(''), '/');
+        if (str_starts_with($raw, $storageBaseUrl.'/')) {
+            $storagePath = ltrim(substr($raw, strlen($storageBaseUrl)), '/');
             Storage::disk(self::DISK)->delete($storagePath);
         }
     }
