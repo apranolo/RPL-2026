@@ -92,6 +92,13 @@ export default function JournalsShow() {
         router.get(route('journals.show', journal.id));
     };
 
+    // Display article titles in sentence case (first word capitalised, rest lowercase)
+    // We transform display-side only so raw OAI source data is preserved in the DB.
+    const toSentenceCase = (str: string): string => {
+        if (!str) return str;
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    };
+
     return (
         <>
             <Head title={`${journal.title} | JurnalMu`}>
@@ -480,10 +487,10 @@ export default function JournalsShow() {
                                                 rel="noopener noreferrer"
                                                 className="mb-2 block text-lg font-bold text-primary decoration-2 underline-offset-2 transition-colors hover:text-primary/80 hover:underline"
                                             >
-                                                {article.title}
+                                                {toSentenceCase(article.title)}
                                             </a>
                                         ) : (
-                                            <span className="mb-2 block text-lg font-bold text-foreground">{article.title}</span>
+                                            <span className="mb-2 block text-lg font-bold text-foreground">{toSentenceCase(article.title)}</span>
                                         )}
 
                                         <div className="mb-2 text-xs text-muted-foreground">{article.authors_list || 'Unknown Author'}</div>
