@@ -9,6 +9,7 @@
  */
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { JournalCoverUpload } from '@/components/JournalCoverUpload';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -63,11 +64,13 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
         scope: '',
         // Indexations
         indexations: [] as Array<{ platform: string; url: string }>,
+        // Cover image
+        cover_image: null as File | null,
     });
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('admin-kampus.journals.store'));
+        post(route('admin-kampus.journals.store'), { forceFormData: true });
     };
 
     const currentYear = new Date().getFullYear();
@@ -449,6 +452,16 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                     />
                                     <p className="mt-1 text-xs text-muted-foreground">{data.scope.length}/1000 characters</p>
                                     {errors.scope && <p className="mt-1 text-sm text-red-600">{errors.scope}</p>}
+                                </div>
+
+                                <div>
+                                    <Label>Cover Image (Opsional)</Label>
+                                    <div className="mt-1">
+                                        <JournalCoverUpload
+                                            onChange={(file) => setData('cover_image', file)}
+                                            error={errors.cover_image}
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
