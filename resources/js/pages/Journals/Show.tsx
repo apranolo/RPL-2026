@@ -4,6 +4,7 @@
  * @features Display comprehensive journal information, article filtering, stats, and 3-column layout
  */
 
+import logoUrl from '@/assets/logo_dark.png';
 import { SintaBadge } from '@/components/badges';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -125,7 +126,7 @@ export default function JournalsShow() {
                     <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                         <Link href={route('home')} className="flex items-center gap-3 transition-opacity hover:opacity-90">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
-                                <img src="logo_dark.png" alt="Majelis Diktilitbang" className="h-8 w-8 object-contain" />
+                                <img src={logoUrl} alt="Majelis Diktilitbang" className="h-8 w-8 object-contain" />
                             </div>
                             <span className="font-heading text-2xl font-bold" style={{ fontFamily: '"El Messiri", sans-serif' }}>
                                 Journal MU
