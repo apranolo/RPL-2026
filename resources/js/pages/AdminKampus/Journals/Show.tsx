@@ -212,6 +212,7 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                         onClick={() => setShowCoverForm((prev) => !prev)}
                                         className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 rounded-lg"
                                         title="Ganti cover"
+                                        aria-label="Ganti cover jurnal"
                                     >
                                         <Camera className="h-6 w-6 text-white" />
                                     </button>
