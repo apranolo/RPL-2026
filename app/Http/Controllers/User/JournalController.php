@@ -7,6 +7,7 @@ use App\Http\Requests\StoreJournalRequest;
 use App\Http\Requests\UpdateJournalRequest;
 use App\Models\Journal;
 use App\Models\ScientificField;
+use App\Services\JournalCoverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -89,7 +90,13 @@ class JournalController extends Controller
         $validated['user_id'] = $user->id;
         $validated['university_id'] = $user->university_id;
 
-        Journal::create($validated);
+        $journal = Journal::create($validated);
+
+        // Handle optional cover image upload
+        if ($request->hasFile('cover_image')) {
+            $coverService = new JournalCoverService;
+            $journal->update(['cover_image' => $coverService->upload($request->file('cover_image'), $journal)]);
+        }
 
         return redirect()->route('user.journals.index')->with('success', 'Jurnal berhasil ditambahkan.');
     }
@@ -142,9 +149,47 @@ class JournalController extends Controller
     {
         $this->authorize('update', $journal);
 
-        $journal->update($request->validated());
+        $validated = $request->validated();
+
+        // Handle optional cover image upload
+        if ($request->hasFile('cover_image')) {
+            $coverService = new JournalCoverService;
+            $validated['cover_image'] = $coverService->upload($request->file('cover_image'), $journal);
+        } else {
+            unset($validated['cover_image']);
+        }
+
+        $journal->update($validated);
 
         return redirect()->route('user.journals.index')->with('success', 'Data jurnal berhasil diperbarui.');
+    }
+
+    /**
+     * Upload or replace the cover image for a journal (dedicated endpoint).
+     *
+     * @route PATCH /user/journals/{journal}/cover
+     *
+     * @features Upload cover image; replaces existing cover; returns to journal show page
+     */
+    public function uploadCover(Request $request, Journal $journal)
+    {
+        $this->authorize('update', $journal);
+
+        $request->validate([
+            'cover_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048|dimensions:min_width=300,min_height=400',
+        ], [
+            'cover_image.required' => 'Pilih file gambar untuk diupload.',
+            'cover_image.image'    => 'File cover harus berupa gambar.',
+            'cover_image.mimes'    => 'Format cover harus JPEG, PNG, JPG, atau WebP.',
+            'cover_image.max'      => 'Ukuran file cover maksimal 2MB.',
+            'cover_image.dimensions' => 'Resolusi cover minimal 300x400 piksel.',
+        ]);
+
+        $coverService = new JournalCoverService;
+        $journal->update(['cover_image' => $coverService->upload($request->file('cover_image'), $journal)]);
+
+        return redirect()->route('user.journals.show', $journal)
+            ->with('success', 'Cover jurnal berhasil diperbarui.');
     }
 
     /**
