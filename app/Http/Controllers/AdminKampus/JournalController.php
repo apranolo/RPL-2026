@@ -393,6 +393,10 @@ class JournalController extends Controller
                 // OAI-PMH
                 'oai_pmh_url' => $journal->oai_pmh_url,
 
+                // Cover image
+                'cover_image' => $journal->cover_image,
+                'cover_image_url' => $journal->cover_image_url,
+
                 'is_active' => $journal->is_active,
                 'created_at' => $journal->created_at->format('Y-m-d H:i'),
                 'updated_at' => $journal->updated_at->format('Y-m-d H:i'),
