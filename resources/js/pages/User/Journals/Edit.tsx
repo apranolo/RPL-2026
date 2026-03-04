@@ -116,7 +116,8 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
           }))
         : [];
 
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
+        _method: 'put' as const,
         title: journal.title || '',
         issn: journal.issn || '',
         e_issn: journal.e_issn || '',
@@ -146,7 +147,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        put(route('user.journals.update', journal.id), { forceFormData: true });
+        post(route('user.journals.update', journal.id), { forceFormData: true });
     };
 
     const currentYear = new Date().getFullYear();
