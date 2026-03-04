@@ -105,11 +105,20 @@ export function JournalCoverUpload({ currentCover, onChange, error }: JournalCov
         <div className="space-y-2">
             {/* Upload area */}
             <div
+                role="button"
+                tabIndex={0}
                 onClick={() => inputRef.current?.click()}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        inputRef.current?.click();
+                    }
+                }}
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
                 className={[
                     'relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
                     combinedError
                         ? 'border-red-400 bg-red-50 dark:border-red-600 dark:bg-red-950/20'
                         : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800/50 dark:hover:border-blue-500 dark:hover:bg-blue-950/20',
