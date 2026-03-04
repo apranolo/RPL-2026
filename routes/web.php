@@ -342,6 +342,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('journals/{journal}', [\App\Http\Controllers\AdminKampus\JournalController::class, 'destroy'])
             ->name('journals.destroy');
 
+        // Cover image upload (dedicated endpoint)
+        Route::patch('journals/{journal}/cover', [\App\Http\Controllers\AdminKampus\JournalController::class, 'uploadCover'])
+            ->name('journals.upload-cover');
+
         // Import journals from CSV
         Route::get('journals/import/template', [\App\Http\Controllers\AdminKampus\JournalController::class, 'downloadTemplate'])
             ->name('journals.import.template');
@@ -422,6 +426,10 @@ Route::middleware(['auth'])->group(function () {
                 'update' => 'journals.update',
                 'destroy' => 'journals.destroy',
             ]);
+
+        // Cover image upload (dedicated endpoint)
+        Route::patch('journals/{journal}/cover', [UserJournalController::class, 'uploadCover'])
+            ->name('journals.upload-cover');
 
         // Assessments Management
         Route::prefix('assessments')->name('assessments.')->group(function () {

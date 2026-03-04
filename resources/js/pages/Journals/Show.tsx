@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { type Article, type Journal, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BookOpen, ChevronRight, Download, Globe, Mail, MapPin, Search, Target, User } from 'lucide-react';
+import { BadgeCheck, BookOpen, Calendar, ChevronRight, Download, FileText, Globe, Info, Mail, MapPin, Search, Target, User } from 'lucide-react';
 import React, { useState } from 'react';
 import Chart from 'react-apexcharts';
 
@@ -20,14 +20,13 @@ interface JournalsShowProps extends SharedData {
     };
     articles: {
         data: Article[];
-        links: any[]; // Laravel pagination links
-        meta?: {
-            current_page: number;
-            last_page: number;
-            from: number;
-            to: number;
-            total: number;
-        };
+        links: any[]; // Laravel pagination links array (numbered)
+        current_page: number;
+        last_page: number;
+        from: number | null;
+        to: number | null;
+        total: number;
+        per_page: number;
     };
     articlesByYear: Array<{ year: number; count: number }>;
     issuesList: Array<{ volume: string; issue: string; label: string; year: string }>;
@@ -37,6 +36,13 @@ interface JournalsShowProps extends SharedData {
 export default function JournalsShow() {
     const { journal, articles, articlesByYear, issuesList, auth, queries } = usePage<JournalsShowProps>().props;
     const [searchQuery, setSearchQuery] = useState(queries.search || '');
+    const [yearFrom, setYearFrom] = useState<string>(queries.year_start || '');
+    const [yearTo, setYearTo] = useState<string>(queries.year_end || '');
+
+    // Dynamic year range from article data
+    const minYear =
+        articlesByYear.length > 0 ? Math.min(...articlesByYear.map((d) => d.year)) : (journal.first_published_year ?? new Date().getFullYear() - 5);
+    const maxYear = articlesByYear.length > 0 ? Math.max(...articlesByYear.map((d) => d.year)) : new Date().getFullYear();
 
     // Chart Configuration for "Articles Per Year"
     const chartOptions: ApexCharts.ApexOptions = {
@@ -166,8 +172,12 @@ export default function JournalsShow() {
                         {/* Cover Image */}
                         <div className="overflow-hidden rounded-xl border bg-card shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
                             <div className="aspect-[3/4] w-full bg-muted dark:bg-muted">
-                                {journal.cover_image_url ? (
-                                    <img src={journal.cover_image_url} alt={journal.title} className="h-full w-full object-cover" />
+                                {journal.cover_image || journal.cover_image_url ? (
+                                    <img
+                                        src={journal.cover_image ?? journal.cover_image_url}
+                                        alt={journal.title}
+                                        className="h-full w-full object-cover"
+                                    />
                                 ) : (
                                     <div className="flex h-full items-center justify-center">
                                         <BookOpen className="h-16 w-16 text-gray-300" />
@@ -179,9 +189,16 @@ export default function JournalsShow() {
                         {/* Article Per Year Chart */}
                         <div className="rounded-xl border bg-card p-4 shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
                             <h3 className="mb-3 text-xs font-bold tracking-wide text-muted-foreground uppercase">Article Per Year (5 Year)</h3>
-                            <div className="h-40 w-full">
-                                <Chart options={chartOptions} series={chartSeries} type="bar" height="100%" />
-                            </div>
+                            {articlesByYear.length > 0 ? (
+                                <div className="h-40 w-full">
+                                    <Chart options={chartOptions} series={chartSeries} type="bar" height="100%" />
+                                </div>
+                            ) : (
+                                <div className="flex h-40 flex-col items-center justify-center gap-2 text-muted-foreground">
+                                    <FileText className="h-8 w-8 opacity-30" />
+                                    <span className="text-xs">No article data yet</span>
+                                </div>
+                            )}
                             <div className="mt-2 text-center text-xs text-gray-400">Total: {journal.articles_count} Articles</div>
                         </div>
 
@@ -268,7 +285,7 @@ export default function JournalsShow() {
                     <div className="lg:col-span-6">
                         {/* Journal Header */}
                         <div className="mb-6 rounded-xl border bg-card p-6 shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
-                            <h1 className="font-heading mb-3 text-2xl leading-tight font-bold text-foreground">"{journal.title}"</h1>
+                            <h1 className="font-heading mb-3 text-2xl leading-tight font-bold text-foreground">{journal.title}</h1>
 
                             <div className="mb-4 flex flex-wrap gap-3 text-xs">
                                 {journal.issn && (
@@ -326,6 +343,48 @@ export default function JournalsShow() {
                             </div>
                         </div>
 
+                        {/* Journal Metadata Panel */}
+                        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            {journal.frequency_label && (
+                                <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                        <Calendar className="h-3.5 w-3.5" />
+                                        Frequency
+                                    </div>
+                                    <p className="text-sm font-bold text-foreground">{journal.frequency_label}</p>
+                                </div>
+                            )}
+                            {journal.first_published_year && (
+                                <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                        <Info className="h-3.5 w-3.5" />
+                                        Since
+                                    </div>
+                                    <p className="text-sm font-bold text-foreground">{journal.first_published_year}</p>
+                                </div>
+                            )}
+                            {(journal.accreditation_start_year || journal.accreditation_end_year) && (
+                                <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                        <BadgeCheck className="h-3.5 w-3.5" />
+                                        Accreditation Period
+                                    </div>
+                                    <p className="text-sm font-bold text-foreground">
+                                        {journal.accreditation_start_year ?? '?'} &ndash; {journal.accreditation_end_year ?? '?'}
+                                    </p>
+                                </div>
+                            )}
+                            {journal.accreditation_sk_number && (
+                                <div className="col-span-2 rounded-xl border bg-card p-4 shadow-sm sm:col-span-1 dark:border-border dark:bg-card">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                        <FileText className="h-3.5 w-3.5" />
+                                        SK Number
+                                    </div>
+                                    <p className="text-xs font-medium break-all text-foreground">{journal.accreditation_sk_number}</p>
+                                </div>
+                            )}
+                        </div>
+
                         {/* Description & Scope Section */}
                         {(journal.about || journal.scope) && (
                             <div className="mb-6 grid gap-6 md:grid-cols-2">
@@ -380,100 +439,146 @@ export default function JournalsShow() {
                         {/* Article List Header */}
                         <div className="mb-4 flex items-center justify-between rounded-t-xl bg-muted p-4 dark:bg-muted">
                             <span className="text-sm font-semibold text-foreground">Articles</span>
-                            <span className="text-xs text-muted-foreground">{articles.meta?.total || 0} Documents</span>
+                            <span className="text-xs text-muted-foreground">{articles.total ?? 0} Documents</span>
                         </div>
 
                         {/* Articles */}
                         <div className="space-y-4">
-                            {articles.data.map((article) => (
-                                <div
-                                    key={article.id}
-                                    className="group rounded-xl border bg-card p-6 shadow-sm transition-all hover:border-primary hover:shadow-lg dark:border-border dark:bg-card dark:hover:border-primary"
-                                >
-                                    <Link
-                                        href="#"
-                                        className="mb-2 block text-lg font-bold text-primary decoration-2 underline-offset-2 transition-colors hover:text-primary/80 hover:underline"
+                            {articles.data.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed bg-card py-16 text-center dark:border-border dark:bg-card">
+                                    <BookOpen className="h-12 w-12 text-muted-foreground/30" />
+                                    {queries.search || queries.year_start || queries.year_end || queries.volume || queries.issue ? (
+                                        <>
+                                            <p className="text-sm font-semibold text-foreground">No articles matched your filter</p>
+                                            <p className="max-w-xs text-xs text-muted-foreground">Try adjusting your search or filter criteria</p>
+                                            <button
+                                                onClick={clearFilters}
+                                                className="mt-1 text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80"
+                                            >
+                                                Clear all filters
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <p className="text-sm font-semibold text-foreground">No articles available yet</p>
+                                            <p className="max-w-xs text-xs text-muted-foreground">
+                                                Articles will appear here once they are harvested from the journal source.
+                                            </p>
+                                        </>
+                                    )}
+                                </div>
+                            ) : (
+                                articles.data.map((article) => (
+                                    <div
+                                        key={article.id}
+                                        className="group rounded-xl border bg-card p-6 shadow-sm transition-all hover:border-primary hover:shadow-lg dark:border-border dark:bg-card dark:hover:border-primary"
                                     >
-                                        {article.title}
-                                    </Link>
-
-                                    <div className="mb-2 text-xs text-muted-foreground">{article.authors_list || 'Unknown Author'}</div>
-
-                                    <div className="mb-3 text-xs text-muted-foreground/80 italic">
-                                        {journal.title}; Vol {article.volume || 0} No {article.issue || 0} (
-                                        {new Date(article.publication_date).getFullYear()}); {article.pages ? `pp. ${article.pages}` : ''}
-                                    </div>
-
-                                    <div className="mb-4 flex items-center gap-4 text-xs">
-                                        <span className="text-muted-foreground">Publisher: {journal.university.name}</span>
-                                    </div>
-
-                                    <div className="flex flex-wrap gap-2 text-xs">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-6 px-0 text-primary transition-colors hover:text-primary/80"
-                                            onClick={() => {
-                                                const el = document.getElementById(`abs-${article.id}`);
-                                                if (el) el.classList.toggle('hidden');
-                                            }}
-                                        >
-                                            Show Abstract
-                                        </Button>
-                                        <span className="text-border">|</span>
-                                        {article.pdf_url && (
+                                        {article.article_url ? (
                                             <a
-                                                href={article.pdf_url}
+                                                href={article.article_url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
+                                                className="mb-2 block text-lg font-bold text-primary decoration-2 underline-offset-2 transition-colors hover:text-primary/80 hover:underline"
                                             >
-                                                <Download className="h-3 w-3" /> Download Original
+                                                {article.title}
                                             </a>
+                                        ) : (
+                                            <span className="mb-2 block text-lg font-bold text-foreground">{article.title}</span>
                                         )}
-                                        {article.article_url && (
-                                            <>
-                                                <span className="text-border">|</span>
+
+                                        <div className="mb-2 text-xs text-muted-foreground">{article.authors_list || 'Unknown Author'}</div>
+
+                                        <div className="mb-3 text-xs text-muted-foreground/80 italic">
+                                            {journal.title}; Vol {article.volume || 0} No {article.issue || 0} (
+                                            {new Date(article.publication_date).getFullYear()}); {article.pages ? `pp. ${article.pages}` : ''}
+                                        </div>
+
+                                        <div className="mb-4 flex items-center gap-4 text-xs">
+                                            <span className="text-muted-foreground">Publisher: {journal.university.name}</span>
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2 text-xs">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-6 px-0 text-primary transition-colors hover:text-primary/80"
+                                                onClick={() => {
+                                                    const el = document.getElementById(`abs-${article.id}`);
+                                                    if (el) el.classList.toggle('hidden');
+                                                }}
+                                            >
+                                                Show Abstract
+                                            </Button>
+                                            <span className="text-border">|</span>
+                                            {article.pdf_url && (
                                                 <a
-                                                    href={article.article_url}
+                                                    href={article.pdf_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
                                                 >
-                                                    Original Source
+                                                    <Download className="h-3 w-3" /> Download Original
                                                 </a>
-                                            </>
-                                        )}
-                                        <span className="text-border">|</span>
-                                        <a
-                                            href={article.google_scholar_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
-                                        >
-                                            Check in Google Scholar
-                                        </a>
-                                    </div>
+                                            )}
+                                            {article.article_url && (
+                                                <>
+                                                    <span className="text-border">|</span>
+                                                    <a
+                                                        href={article.article_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
+                                                    >
+                                                        Original Source
+                                                    </a>
+                                                </>
+                                            )}
+                                            <span className="text-border">|</span>
+                                            <a
+                                                href={article.google_scholar_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80"
+                                            >
+                                                Check in Google Scholar
+                                            </a>
+                                        </div>
 
-                                    <div
-                                        id={`abs-${article.id}`}
-                                        className="mt-4 hidden rounded-lg border border-border bg-muted p-4 text-sm text-foreground shadow-inner dark:border-border dark:bg-muted"
-                                    >
-                                        <h4 className="mb-1 font-bold">Abstract</h4>
-                                        {article.abstract || 'No abstract available.'}
+                                        <div
+                                            id={`abs-${article.id}`}
+                                            className="mt-4 hidden rounded-lg border border-border bg-muted p-4 text-sm text-foreground shadow-inner dark:border-border dark:bg-muted"
+                                        >
+                                            <h4 className="mb-1 font-bold">Abstract</h4>
+                                            {article.abstract || 'No abstract available.'}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
 
                             {/* Pagination */}
-                            {articles.meta && articles.meta.last_page > 1 && (
+                            {articles.data.length > 0 && (
+                                <div className="flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
+                                    <span>
+                                        Showing <span className="font-semibold text-foreground">{articles.from ?? 0}</span>–
+                                        <span className="font-semibold text-foreground">{articles.to ?? 0}</span> of{' '}
+                                        <span className="font-semibold text-foreground">{articles.total}</span> articles
+                                    </span>
+                                    <span>
+                                        Page {articles.current_page} of {articles.last_page}
+                                    </span>
+                                </div>
+                            )}
+                            {articles.last_page > 1 && (
                                 <div className="mt-8 flex justify-center gap-1">
-                                    {articles.links.map((link, i) =>
-                                        link.url ? (
+                                    {articles.links.map((link, i) => {
+                                        const isNavButton = link.label.includes('Previous') || link.label.includes('Next');
+                                        const buttonClass = isNavButton ? 'px-3 py-2' : 'h-9 w-9';
+
+                                        return link.url ? (
                                             <Link
                                                 key={i}
                                                 href={link.url}
-                                                className={`flex h-9 w-9 items-center justify-center rounded-lg border text-sm transition-all ${
+                                                className={`flex ${buttonClass} items-center justify-center rounded-lg border text-sm transition-all ${
                                                     link.active
                                                         ? 'border-[hsl(var(--accent-red))] bg-[hsl(var(--accent-red))] font-semibold text-white shadow-md'
                                                         : 'border-border bg-card text-foreground hover:bg-muted dark:bg-card dark:hover:bg-muted'
@@ -483,11 +588,11 @@ export default function JournalsShow() {
                                         ) : (
                                             <span
                                                 key={i}
-                                                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted text-sm text-muted-foreground/50 dark:bg-muted"
+                                                className={`flex ${buttonClass} items-center justify-center rounded-lg border border-border bg-muted text-sm text-muted-foreground/50 dark:bg-muted`}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                             />
-                                        ),
-                                    )}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
@@ -502,34 +607,53 @@ export default function JournalsShow() {
                             </div>
                             <div className="p-4">
                                 <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
-                                    <span>2020</span>
-                                    <span>2026</span>
+                                    <span>{minYear}</span>
+                                    <span>{maxYear}</span>
                                 </div>
-                                {/* Simple Year Input Range for MVP */}
                                 <div className="flex gap-2">
                                     <Input
                                         type="number"
                                         placeholder="From"
                                         className="h-8 text-xs"
-                                        defaultValue={queries.year_start}
-                                        onBlur={(e) => handleFilter('year_start', e.target.value)}
+                                        value={yearFrom}
+                                        min={minYear}
+                                        max={maxYear}
+                                        onChange={(e) => setYearFrom(e.target.value)}
                                     />
                                     <Input
                                         type="number"
                                         placeholder="To"
                                         className="h-8 text-xs"
-                                        defaultValue={queries.year_end}
-                                        onBlur={(e) => handleFilter('year_end', e.target.value)}
+                                        value={yearTo}
+                                        min={minYear}
+                                        max={maxYear}
+                                        onChange={(e) => setYearTo(e.target.value)}
                                     />
                                 </div>
                                 <div className="mt-4 flex gap-2">
-                                    <Button size="sm" variant="outline" className="w-full" onClick={clearFilters}>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full"
+                                        onClick={() => {
+                                            setYearFrom('');
+                                            setYearTo('');
+                                            clearFilters();
+                                        }}
+                                    >
                                         Reset
                                     </Button>
                                     <Button
                                         size="sm"
                                         className="w-full bg-[hsl(var(--accent-red))] text-white shadow-sm hover:bg-[hsl(var(--accent-red))]/90"
-                                        onClick={() => window.location.reload()}
+                                        onClick={() => {
+                                            const newQ: Record<string, any> = { ...queries, page: 1 };
+                                            if (yearFrom) newQ.year_start = yearFrom;
+                                            else delete newQ.year_start;
+                                            if (yearTo) newQ.year_end = yearTo;
+                                            else delete newQ.year_end;
+                                            router.get(route('journals.show', journal.id), newQ, { preserveScroll: true, preserveState: true });
+                                        }}
                                     >
                                         Filter
                                     </Button>
@@ -551,12 +675,18 @@ export default function JournalsShow() {
                                         All Issues
                                     </button>
                                 </div>
+                                {issuesList.length === 0 && (
+                                    <p className="py-4 text-center text-xs text-muted-foreground">No issues available yet.</p>
+                                )}
                                 {issuesList.map((item, idx) => (
                                     <div key={idx} className="mb-2 border-b border-dashed border-border pb-2 last:border-0 last:pb-0">
                                         <button
                                             onClick={() => {
-                                                handleFilter('volume', item.volume);
-                                                handleFilter('issue', item.issue);
+                                                router.get(
+                                                    route('journals.show', journal.id),
+                                                    { ...queries, volume: item.volume, issue: item.issue, page: 1 },
+                                                    { preserveScroll: true, preserveState: true },
+                                                );
                                             }}
                                             className={`block w-full text-left text-xs transition-colors ${
                                                 queries.volume == item.volume && queries.issue == item.issue

@@ -6,6 +6,7 @@
  * @route GET /user/journals/{id}
  */
 import { AccreditationBadge, IndexationBadge, SintaBadge } from '@/components/badges';
+import { JournalCoverUpload } from '@/components/JournalCoverUpload';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,8 +14,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { AlertCircle, ArrowLeft, BookOpen, CheckCircle, Edit, ExternalLink, FileText, Globe, Mail, Trash2, XCircle } from 'lucide-react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { AlertCircle, ArrowLeft, BookOpen, Camera, CheckCircle, Edit, ExternalLink, FileText, Globe, Mail, Trash2, XCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface University {
     id: number;
@@ -64,6 +66,9 @@ interface Journal {
     phone: string | null;
     about: string | null;
     scope: string | null;
+    // Cover
+    cover_image?: string | null;
+    cover_image_url?: string | null;
     sinta_rank: string | null;
     sinta_rank_label: string | null;
     accreditation_start_year: number | null;
@@ -96,6 +101,17 @@ interface Props {
 
 export default function JournalShow({ journal, statistics }: Props) {
     const { flash } = usePage<SharedData>().props;
+    const [showCoverForm, setShowCoverForm] = useState(false);
+    const coverForm = useForm({ cover_image: null as File | null });
+
+    const handleCoverSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        coverForm.transform((data) => ({ ...data, _method: 'PATCH' }));
+        coverForm.post(route('user.journals.upload-cover', journal.id), {
+            forceFormData: true,
+            onSuccess: () => setShowCoverForm(false),
+        });
+    };
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
@@ -183,8 +199,31 @@ export default function JournalShow({ journal, statistics }: Props) {
                                         Back to My Journals
                                     </Button>
                                 </Link>
-                                <div className="flex items-center gap-2">
-                                    <BookOpen className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                                <div className="flex items-center gap-3">
+                                    {/* Journal cover thumbnail */}
+                                    <div
+                                        className="group relative flex w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-100 shadow-md dark:bg-blue-900/20"
+                                        style={{ aspectRatio: '2/3' }}
+                                    >
+                                        {journal.cover_image || journal.cover_image_url ? (
+                                            <img
+                                                src={journal.cover_image ?? journal.cover_image_url ?? ''}
+                                                alt={journal.title ? `Sampul jurnal "${journal.title}"` : 'Sampul jurnal'}
+                                                className="h-full w-full object-cover"
+                                            />
+                                        ) : (
+                                            <BookOpen className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCoverForm((prev) => !prev)}
+                                            className="absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-lg bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                                            title="Ganti cover"
+                                        >
+                                            <Camera className="h-5 w-5 text-white" />
+                                            <span className="text-xs font-medium text-white">Ganti Cover</span>
+                                        </button>
+                                    </div>
                                     <div>
                                         <CardTitle className="text-2xl">{journal.title}</CardTitle>
                                         <CardDescription className="mt-1">{journal.university.name}</CardDescription>
@@ -206,6 +245,39 @@ export default function JournalShow({ journal, statistics }: Props) {
                                 )}
                             </div>
                         </div>
+
+                        {/* Cover upload form */}
+                        {showCoverForm && (
+                            <form
+                                onSubmit={handleCoverSubmit}
+                                className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/20"
+                            >
+                                <div className="mb-3 flex items-center justify-between">
+                                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Ganti Cover Jurnal</h4>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCoverForm(false)}
+                                        className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                                        aria-label="Tutup formulir ganti cover"
+                                    >
+                                        <XCircle className="h-5 w-5" />
+                                    </button>
+                                </div>
+                                <JournalCoverUpload
+                                    currentCover={journal.cover_image ?? journal.cover_image_url}
+                                    onChange={(file) => coverForm.setData('cover_image', file)}
+                                    error={coverForm.errors.cover_image}
+                                />
+                                <div className="mt-3 flex justify-end gap-2">
+                                    <Button type="button" variant="outline" size="sm" onClick={() => setShowCoverForm(false)}>
+                                        Batal
+                                    </Button>
+                                    <Button type="submit" size="sm" disabled={coverForm.processing || !coverForm.data.cover_image}>
+                                        {coverForm.processing ? 'Menyimpan...' : 'Simpan Cover'}
+                                    </Button>
+                                </div>
+                            </form>
+                        )}
                     </CardHeader>
 
                     <CardContent>

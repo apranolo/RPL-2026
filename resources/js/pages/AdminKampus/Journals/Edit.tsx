@@ -7,6 +7,7 @@
  *
  * @route PUT /admin-kampus/journals/{id}
  */
+import { JournalCoverUpload } from '@/components/JournalCoverUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,6 +42,9 @@ interface Journal {
     oai_pmh_url?: string | null;
     about?: string | null;
     scope?: string | null;
+    // Cover image
+    cover_image?: string | null;
+    cover_image_url?: string | null;
     // Indexations
     indexations?: Record<string, { url: string }> | null;
 }
@@ -91,11 +95,13 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
         scope: journal.scope || '',
         // Indexations
         indexations: existingIndexations as Array<{ platform: string; url: string }>,
+        // Cover image (null = no new upload, keep existing)
+        cover_image: null as File | null,
     });
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        put(route('admin-kampus.journals.update', journal.id));
+        put(route('admin-kampus.journals.update', journal.id), { forceFormData: true });
     };
 
     const currentYear = new Date().getFullYear();
@@ -453,6 +459,17 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                     />
                                     <p className="mt-1 text-xs text-muted-foreground">{data.scope.length}/1000 characters</p>
                                     {errors.scope && <p className="mt-1 text-sm text-red-600">{errors.scope}</p>}
+                                </div>
+
+                                <div>
+                                    <Label>Cover Image</Label>
+                                    <div className="mt-1">
+                                        <JournalCoverUpload
+                                            currentCover={journal.cover_image ?? journal.cover_image_url}
+                                            onChange={(file) => setData('cover_image', file)}
+                                            error={errors.cover_image}
+                                        />
+                                    </div>
                                 </div>
                             </div>
 

@@ -56,6 +56,9 @@ class UpdateJournalRequest extends FormRequest
             'oai_pmh_url' => 'required|url|max:500',
             'about' => 'nullable|string|max:1000',
             'scope' => 'nullable|string|max:1000',
+
+            // Cover Image
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048|dimensions:min_width=300,min_height=400',
         ];
     }
 
@@ -79,6 +82,10 @@ class UpdateJournalRequest extends FormRequest
             'oai_pmh_url.required' => 'URL OAI-PMH wajib diisi.',
             'oai_pmh_url.url' => 'Format URL OAI-PMH tidak valid.',
             'indexations.*.url.url' => 'Format URL indeksasi tidak valid.',
+            'cover_image.image' => 'File cover harus berupa gambar.',
+            'cover_image.mimes' => 'Format cover harus JPEG, PNG, JPG, atau WebP.',
+            'cover_image.max' => 'Ukuran file cover maksimal 2MB.',
+            'cover_image.dimensions' => 'Resolusi cover minimal 300×400 piksel.',
         ];
     }
 

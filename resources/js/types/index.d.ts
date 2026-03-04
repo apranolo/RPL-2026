@@ -151,6 +151,7 @@ export interface Journal {
     url?: string;
     oai_pmh_url?: string;
     cover_image_url?: string;
+    cover_image?: string;
     publisher?: string;
     frequency?: 'monthly' | 'bimonthly' | 'quarterly' | 'semiannually' | 'annually';
     frequency_label?: string;
