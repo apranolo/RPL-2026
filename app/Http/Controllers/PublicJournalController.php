@@ -217,6 +217,7 @@ class PublicJournalController extends Controller
                 'e_issn' => $journal->e_issn,
                 'url' => $journal->url,
                 'oai_pmh_url' => $journal->oai_pmh_url,
+                'cover_image' => $journal->cover_image,
                 'cover_image_url' => $journal->cover_image_url,
                 'publisher' => $journal->publisher,
                 'frequency' => $journal->frequency,
