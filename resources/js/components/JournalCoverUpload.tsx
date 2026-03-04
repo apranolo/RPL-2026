@@ -47,6 +47,7 @@ export function JournalCoverUpload({ currentCover, onChange, error }: JournalCov
             setClientError('Format harus JPEG, PNG, atau WebP.');
             setPreview(null);
             onChange(null);
+            if (inputRef.current) inputRef.current.value = '';
             return;
         }
 
@@ -55,6 +56,7 @@ export function JournalCoverUpload({ currentCover, onChange, error }: JournalCov
             setClientError('Ukuran file maksimal 2 MB.');
             setPreview(null);
             onChange(null);
+            if (inputRef.current) inputRef.current.value = '';
             return;
         }
 
@@ -68,6 +70,7 @@ export function JournalCoverUpload({ currentCover, onChange, error }: JournalCov
                     setClientError(`Resolusi minimal ${MIN_WIDTH}×${MIN_HEIGHT} px. File ini ${img.naturalWidth}×${img.naturalHeight} px.`);
                     setPreview(null);
                     onChange(null);
+                    if (inputRef.current) inputRef.current.value = '';
                     return;
                 }
                 setPreview(dataUrl);
