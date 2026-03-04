@@ -249,7 +249,12 @@ export default function JournalShow({ journal, statistics }: Props) {
                             <form onSubmit={handleCoverSubmit} className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/20">
                                 <div className="mb-3 flex items-center justify-between">
                                     <h4 className="font-semibold text-gray-900 dark:text-gray-100">Ganti Cover Jurnal</h4>
-                                    <button type="button" onClick={() => setShowCoverForm(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCoverForm(false)}
+                                        className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                                        aria-label="Tutup formulir ganti cover"
+                                    >
                                         <XCircle className="h-5 w-5" />
                                     </button>
                                 </div>
