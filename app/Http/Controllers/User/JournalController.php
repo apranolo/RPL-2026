@@ -90,7 +90,7 @@ class JournalController extends Controller
 
         // Ensure user has a university assigned
         if (! $user->university_id) {
-            return back()->withErrors(['university_id' => 'Anda belum terdaftar di kampus manapun. Hubungi Admin Kampus.']);
+            return back()->with('error', 'Anda belum terdaftar di kampus manapun. Hubungi Admin Kampus untuk mendaftarkan akun Anda ke universitas.');
         }
 
         $validated = $request->validated();
