@@ -39,9 +39,17 @@ class StoreJournalRequest extends FormRequest
             // SINTA / Accreditation (merged)
             'sinta_rank' => 'required|string|in:sinta_1,sinta_2,sinta_3,sinta_4,sinta_5,sinta_6,non_sinta',
             'accreditation_start_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 5),
-            'accreditation_end_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 10).'|gte:accreditation_start_year',
+            'accreditation_end_year' => array_filter([
+                'nullable',
+                'integer',
+                'min:1900',
+                'max:'.(date('Y') + 10),
+                // Only enforce gte rule when start year is actually provided to avoid gte:null edge case
+                $this->filled('accreditation_start_year') ? 'gte:accreditation_start_year' : null,
+            ]),
             'accreditation_sk_number' => 'nullable|string|max:100',
-            'accreditation_sk_date' => 'nullable|date|before_or_equal:today',
+            // Use app timezone to avoid UTC mismatch that rejects today's local date as "future"
+            'accreditation_sk_date' => 'nullable|date|before_or_equal:'.now()->timezone(config('app.timezone'))->format('Y-m-d'),
 
             // Indexations
             'indexations' => 'nullable|array',

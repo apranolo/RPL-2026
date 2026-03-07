@@ -451,9 +451,11 @@ class JournalController extends Controller
      *
      * @route POST /admin-kampus/journals/{journal}/harvest
      *
-     * @features Dispatch background job to harvest articles from OAI-PMH endpoint
+     * @features Dispatch background job to harvest articles from OAI-PMH endpoint.
+     *           Accepts optional `force=1` request field which deletes all existing
+     *           articles for this journal before harvesting (full re-import).
      */
-    public function harvest(Journal $journal): RedirectResponse
+    public function harvest(Request $request, Journal $journal): RedirectResponse
     {
         $this->authorize('update', $journal);
 
@@ -463,13 +465,20 @@ class JournalController extends Controller
                 ->with('error', 'Jurnal ini belum memiliki OAI-PMH URL. Tambahkan URL-nya terlebih dahulu melalui form edit jurnal.');
         }
 
+        $clearExisting = (bool) $request->input('force', false);
+
         // ShouldBeUnique on the job prevents duplicate dispatches silently.
-        // Dispatch — if an identical job is already queued, Laravel discards this one.
-        HarvestJournalArticlesJob::dispatch($journal)->onQueue('harvesting');
+        // clearExisting=true bypasses uniqueness so a forced re-import is always dispatched
+        // even if a normal harvest is already queued.
+        HarvestJournalArticlesJob::dispatch($journal, null, $clearExisting)->onQueue('harvesting');
+
+        $message = $clearExisting
+            ? 'Force sync dijadwalkan. Semua artikel lama akan dihapus dan diimport ulang dari OAI-PMH — silakan refresh halaman beberapa saat kemudian.'
+            : 'Harvest artikel dijadwalkan. Proses berjalan di background — silakan refresh halaman beberapa saat kemudian untuk melihat hasilnya.';
 
         return redirect()
             ->route('admin-kampus.journals.show', $journal)
-            ->with('success', 'Harvest artikel dijadwalkan. Proses berjalan di background — silakan refresh halaman beberapa saat kemudian untuk melihat hasilnya.');
+            ->with('success', $message);
     }
 
     /**

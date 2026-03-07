@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Calendar, Edit, Eye, FileText, Plus, Trash2, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -64,13 +64,7 @@ interface Props {
     };
 }
 
-interface FlashProps {
-    error?: string;
-    success?: string;
-}
-
 export default function AssessmentsIndex({ assessments, filters }: Props) {
-    const { flash } = usePage().props as { flash?: FlashProps };
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || '');
 
@@ -134,11 +128,6 @@ export default function AssessmentsIndex({ assessments, filters }: Props) {
                         </Button>
                     </Link>
                 </div>
-
-                {/* Flash Message */}
-                {flash?.success && (
-                    <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-6 py-4 text-green-800 shadow-sm">{flash.success}</div>
-                )}
 
                 {/* Filters */}
                 <div className="mb-6 flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm sm:flex-row">

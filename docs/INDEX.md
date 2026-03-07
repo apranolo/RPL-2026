@@ -36,7 +36,8 @@ Dokumentasi fitur-fitur dan implementasinya
 - **OAI-PMH & Scraper**
   - `OAI_PMH_IMPLEMENTATION.md`
   - `OAI_PMH_IMPLEMENTATION_SUMMARY.md`
-  - `OAI_PMH_HARVEST_QUEUE.md` - ✨ **NEW** Harvest button + queue di dashboard Admin Kampus
+  - `OAI_PMH_HARVEST_QUEUE.md` - Harvest button + queue di dashboard Admin Kampus
+  - `OAI_REHARVEST_DUPLICATE_FIX.md` - ✨ **NEW** Fix race condition duplikat saat reharvest + fitur Force Sync
   - `SCRAPER_QUICK_REFERENCE.md`
 
 - **Pembinaan**
@@ -82,6 +83,10 @@ Catatan rapat dan diskusi proyek
 Dokumen arsip dan referensi lama
 - `PHASE3_4_COMPLETION_SUMMARY.md` - Ringkasan penyelesaian phase 3-4
 
+### 🐛 [bugs](./bugs/)
+Dokumentasi bug fixes dan root cause analysis
+- `JOURNAL_CREATE_FORM_BUGFIX.md` - ✨ **NEW** Fix form create jurnal: form persistence, timezone validation, global flash toast
+
 ### �️ [development](./development/)
 Dokumentasi development khusus
 - **MAINTENANCE.md** - ✨ **UPDATED** Panduan pemeliharaan aplikasi lengkap (monitoring, troubleshooting, security)
@@ -110,8 +115,9 @@ Screenshot dan dokumentasi visual
 | Setup dan deploy aplikasi | [setup-deployment](./setup-deployment/) |
 | Panduan testing | [testing](./testing/) |
 | Update UI/Frontend | [ui-frontend](./ui-frontend/) |
+| Lihat bug fixes & RCA | [bugs](./bugs/) 🐛 |
 | Lihat meeting notes | [meeting-notes](./meeting-notes/) |
 
 ---
 
-**Last Updated**: Maret 2026
+**Last Updated**: 7 Maret 2026

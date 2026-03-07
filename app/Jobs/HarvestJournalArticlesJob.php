@@ -47,10 +47,14 @@ class HarvestJournalArticlesJob implements ShouldBeUnique, ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param  bool  $clearExisting  When true, all existing articles for this journal are
+     *                               deleted before harvesting begins (full re-import / force sync).
      */
     public function __construct(
         public readonly Journal $journal,
         public readonly ?string $fromDate = null,
+        public readonly bool $clearExisting = false,
     ) {}
 
     /**
@@ -58,7 +62,7 @@ class HarvestJournalArticlesJob implements ShouldBeUnique, ShouldQueue
      */
     public function handle(OAIPMHHarvester $harvester): void
     {
-        $harvester->harvest($this->journal, $this->fromDate);
+        $harvester->harvest($this->journal, $this->fromDate, $this->clearExisting);
     }
 
     /**
