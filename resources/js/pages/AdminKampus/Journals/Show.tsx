@@ -9,6 +9,17 @@ import { AccreditationBadge, IndexationBadge, SintaBadge } from '@/components/ba
 import { JournalCoverUpload } from '@/components/JournalCoverUpload';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type OaiHarvestingLog } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
@@ -28,6 +39,7 @@ import {
     Globe,
     Mail,
     RefreshCw,
+    Trash2,
     User,
     XCircle,
 } from 'lucide-react';
@@ -118,6 +130,7 @@ interface Props {
 export default function JournalShow({ journal, articlesCount, lastHarvestLog, isHarvestPending }: Props) {
     const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
     const [harvesting, setHarvesting] = useState(false);
+    const [forceSyncing, setForceSyncing] = useState(false);
     const [showCoverForm, setShowCoverForm] = useState(false);
     const coverForm = useForm({ cover_image: null as File | null });
 
@@ -143,6 +156,17 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
             {},
             {
                 onFinish: () => setHarvesting(false),
+            },
+        );
+    };
+
+    const handleForceSync = () => {
+        setForceSyncing(true);
+        router.post(
+            route('admin-kampus.journals.harvest', journal.id),
+            { force: 1 },
+            {
+                onFinish: () => setForceSyncing(false),
             },
         );
     };
@@ -454,6 +478,41 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                     <RefreshCw className={`h-4 w-4 ${harvesting ? 'animate-spin' : ''}`} />
                                     {harvesting ? 'Mengirim...' : isHarvestPending ? 'Antrian Aktif' : 'Sync Artikel'}
                                 </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            disabled={forceSyncing || !journal.oai_pmh_url}
+                                            size="sm"
+                                            variant="outline"
+                                            className="gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                                            title="Hapus semua artikel lama lalu import ulang dari awal"
+                                        >
+                                            <Trash2 className={`h-4 w-4 ${forceSyncing ? 'animate-spin' : ''}`} />
+                                            {forceSyncing ? 'Memproses...' : 'Force Sync'}
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Konfirmasi Force Sync</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Tindakan ini akan <strong>menghapus semua artikel yang sudah tersimpan</strong> untuk jurnal ini,
+                                                kemudian mengimport ulang seluruh data dari OAI-PMH endpoint dari awal.
+                                                <br /><br />
+                                                Gunakan opsi ini jika terdapat <strong>data duplikat</strong> atau artikel tidak ter-update dengan benar setelah sync biasa.
+                                                Proses tidak dapat dibatalkan.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={handleForceSync}
+                                                className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-600"
+                                            >
+                                                Ya, Hapus &amp; Import Ulang
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         </div>
 
