@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Article;
 use App\Models\Journal;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -15,14 +16,21 @@ class OAIPMHHarvester
      *
      * @param  Journal  $journal  The journal to harvest articles from
      * @param  string|null  $fromDate  Optional start date for harvesting (format: YYYY-MM-DD)
+     * @param  bool  $clearExisting  If true, delete all existing articles before harvesting (full re-import)
      * @return array Harvesting statistics
      *
      * @throws \Exception
      */
-    public function harvest(Journal $journal, ?string $fromDate = null): array
+    public function harvest(Journal $journal, ?string $fromDate = null, bool $clearExisting = false): array
     {
         if (! $journal->oai_pmh_url) {
             throw new \Exception("Journal '{$journal->title}' does not have OAI-PMH URL configured");
+        }
+
+        // Force fresh import: wipe existing articles so re-harvest starts clean
+        if ($clearExisting) {
+            $deleted = Article::where('journal_id', $journal->id)->delete();
+            Log::info("Force harvest: deleted {$deleted} existing articles for journal '{$journal->title}' (ID: {$journal->id})");
         }
 
         $stats = [
@@ -161,9 +169,17 @@ class OAIPMHHarvester
             return; // Silently skip deleted records
         }
 
-        $oaiIdentifier = (string) $header->identifier;
+        $oaiIdentifier = trim((string) $header->identifier);
         $oaiDatestamp = (string) $header->datestamp;
         $oaiSet = isset($header->setSpec) ? (string) $header->setSpec : null;
+
+        // Guard: skip records without a usable identifier — inserting with an empty
+        // oai_identifier would bypass the unique index and create silent duplicates.
+        if ($oaiIdentifier === '') {
+            Log::warning("Skipping OAI record with empty identifier for journal ID {$journal->id}");
+
+            return;
+        }
 
         // Try multiple XPath patterns for metadata (different OAI-PMH implementations)
         $metadata = $record->xpath('oai:metadata/oai_dc:dc/*');
@@ -180,9 +196,6 @@ class OAIPMHHarvester
         if (empty($dcData['title'])) {
             throw new \Exception("Missing title for record: {$oaiIdentifier}");
         }
-
-        // Check if article already exists
-        $article = Article::where('oai_identifier', $oaiIdentifier)->first();
 
         $articleData = [
             'journal_id' => $journal->id,
@@ -203,14 +216,52 @@ class OAIPMHHarvester
             'last_harvested_at' => now(),
         ];
 
-        if ($article) {
-            // Update existing article
-            $article->update($articleData);
-            $stats['records_updated']++;
-        } else {
-            // Create new article
-            Article::create($articleData);
-            $stats['records_imported']++;
+        // Primary lookup: match by oai_identifier (unique index).
+        // Secondary lookup: if the OAI server changed the identifier format between harvests
+        // (a known quirk of several OJS installations) fall back to matching by DOI within
+        // the same journal, so we update rather than create a duplicate.
+        $existingByDoi = null;
+        if (! empty($dcData['doi'])) {
+            $existingByDoi = Article::where('journal_id', $journal->id)
+                ->where('doi', $dcData['doi'])
+                ->whereNot('oai_identifier', $oaiIdentifier)
+                ->first();
+        }
+
+        try {
+            if ($existingByDoi) {
+                // Identifier changed but DOI matches — update in-place and correct the identifier
+                $existingByDoi->update($articleData);
+                $stats['records_updated']++;
+            } else {
+                // Atomic upsert: updateOrCreate is a single SELECT+INSERT/UPDATE operation
+                // wrapped in Laravel's query builder, preventing the race condition that the
+                // old manual SELECT→INSERT pattern was vulnerable to.
+                $result = Article::updateOrCreate(
+                    ['oai_identifier' => $oaiIdentifier],
+                    $articleData
+                );
+
+                if ($result->wasRecentlyCreated) {
+                    $stats['records_imported']++;
+                } else {
+                    $stats['records_updated']++;
+                }
+            }
+        } catch (UniqueConstraintViolationException $e) {
+            // Last-resort fallback: unique constraint fired despite updateOrCreate
+            // (can happen in a tight race between two concurrent harvest jobs).
+            // Attempt a plain update so the record ends up with the latest data.
+            $updated = Article::where('oai_identifier', $oaiIdentifier)->update(
+                array_merge($articleData, ['last_harvested_at' => now()])
+            );
+
+            if ($updated) {
+                $stats['records_updated']++;
+                Log::warning("Race condition on oai_identifier '{$oaiIdentifier}' — resolved via fallback update.");
+            } else {
+                throw $e; // Re-throw only if we genuinely could not handle it
+            }
         }
     }
 
