@@ -45,6 +45,7 @@
  * @filepath /resources/js/pages/User/Journals/Create.tsx
  */
 import { JournalCoverUpload } from '@/components/JournalCoverUpload';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,8 +54,8 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, BookOpen } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { AlertCircle, ArrowLeft, BookOpen } from 'lucide-react';
+import { FormEventHandler, useEffect, useRef } from 'react';
 
 interface Props {
     scientificFields: Array<{
@@ -99,10 +100,24 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('user.journals.store'), { forceFormData: true });
+        post(route('user.journals.store'), {
+            forceFormData: true,
+            preserveState: true,
+            preserveScroll: false,
+        });
     };
 
     const currentYear = new Date().getFullYear();
+
+    // Scroll to error summary whenever validation errors appear
+    const errorSummaryRef = useRef<HTMLDivElement>(null);
+    const hasErrors = Object.keys(errors).length > 0;
+
+    useEffect(() => {
+        if (hasErrors && errorSummaryRef.current) {
+            errorSummaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [hasErrors]);
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
@@ -134,6 +149,23 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                     {/* Form */}
                     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Validation Error Summary */}
+                            {hasErrors && (
+                                <div ref={errorSummaryRef}>
+                                    <Alert variant="destructive">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertTitle>Terdapat kesalahan pada form</AlertTitle>
+                                        <AlertDescription>
+                                            <ul className="mt-1 list-disc pl-4 text-sm space-y-1">
+                                                {Object.entries(errors).map(([field, message]) => (
+                                                    <li key={field}>{message as string}</li>
+                                                ))}
+                                            </ul>
+                                        </AlertDescription>
+                                    </Alert>
+                                </div>
+                            )}
+
                             {/* Basic Info */}
                             <div className="space-y-4">
                                 <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">
@@ -462,6 +494,11 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                     <Label>Cover Image (Opsional)</Label>
                                     <div className="mt-1">
                                         <JournalCoverUpload onChange={(file) => setData('cover_image', file)} error={errors.cover_image} />
+                                        {hasErrors && (
+                                            <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                                                Jika sebelumnya sudah memilih gambar, silakan pilih ulang setelah memperbaiki error di atas.
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
