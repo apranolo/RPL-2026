@@ -388,8 +388,8 @@ class OAIPMHHarvester
      */
     protected function parseSourceInfo(string $source, array &$data): void
     {
-        // Pattern: "Vol. 5 No. 1" or "Vol. 5, No. 1"
-        if (preg_match('/Vol\.\s*(\d+).*?No\.\s*(\d+)/i', $source, $matches)) {
+        // Pattern: "Vol. 5 No. 1", "Vol. 5, No. 1", or "Vol 3 No 0" (OJS 2 omits the dots)
+        if (preg_match('/Vol\.?\s*(\d+).*?No\.?\s*(\d+)/i', $source, $matches)) {
             $data['volume'] = $matches[1];
             $data['issue'] = $matches[2];
         }
@@ -406,8 +406,15 @@ class OAIPMHHarvester
         }
 
         // Pattern: pages "10-20" or "pp. 10-20"
-        if (preg_match('/(?:pp?\.\s*)?(\d+)\s*[-–]\s*(\d+)/i', $source, $matches)) {
-            $data['pages'] = "{$matches[1]}-{$matches[2]}";
+        // Guard: skip if both sides are exactly 4 digits — that is an ISSN (e.g. "2442-6571"),
+        // not a real page range. OJS 2 embeds the journal ISSN at the end of dc:source instead
+        // of actual page numbers, so we must not store it as pages.
+        if (preg_match('/(?:pp?\.?\s*)?(\d+)\s*[-–]\s*(\d+)/i', $source, $matches)) {
+            $left = $matches[1];
+            $right = $matches[2];
+            if (! (strlen($left) === 4 && strlen($right) === 4)) {
+                $data['pages'] = "{$left}-{$right}";
+            }
         }
     }
 
