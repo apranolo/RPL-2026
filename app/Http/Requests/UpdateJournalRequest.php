@@ -39,9 +39,16 @@ class UpdateJournalRequest extends FormRequest
             // SINTA / Accreditation (merged)
             'sinta_rank' => 'required|string|in:sinta_1,sinta_2,sinta_3,sinta_4,sinta_5,sinta_6,non_sinta',
             'accreditation_start_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 5),
-            'accreditation_end_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 10).'|gte:accreditation_start_year',
+            'accreditation_end_year' => array_filter([
+                'nullable',
+                'integer',
+                'min:1900',
+                'max:'.(date('Y') + 10),
+                $this->filled('accreditation_start_year') ? 'gte:accreditation_start_year' : null,
+            ]),
             'accreditation_sk_number' => 'nullable|string|max:100',
-            'accreditation_sk_date' => 'nullable|date|before_or_equal:today',
+            // Use app timezone to avoid UTC mismatch that rejects today's local date as "future"
+            'accreditation_sk_date' => 'nullable|date|before_or_equal:'.now()->timezone(config('app.timezone'))->format('Y-m-d'),
 
             // Indexations
             'indexations' => 'nullable|array',
@@ -55,7 +62,7 @@ class UpdateJournalRequest extends FormRequest
             // Additional Info
             'oai_pmh_url' => 'required|url|max:500',
             'about' => 'nullable|string|max:1000',
-            'scope' => 'nullable|string|max:1000',
+            'scope' => 'nullable|string|max:2500',
 
             // Cover Image
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048|dimensions:min_width=300,min_height=400',
@@ -94,8 +101,10 @@ class UpdateJournalRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        // Transform indexations from frontend format to database format
-        if ($this->has('indexations') && is_array($this->indexations)) {
+        $mergeData = [];
+
+        // Transform indexations from frontend format to database format        
+        if ($this->has('indexations') && is_array($this->indexations)) {        
             $transformed = [];
             foreach ($this->indexations as $item) {
                 if (isset($item['platform'])) {
@@ -104,7 +113,25 @@ class UpdateJournalRequest extends FormRequest
                     ];
                 }
             }
-            $this->merge(['indexations' => $transformed]);
+            $mergeData['indexations'] = $transformed;
+        }
+
+        // Normalize first_published_year to integer
+        if ($this->has('first_published_year') && $this->input('first_published_year') !== null && $this->input('first_published_year') !== '') {
+            $mergeData['first_published_year'] = (int) $this->input('first_published_year');
+        }
+
+        // Normalize SK Date to Y-m-d using app timezone if present
+        if ($this->has('accreditation_sk_date') && $this->input('accreditation_sk_date') != '') {
+            try {
+                $mergeData['accreditation_sk_date'] = \Carbon\Carbon::parse($this->input('accreditation_sk_date'), config('app.timezone'))->format('Y-m-d');
+            } catch (\Exception $e) {
+                // Ignore parse errors, let validation handle it
+            }
+        }
+
+        if (!empty($mergeData)) {
+            $this->merge($mergeData);
         }
     }
 }

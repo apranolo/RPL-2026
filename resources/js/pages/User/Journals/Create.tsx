@@ -108,6 +108,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
     };
 
     const currentYear = new Date().getFullYear();
+    const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
 
     // Scroll to error summary whenever validation errors appear
     const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -337,7 +338,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                                     type="date"
                                                     value={data.accreditation_sk_date}
                                                     onChange={(e) => setData('accreditation_sk_date', e.target.value)}
-                                                    max={new Date().toISOString().split('T')[0]}
+                                                    max={todayLocal}
                                                     className="mt-1"
                                                 />
                                                 {errors.accreditation_sk_date && (
@@ -375,9 +376,11 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                             id="first_published_year"
                                             type="number"
                                             min="1900"
-                                            max={currentYear}
+                                            max={currentYear + 1}
                                             value={data.first_published_year}
-                                            onChange={(e) => setData('first_published_year', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('first_published_year', e.target.value === '' ? '' : String(Number(e.target.value)))
+                                            }
                                             placeholder="e.g. 2010"
                                             className="mt-1"
                                         />
@@ -484,9 +487,9 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                         onChange={(e) => setData('scope', e.target.value)}
                                         placeholder="Research areas covered by the journal..."
                                         className="mt-1"
-                                        maxLength={1000}
+                                        maxLength={2500}
                                     />
-                                    <p className="mt-1 text-xs text-muted-foreground">{data.scope.length}/1000 characters</p>
+                                    <p className="mt-1 text-xs text-muted-foreground">{data.scope.length}/2500 characters</p>
                                     {errors.scope && <p className="mt-1 text-sm text-red-600">{errors.scope}</p>}
                                 </div>
 
