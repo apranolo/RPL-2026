@@ -131,4 +131,24 @@ class JournalFormFixTest extends TestCase
         $response->assertRedirect(route('user.journals.index'));
         $this->assertEquals($localToday, $journal->fresh()->accreditation_sk_date->format('Y-m-d'));
     }
+
+    public function test_accreditation_sk_date_is_updated_to_new_value_not_stuck_on_old_date()
+    {
+        $this->actingAs($this->user);
+
+        $journal = Journal::factory()->create([
+            'user_id' => $this->user->id,
+            'university_id' => $this->university->id,
+            'accreditation_sk_date' => '2024-12-11',
+        ]);
+
+        $data = $this->getValidJournalData();
+        $data['accreditation_sk_date'] = '2025-02-19';
+
+        $response = $this->put(route('user.journals.update', $journal->id), $data);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect(route('user.journals.index'));
+        $this->assertEquals('2025-02-19', $journal->fresh()->accreditation_sk_date->format('Y-m-d'));
+    }
 }

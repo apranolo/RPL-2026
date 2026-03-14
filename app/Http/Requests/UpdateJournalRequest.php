@@ -48,7 +48,7 @@ class UpdateJournalRequest extends FormRequest
             ]),
             'accreditation_sk_number' => 'nullable|string|max:100',
             // Use app timezone to avoid UTC mismatch that rejects today's local date as "future"
-            'accreditation_sk_date' => 'nullable|date|before_or_equal:'.now()->timezone(config('app.timezone'))->format('Y-m-d'),
+            'accreditation_sk_date' => 'nullable|date_format:Y-m-d|before_or_equal:'.now()->timezone(config('app.timezone'))->format('Y-m-d'),
 
             // Indexations
             'indexations' => 'nullable|array',
@@ -124,7 +124,10 @@ class UpdateJournalRequest extends FormRequest
         // Normalize SK Date to Y-m-d using app timezone if present
         if ($this->has('accreditation_sk_date') && $this->input('accreditation_sk_date') != '') {
             try {
-                $mergeData['accreditation_sk_date'] = \Carbon\Carbon::parse($this->input('accreditation_sk_date'), config('app.timezone'))->format('Y-m-d');
+                $date = \Carbon\Carbon::createFromFormat('Y-m-d', (string) $this->input('accreditation_sk_date'), config('app.timezone'));
+                if ($date !== false) {
+                    $mergeData['accreditation_sk_date'] = $date->format('Y-m-d');
+                }
             } catch (\Exception $e) {
                 // Ignore parse errors, let validation handle it
             }

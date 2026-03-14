@@ -36,3 +36,27 @@
 - ✅ `accreditation sk date today local timezone is accepted in update`
 
 Semua test suite dan manual case form sudah berjalan sesuai ekspektasi. Modifikasi aman untuk di merged ke repository utama.
+
+## Follow-up Temuan Setelah Deploy (14 Mar 2026)
+
+### Gejala
+- Nilai `Tanggal SK` pada edit jurnal "selalu kembali" ke `11/12/2024` setelah disimpan.
+
+### Akar Masalah Lanjutan
+- Ada **inkonsistensi antar halaman role**: flow `AdminKampus/Journals/Edit` masih memakai logika lama untuk nilai date input (`accreditation_sk_date: journal.accreditation_sk_date || ''`) dan batas `max` tanggal berbasis `toISOString()` (UTC), sehingga rentan mismatch nilai tanggal.
+- Parsing backend sebelumnya menggunakan `Carbon::parse(...)` yang bersifat permisif; input tanggal non-standar berpotensi diparse ambigu (day/month swap) dan menghasilkan tanggal yang tidak diharapkan.
+
+### Perbaikan Follow-up
+- Request validation untuk `accreditation_sk_date` diperketat menjadi `date_format:Y-m-d` pada:
+   - `app/Http/Requests/StoreJournalRequest.php`
+   - `app/Http/Requests/UpdateJournalRequest.php`
+- Normalisasi tanggal di `prepareForValidation()` diubah menjadi strict parser `Carbon::createFromFormat('Y-m-d', ...)`.
+- Halaman Admin Kampus diperbaiki agar konsisten dengan User flow:
+   - `resources/js/pages/AdminKampus/Journals/Edit.tsx`: normalisasi nilai awal date input (mendukung `YYYY-MM-DD`, ISO datetime, dan `DD/MM/YYYY`) dan gunakan `todayLocal` untuk `max`.
+   - `resources/js/pages/AdminKampus/Journals/Create.tsx`: gunakan `todayLocal` untuk `max`.
+
+### Tambahan Regression Test
+- Ditambahkan test: `test_accreditation_sk_date_is_updated_to_new_value_not_stuck_on_old_date` pada:
+   - `tests/Feature/User/JournalFormFixTest.php`
+
+> Catatan verifikasi lokal: saat run terakhir, eksekusi test sempat terhambat karena koneksi MySQL test environment tidak aktif (`SQLSTATE[HY000] [2002] connection refused`). Setelah DB test aktif, jalankan ulang test untuk konfirmasi akhir.
