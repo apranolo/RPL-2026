@@ -63,6 +63,20 @@ interface Props {
 }
 
 export default function JournalsEdit({ journal, scientificFields, sintaRankOptions, indexationOptions }: Props) {
+    const normalizeDateInput = (value?: string | null) => {
+        if (!value) return '';
+        const direct = value.match(/^(\d{4}-\d{2}-\d{2})$/);
+        if (direct) return direct[1];
+
+        const iso = value.match(/^(\d{4}-\d{2}-\d{2})T/);
+        if (iso) return iso[1];
+
+        const dmy = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
+
+        return '';
+    };
+
     // Transform existing indexations from object to array format
     const existingIndexations = journal.indexations
         ? Object.entries(journal.indexations).map(([platform, data]) => ({
@@ -86,7 +100,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
         accreditation_start_year: journal.accreditation_start_year?.toString() || '',
         accreditation_end_year: journal.accreditation_end_year?.toString() || '',
         accreditation_sk_number: journal.accreditation_sk_number || '',
-        accreditation_sk_date: journal.accreditation_sk_date || '',
+        accreditation_sk_date: normalizeDateInput(journal.accreditation_sk_date),
         // Contact & Additional Info
         editor_in_chief: journal.editor_in_chief || '',
         email: journal.email || '',
@@ -106,6 +120,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
     };
 
     const currentYear = new Date().getFullYear();
+    const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
@@ -309,7 +324,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                     type="date"
                                                     value={data.accreditation_sk_date}
                                                     onChange={(e) => setData('accreditation_sk_date', e.target.value)}
-                                                    max={new Date().toISOString().split('T')[0]}
+                                                    max={todayLocal}
                                                     className="mt-1"
                                                 />
                                                 {errors.accreditation_sk_date && (
