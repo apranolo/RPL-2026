@@ -79,6 +79,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
     };
 
     const currentYear = new Date().getFullYear();
+    const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
 
     // Scroll to error summary whenever validation errors appear
     const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -333,7 +334,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                                     type="date"
                                                     value={data.accreditation_sk_date}
                                                     onChange={(e) => setData('accreditation_sk_date', e.target.value)}
-                                                    max={new Date().toISOString().split('T')[0]}
+                                                    max={todayLocal}
                                                     className="mt-1"
                                                 />
                                                 {errors.accreditation_sk_date && (
