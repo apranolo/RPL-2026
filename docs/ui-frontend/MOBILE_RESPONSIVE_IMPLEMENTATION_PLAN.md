@@ -132,16 +132,17 @@ Semua page lain (45 file) dikerjakan setelah P0/P1 untuk hardening dan konsisten
 
 ## 7. Rencana Eksekusi Bertahap
 
-### Phase 1 — Baseline & reusable patterns (2–3 hari)
-- Buat guideline utility class responsive untuk:
-  - container page,
-  - section header,
-  - filter form,
-  - action group,
-  - pagination mobile.
+### Phase 1 — Baseline & reusable patterns (Selesai)
+- Menetapkan guideline utility class responsive dengan Tailwind:
+  - **container page**: `flex flex-col gap-4 rounded-xl p-4`
+  - **section header**: `flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`
+  - **filter form**: `flex flex-col gap-3 md:flex-row md:items-center` dan `flex-col sm:flex-row` pada action group.
+  - **action group (CTA)**: `w-full sm:w-auto` untuk button agar full-width di mobile.
+  - **input width**: mengganti w-48/w-64 menjadi `w-full md:w-48` / `w-full md:w-64`.
+  - **table col priority**: sembunyikan kolom tersunder (`Contact`, `Journals`, `Last Login`) menggunakan `hidden lg:table-cell` atau `hidden md:table-cell`, pastikan scrollable dengan `overflow-x-auto min-w-[800px] md:min-w-full`.
 - Terapkan ke 2 halaman referensi terbesar:
-  - `AdminKampus/Users/Index.tsx`
-  - `Admin/AdminKampus/Index.tsx`
+  - `AdminKampus/Users/Index.tsx` (Selesai)
+  - `Admin/AdminKampus/Index.tsx` (Selesai)
 
 ### Phase 2 — High risk tables (4–6 hari)
 - Refactor halaman P0 berbasis tabel (admin/admin kampus/user list).
