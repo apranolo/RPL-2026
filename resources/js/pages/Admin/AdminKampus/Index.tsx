@@ -354,7 +354,7 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
                                     <ShieldCheck className="h-8 w-8 text-green-600 dark:text-green-400" />
@@ -362,8 +362,8 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                 </h1>
                                 <p className="mt-1 text-muted-foreground">Manage university administrators across PTM</p>
                             </div>
-                            <Link href={route('admin.admin-kampus.create')}>
-                                <Button className="flex items-center gap-2">
+                            <Link href={route('admin.admin-kampus.create')} className="w-full sm:w-auto">
+                                <Button className="w-full sm:w-auto flex items-center justify-center gap-2">
                                     <Plus className="h-4 w-4" />
                                     Add Admin Kampus
                                 </Button>
@@ -385,19 +385,17 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
 
                     {/* Filters */}
                     <div className="mb-6 rounded-lg border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
-                        <form onSubmit={handleSearch} className="flex gap-4">
+                        <form onSubmit={handleSearch} className="flex flex-col gap-3 md:flex-row md:items-center">
                             {/* Search */}
-                            <div className="flex-1">
-                                <div className="relative">
-                                    <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
-                                    <Input
-                                        type="text"
-                                        placeholder="Search by name or email..."
-                                        value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
-                                        className="pl-10"
-                                    />
-                                </div>
+                            <div className="flex-1 w-full relative">
+                                <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search by name or email..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="pl-10 w-full"
+                                />
                             </div>
 
                             {/* University Filter */}
@@ -406,12 +404,12 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                 value={universityId || 'all'}
                                 onValueChange={(value) => setUniversityId(value === 'all' ? '' : value)}
                                 placeholder="All Universities"
-                                className="w-64"
+                                className="w-full md:w-64"
                             />
 
                             {/* Status Filter */}
                             <Select value={isActiveFilter || 'all'} onValueChange={(value) => setIsActiveFilter(value === 'all' ? '' : value)}>
-                                <SelectTrigger className="w-48">
+                                <SelectTrigger className="w-full md:w-48">
                                     <SelectValue placeholder="All Status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -421,38 +419,41 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                 </SelectContent>
                             </Select>
 
-                            <Button type="submit">Search</Button>
-                            {(search || universityId || isActiveFilter) && (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => {
-                                        setSearch('');
-                                        setUniversityId('');
-                                        setIsActiveFilter('');
-                                        router.get(route('admin.admin-kampus.index'));
-                                    }}
-                                >
-                                    Clear
-                                </Button>
-                            )}
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <Button type="submit" className="w-full sm:w-auto">Search</Button>
+                                {(search || universityId || isActiveFilter) && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full sm:w-auto"
+                                        onClick={() => {
+                                            setSearch('');
+                                            setUniversityId('');
+                                            setIsActiveFilter('');
+                                            router.get(route('admin.admin-kampus.index'));
+                                        }}
+                                    >
+                                        Clear
+                                    </Button>
+                                )}
+                            </div>
                         </form>
                     </div>
 
                     {/* Table */}
-                    <div className="overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
-                        <Table>
+                    <div className="overflow-x-auto rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                        <Table className="min-w-[800px] md:min-w-full">
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Admin Kampus</TableHead>
                                     <TableHead>University</TableHead>
-                                    <TableHead>Contact</TableHead>
+                                    <TableHead className="hidden md:table-cell">Contact</TableHead>
                                     <TableHead className="text-center">Status</TableHead>
-                                    <TableHead className="text-center">
+                                    <TableHead className="hidden lg:table-cell text-center">
                                         <BookOpen className="mr-1 inline h-4 w-4" />
                                         Journals
                                     </TableHead>
-                                    <TableHead>Last Login</TableHead>
+                                    <TableHead className="hidden lg:table-cell">Last Login</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -471,7 +472,7 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                                     {admin.avatar_url ? (
                                                         <img src={admin.avatar_url} alt={admin.name} className="h-10 w-10 rounded-full" />
                                                     ) : (
-                                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+                                                        <div className="flex shrink-0 h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
                                                             <span className="font-semibold text-green-600 dark:text-green-400">
                                                                 {admin.name.charAt(0).toUpperCase()}
                                                             </span>
@@ -479,7 +480,8 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                                     )}
                                                     <div>
                                                         <div className="font-semibold text-foreground">{admin.name}</div>
-                                                        {admin.position && <div className="text-sm text-muted-foreground">{admin.position}</div>}
+                                                        <div className="text-xs md:hidden text-muted-foreground">{admin.email}</div>
+                                                        {admin.position && <div className="hidden md:block text-sm text-muted-foreground">{admin.position}</div>}
                                                     </div>
                                                 </div>
                                             </TableCell>
@@ -487,13 +489,13 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                                 {admin.university ? (
                                                     <div>
                                                         <div className="font-medium text-foreground">{admin.university.code}</div>
-                                                        <div className="text-sm text-muted-foreground">{admin.university.short_name}</div>
+                                                        <div className="text-sm text-muted-foreground truncate max-w-[150px] md:max-w-none">{admin.university.short_name}</div>
                                                     </div>
                                                 ) : (
                                                     <span className="text-muted-foreground">-</span>
                                                 )}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="hidden md:table-cell">
                                                 <div className="text-sm">
                                                     <div>{admin.email}</div>
                                                     {admin.phone && <div className="text-muted-foreground">{admin.phone}</div>}
@@ -510,8 +512,8 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                                     </Badge>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-center">{admin.journals_count}</TableCell>
-                                            <TableCell>
+                                            <TableCell className="hidden lg:table-cell text-center">{admin.journals_count}</TableCell>
+                                            <TableCell className="hidden lg:table-cell">
                                                 <div className="text-sm text-muted-foreground">{admin.last_login_at || '-'}</div>
                                             </TableCell>
                                             <TableCell className="text-right">
