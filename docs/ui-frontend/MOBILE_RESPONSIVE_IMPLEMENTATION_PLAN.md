@@ -144,9 +144,11 @@ Semua page lain (45 file) dikerjakan setelah P0/P1 untuk hardening dan konsisten
   - `AdminKampus/Users/Index.tsx` (Selesai)
   - `Admin/AdminKampus/Index.tsx` (Selesai)
 
-### Phase 2 — High risk tables (4–6 hari)
+### Phase 2 — High risk tables (Mulai Dikerjakan)
 - Refactor halaman P0 berbasis tabel (admin/admin kampus/user list).
 - Implement mobile card-view untuk tabel sangat padat (khusus page dengan aksi multi tombol).
+  - `Admin/Universities/Index.tsx` (Selesai - Batch 1 Pioneer)
+  - `AdminKampus/Journals/Index.tsx` (Selesai - Batch 1 Pioneer)
 - Pastikan tombol aksi tetap dapat dijangkau ibu jari (thumb-friendly).
 
 ### Phase 3 — Medium risk pages (2–3 hari)
