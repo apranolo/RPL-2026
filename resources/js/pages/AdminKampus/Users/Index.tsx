@@ -297,7 +297,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
                                     <UsersIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
@@ -305,8 +305,8 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                 </h1>
                                 <p className="mt-1 text-muted-foreground">Manage users (Pengelola Jurnal) for {university.name}</p>
                             </div>
-                            <Link href={route('admin-kampus.users.create')}>
-                                <Button className="flex items-center gap-2">
+                            <Link href={route('admin-kampus.users.create')} className="w-full sm:w-auto">
+                                <Button className="w-full sm:w-auto flex items-center justify-center gap-2">
                                     <Plus className="h-4 w-4" />
                                     Create User
                                 </Button>
@@ -328,7 +328,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
 
                     {/* Filters */}
                     <div className="mb-6 rounded-lg border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
-                        <form onSubmit={handleSearch} className="flex gap-4">
+                        <form onSubmit={handleSearch} className="flex flex-col gap-3 md:flex-row md:items-center">
                             {/* Search */}
                             <div className="flex-1">
                                 <div className="relative">
@@ -345,7 +345,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
 
                             {/* Role Filter */}
                             <Select value={roleIdFilter || 'all'} onValueChange={(value) => setRoleIdFilter(value === 'all' ? '' : value)}>
-                                <SelectTrigger className="w-48">
+                                <SelectTrigger className="w-full md:w-48">
                                     <SelectValue placeholder="All Roles" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -360,7 +360,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
 
                             {/* Approval Status Filter */}
                             <Select value={approvalStatusFilter} onValueChange={(value) => setApprovalStatusFilter(value)}>
-                                <SelectTrigger className="w-48">
+                                <SelectTrigger className="w-full md:w-48">
                                     <SelectValue placeholder="Approval Status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -372,7 +372,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
 
                             {/* Active Status Filter */}
                             <Select value={isActiveFilter || 'all'} onValueChange={(value) => setIsActiveFilter(value === 'all' ? '' : value)}>
-                                <SelectTrigger className="w-48">
+                                <SelectTrigger className="w-full md:w-48">
                                     <SelectValue placeholder="Active Status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -382,22 +382,25 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                 </SelectContent>
                             </Select>
 
-                            <Button type="submit">Search</Button>
-                            {(search || isActiveFilter || roleIdFilter || approvalStatusFilter !== 'approved') && (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => {
-                                        setSearch('');
-                                        setIsActiveFilter('');
-                                        setRoleIdFilter('');
-                                        setApprovalStatusFilter('approved');
-                                        router.get(route('admin-kampus.users.index'));
-                                    }}
-                                >
-                                    Clear
-                                </Button>
-                            )}
+                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                <Button type="submit" className="w-full sm:w-auto">Search</Button>
+                                {(search || isActiveFilter || roleIdFilter || approvalStatusFilter !== 'approved') && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full sm:w-auto"
+                                        onClick={() => {
+                                            setSearch('');
+                                            setIsActiveFilter('');
+                                            setRoleIdFilter('');
+                                            setApprovalStatusFilter('approved');
+                                            router.get(route('admin-kampus.users.index'));
+                                        }}
+                                    >
+                                        Clear
+                                    </Button>
+                                )}
+                            </div>
                         </form>
                     </div>
 
@@ -407,14 +410,14 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>User</TableHead>
-                                    <TableHead>Roles</TableHead>
-                                    <TableHead>Contact</TableHead>
+                                    <TableHead className="hidden md:table-cell">Roles</TableHead>
+                                    <TableHead className="hidden md:table-cell">Contact</TableHead>
                                     <TableHead className="text-center">Status</TableHead>
-                                    <TableHead className="text-center">
+                                    <TableHead className="hidden text-center md:table-cell">
                                         <BookOpen className="mr-1 inline h-4 w-4" />
                                         Journals
                                     </TableHead>
-                                    <TableHead>Last Login</TableHead>
+                                    <TableHead className="hidden md:table-cell">Last Login</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -460,7 +463,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="hidden md:table-cell">
                                                 <div className="flex flex-wrap gap-1">
                                                     {user.roles && user.roles.length > 0 ? (
                                                         user.roles.map((role) => (
@@ -473,7 +476,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                                     )}
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="hidden md:table-cell">
                                                 <div className="text-sm">
                                                     <div>{user.email}</div>
                                                     {user.phone && <div className="text-muted-foreground">{user.phone}</div>}
@@ -490,8 +493,8 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                                     </Badge>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-center">{user.journals_count}</TableCell>
-                                            <TableCell>
+                                            <TableCell className="hidden text-center md:table-cell">{user.journals_count}</TableCell>
+                                            <TableCell className="hidden md:table-cell">
                                                 <div className="text-sm text-muted-foreground">{user.last_login_at || '-'}</div>
                                             </TableCell>
                                             <TableCell className="text-right">
@@ -542,7 +545,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                         {/* Pagination */}
                         {users.last_page > 1 && (
                             <div className="border-t border-sidebar-border/70 px-6 py-4 dark:border-sidebar-border">
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
                                     <div className="text-sm text-muted-foreground">
                                         Showing {(users.current_page - 1) * users.per_page + 1} to{' '}
                                         {Math.min(users.current_page * users.per_page, users.total)} of {users.total} results
@@ -581,7 +584,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h2 className="flex items-center gap-2 text-2xl font-bold text-foreground">
                                     <UserPlus className="h-7 w-7 text-orange-600 dark:text-orange-400" />
@@ -600,7 +603,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
 
                     {/* Search for Pending Users */}
                     <div className="mb-6 rounded-lg border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
-                        <form onSubmit={handlePendingSearch} className="flex gap-4">
+                        <form onSubmit={handlePendingSearch} className="flex flex-col gap-3 md:flex-row md:items-center">
                             <div className="flex-1">
                                 <div className="relative">
                                     <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
@@ -640,9 +643,9 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Name</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>Registration Date</TableHead>
+                                    <TableHead className="hidden md:table-cell">Email</TableHead>
+                                    <TableHead className="hidden md:table-cell">Role</TableHead>
+                                    <TableHead className="hidden md:table-cell">Registration Date</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -657,11 +660,11 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                     pendingUsers.data.map((user) => (
                                         <TableRow key={user.id}>
                                             <TableCell className="font-medium">{user.name}</TableCell>
-                                            <TableCell>{user.email}</TableCell>
-                                            <TableCell>
+                                            <TableCell className="hidden md:table-cell">{user.email}</TableCell>
+                                            <TableCell className="hidden md:table-cell">
                                                 <Badge variant="outline">{user.role?.display_name || 'Pending'}</Badge>
                                             </TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">{formatDate(user.created_at)}</TableCell>
+                                            <TableCell className="hidden text-sm text-muted-foreground md:table-cell">{formatDate(user.created_at)}</TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Button
@@ -698,7 +701,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                         {/* Pagination for Pending Users */}
                         {pendingUsers.last_page > 1 && (
                             <div className="border-t border-sidebar-border/70 px-6 py-4 dark:border-sidebar-border">
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
                                     <div className="text-sm text-muted-foreground">
                                         Showing {(pendingUsers.current_page - 1) * pendingUsers.per_page + 1} to{' '}
                                         {Math.min(pendingUsers.current_page * pendingUsers.per_page, pendingUsers.total)} of {pendingUsers.total}{' '}
@@ -782,7 +785,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                         { preserveState: true },
                                     );
                                 }}
-                                className="flex gap-4"
+                                className="flex flex-col gap-3 md:flex-row md:items-center"
                             >
                                 <div className="flex-1">
                                     <div className="relative">
@@ -825,11 +828,11 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Name</TableHead>
-                                        <TableHead>Email</TableHead>
-                                        <TableHead>University</TableHead>
-                                        <TableHead>Rejection Reason</TableHead>
-                                        <TableHead>Rejected By</TableHead>
-                                        <TableHead>Rejected At</TableHead>
+                                        <TableHead className="hidden md:table-cell">Email</TableHead>
+                                        <TableHead className="hidden lg:table-cell">University</TableHead>
+                                        <TableHead className="hidden md:table-cell">Rejection Reason</TableHead>
+                                        <TableHead className="hidden lg:table-cell">Rejected By</TableHead>
+                                        <TableHead className="hidden md:table-cell">Rejected At</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -844,8 +847,8 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                         rejectedUsers.data.map((user) => (
                                             <TableRow key={user.id}>
                                                 <TableCell className="font-medium">{user.name}</TableCell>
-                                                <TableCell>{user.email}</TableCell>
-                                                <TableCell>
+                                                <TableCell className="hidden md:table-cell">{user.email}</TableCell>
+                                                <TableCell className="hidden lg:table-cell">
                                                     {user.university ? (
                                                         <div>
                                                             <div className="font-medium">{user.university.name}</div>
@@ -855,13 +858,13 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                                         <span className="text-muted-foreground">-</span>
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="max-w-md">
+                                                <TableCell className="max-w-md hidden md:table-cell">
                                                     <p className="truncate text-sm text-muted-foreground" title={user.rejection_reason}>
                                                         {user.rejection_reason}
                                                     </p>
                                                 </TableCell>
-                                                <TableCell>{user.rejected_by}</TableCell>
-                                                <TableCell className="text-sm text-muted-foreground">{formatDate(user.rejected_at)}</TableCell>
+                                                <TableCell className="hidden lg:table-cell">{user.rejected_by}</TableCell>
+                                                <TableCell className="hidden text-sm text-muted-foreground md:table-cell">{formatDate(user.rejected_at)}</TableCell>
                                                 <TableCell className="text-right">
                                                     <Button
                                                         size="sm"
@@ -883,7 +886,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                             {/* Pagination for Rejected Users */}
                             {rejectedUsers.last_page > 1 && (
                                 <div className="border-t border-red-200 px-6 py-4 dark:border-red-900">
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
                                         <div className="text-sm text-muted-foreground">
                                             Showing {(rejectedUsers.current_page - 1) * rejectedUsers.per_page + 1} to{' '}
                                             {Math.min(rejectedUsers.current_page * rejectedUsers.per_page, rejectedUsers.total)} of{' '}
