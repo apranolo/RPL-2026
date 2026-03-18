@@ -50,6 +50,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -175,7 +176,7 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                             <div>
                                 <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
                                     <Building2 className="h-8 w-8 text-green-600 dark:text-green-400" />
@@ -185,7 +186,7 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                             </div>
                             {can.create && (
                                 <Link href={route('admin.universities.create')}>
-                                    <Button className="flex items-center gap-2">
+                                    <Button className="flex w-full items-center gap-2 md:w-auto">
                                         <Plus className="h-4 w-4" />
                                         Add University
                                     </Button>
@@ -209,7 +210,7 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                     {/* Filters */}
                     <div className="mb-6 rounded-lg border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
                         <form onSubmit={handleSearch} className="flex flex-col gap-4">
-                            <div className="flex gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row">
                                 <div className="flex-1">
                                     <div className="relative">
                                         <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
@@ -224,7 +225,7 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                                 </div>
 
                                 <Select value={isActiveFilter} onValueChange={(value) => setIsActiveFilter(value)}>
-                                    <SelectTrigger className="w-48">
+                                    <SelectTrigger className="w-full sm:w-48">
                                         <SelectValue placeholder="All Status" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -235,9 +236,9 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                                 </Select>
                             </div>
 
-                            <div className="flex gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row">
                                 <Select value={accreditationFilter} onValueChange={(value) => setAccreditationFilter(value)}>
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full sm:w-48">
                                         <SelectValue placeholder="All Accreditation" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -250,7 +251,7 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                                 </Select>
 
                                 <Select value={clusterFilter} onValueChange={(value) => setClusterFilter(value)}>
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full sm:w-48">
                                         <SelectValue placeholder="All Cluster" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -261,7 +262,7 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                                     </SelectContent>
                                 </Select>
 
-                                <Button type="submit" className="w-32">
+                                <Button type="submit" className="w-full sm:w-32">
                                     Search
                                 </Button>
                                 {(search ||
@@ -271,7 +272,7 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        className="w-32"
+                                        className="w-full sm:w-32"
                                         onClick={() => {
                                             setSearch('');
                                             setIsActiveFilter('all');
@@ -287,8 +288,112 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                         </form>
                     </div>
 
+                    {/* Mobile Card View */}
+                    <div className="mb-6 grid grid-cols-1 gap-4 md:hidden">
+                        {universities.data.length === 0 ? (
+                            <Card className="flex flex-col items-center justify-center border-dashed p-8 text-center">
+                                <p className="text-muted-foreground">No universities found.</p>
+                            </Card>
+                        ) : (
+                            universities.data.map((university) => (
+                                <Card key={university.id} className="overflow-hidden">
+                                    <CardHeader className="border-b bg-muted/20 pb-4">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div>
+                                                <CardTitle className="text-lg leading-tight">{university.name}</CardTitle>
+                                                {university.short_name && <p className="mt-1 text-sm text-muted-foreground">{university.short_name}</p>}
+                                                <div className="mt-2 flex items-center gap-2">
+                                                    <Badge variant="outline" className="font-mono text-xs">{university.code}</Badge>
+                                                    {university.ptm_code && <Badge variant="outline" className="font-mono text-xs">{university.ptm_code}</Badge>}
+                                                </div>
+                                            </div>
+                                            {university.is_active ? (
+                                                <Badge className="border-0 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-300">
+                                                    Active
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="secondary">Inactive</Badge>
+                                            )}
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="grid gap-3 pt-4">
+                                        {(university.accreditation_status || university.cluster) && (
+                                            <div className="flex flex-wrap gap-2">
+                                                {university.accreditation_status && (
+                                                    <Badge variant="outline" className="font-medium">
+                                                        {university.accreditation_status}
+                                                    </Badge>
+                                                )}
+                                                {university.cluster && (
+                                                    <Badge variant="secondary" className="font-medium">
+                                                        {university.cluster}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        )}
+                                        
+                                        <div>
+                                            <p className="text-sm font-medium text-muted-foreground">Location</p>
+                                            <p className="text-sm">
+                                                {university.city && university.province ? (
+                                                    <>{university.city}, {university.province}</>
+                                                ) : (
+                                                    <span className="text-muted-foreground">-</span>
+                                                )}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-1 grid grid-cols-2 gap-4 rounded-md bg-muted/50 p-3">
+                                            <div>
+                                                <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+                                                    <Users className="h-3.5 w-3.5" />
+                                                    Users
+                                                </div>
+                                                <p className="mt-1 text-2xl font-semibold">{university.users_count}</p>
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+                                                    <BookOpen className="h-3.5 w-3.5" />
+                                                    Journals
+                                                </div>
+                                                <p className="mt-1 text-2xl font-semibold">{university.journals_count}</p>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="flex gap-2 border-t bg-muted/10 p-3">
+                                        <Link href={route('admin.universities.show', university.id)} className="flex-1">
+                                            <Button variant="outline" size="sm" className="w-full gap-2">
+                                                <Eye className="h-4 w-4" />
+                                                View
+                                            </Button>
+                                        </Link>
+                                        {can.create && (
+                                            <>
+                                                <Link href={route('admin.universities.edit', university.id)} className="flex-1">
+                                                    <Button variant="outline" size="sm" className="w-full gap-2">
+                                                        <Edit className="h-4 w-4" />
+                                                        Edit
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="flex-1 gap-2 border-destructive/20 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                                    onClick={() => openDeleteDialog(university.id, university.name)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                    Delete
+                                                </Button>
+                                            </>
+                                        )}
+                                    </CardFooter>
+                                </Card>
+                            ))
+                        )}
+                    </div>
+
                     {/* Table */}
-                    <div className="overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                    <div className="hidden overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -412,8 +517,8 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                         {/* Pagination */}
                         {universities.last_page > 1 && (
                             <div className="border-t border-sidebar-border/70 px-6 py-4 dark:border-sidebar-border">
-                                <div className="flex items-center justify-between">
-                                    <div className="text-sm text-muted-foreground">
+                                <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+                                    <div className="text-center text-sm text-muted-foreground md:text-left">
                                         Showing {(universities.current_page - 1) * universities.per_page + 1} to{' '}
                                         {Math.min(universities.current_page * universities.per_page, universities.total)} of {universities.total}{' '}
                                         results
