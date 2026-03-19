@@ -128,7 +128,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                         <AlertCircle className="h-4 w-4" />
                                         <AlertTitle>Terdapat kesalahan pada form</AlertTitle>
                                         <AlertDescription>
-                                            <ul className="mt-1 list-disc pl-4 text-sm space-y-1">
+                                            <ul className="mt-1 list-disc space-y-1 pl-4 text-sm">
                                                 {Object.entries(errors).map(([field, message]) => (
                                                     <li key={field}>{message as string}</li>
                                                 ))}

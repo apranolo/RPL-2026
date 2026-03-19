@@ -308,17 +308,17 @@ export default function JournalsIndex({
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                             <Link href={route('admin-kampus.journals.import')}>
-                                    <Button variant="outline">
-                                        <Upload className="mr-2 h-4 w-4" />
-                                        Import CSV
-                                    </Button>
-                                </Link>
-                                <Link href={route('admin-kampus.journals.create')}>
-                                    <Button>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add New Journal
-                                    </Button>
-                                </Link>
+                                <Button variant="outline">
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Import CSV
+                                </Button>
+                            </Link>
+                            <Link href={route('admin-kampus.journals.create')}>
+                                <Button>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Add New Journal
+                                </Button>
+                            </Link>
                         </div>
                     </div>
 
@@ -525,9 +525,7 @@ export default function JournalsIndex({
                                         {hasActiveFilters ? 'No journals found matching your filters' : 'Belum ada jurnal terdaftar'}
                                     </p>
                                     {!hasActiveFilters && (
-                                        <p className="mt-1 text-sm text-muted-foreground">
-                                            User dapat menambahkan jurnal melalui dashboard mereka.
-                                        </p>
+                                        <p className="mt-1 text-sm text-muted-foreground">User dapat menambahkan jurnal melalui dashboard mereka.</p>
                                     )}
                                 </CardContent>
                             </Card>
@@ -605,9 +603,7 @@ export default function JournalsIndex({
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem
-                                                        onClick={() => router.visit(route('admin-kampus.journals.edit', journal.id))}
-                                                    >
+                                                    <DropdownMenuItem onClick={() => router.visit(route('admin-kampus.journals.edit', journal.id))}>
                                                         <Pencil className="mr-2 h-4 w-4" />
                                                         Edit
                                                     </DropdownMenuItem>
@@ -657,7 +653,7 @@ export default function JournalsIndex({
                     </div>
 
                     {/* Table View (Desktop) */}
-                    <div className="hidden md:block overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                    <div className="hidden overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -816,8 +812,11 @@ export default function JournalsIndex({
                     {journals.last_page > 1 && (
                         <div className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
                             <div className="text-sm text-muted-foreground">
-                                Showing <span className="font-medium">{journals.data.length > 0 ? (journals.current_page - 1) * journals.per_page + 1 : 0}</span> to{' '}
-                                <span className="font-medium">{Math.min(journals.current_page * journals.per_page, journals.total)}</span> of{' '}
+                                Showing{' '}
+                                <span className="font-medium">
+                                    {journals.data.length > 0 ? (journals.current_page - 1) * journals.per_page + 1 : 0}
+                                </span>{' '}
+                                to <span className="font-medium">{Math.min(journals.current_page * journals.per_page, journals.total)}</span> of{' '}
                                 <span className="font-medium">{journals.total}</span> results
                             </div>
                             <div className="flex flex-wrap items-center justify-center gap-2">

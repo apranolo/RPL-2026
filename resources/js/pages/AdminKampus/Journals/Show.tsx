@@ -7,8 +7,6 @@
  */
 import { AccreditationBadge, IndexationBadge, SintaBadge } from '@/components/badges';
 import { JournalCoverUpload } from '@/components/JournalCoverUpload';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -20,6 +18,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type OaiHarvestingLog } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
@@ -497,9 +497,10 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                             <AlertDialogDescription>
                                                 Tindakan ini akan <strong>menghapus semua artikel yang sudah tersimpan</strong> untuk jurnal ini,
                                                 kemudian mengimport ulang seluruh data dari OAI-PMH endpoint dari awal.
-                                                <br /><br />
-                                                Gunakan opsi ini jika terdapat <strong>data duplikat</strong> atau artikel tidak ter-update dengan benar setelah sync biasa.
-                                                Proses tidak dapat dibatalkan.
+                                                <br />
+                                                <br />
+                                                Gunakan opsi ini jika terdapat <strong>data duplikat</strong> atau artikel tidak ter-update dengan
+                                                benar setelah sync biasa. Proses tidak dapat dibatalkan.
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
