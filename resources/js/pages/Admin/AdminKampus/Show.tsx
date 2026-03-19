@@ -150,25 +150,25 @@ export default function AdminKampusShow({ adminKampus, journals }: Props) {
                     {/* Header */}
                     <div className="mb-6">
                         <Link href={route('admin.admin-kampus.index')}>
-                            <Button variant="ghost" className="mb-4">
+                            <Button variant="ghost" className="mb-4 w-full justify-start sm:w-auto">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to List
                             </Button>
                         </Link>
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
                                 {adminKampus.avatar_url ? (
-                                    <img src={adminKampus.avatar_url} alt={adminKampus.name} className="h-20 w-20 rounded-full" />
+                                    <img src={adminKampus.avatar_url} alt={adminKampus.name} className="h-20 w-20 shrink-0 rounded-full" />
                                 ) : (
-                                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+                                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
                                         <span className="text-2xl font-bold text-green-600 dark:text-green-400">
                                             {adminKampus.name.charAt(0).toUpperCase()}
                                         </span>
                                     </div>
                                 )}
-                                <div>
-                                    <h1 className="text-3xl font-bold text-foreground">{adminKampus.name}</h1>
-                                    <div className="mt-2 flex items-center gap-2">
+                                <div className="flex flex-col items-center sm:items-start">
+                                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{adminKampus.name}</h1>
+                                    <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                                         <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
                                             <Shield className="mr-1 h-3 w-3" />
                                             Admin Kampus
@@ -181,49 +181,53 @@ export default function AdminKampusShow({ adminKampus, journals }: Props) {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Button variant={adminKampus.is_active ? 'outline' : 'default'} onClick={handleToggleActive}>
+                            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                                <Button
+                                    className="w-full sm:w-auto"
+                                    variant={adminKampus.is_active ? 'outline' : 'default'}
+                                    onClick={handleToggleActive}
+                                >
                                     {adminKampus.is_active ? 'Deactivate' : 'Activate'}
                                 </Button>
-                                <Link href={route('admin.admin-kampus.edit', adminKampus.id)}>
-                                    <Button>
+                                <Button className="w-full sm:w-auto" asChild>
+                                    <Link href={route('admin.admin-kampus.edit', adminKampus.id)}>
                                         <Edit className="mr-2 h-4 w-4" />
                                         Edit
-                                    </Button>
-                                </Link>
+                                    </Link>
+                                </Button>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                         {/* Left Column - Details */}
                         <div className="space-y-6 lg:col-span-2">
                             {/* Contact Information */}
                             <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
                                 <h2 className="mb-4 text-xl font-semibold text-foreground">Contact Information</h2>
                                 <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <Mail className="h-5 w-5 text-muted-foreground" />
-                                        <div>
+                                    <div className="flex w-full items-center gap-3 overflow-hidden">
+                                        <Mail className="h-5 w-5 shrink-0 text-muted-foreground" />
+                                        <div className="min-w-0 flex-1">
                                             <p className="text-sm text-muted-foreground">Email</p>
-                                            <p className="text-foreground">{adminKampus.email}</p>
+                                            <p className="truncate text-foreground">{adminKampus.email}</p>
                                         </div>
                                     </div>
                                     {adminKampus.phone && (
-                                        <div className="flex items-center gap-3">
-                                            <Phone className="h-5 w-5 text-muted-foreground" />
-                                            <div>
+                                        <div className="flex w-full items-center gap-3 overflow-hidden">
+                                            <Phone className="h-5 w-5 shrink-0 text-muted-foreground" />
+                                            <div className="min-w-0 flex-1">
                                                 <p className="text-sm text-muted-foreground">Phone</p>
-                                                <p className="text-foreground">{adminKampus.phone}</p>
+                                                <p className="truncate text-foreground">{adminKampus.phone}</p>
                                             </div>
                                         </div>
                                     )}
                                     {adminKampus.position && (
-                                        <div className="flex items-center gap-3">
-                                            <Briefcase className="h-5 w-5 text-muted-foreground" />
-                                            <div>
+                                        <div className="flex w-full items-center gap-3 overflow-hidden">
+                                            <Briefcase className="h-5 w-5 shrink-0 text-muted-foreground" />
+                                            <div className="min-w-0 flex-1">
                                                 <p className="text-sm text-muted-foreground">Position</p>
-                                                <p className="text-foreground">{adminKampus.position}</p>
+                                                <p className="truncate text-foreground">{adminKampus.position}</p>
                                             </div>
                                         </div>
                                     )}
@@ -235,21 +239,21 @@ export default function AdminKampusShow({ adminKampus, journals }: Props) {
                                 <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
                                     <h2 className="mb-4 text-xl font-semibold text-foreground">University Assignment</h2>
                                     <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <Building2 className="h-5 w-5 text-muted-foreground" />
-                                            <div>
+                                        <div className="flex w-full items-center gap-3 overflow-hidden">
+                                            <Building2 className="h-5 w-5 shrink-0 text-muted-foreground" />
+                                            <div className="min-w-0 flex-1">
                                                 <p className="text-sm text-muted-foreground">University</p>
-                                                <p className="font-semibold text-foreground">
+                                                <p className="truncate font-semibold text-foreground">
                                                     {adminKampus.university.code} - {adminKampus.university.name}
                                                 </p>
                                             </div>
                                         </div>
                                         {(adminKampus.university.city || adminKampus.university.province) && (
-                                            <div className="flex items-center gap-3">
-                                                <MapPin className="h-5 w-5 text-muted-foreground" />
-                                                <div>
+                                            <div className="flex w-full items-center gap-3 overflow-hidden">
+                                                <MapPin className="h-5 w-5 shrink-0 text-muted-foreground" />
+                                                <div className="min-w-0 flex-1">
                                                     <p className="text-sm text-muted-foreground">Location</p>
-                                                    <p className="text-foreground">
+                                                    <p className="truncate text-foreground">
                                                         {adminKampus.university.city}, {adminKampus.university.province}
                                                     </p>
                                                 </div>
@@ -265,24 +269,26 @@ export default function AdminKampusShow({ adminKampus, journals }: Props) {
                                 {journals.length === 0 ? (
                                     <p className="py-4 text-center text-muted-foreground">No journals managed yet</p>
                                 ) : (
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Journal Title</TableHead>
-                                                <TableHead>ISSN</TableHead>
-                                                <TableHead>Scientific Field</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {journals.map((journal) => (
-                                                <TableRow key={journal.id}>
-                                                    <TableCell className="font-medium">{journal.title}</TableCell>
-                                                    <TableCell>{journal.issn}</TableCell>
-                                                    <TableCell>{journal.scientific_field || '-'}</TableCell>
+                                    <div className="overflow-x-auto rounded-md border">
+                                        <Table className="min-w-full">
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="min-w-[200px]">Journal Title</TableHead>
+                                                    <TableHead className="min-w-[150px]">ISSN</TableHead>
+                                                    <TableHead className="min-w-[200px]">Scientific Field</TableHead>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {journals.map((journal) => (
+                                                    <TableRow key={journal.id}>
+                                                        <TableCell className="font-medium">{journal.title}</TableCell>
+                                                        <TableCell>{journal.issn}</TableCell>
+                                                        <TableCell>{journal.scientific_field || '-'}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -318,25 +324,25 @@ export default function AdminKampusShow({ adminKampus, journals }: Props) {
                             <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
                                 <h2 className="mb-4 text-xl font-semibold text-foreground">Activity</h2>
                                 <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <Calendar className="h-5 w-5 text-muted-foreground" />
-                                        <div>
+                                    <div className="flex w-full items-center gap-3 overflow-hidden">
+                                        <Calendar className="h-5 w-5 shrink-0 text-muted-foreground" />
+                                        <div className="min-w-0 flex-1">
                                             <p className="text-sm text-muted-foreground">Last Login</p>
-                                            <p className="text-foreground">{adminKampus.last_login_at || 'Never'}</p>
+                                            <p className="truncate text-foreground">{adminKampus.last_login_at || 'Never'}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <Calendar className="h-5 w-5 text-muted-foreground" />
-                                        <div>
+                                    <div className="flex w-full items-center gap-3 overflow-hidden">
+                                        <Calendar className="h-5 w-5 shrink-0 text-muted-foreground" />
+                                        <div className="min-w-0 flex-1">
                                             <p className="text-sm text-muted-foreground">Created At</p>
-                                            <p className="text-foreground">{adminKampus.created_at}</p>
+                                            <p className="truncate text-foreground">{adminKampus.created_at}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <Calendar className="h-5 w-5 text-muted-foreground" />
-                                        <div>
+                                    <div className="flex w-full items-center gap-3 overflow-hidden">
+                                        <Calendar className="h-5 w-5 shrink-0 text-muted-foreground" />
+                                        <div className="min-w-0 flex-1">
                                             <p className="text-sm text-muted-foreground">Updated At</p>
-                                            <p className="text-foreground">{adminKampus.updated_at}</p>
+                                            <p className="truncate text-foreground">{adminKampus.updated_at}</p>
                                         </div>
                                     </div>
                                 </div>
