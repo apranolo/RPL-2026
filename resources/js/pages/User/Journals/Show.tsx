@@ -160,7 +160,7 @@ export default function JournalShow({ journal, statistics }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={journal.title} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 p-4 sm:p-6 lg:p-8">
                 {/* Flash Messages */}
                 {flash?.success && (
                     <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
@@ -191,7 +191,7 @@ export default function JournalShow({ journal, statistics }: Props) {
 
                 <Card>
                     <CardHeader>
-                        <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div className="flex-1">
                                 <Link href={route('user.journals.index')}>
                                     <Button variant="ghost" className="mb-4 pl-0">
@@ -199,10 +199,10 @@ export default function JournalShow({ journal, statistics }: Props) {
                                         Back to My Journals
                                     </Button>
                                 </Link>
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                                     {/* Journal cover thumbnail */}
                                     <div
-                                        className="group relative flex w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-100 shadow-md dark:bg-blue-900/20"
+                                        className="group relative mx-auto flex w-32 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-100 shadow-md sm:mx-0 sm:w-24 dark:bg-blue-900/20"
                                         style={{ aspectRatio: '2/3' }}
                                     >
                                         {journal.cover_image || journal.cover_image_url ? (
@@ -224,21 +224,21 @@ export default function JournalShow({ journal, statistics }: Props) {
                                             <span className="text-xs font-medium text-white">Ganti Cover</span>
                                         </button>
                                     </div>
-                                    <div>
-                                        <CardTitle className="text-2xl">{journal.title}</CardTitle>
-                                        <CardDescription className="mt-1">{journal.university.name}</CardDescription>
+                                    <div className="text-center sm:text-left">
+                                        <CardTitle className="text-xl leading-tight sm:text-2xl">{journal.title}</CardTitle>
+                                        <CardDescription className="mt-2 sm:mt-1">{journal.university.name}</CardDescription>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <Link href={route('user.journals.edit', journal.id)}>
-                                    <Button variant="outline" size="sm">
+                            <div className="mt-2 flex w-full flex-row justify-center gap-2 sm:mt-0 sm:w-auto sm:justify-start">
+                                <Link href={route('user.journals.edit', journal.id)} className="flex-1 sm:flex-initial">
+                                    <Button variant="outline" size="sm" className="w-full">
                                         <Edit className="mr-2 h-4 w-4" />
                                         Edit
                                     </Button>
                                 </Link>
                                 {journal.approval_status !== 'approved' && (
-                                    <Button variant="outline" size="sm" onClick={handleDelete}>
+                                    <Button variant="outline" size="sm" onClick={handleDelete} className="flex-1 sm:flex-initial">
                                         <Trash2 className="mr-2 h-4 w-4 text-red-600 dark:text-red-400" />
                                         Delete
                                     </Button>
@@ -282,29 +282,31 @@ export default function JournalShow({ journal, statistics }: Props) {
 
                     <CardContent>
                         <Tabs defaultValue="details" className="w-full">
-                            <TabsList>
-                                <TabsTrigger value="details">Details</TabsTrigger>
-                                {/* Assessment tab hidden for launch - will be re-enabled post-launch */}
-                                {/* <TabsTrigger value="assessments">
-                                    Assessments
-                                    {statistics.total_assessments > 0 && <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs dark:bg-blue-900/30 dark:text-blue-400">{statistics.total_assessments}</span>}
-                                </TabsTrigger> */}
-                                <TabsTrigger value="articles">
-                                    Articles
-                                    {statistics.total_articles > 0 && (
-                                        <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs dark:bg-blue-900/30 dark:text-blue-400">
-                                            {statistics.total_articles}
-                                        </span>
-                                    )}
-                                </TabsTrigger>
-                            </TabsList>
+                            <div className="w-full overflow-x-auto pb-2">
+                                <TabsList className="mt-1 w-full flex-nowrap justify-start sm:w-auto">
+                                    <TabsTrigger value="details">Details</TabsTrigger>
+                                    {/* Assessment tab hidden for launch - will be re-enabled post-launch */}
+                                    {/* <TabsTrigger value="assessments">
+                                        Assessments
+                                        {statistics.total_assessments > 0 && <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs dark:bg-blue-900/30 dark:text-blue-400">{statistics.total_assessments}</span>}
+                                    </TabsTrigger> */}
+                                    <TabsTrigger value="articles">
+                                        Articles
+                                        {statistics.total_articles > 0 && (
+                                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs dark:bg-blue-900/30 dark:text-blue-400">
+                                                {statistics.total_articles}
+                                            </span>
+                                        )}
+                                    </TabsTrigger>
+                                </TabsList>
+                            </div>
 
                             {/* Details Tab */}
                             <TabsContent value="details" className="space-y-6">
                                 {/* Basic Information */}
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-semibold">Basic Information</h3>
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                         <div>
                                             <p className="text-sm text-muted-foreground">ISSN (Print)</p>
                                             <p className="font-medium">{journal.issn || '-'}</p>
@@ -359,7 +361,7 @@ export default function JournalShow({ journal, statistics }: Props) {
                                 {(journal.editor_in_chief || journal.email || journal.phone) && (
                                     <div className="space-y-4">
                                         <h3 className="text-lg font-semibold">Contact Information</h3>
-                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                             {journal.editor_in_chief && (
                                                 <div>
                                                     <p className="text-sm text-muted-foreground">Editor-in-Chief</p>
@@ -446,10 +448,10 @@ export default function JournalShow({ journal, statistics }: Props) {
 
                             {/* Assessments Tab - Hidden for launch */}
                             {/* <TabsContent value="assessments" className="space-y-4">
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                     <h3 className="text-lg font-semibold">Assessment History</h3>
                                     <Link href={route('user.assessments.create', { journal_id: journal.id })}>
-                                        <Button size="sm">
+                                        <Button size="sm" className="w-full sm:w-auto">
                                             <Plus className="mr-2 h-4 w-4" />
                                             Create Assessment
                                         </Button>
@@ -457,57 +459,97 @@ export default function JournalShow({ journal, statistics }: Props) {
                                 </div>
 
                                 {journal.assessments.length === 0 ? (
-                                    <div className="rounded-lg border-2 border-dashed p-12 text-center dark:border-gray-700">
+                                    <div className="rounded-lg border-2 border-dashed p-8 text-center sm:p-12 dark:border-gray-700">
                                         <FileText className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
                                         <h3 className="mt-4 text-lg font-semibold">No Assessments Yet</h3>
                                         <p className="mt-2 text-sm text-muted-foreground">Create your first assessment to evaluate this journal.</p>
                                         <Link href={route('user.assessments.create', { journal_id: journal.id })}>
-                                            <Button className="mt-4">
+                                            <Button className="mt-4 w-full sm:w-auto">
                                                 <Plus className="mr-2 h-4 w-4" />
                                                 Create Assessment
                                             </Button>
                                         </Link>
                                     </div>
                                 ) : (
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Assessment Date</TableHead>
-                                                <TableHead>Period</TableHead>
-                                                <TableHead>Status</TableHead>
-                                                <TableHead>Score</TableHead>
-                                                <TableHead className="text-right">Actions</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-1 gap-4 md:hidden">
                                             {journal.assessments.map((assessment) => (
-                                                <TableRow key={assessment.id}>
-                                                    <TableCell>{new Date(assessment.assessment_date).toLocaleDateString('id-ID')}</TableCell>
-                                                    <TableCell>{assessment.period || '-'}</TableCell>
-                                                    <TableCell>{getStatusBadge(assessment.status)}</TableCell>
-                                                    <TableCell>
-                                                        {assessment.total_score !== null ? (
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="font-semibold">
-                                                                    {assessment.total_score} / {assessment.max_score}
-                                                                </span>
-                                                                {assessment.grade && <Badge variant="outline">{assessment.grade}</Badge>}
+                                                <Card key={assessment.id} className="overflow-hidden">
+                                                    <CardContent className="p-4 space-y-3">
+                                                        <div className="flex items-start justify-between">
+                                                            <div>
+                                                                <p className="font-medium">
+                                                                    {new Date(assessment.assessment_date).toLocaleDateString('id-ID')}
+                                                                </p>
+                                                                <p className="text-sm text-gray-500">Period: {assessment.period || '-'}</p>
                                                             </div>
-                                                        ) : (
-                                                            <span className="text-sm text-muted-foreground">Not scored</span>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <Link href={route('user.assessments.show', assessment.id)}>
-                                                            <Button variant="ghost" size="sm">
-                                                                <TrendingUp className="h-4 w-4" />
-                                                            </Button>
-                                                        </Link>
-                                                    </TableCell>
-                                                </TableRow>
+                                                            {getStatusBadge(assessment.status)}
+                                                        </div>
+                                                        <div className="flex items-center justify-between">
+                                                            <div>
+                                                                {assessment.total_score !== null ? (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-semibold text-lg">
+                                                                            {assessment.total_score} <span className="text-sm text-gray-500 font-normal">/ {assessment.max_score}</span>
+                                                                        </span>
+                                                                        {assessment.grade && <Badge variant="outline">{assessment.grade}</Badge>}
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-sm text-muted-foreground">Not scored</span>
+                                                                )}
+                                                            </div>
+                                                            <Link href={route('user.assessments.show', assessment.id)}>
+                                                                <Button variant="ghost" size="sm">
+                                                                    <TrendingUp className="h-4 w-4" />
+                                                                </Button>
+                                                            </Link>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
                                             ))}
-                                        </TableBody>
-                                    </Table>
+                                        </div>
+                                        <div className="hidden overflow-x-auto rounded-md border md:block">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Assessment Date</TableHead>
+                                                    <TableHead>Period</TableHead>
+                                                    <TableHead>Status</TableHead>
+                                                    <TableHead>Score</TableHead>
+                                                    <TableHead className="text-right">Actions</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {journal.assessments.map((assessment) => (
+                                                    <TableRow key={assessment.id}>
+                                                        <TableCell>{new Date(assessment.assessment_date).toLocaleDateString('id-ID')}</TableCell>
+                                                        <TableCell>{assessment.period || '-'}</TableCell>
+                                                        <TableCell>{getStatusBadge(assessment.status)}</TableCell>
+                                                        <TableCell>
+                                                            {assessment.total_score !== null ? (
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="font-semibold">
+                                                                        {assessment.total_score} / {assessment.max_score}
+                                                                    </span>
+                                                                    {assessment.grade && <Badge variant="outline">{assessment.grade}</Badge>}
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-sm text-muted-foreground">Not scored</span>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <Link href={route('user.assessments.show', assessment.id)}>
+                                                                <Button variant="ghost" size="sm">
+                                                                    <TrendingUp className="h-4 w-4" />
+                                                                </Button>
+                                                            </Link>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                        </div>
+                                    </div>
                                 )}
                             </TabsContent> */}
 
@@ -524,28 +566,63 @@ export default function JournalShow({ journal, statistics }: Props) {
                                         <p className="mt-2 text-sm text-muted-foreground">Articles published in this journal will appear here.</p>
                                     </div>
                                 ) : (
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Title</TableHead>
-                                                <TableHead>Authors</TableHead>
-                                                <TableHead>Published</TableHead>
-                                                <TableHead>Volume/Issue</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
+                                    <div className="space-y-4">
+                                        {/* Mobile view: Stacked cards */}
+                                        <div className="grid grid-cols-1 gap-4 md:hidden">
                                             {journal.articles.map((article) => (
-                                                <TableRow key={article.id}>
-                                                    <TableCell className="font-medium">{article.title}</TableCell>
-                                                    <TableCell>{article.authors}</TableCell>
-                                                    <TableCell>{new Date(article.published_date).toLocaleDateString('id-ID')}</TableCell>
-                                                    <TableCell>
-                                                        {article.volume && article.issue ? `Vol ${article.volume}, No ${article.issue}` : '-'}
-                                                    </TableCell>
-                                                </TableRow>
+                                                <Card key={article.id} className="overflow-hidden">
+                                                    <CardContent className="space-y-3 p-4">
+                                                        <div>
+                                                            <h4 className="leading-tight font-semibold text-gray-900 dark:text-gray-100">
+                                                                {article.title}
+                                                            </h4>
+                                                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{article.authors}</p>
+                                                        </div>
+                                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
+                                                            <div className="flex items-center gap-1.5 focus:outline-none">
+                                                                <FileText className="h-4 w-4" />
+                                                                <span>{new Date(article.published_date).toLocaleDateString('id-ID')}</span>
+                                                            </div>
+                                                            {article.volume && article.issue && (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <BookOpen className="h-4 w-4" />
+                                                                    <span>
+                                                                        Vol {article.volume}, No {article.issue}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
                                             ))}
-                                        </TableBody>
-                                    </Table>
+                                        </div>
+
+                                        {/* Desktop view: Table */}
+                                        <div className="hidden overflow-x-auto rounded-md border md:block">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Title</TableHead>
+                                                        <TableHead>Authors</TableHead>
+                                                        <TableHead>Published</TableHead>
+                                                        <TableHead>Volume/Issue</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {journal.articles.map((article) => (
+                                                        <TableRow key={article.id}>
+                                                            <TableCell className="font-medium">{article.title}</TableCell>
+                                                            <TableCell>{article.authors}</TableCell>
+                                                            <TableCell>{new Date(article.published_date).toLocaleDateString('id-ID')}</TableCell>
+                                                            <TableCell>
+                                                                {article.volume && article.issue ? `Vol ${article.volume}, No ${article.issue}` : '-'}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </div>
                                 )}
                             </TabsContent>
                         </Tabs>
