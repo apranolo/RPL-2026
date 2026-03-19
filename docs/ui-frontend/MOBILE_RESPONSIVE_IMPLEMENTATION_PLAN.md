@@ -173,9 +173,10 @@ Semua page lain (45 file) dikerjakan setelah P0/P1 untuk hardening dan konsisten
     - `Admin/AdminKampus/Show.tsx` (Selesai)
 - Pastikan tombol aksi tetap dapat dijangkau ibu jari (thumb-friendly).
 
-### Phase 3 — Medium risk pages (2–3 hari)
+### Phase 3 — Medium risk pages (Selesai)
 - Refactor `welcome`, `dashboard`, `Journals/Index`, `Journals/Show`, `User/Profil/Index`, `User/Pembinaan/Index`.
 - Fokus pada tabs, navbar, section spacing, dan card grid.
+- Telah menyesuaikan navigasi list dan membungkus Tabs pada pembinaan & Profile menjadi model scroll overflow tersembunyi yang responsive.
 
 ### Phase 4 — Low risk hardening + QA (2–3 hari)
 - Sweep seluruh P2 untuk konsistensi spacing/wrapping.
