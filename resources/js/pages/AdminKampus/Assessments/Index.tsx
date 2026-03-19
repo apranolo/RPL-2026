@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -161,18 +162,18 @@ export default function AssessmentsIndex({ assessments, filters, availablePeriod
                     <div className="mb-6 rounded-lg border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
                         <div className="space-y-4">
                             {/* First Row - Search and Status */}
-                            <div className="flex flex-col gap-4 sm:flex-row">
+                            <div className="flex flex-col gap-4 md:flex-row">
                                 <div className="relative flex-1">
                                     <Search className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Search by journal title or ISSN..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        className="pl-9"
+                                        className="w-full pl-9"
                                     />
                                 </div>
                                 <Select value={status} onValueChange={handleStatusChange}>
-                                    <SelectTrigger className="w-full sm:w-[200px]">
+                                    <SelectTrigger className="w-full md:w-[200px]">
                                         <SelectValue placeholder="Filter by status" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -185,9 +186,9 @@ export default function AssessmentsIndex({ assessments, filters, availablePeriod
                             </div>
 
                             {/* Second Row - Additional Filters */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                 <Select value={period} onValueChange={handlePeriodChange}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Filter by period" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -201,7 +202,7 @@ export default function AssessmentsIndex({ assessments, filters, availablePeriod
                                 </Select>
 
                                 <Select value={year} onValueChange={handleYearChange}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Filter by year" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -215,7 +216,7 @@ export default function AssessmentsIndex({ assessments, filters, availablePeriod
                                 </Select>
 
                                 <Select value={approvalStatus} onValueChange={handleApprovalStatusChange}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Approval status" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -235,8 +236,62 @@ export default function AssessmentsIndex({ assessments, filters, availablePeriod
                         {Math.min(assessments.current_page * assessments.per_page, assessments.total)} of {assessments.total} assessments
                     </div>
 
-                    {/* Assessments Table */}
-                    <div className="overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                    {/* Assessments Mobile View */}
+                    <div className="grid grid-cols-1 gap-4 md:hidden">
+                        {assessments.data.length > 0 ? (
+                            assessments.data.map((assessment) => (
+                                <Card key={assessment.id}>
+                                    <CardHeader className="pb-2">
+                                        <CardTitle className="text-base font-medium">{assessment.journal.title}</CardTitle>
+                                        <div className="text-sm text-muted-foreground">ISSN: {assessment.journal.issn}</div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4 pb-4">
+                                        <div className="grid grid-cols-1 gap-2 text-sm">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-muted-foreground">Pengelola:</span>
+                                                <span className="font-medium text-foreground">{assessment.user.name}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-muted-foreground">Status:</span>
+                                                <span>{getStatusBadge(assessment.status)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-muted-foreground">Submitted:</span>
+                                                <span>{assessment.submitted_at ? new Date(assessment.submitted_at).toLocaleDateString() : '-'}</span>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="flex justify-end gap-2 pt-0">
+                                        <Button variant="outline" size="sm" asChild>
+                                            <Link href={route('admin-kampus.assessments.show', assessment.id)}>
+                                                <Eye className="mr-2 h-4 w-4" />
+                                                View
+                                            </Link>
+                                        </Button>
+                                        {assessment.status === 'submitted' && (
+                                            <Button size="sm" asChild>
+                                                <Link href={route('admin-kampus.assessments.review', assessment.id)}>
+                                                    <ClipboardCheck className="mr-2 h-4 w-4" />
+                                                    Review
+                                                </Link>
+                                            </Button>
+                                        )}
+                                    </CardFooter>
+                                </Card>
+                            ))
+                        ) : (
+                            <Card>
+                                <CardContent className="flex flex-col items-center justify-center py-8">
+                                    <ClipboardCheck className="mb-2 h-12 w-12 text-muted-foreground/50" />
+                                    <p className="font-medium text-muted-foreground">No assessments found</p>
+                                    <p className="text-center text-sm text-muted-foreground">No assessments match your current filters</p>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+
+                    {/* Assessments Table Desktop */}
+                    <div className="hidden overflow-x-auto rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
                         {assessments.data.length > 0 ? (
                             <Table>
                                 <TableHeader>
@@ -312,11 +367,11 @@ export default function AssessmentsIndex({ assessments, filters, availablePeriod
 
                     {/* Pagination */}
                     {assessments.last_page > 1 && (
-                        <div className="mt-6 flex items-center justify-between">
+                        <div className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
                             <div className="text-sm text-muted-foreground">
                                 Page {assessments.current_page} of {assessments.last_page}
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap items-center justify-center gap-2">
                                 {assessments.links.map((link, index) => {
                                     if (link.label === '&laquo; Previous') {
                                         return (
@@ -351,10 +406,11 @@ export default function AssessmentsIndex({ assessments, filters, availablePeriod
                                             key={index}
                                             variant={link.active ? 'default' : 'outline'}
                                             size="sm"
+                                            className={`hidden h-8 w-8 p-0 sm:flex ${link.active ? 'flex' : ''}`}
                                             disabled={!link.url}
                                             onClick={() => link.url && router.visit(link.url)}
                                         >
-                                            {link.label}
+                                            <span dangerouslySetInnerHTML={{ __html: link.label }} />
                                         </Button>
                                     );
                                 })}
