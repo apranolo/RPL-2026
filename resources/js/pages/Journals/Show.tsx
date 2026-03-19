@@ -132,27 +132,30 @@ export default function JournalsShow() {
                                 Journal MU
                             </span>
                         </Link>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 sm:gap-4">
                             <Link href={route('journals.index')}>
-                                <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white">
-                                    All Journals
+                                <Button variant="ghost" className="px-2 text-white hover:bg-white/20 hover:text-white sm:px-4">
+                                    <span className="hidden sm:inline">All Journals</span>
+                                    <span className="sm:hidden">Journals</span>
                                 </Button>
                             </Link>
                             {auth?.user ? (
                                 <Link href={route('dashboard')}>
-                                    <Button variant="secondary" className="border-0 bg-white font-bold text-[#079C4E] hover:bg-gray-100">
+                                    <Button variant="secondary" className="border-0 bg-white px-3 font-bold text-[#079C4E] hover:bg-gray-100 sm:px-4">
                                         Dashboard
                                     </Button>
                                 </Link>
                             ) : (
                                 <>
                                     <Link href={route('login')}>
-                                        <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white">
+                                        <Button variant="ghost" className="px-2 text-white hover:bg-white/20 hover:text-white sm:px-4">
                                             Log in
                                         </Button>
                                     </Link>
                                     <Link href={route('register')}>
-                                        <Button className="border-0 bg-[#FCEE1F] font-bold text-black hover:bg-[#e3d51b]">Register</Button>
+                                        <Button className="border-0 bg-[#FCEE1F] px-3 font-bold text-black hover:bg-[#e3d51b] sm:px-4">
+                                            Register
+                                        </Button>
                                     </Link>
                                 </>
                             )}
