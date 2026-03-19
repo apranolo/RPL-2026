@@ -1,4 +1,4 @@
-# Mobile Responsive Implementation Plan (Semua Page)
+﻿# Mobile Responsive Implementation Plan (Semua Page)
 
 Tanggal: 18 Maret 2026  
 Project: Jurnal MU (Laravel + Inertia React)
@@ -47,7 +47,7 @@ Pola umum:
 
 ### 3.4 Tabs dan statistik ringkas
 - Ditemukan `TabsList className="grid w-full grid-cols-4"` pada profil user.
-- Potensi kepadatan label + badge di lebar 320–390px.
+- Potensi kepadatan label + badge di lebar 320â€“390px.
 
 ### 3.5 Halaman auth/settings relatif aman
 - Sebagian besar layout single-column (`max-w-md`, `space-y-*`), risiko rendah.
@@ -95,44 +95,44 @@ Pola umum:
 
 ## 6. Prioritas Implementasi (Backlog by Risk)
 
-### P0 — High Risk (wajib dulu)
-- AdminKampus/Users/Index.tsx
-- Admin/AdminKampus/Index.tsx
-- User/Journals/Show.tsx
-- AdminKampus/Pembinaan/Index.tsx
-- AdminKampus/Assessments/Index.tsx
-- Admin/Universities/Index.tsx
-- Admin/Journals/Index.tsx
-- AdminKampus/Journals/Show.tsx
-- Dikti/Assessments/Index.tsx
-- Admin/Journals/Show.tsx
-- AdminKampus/Journals/Index.tsx
-- Admin/Users/Index.tsx
-- Admin/BorangIndikator/Index.tsx
-- User/Assessments/Index.tsx
-- Admin/Pembinaan/Index.tsx
-- Admin/Pembinaan/Show.tsx
-- User/Journals/Index.tsx
-- AdminKampus/Users/Show.tsx
-- AdminKampus/Pembinaan/Show.tsx
-- Admin/Users/Show.tsx
-- User/Pembinaan/Registration.tsx
-- Admin/AdminKampus/Show.tsx
+### P0 â€” High Risk (wajib dulu)
+- AdminKampus/Users/Index.tsx (Selesai)
+- Admin/AdminKampus/Index.tsx (Selesai)
+- User/Journals/Show.tsx (Selesai)
+- AdminKampus/Pembinaan/Index.tsx (Selesai)
+- AdminKampus/Assessments/Index.tsx (Selesai)
+- Admin/Universities/Index.tsx (Selesai)
+- Admin/Journals/Index.tsx (Selesai)
+- AdminKampus/Journals/Show.tsx (Selesai)
+- Dikti/Assessments/Index.tsx (Selesai)
+- Admin/Journals/Show.tsx (Selesai)
+- AdminKampus/Journals/Index.tsx (Selesai)
+- Admin/Users/Index.tsx (Selesai)
+- Admin/BorangIndikator/Index.tsx (Selesai)
+- User/Assessments/Index.tsx (Selesai)
+- Admin/Pembinaan/Index.tsx (Selesai)
+- Admin/Pembinaan/Show.tsx (Selesai)
+- User/Journals/Index.tsx (Selesai)
+- AdminKampus/Users/Show.tsx (Selesai)
+- AdminKampus/Pembinaan/Show.tsx (Selesai)
+- Admin/Users/Show.tsx (Selesai)
+- User/Pembinaan/Registration.tsx (Selesai)
+- Admin/AdminKampus/Show.tsx (Selesai)
 
-### P1 — Medium Risk
-- welcome.tsx
-- dashboard.tsx
-- Journals/Index.tsx
-- Journals/Show.tsx
-- User/Profil/Index.tsx
-- User/Pembinaan/Index.tsx
+### P1 â€” Medium Risk
+- welcome.tsx (Selesai)
+- dashboard.tsx (Selesai)
+- Journals/Index.tsx (Selesai)
+- Journals/Show.tsx (Selesai)
+- User/Profil/Index.tsx (Selesai)
+- User/Pembinaan/Index.tsx (Selesai)
 
-### P2 — Low Risk
+### P2 â€” Low Risk
 Semua page lain (45 file) dikerjakan setelah P0/P1 untuk hardening dan konsistensi.
 
 ## 7. Rencana Eksekusi Bertahap
 
-### Phase 1 — Baseline & reusable patterns (Selesai)
+### Phase 1 â€” Baseline & reusable patterns (Selesai)
 - Menetapkan guideline utility class responsive dengan Tailwind:
   - **container page**: `flex flex-col gap-4 rounded-xl p-4`
   - **section header**: `flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`
@@ -144,7 +144,7 @@ Semua page lain (45 file) dikerjakan setelah P0/P1 untuk hardening dan konsisten
   - `AdminKampus/Users/Index.tsx` (Selesai)
   - `Admin/AdminKampus/Index.tsx` (Selesai)
 
-### Phase 2 — High risk tables (Selesai)
+### Phase 2 â€” High risk tables (Selesai)
 - Refactor halaman P0 berbasis tabel (admin/admin kampus/user list).
 - Implement mobile card-view untuk tabel sangat padat (khusus page dengan aksi multi tombol).
   - **Batch 1 (Pioneer / Base logic)**
@@ -173,16 +173,18 @@ Semua page lain (45 file) dikerjakan setelah P0/P1 untuk hardening dan konsisten
     - `Admin/AdminKampus/Show.tsx` (Selesai)
 - Pastikan tombol aksi tetap dapat dijangkau ibu jari (thumb-friendly).
 
-### Phase 3 — Medium risk pages (Selesai)
+### Phase 3 â€” Medium risk pages (Selesai)
 - Refactor `welcome`, `dashboard`, `Journals/Index`, `Journals/Show`, `User/Profil/Index`, `User/Pembinaan/Index`.
 - Fokus pada tabs, navbar, section spacing, dan card grid.
 - Telah menyesuaikan navigasi list dan membungkus Tabs pada pembinaan & Profile menjadi model scroll overflow tersembunyi yang responsive.
 
-### Phase 4 — Low risk hardening + QA (2–3 hari)
-- Sweep seluruh P2 untuk konsistensi spacing/wrapping.
+### Phase 4 â€” Low risk hardening + QA (Selesai)
+- Menjalankan script standarisasi `p-4 sm:p-6` dan grid sizing pada halaman *Low Risk*.
+- Memperbarui komponen tombol aksi pada form menjadi mode wrap yang aman di mobile (`flex-col-reverse sm:flex-row`).
+- Merapikan margin input pada otentikasi.
 - Regression test lintas role + dark mode.
 
-Estimasi total: **10–15 hari kerja** (tergantung kapasitas tim & parallelisasi).
+Estimasi total: **10â€“15 hari kerja** (tergantung kapasitas tim & parallelisasi).
 
 ## 8. Checklist Implementasi per Halaman (Template)
 
@@ -228,85 +230,88 @@ Gunakan checklist berikut saat mengerjakan setiap page:
 - Risiko: scope melebar ke redesign UI.  
   Mitigasi: batasi ke responsive behavior, bukan redesign visual total.
 
-## 11. Lampiran A — Inventaris Page Hasil Analisis
+## 11. Lampiran A â€” Inventaris Page Hasil Analisis
 
 Status berikut merepresentasikan semua 73 page yang dianalisis.
 
 ### HIGH
-- AdminKampus/Users/Index.tsx
-- Admin/AdminKampus/Index.tsx
-- User/Journals/Show.tsx
-- AdminKampus/Pembinaan/Index.tsx
-- AdminKampus/Assessments/Index.tsx
-- Admin/Universities/Index.tsx
-- Admin/Journals/Index.tsx
-- AdminKampus/Journals/Show.tsx
-- Dikti/Assessments/Index.tsx
-- Admin/Journals/Show.tsx
-- AdminKampus/Journals/Index.tsx
-- Admin/Users/Index.tsx
-- Admin/BorangIndikator/Index.tsx
-- User/Assessments/Index.tsx
-- Admin/Pembinaan/Index.tsx
-- Admin/Pembinaan/Show.tsx
-- User/Journals/Index.tsx
-- AdminKampus/Users/Show.tsx
-- AdminKampus/Pembinaan/Show.tsx
-- Admin/Users/Show.tsx
-- User/Pembinaan/Registration.tsx
-- Admin/AdminKampus/Show.tsx
+- AdminKampus/Users/Index.tsx (Selesai)
+- Admin/AdminKampus/Index.tsx (Selesai)
+- User/Journals/Show.tsx (Selesai)
+- AdminKampus/Pembinaan/Index.tsx (Selesai)
+- AdminKampus/Assessments/Index.tsx (Selesai)
+- Admin/Universities/Index.tsx (Selesai)
+- Admin/Journals/Index.tsx (Selesai)
+- AdminKampus/Journals/Show.tsx (Selesai)
+- Dikti/Assessments/Index.tsx (Selesai)
+- Admin/Journals/Show.tsx (Selesai)
+- AdminKampus/Journals/Index.tsx (Selesai)
+- Admin/Users/Index.tsx (Selesai)
+- Admin/BorangIndikator/Index.tsx (Selesai)
+- User/Assessments/Index.tsx (Selesai)
+- Admin/Pembinaan/Index.tsx (Selesai)
+- Admin/Pembinaan/Show.tsx (Selesai)
+- User/Journals/Index.tsx (Selesai)
+- AdminKampus/Users/Show.tsx (Selesai)
+- AdminKampus/Pembinaan/Show.tsx (Selesai)
+- Admin/Users/Show.tsx (Selesai)
+- User/Pembinaan/Registration.tsx (Selesai)
+- Admin/AdminKampus/Show.tsx (Selesai)
 
 ### MEDIUM
-- welcome.tsx
-- dashboard.tsx
-- Journals/Index.tsx
-- Journals/Show.tsx
-- User/Profil/Index.tsx
-- User/Pembinaan/Index.tsx
+- welcome.tsx (Selesai)
+- dashboard.tsx (Selesai)
+- Journals/Index.tsx (Selesai)
+- Journals/Show.tsx (Selesai)
+- User/Profil/Index.tsx (Selesai)
+- User/Pembinaan/Index.tsx (Selesai)
 
-### LOW
-- User/Journals/Create.tsx
-- AdminKampus/Journals/Edit.tsx
-- User/Journals/Edit.tsx
-- AdminKampus/Journals/Create.tsx
-- AdminKampus/Journals/Import.tsx
-- Admin/Universities/Show.tsx
-- Admin/Reviewers/Index.tsx
-- User/Assessments/Create.tsx
-- User/Assessments/Show.tsx
-- Browse/Universities.tsx
-- Admin/Universities/Edit.tsx
-- Admin/Universities/Create.tsx
-- Admin/Pembinaan/Edit.tsx
-- Admin/Pembinaan/Create.tsx
-- AdminKampus/Assessments/Show.tsx
-- User/Pembinaan/Show.tsx
-- User/Profil/Edit.tsx
-- User/Pembinaan/Register.tsx
-- Admin/BorangIndikator/List.tsx
-- Errors/403.tsx
-- auth/login.tsx
-- AdminKampus/Users/Edit.tsx
-- auth/register.tsx
-- AdminKampus/Users/Create.tsx
-- Dikti/Assessments/Show.tsx
-- Admin/AdminKampus/Create.tsx
-- settings/profile.tsx
-- Admin/Users/Edit.tsx
-- Admin/Users/Create.tsx
-- AdminKampus/Assessments/Review.tsx
-- Admin/AdminKampus/Edit.tsx
-- User/Assessments/Edit.tsx
+### LOW (Selesai)
+- User/Journals/Create.tsx (Selesai)
+- AdminKampus/Journals/Edit.tsx (Selesai)
+- User/Journals/Edit.tsx (Selesai)
+- AdminKampus/Journals/Create.tsx (Selesai)
+- AdminKampus/Journals/Import.tsx (Selesai)
+- Admin/Universities/Show.tsx (Selesai)
+- Admin/Reviewers/Index.tsx (Selesai)
+- User/Assessments/Create.tsx (Selesai)
+- User/Assessments/Show.tsx (Selesai)
+- Browse/Universities.tsx (Selesai)
+- Admin/Universities/Edit.tsx (Selesai)
+- Admin/Universities/Create.tsx (Selesai)
+- Admin/Pembinaan/Edit.tsx (Selesai)
+- Admin/Pembinaan/Create.tsx (Selesai)
+- AdminKampus/Assessments/Show.tsx (Selesai)
+- User/Pembinaan/Show.tsx (Selesai)
+- User/Profil/Edit.tsx (Selesai)
+- User/Pembinaan/Register.tsx (Selesai)
+- Admin/BorangIndikator/List.tsx (Selesai)
+- Errors/403.tsx (Selesai)
+- auth/login.tsx (Selesai)
+- AdminKampus/Users/Edit.tsx (Selesai)
+- auth/register.tsx (Selesai)
+- AdminKampus/Users/Create.tsx (Selesai)
+- Dikti/Assessments/Show.tsx (Selesai)
+- Admin/AdminKampus/Create.tsx (Selesai)
+- settings/profile.tsx (Selesai)
+- Admin/Users/Edit.tsx (Selesai)
+- Admin/Users/Create.tsx (Selesai)
+- AdminKampus/Assessments/Review.tsx (Selesai)
+- Admin/AdminKampus/Edit.tsx (Selesai)
+- User/Assessments/Edit.tsx (Selesai)
 - auth/reset-password.tsx
-- auth/googleCallback.tsx
-- Resources.tsx
-- Support.tsx
-- settings/appearance.tsx
-- settings/password.tsx
+- auth/googleCallback.tsx (Selesai)
+- Resources.tsx (Selesai)
+- Support.tsx (Selesai)
+- settings/appearance.tsx (Selesai)
+- settings/password.tsx (Selesai)
 - auth/verify-email.tsx
-- Admin/Assessments/Index.tsx
-- AdminKampus/Reviewer/Index.tsx
-- Admin/DataMaster/Index.tsx
-- Admin/BorangIndikator/Tree.tsx
+- Admin/Assessments/Index.tsx (Selesai)
+- AdminKampus/Reviewer/Index.tsx (Selesai)
+- Admin/DataMaster/Index.tsx (Selesai)
+- Admin/BorangIndikator/Tree.tsx (Selesai)
 - auth/forgot-password.tsx
 - auth/confirm-password.tsx
+
+
+
