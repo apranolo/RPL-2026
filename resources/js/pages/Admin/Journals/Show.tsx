@@ -141,15 +141,15 @@ export default function JournalShow({ journal }: Props) {
                             </Button>
                         </Link>
 
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                                 {/* Journal Icon */}
-                                <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                                    <BookOpen className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+                                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-blue-100 sm:h-20 sm:w-20 dark:bg-blue-900/20">
+                                    <BookOpen className="h-8 w-8 text-blue-600 sm:h-10 sm:w-10 dark:text-blue-400" />
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-bold text-foreground">{journal.title}</h1>
-                                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{journal.title}</h1>
+                                    <div className="mt-3 flex flex-wrap items-center gap-2 sm:mt-2">
                                         {journal.is_active ? (
                                             <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">Active</Badge>
                                         ) : (
@@ -278,7 +278,7 @@ export default function JournalShow({ journal }: Props) {
                                         <p className="text-sm text-muted-foreground">Email</p>
                                         <a
                                             href={`mailto:${journal.user.email}`}
-                                            className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                                            className="font-medium break-all text-blue-600 hover:underline dark:text-blue-400"
                                         >
                                             {journal.user.email}
                                         </a>
@@ -300,7 +300,7 @@ export default function JournalShow({ journal }: Props) {
                                             <p className="text-sm text-muted-foreground">Contact Email</p>
                                             <a
                                                 href={`mailto:${journal.email}`}
-                                                className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                                                className="font-medium break-all text-blue-600 hover:underline dark:text-blue-400"
                                             >
                                                 {journal.email}
                                             </a>
@@ -335,9 +335,10 @@ export default function JournalShow({ journal }: Props) {
                                 Assessment History
                             </h3>
                         </div>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
+                        <div className="w-full overflow-x-auto">
+                            <Table className="w-full min-w-[800px] whitespace-nowrap sm:whitespace-normal">
+                                <TableHeader>
+                                    <TableRow>
                                     <TableHead>Date</TableHead>
                                     <TableHead>Period</TableHead>
                                     <TableHead>Status</TableHead>
