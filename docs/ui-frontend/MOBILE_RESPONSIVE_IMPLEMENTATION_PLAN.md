@@ -147,8 +147,13 @@ Semua page lain (45 file) dikerjakan setelah P0/P1 untuk hardening dan konsisten
 ### Phase 2 — High risk tables (Mulai Dikerjakan)
 - Refactor halaman P0 berbasis tabel (admin/admin kampus/user list).
 - Implement mobile card-view untuk tabel sangat padat (khusus page dengan aksi multi tombol).
-  - `Admin/Universities/Index.tsx` (Selesai - Batch 1 Pioneer)
-  - `AdminKampus/Journals/Index.tsx` (Selesai - Batch 1 Pioneer)
+  - **Batch 1 (Pioneer / Base logic)**
+    - `Admin/Universities/Index.tsx` (Selesai)
+    - `AdminKampus/Journals/Index.tsx` (Selesai)
+  - **Batch 2 (Assessments Domain)**
+    - `AdminKampus/Assessments/Index.tsx` (Selesai)
+    - `Dikti/Assessments/Index.tsx` (Selesai)
+    - `User/Assessments/Index.tsx` (Selesai)
 - Pastikan tombol aksi tetap dapat dijangkau ibu jari (thumb-friendly).
 
 ### Phase 3 — Medium risk pages (2–3 hari)
