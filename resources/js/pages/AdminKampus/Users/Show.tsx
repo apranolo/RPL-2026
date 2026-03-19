@@ -131,7 +131,7 @@ export default function UsersShow({ user, journals, university }: Props) {
                             </Button>
                         </Link>
 
-                        <div className="flex items-start justify-between">
+                        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                             <div className="flex items-center gap-4">
                                 {/* Avatar */}
                                 {user.avatar_url ? (
@@ -157,7 +157,7 @@ export default function UsersShow({ user, journals, university }: Props) {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-2">
+                            <div className="flex w-full flex-wrap items-center gap-2 md:w-auto mt-4 md:mt-0">
                                 <Button
                                     variant="outline"
                                     onClick={handleToggleActive}
@@ -280,34 +280,36 @@ export default function UsersShow({ user, journals, university }: Props) {
                                 Managed Journals
                             </h3>
                         </div>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>ISSN</TableHead>
-                                    <TableHead>Scientific Field</TableHead>
-                                    <TableHead>Created At</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {journals.length === 0 ? (
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                                            No journals managed by this user.
-                                        </TableCell>
+                                        <TableHead>Title</TableHead>
+                                        <TableHead>ISSN</TableHead>
+                                        <TableHead>Scientific Field</TableHead>
+                                        <TableHead>Created At</TableHead>
                                     </TableRow>
-                                ) : (
-                                    journals.map((journal) => (
-                                        <TableRow key={journal.id}>
-                                            <TableCell className="font-medium">{journal.title}</TableCell>
-                                            <TableCell>{journal.issn}</TableCell>
-                                            <TableCell>{journal.scientific_field || '-'}</TableCell>
-                                            <TableCell>{journal.created_at}</TableCell>
+                                </TableHeader>
+                                <TableBody>
+                                    {journals.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                                                No journals managed by this user.
+                                            </TableCell>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                    ) : (
+                                        journals.map((journal) => (
+                                            <TableRow key={journal.id}>
+                                                <TableCell className="font-medium">{journal.title}</TableCell>
+                                                <TableCell>{journal.issn}</TableCell>
+                                                <TableCell>{journal.scientific_field || '-'}</TableCell>
+                                                <TableCell>{journal.created_at}</TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </div>
                 </div>
             </div>
