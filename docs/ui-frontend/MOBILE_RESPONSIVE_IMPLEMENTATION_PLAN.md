@@ -154,6 +154,15 @@ Semua page lain (45 file) dikerjakan setelah P0/P1 untuk hardening dan konsisten
     - `AdminKampus/Assessments/Index.tsx` (Selesai)
     - `Dikti/Assessments/Index.tsx` (Selesai)
     - `User/Assessments/Index.tsx` (Selesai)
+  - **Batch 3 (Journals & Users Domain)**
+    - `Admin/Journals/Index.tsx` (Selesai)
+    - `Admin/Users/Index.tsx` (Selesai)
+    - `User/Journals/Index.tsx` (Selesai)
+    - `Admin/Journals/Show.tsx` (Selesai)
+    - `AdminKampus/Journals/Show.tsx` (Selesai)
+    - `User/Journals/Show.tsx` (Selesai)
+    - `Admin/Users/Show.tsx` (Selesai)
+    - `AdminKampus/Users/Show.tsx` (Selesai)
 - Pastikan tombol aksi tetap dapat dijangkau ibu jari (thumb-friendly).
 
 ### Phase 3 — Medium risk pages (2–3 hari)
