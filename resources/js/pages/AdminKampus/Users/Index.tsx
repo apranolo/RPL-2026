@@ -306,7 +306,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                 <p className="mt-1 text-muted-foreground">Manage users (Pengelola Jurnal) for {university.name}</p>
                             </div>
                             <Link href={route('admin-kampus.users.create')} className="w-full sm:w-auto">
-                                <Button className="w-full sm:w-auto flex items-center justify-center gap-2">
+                                <Button className="flex w-full items-center justify-center gap-2 sm:w-auto">
                                     <Plus className="h-4 w-4" />
                                     Create User
                                 </Button>
@@ -382,8 +382,10 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                 </SelectContent>
                             </Select>
 
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Button type="submit" className="w-full sm:w-auto">Search</Button>
+                            <div className="flex w-full flex-col gap-2 sm:flex-row md:w-auto">
+                                <Button type="submit" className="w-full sm:w-auto">
+                                    Search
+                                </Button>
                                 {(search || isActiveFilter || roleIdFilter || approvalStatusFilter !== 'approved') && (
                                     <Button
                                         type="button"
@@ -545,7 +547,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                         {/* Pagination */}
                         {users.last_page > 1 && (
                             <div className="border-t border-sidebar-border/70 px-6 py-4 dark:border-sidebar-border">
-                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
+                                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                                     <div className="text-sm text-muted-foreground">
                                         Showing {(users.current_page - 1) * users.per_page + 1} to{' '}
                                         {Math.min(users.current_page * users.per_page, users.total)} of {users.total} results
@@ -664,7 +666,9 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                             <TableCell className="hidden md:table-cell">
                                                 <Badge variant="outline">{user.role?.display_name || 'Pending'}</Badge>
                                             </TableCell>
-                                            <TableCell className="hidden text-sm text-muted-foreground md:table-cell">{formatDate(user.created_at)}</TableCell>
+                                            <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                                                {formatDate(user.created_at)}
+                                            </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Button
@@ -701,7 +705,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                         {/* Pagination for Pending Users */}
                         {pendingUsers.last_page > 1 && (
                             <div className="border-t border-sidebar-border/70 px-6 py-4 dark:border-sidebar-border">
-                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
+                                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                                     <div className="text-sm text-muted-foreground">
                                         Showing {(pendingUsers.current_page - 1) * pendingUsers.per_page + 1} to{' '}
                                         {Math.min(pendingUsers.current_page * pendingUsers.per_page, pendingUsers.total)} of {pendingUsers.total}{' '}
@@ -858,13 +862,15 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                                                         <span className="text-muted-foreground">-</span>
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="max-w-md hidden md:table-cell">
+                                                <TableCell className="hidden max-w-md md:table-cell">
                                                     <p className="truncate text-sm text-muted-foreground" title={user.rejection_reason}>
                                                         {user.rejection_reason}
                                                     </p>
                                                 </TableCell>
                                                 <TableCell className="hidden lg:table-cell">{user.rejected_by}</TableCell>
-                                                <TableCell className="hidden text-sm text-muted-foreground md:table-cell">{formatDate(user.rejected_at)}</TableCell>
+                                                <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                                                    {formatDate(user.rejected_at)}
+                                                </TableCell>
                                                 <TableCell className="text-right">
                                                     <Button
                                                         size="sm"
@@ -886,7 +892,7 @@ export default function UsersIndex({ users, pendingUsers, rejectedUsers, univers
                             {/* Pagination for Rejected Users */}
                             {rejectedUsers.last_page > 1 && (
                                 <div className="border-t border-red-200 px-6 py-4 dark:border-red-900">
-                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
+                                    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                                         <div className="text-sm text-muted-foreground">
                                             Showing {(rejectedUsers.current_page - 1) * rejectedUsers.per_page + 1} to{' '}
                                             {Math.min(rejectedUsers.current_page * rejectedUsers.per_page, rejectedUsers.total)} of{' '}
