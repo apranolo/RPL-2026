@@ -363,7 +363,7 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                 <p className="mt-1 text-muted-foreground">Manage university administrators across PTM</p>
                             </div>
                             <Link href={route('admin.admin-kampus.create')} className="w-full sm:w-auto">
-                                <Button className="w-full sm:w-auto flex items-center justify-center gap-2">
+                                <Button className="flex w-full items-center justify-center gap-2 sm:w-auto">
                                     <Plus className="h-4 w-4" />
                                     Add Admin Kampus
                                 </Button>
@@ -387,14 +387,14 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                     <div className="mb-6 rounded-lg border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
                         <form onSubmit={handleSearch} className="flex flex-col gap-3 md:flex-row md:items-center">
                             {/* Search */}
-                            <div className="flex-1 w-full relative">
+                            <div className="relative w-full flex-1">
                                 <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
                                 <Input
                                     type="text"
                                     placeholder="Search by name or email..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="pl-10 w-full"
+                                    className="w-full pl-10"
                                 />
                             </div>
 
@@ -419,8 +419,10 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                 </SelectContent>
                             </Select>
 
-                            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                <Button type="submit" className="w-full sm:w-auto">Search</Button>
+                            <div className="flex w-full flex-col gap-2 sm:flex-row md:w-auto">
+                                <Button type="submit" className="w-full sm:w-auto">
+                                    Search
+                                </Button>
                                 {(search || universityId || isActiveFilter) && (
                                     <Button
                                         type="button"
@@ -449,7 +451,7 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                     <TableHead>University</TableHead>
                                     <TableHead className="hidden md:table-cell">Contact</TableHead>
                                     <TableHead className="text-center">Status</TableHead>
-                                    <TableHead className="hidden lg:table-cell text-center">
+                                    <TableHead className="hidden text-center lg:table-cell">
                                         <BookOpen className="mr-1 inline h-4 w-4" />
                                         Journals
                                     </TableHead>
@@ -472,7 +474,7 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                                     {admin.avatar_url ? (
                                                         <img src={admin.avatar_url} alt={admin.name} className="h-10 w-10 rounded-full" />
                                                     ) : (
-                                                        <div className="flex shrink-0 h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
                                                             <span className="font-semibold text-green-600 dark:text-green-400">
                                                                 {admin.name.charAt(0).toUpperCase()}
                                                             </span>
@@ -480,8 +482,10 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                                     )}
                                                     <div>
                                                         <div className="font-semibold text-foreground">{admin.name}</div>
-                                                        <div className="text-xs md:hidden text-muted-foreground">{admin.email}</div>
-                                                        {admin.position && <div className="hidden md:block text-sm text-muted-foreground">{admin.position}</div>}
+                                                        <div className="text-xs text-muted-foreground md:hidden">{admin.email}</div>
+                                                        {admin.position && (
+                                                            <div className="hidden text-sm text-muted-foreground md:block">{admin.position}</div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </TableCell>
@@ -489,7 +493,9 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                                 {admin.university ? (
                                                     <div>
                                                         <div className="font-medium text-foreground">{admin.university.code}</div>
-                                                        <div className="text-sm text-muted-foreground truncate max-w-[150px] md:max-w-none">{admin.university.short_name}</div>
+                                                        <div className="max-w-[150px] truncate text-sm text-muted-foreground md:max-w-none">
+                                                            {admin.university.short_name}
+                                                        </div>
                                                     </div>
                                                 ) : (
                                                     <span className="text-muted-foreground">-</span>
@@ -512,7 +518,7 @@ export default function AdminKampusIndex({ adminKampus, pendingLppm, rejectedLpp
                                                     </Badge>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="hidden lg:table-cell text-center">{admin.journals_count}</TableCell>
+                                            <TableCell className="hidden text-center lg:table-cell">{admin.journals_count}</TableCell>
                                             <TableCell className="hidden lg:table-cell">
                                                 <div className="text-sm text-muted-foreground">{admin.last_login_at || '-'}</div>
                                             </TableCell>
