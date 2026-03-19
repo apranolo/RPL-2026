@@ -301,10 +301,18 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                                         <div className="flex items-start justify-between gap-2">
                                             <div>
                                                 <CardTitle className="text-lg leading-tight">{university.name}</CardTitle>
-                                                {university.short_name && <p className="mt-1 text-sm text-muted-foreground">{university.short_name}</p>}
+                                                {university.short_name && (
+                                                    <p className="mt-1 text-sm text-muted-foreground">{university.short_name}</p>
+                                                )}
                                                 <div className="mt-2 flex items-center gap-2">
-                                                    <Badge variant="outline" className="font-mono text-xs">{university.code}</Badge>
-                                                    {university.ptm_code && <Badge variant="outline" className="font-mono text-xs">{university.ptm_code}</Badge>}
+                                                    <Badge variant="outline" className="font-mono text-xs">
+                                                        {university.code}
+                                                    </Badge>
+                                                    {university.ptm_code && (
+                                                        <Badge variant="outline" className="font-mono text-xs">
+                                                            {university.ptm_code}
+                                                        </Badge>
+                                                    )}
                                                 </div>
                                             </div>
                                             {university.is_active ? (
@@ -331,12 +339,14 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
                                                 )}
                                             </div>
                                         )}
-                                        
+
                                         <div>
                                             <p className="text-sm font-medium text-muted-foreground">Location</p>
                                             <p className="text-sm">
                                                 {university.city && university.province ? (
-                                                    <>{university.city}, {university.province}</>
+                                                    <>
+                                                        {university.city}, {university.province}
+                                                    </>
                                                 ) : (
                                                     <span className="text-muted-foreground">-</span>
                                                 )}
