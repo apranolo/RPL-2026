@@ -62,7 +62,7 @@ export default function Register({ universities }: Props) {
                     </div>
 
                     {/* Register Form */}
-                    <div className="rounded-2xl bg-white p-8 shadow-xl dark:bg-[#0f172a] dark:shadow-2xl">
+                    <div className="rounded-2xl bg-white p-4 shadow-xl sm:p-8 dark:bg-[#0f172a] dark:shadow-2xl">
                         <div className="mb-8 text-center">
                             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Daftar Akun</h2>
                             <p className="mt-2 text-gray-600 dark:text-gray-300">Buat akun baru untuk memulai</p>

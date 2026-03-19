@@ -278,7 +278,7 @@ export default function TemplateTree({ template, structuredTree }: Props) {
                             <Layers3 className="h-5 w-5 text-primary" />
                             <span className="text-sm font-medium text-foreground">Structure Summary:</span>
                         </div>
-                        <div className="flex items-center gap-4 text-sm">
+                        <div className="flex flex-col gap-3 text-sm md:flex-row md:items-center md:gap-4">
                             <div>
                                 <span className="font-semibold" style={{ color: 'var(--chart-1)' }}>
                                     {counts.categoryCount}

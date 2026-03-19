@@ -585,7 +585,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                 {errors.indexations && <p className="mt-1 text-sm text-red-600">{errors.indexations}</p>}
                             </div>
 
-                            <div className="flex items-center justify-end gap-4 border-t pt-4 dark:border-gray-700">
+                            <div className="flex flex-col-reverse items-stretch justify-end gap-4 border-t pt-4 sm:flex-row sm:items-center dark:border-gray-700">
                                 <Link href={route('user.journals.index')}>
                                     <Button type="button" variant="outline">
                                         Cancel
