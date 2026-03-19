@@ -209,15 +209,15 @@ export default function PembinaanShow({ registration, category }: Props) {
 
             <div className="space-y-6">
                 {/* Header */}
-                <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <Button variant="outline" size="icon" asChild>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start gap-4 sm:items-center">
+                        <Button variant="outline" size="icon" className="shrink-0" asChild>
                             <Link href={route(`admin-kampus.pembinaan.${category}`)}>
                                 <ArrowLeft className="h-4 w-4" />
                             </Link>
                         </Button>
                         <div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                                 <h1 className="text-2xl font-bold tracking-tight">{registration.journal?.title}</h1>
                                 {getStatusBadge(registration.status)}
                             </div>
@@ -228,12 +228,12 @@ export default function PembinaanShow({ registration, category }: Props) {
                     </div>
 
                     {registration.status === 'pending' && (
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => setShowRejectDialog(true)}>
+                        <div className="mt-4 flex w-full flex-col gap-2 sm:mt-0 sm:w-auto sm:flex-row">
+                            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setShowRejectDialog(true)}>
                                 <X className="mr-2 h-4 w-4" />
                                 Reject
                             </Button>
-                            <Button onClick={() => setShowApproveDialog(true)}>
+                            <Button className="w-full sm:w-auto" onClick={() => setShowApproveDialog(true)}>
                                 <Check className="mr-2 h-4 w-4" />
                                 Approve
                             </Button>
@@ -256,7 +256,7 @@ export default function PembinaanShow({ registration, category }: Props) {
                 </div>
 
                 {/* Program & Journal Info */}
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-base">
@@ -375,20 +375,23 @@ export default function PembinaanShow({ registration, category }: Props) {
                         ) : (
                             <div className="space-y-2">
                                 {registration.attachments.map((attachment) => (
-                                    <div key={attachment.id} className="flex items-center justify-between rounded-lg border p-3">
-                                        <div className="flex items-center gap-3">
-                                            <FileText className="h-5 w-5 text-muted-foreground" />
-                                            <div>
-                                                <div className="text-sm font-medium">{attachment.file_name}</div>
+                                    <div
+                                        key={attachment.id}
+                                        className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between"
+                                    >
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                            <FileText className="h-5 w-5 shrink-0 text-muted-foreground" />
+                                            <div className="min-w-0 flex-1">
+                                                <div className="truncate text-sm font-medium">{attachment.file_name}</div>
                                                 <div className="text-xs text-muted-foreground">
                                                     {attachment.document_type} •{' '}
                                                     {attachment.file_size && (attachment.file_size / 1024 / 1024).toFixed(2)} MB
                                                 </div>
                                             </div>
                                         </div>
-                                        <Button variant="outline" size="sm" asChild>
+                                        <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
                                             <a href={`/storage/${attachment.file_path}`} download target="_blank" rel="noopener noreferrer">
-                                                <Download className="mr-2 h-4 w-4" />
+                                                <Download className="mr-2 h-4 w-4 shrink-0" />
                                                 Download
                                             </a>
                                         </Button>
@@ -409,46 +412,48 @@ export default function PembinaanShow({ registration, category }: Props) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Reviewer</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Assigned At</TableHead>
-                                        <TableHead>Assigned By</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {registration.reviewer_assignments.map((assignment) => (
-                                        <TableRow key={assignment.id}>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="text-sm font-medium">{assignment.reviewer?.name}</div>
-                                                    <div className="text-xs text-muted-foreground">{assignment.reviewer?.email}</div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{getStatusBadge(assignment.status)}</TableCell>
-                                            <TableCell className="text-sm">{formatDate(assignment.assigned_at)}</TableCell>
-                                            <TableCell className="text-sm">{assignment.assigner?.name}</TableCell>
-                                            <TableCell>
-                                                <div className="flex justify-end">
-                                                    {assignment.status !== 'completed' && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() => handleRemoveAssignment(assignment.id)}
-                                                            title="Remove Assignment"
-                                                        >
-                                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </TableCell>
+                            <div className="overflow-x-auto rounded-md border">
+                                <Table>
+                                    <TableHeader className="whitespace-nowrap">
+                                        <TableRow>
+                                            <TableHead>Reviewer</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Assigned At</TableHead>
+                                            <TableHead>Assigned By</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {registration.reviewer_assignments.map((assignment) => (
+                                            <TableRow key={assignment.id}>
+                                                <TableCell>
+                                                    <div>
+                                                        <div className="text-sm font-medium">{assignment.reviewer?.name}</div>
+                                                        <div className="text-xs text-muted-foreground">{assignment.reviewer?.email}</div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>{getStatusBadge(assignment.status)}</TableCell>
+                                                <TableCell className="text-sm whitespace-nowrap">{formatDate(assignment.assigned_at)}</TableCell>
+                                                <TableCell className="text-sm">{assignment.assigner?.name}</TableCell>
+                                                <TableCell>
+                                                    <div className="flex justify-end">
+                                                        {assignment.status !== 'completed' && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => handleRemoveAssignment(assignment.id)}
+                                                                title="Remove Assignment"
+                                                            >
+                                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
                         </CardContent>
                     </Card>
                 )}
@@ -465,13 +470,13 @@ export default function PembinaanShow({ registration, category }: Props) {
                         <CardContent className="space-y-4">
                             {registration.reviews.map((review) => (
                                 <div key={review.id} className="rounded-lg border p-4">
-                                    <div className="mb-3 flex items-start justify-between">
+                                    <div className="mb-3 flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:gap-0">
                                         <div>
                                             <div className="font-medium">{review.reviewer?.name}</div>
                                             <div className="text-sm text-muted-foreground">{formatDate(review.reviewed_at)}</div>
                                         </div>
                                         {review.score !== undefined && (
-                                            <div className={`text-2xl font-bold ${getScoreColor(review.score)}`}>{review.score}/100</div>
+                                            <div className={`text-xl font-bold sm:text-2xl ${getScoreColor(review.score)}`}>{review.score}/100</div>
                                         )}
                                     </div>
                                     {review.feedback && (

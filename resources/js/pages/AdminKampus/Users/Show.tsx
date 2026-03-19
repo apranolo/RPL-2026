@@ -157,7 +157,7 @@ export default function UsersShow({ user, journals, university }: Props) {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex w-full flex-wrap items-center gap-2 md:w-auto mt-4 md:mt-0">
+                            <div className="mt-4 flex w-full flex-wrap items-center gap-2 md:mt-0 md:w-auto">
                                 <Button
                                     variant="outline"
                                     onClick={handleToggleActive}
