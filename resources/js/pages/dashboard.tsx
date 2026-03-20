@@ -44,7 +44,7 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 sm:p-6">
                 {/* Stats Cards - Conditional Grid Based on Role */}
                 <div
                     className={`grid auto-rows-min grid-cols-1 gap-4 ${
@@ -162,8 +162,8 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                                 </Link>
                             )}
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
+                        <div className="min-w-full overflow-x-auto">
+                            <table className="w-full min-w-[600px]">
                                 <thead className="border-b border-sidebar-border/70 dark:border-sidebar-border">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">#</th>

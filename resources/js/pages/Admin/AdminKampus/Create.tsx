@@ -138,7 +138,7 @@ export default function AdminKampusCreate({ universities }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Admin Kampus" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 sm:p-6">
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
@@ -307,7 +307,7 @@ export default function AdminKampusCreate({ universities }: Props) {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center justify-end gap-4 border-t border-sidebar-border/70 pt-6 dark:border-sidebar-border">
+                        <div className="flex flex-col-reverse items-stretch justify-end gap-4 border-t border-sidebar-border/70 pt-6 sm:flex-row sm:items-center dark:border-sidebar-border">
                             <Link href={route('admin.admin-kampus.index')}>
                                 <Button type="button" variant="outline">
                                     Cancel

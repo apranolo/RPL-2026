@@ -178,8 +178,8 @@ export default function UsersShow({ user, journals }: Props) {
                                 Back to List
                             </Button>
                         </Link>
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-4">
+                        <div className="flex flex-col items-start gap-4 sm:flex-row sm:justify-between">
+                            <div className="flex w-full flex-col items-start gap-4 sm:w-auto sm:flex-row">
                                 {user.avatar_url ? (
                                     <img src={user.avatar_url} alt={user.name} className="h-20 w-20 rounded-full" />
                                 ) : (
@@ -191,11 +191,11 @@ export default function UsersShow({ user, journals }: Props) {
                                 )}
                                 <div>
                                     <div className="flex items-center gap-3">
-                                        <UserCheck className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                                        <h1 className="text-3xl font-bold text-foreground">{user.name}</h1>
+                                        <UserCheck className="h-8 w-8 shrink-0 text-blue-600 dark:text-blue-400" />
+                                        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{user.name}</h1>
                                     </div>
                                     <p className="mt-1 text-muted-foreground">Pengelola Jurnal Details</p>
-                                    <div className="mt-2 flex items-center gap-2">
+                                    <div className="mt-2 flex flex-wrap items-center gap-2">
                                         <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
                                             <UserCheck className="mr-1 h-3 w-3" />
                                             Pengelola Jurnal
@@ -214,12 +214,12 @@ export default function UsersShow({ user, journals }: Props) {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <Button variant={user.is_active ? 'outline' : 'default'} onClick={handleToggleActive}>
+                            <div className="flex w-full gap-2 sm:w-auto">
+                                <Button className="flex-1 sm:flex-none" variant={user.is_active ? 'outline' : 'default'} onClick={handleToggleActive}>
                                     {user.is_active ? 'Deactivate' : 'Activate'}
                                 </Button>
-                                <Link href={route('admin.users.edit', user.id)}>
-                                    <Button className="flex items-center gap-2">
+                                <Link href={route('admin.users.edit', user.id)} className="flex-1 sm:flex-none">
+                                    <Button className="flex w-full items-center justify-center gap-2">
                                         <Edit className="h-4 w-4" />
                                         Edit
                                     </Button>
@@ -307,26 +307,28 @@ export default function UsersShow({ user, journals }: Props) {
                                 {journals.length === 0 ? (
                                     <p className="py-4 text-center text-muted-foreground">No journals managed yet</p>
                                 ) : (
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Journal Title</TableHead>
-                                                <TableHead>ISSN</TableHead>
-                                                <TableHead>Scientific Field</TableHead>
-                                                <TableHead>Created</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {journals.map((journal) => (
-                                                <TableRow key={journal.id}>
-                                                    <TableCell className="font-medium">{journal.title}</TableCell>
-                                                    <TableCell>{journal.issn}</TableCell>
-                                                    <TableCell>{journal.scientific_field || '-'}</TableCell>
-                                                    <TableCell>{new Date(journal.created_at).toLocaleDateString('id-ID')}</TableCell>
+                                    <div className="overflow-x-auto">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="min-w-[150px]">Journal Title</TableHead>
+                                                    <TableHead className="min-w-[100px]">ISSN</TableHead>
+                                                    <TableHead className="min-w-[150px]">Scientific Field</TableHead>
+                                                    <TableHead className="min-w-[100px]">Created</TableHead>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {journals.map((journal) => (
+                                                    <TableRow key={journal.id}>
+                                                        <TableCell className="font-medium">{journal.title}</TableCell>
+                                                        <TableCell>{journal.issn}</TableCell>
+                                                        <TableCell>{journal.scientific_field || '-'}</TableCell>
+                                                        <TableCell>{new Date(journal.created_at).toLocaleDateString('id-ID')}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
                                 )}
                             </div>
                         </div>

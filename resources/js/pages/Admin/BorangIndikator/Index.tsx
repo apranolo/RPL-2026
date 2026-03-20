@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination';
@@ -234,7 +235,7 @@ export default function BorangIndikatorIndex({
                     </form>
                 </div>
 
-                <div className="rounded-md border">
+                <div className="hidden overflow-x-auto rounded-md border md:block">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -359,6 +360,124 @@ export default function BorangIndikatorIndex({
                             )}
                         </TableBody>
                     </Table>
+                </div>
+
+                {/* Templates List - Mobile */}
+                <div className="space-y-4 md:hidden">
+                    {templates.data.length > 0 ? (
+                        templates.data.map((template) => (
+                            <Card key={template.id} className="overflow-hidden">
+                                <CardContent className="space-y-4 p-4">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <div className="font-semibold">{template.name}</div>
+                                            {template.description && (
+                                                <div className="line-clamp-1 text-sm text-muted-foreground">{template.description}</div>
+                                            )}
+                                        </div>
+                                        <Badge variant="outline" className="capitalize">
+                                            {template.type || 'N/A'}
+                                        </Badge>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <span className="mb-1 block text-muted-foreground">Versi</span>
+                                            <div>{template.version || '-'}</div>
+                                        </div>
+                                        <div>
+                                            <span className="mb-1 block text-muted-foreground">Tgl Efektif</span>
+                                            <div>
+                                                {template.effective_date
+                                                    ? new Date(template.effective_date).toLocaleDateString('id-ID', {
+                                                          year: 'numeric',
+                                                          month: 'short',
+                                                          day: 'numeric',
+                                                      })
+                                                    : '-'}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-around rounded-md border border-sidebar-border/50 bg-sidebar p-3 text-xs">
+                                        {template.categories_count !== undefined && (
+                                            <div className="text-center">
+                                                <div className="text-sm font-semibold text-blue-600">{template.categories_count}</div>
+                                                <div className="text-muted-foreground">Unsur</div>
+                                            </div>
+                                        )}
+                                        {template.sub_categories_count !== undefined && (
+                                            <div className="text-center">
+                                                <div className="text-sm font-semibold text-green-600">{template.sub_categories_count}</div>
+                                                <div className="text-muted-foreground">Sub Unsur</div>
+                                            </div>
+                                        )}
+                                        {template.indicators_count !== undefined && (
+                                            <div className="text-center">
+                                                <div className="text-sm font-semibold text-purple-600">{template.indicators_count}</div>
+                                                <div className="text-muted-foreground">Indikator</div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center justify-between border-t pt-4">
+                                        <div className="flex items-center gap-2">
+                                            <Switch
+                                                checked={template.is_active ?? false}
+                                                onCheckedChange={() => handleToggleActive(template)}
+                                                disabled={isLoading}
+                                                aria-label="Toggle active status"
+                                            />
+                                            <Badge variant={template.is_active ? 'default' : 'secondary'} className="whitespace-nowrap">
+                                                {template.is_active ? 'Aktif' : 'Nonaktif'}
+                                            </Badge>
+                                        </div>
+                                        <div className="flex justify-end gap-1">
+                                            <Button variant="ghost" size="icon" asChild title="Kelola Struktur">
+                                                <Link href={route('admin.templates.structure', template.id)}>
+                                                    <FolderTree className="h-4 w-4" />
+                                                </Link>
+                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                        <span className="sr-only">More actions</span>
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => setEditingTemplate(template)}>
+                                                        <Edit className="mr-2 h-4 w-4" />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleClone(template)}>
+                                                        <Copy className="mr-2 h-4 w-4" />
+                                                        Clone
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        className="text-red-600"
+                                                        onClick={() => handleDelete(template)}
+                                                        disabled={!template.can_be_deleted}
+                                                    >
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        Delete
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))
+                    ) : (
+                        <Card>
+                            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                                <FolderTree className="mb-2 h-8 w-8 text-muted-foreground" />
+                                <p className="font-semibold text-foreground">Template tidak ditemukan</p>
+                                <p className="text-sm text-muted-foreground">Mulai dengan membuat template baru</p>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
 
                 {templates.links && templates.links.length > 3 && (

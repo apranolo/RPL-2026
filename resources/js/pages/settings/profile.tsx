@@ -321,7 +321,7 @@ export default function Profile({ mustVerifyEmail, status, scientificFields }: P
                                 <InputError message={errors.scientific_field_id} />
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
                                 <Button disabled={processing}>{processing ? 'Saving...' : 'Save Changes'}</Button>
 
                                 <Transition

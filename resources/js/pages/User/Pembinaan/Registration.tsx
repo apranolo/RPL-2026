@@ -161,9 +161,9 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-start justify-between gap-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div className="flex-1">
-                                <Button variant="ghost" size="sm" asChild className="mb-2">
+                                <Button variant="ghost" size="sm" asChild className="mb-2 w-full justify-start sm:w-auto">
                                     <a href={route(`user.pembinaan.${category}`)}>
                                         <ArrowLeft className="mr-2 h-4 w-4" />
                                         Back to Pembinaan
@@ -177,7 +177,7 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
 
                     {/* Status Banner */}
                     <Card className={statusConfig.bgColor}>
-                        <CardContent className="flex items-center gap-4 py-6">
+                        <CardContent className="flex flex-col items-center gap-4 py-6 text-center sm:flex-row sm:text-left">
                             <div className={`rounded-full p-3 ${statusConfig.bgColor}`}>
                                 <StatusIcon className={`h-8 w-8 ${statusConfig.color}`} />
                             </div>
@@ -187,14 +187,14 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                             </div>
                             <Badge
                                 variant={statusConfig.variant as 'default' | 'secondary' | 'outline' | 'destructive'}
-                                className="px-4 py-2 text-base"
+                                className="w-full justify-center px-4 py-2 text-base sm:w-auto"
                             >
                                 {registration.status.charAt(0).toUpperCase() + registration.status.slice(1)}
                             </Badge>
                         </CardContent>
                     </Card>
 
-                    <div className="grid gap-6 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* Main Content */}
                         <div className="space-y-6 lg:col-span-2">
                             {/* Program & Journal Info */}
@@ -232,12 +232,12 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                                     <Separator />
 
                                     <div className="grid gap-3 text-sm">
-                                        <div className="flex justify-between">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between">
                                             <span className="text-muted-foreground">Registered At:</span>
                                             <span className="font-medium">{formatDateTime(registration.registered_at)}</span>
                                         </div>
                                         {registration.reviewed_at && (
-                                            <div className="flex justify-between">
+                                            <div className="flex flex-col sm:flex-row sm:justify-between">
                                                 <span className="text-muted-foreground">Reviewed At:</span>
                                                 <span className="font-medium">{formatDateTime(registration.reviewed_at)}</span>
                                             </div>
@@ -272,43 +272,45 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                                 </CardHeader>
                                 <CardContent>
                                     {registration.attachments && registration.attachments.length > 0 ? (
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>Document</TableHead>
-                                                    <TableHead>Type</TableHead>
-                                                    <TableHead>Uploaded</TableHead>
-                                                    <TableHead className="text-right">Action</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {registration.attachments.map((attachment) => (
-                                                    <TableRow key={attachment.id}>
-                                                        <TableCell>
-                                                            <div className="flex items-center gap-2">
-                                                                <span>{getFileIcon(attachment.file_name)}</span>
-                                                                <span className="font-medium">{attachment.file_name}</span>
-                                                            </div>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Badge variant="outline" className="capitalize">
-                                                                {attachment.document_type?.replace('_', ' ') || 'N/A'}
-                                                            </Badge>
-                                                        </TableCell>
-                                                        <TableCell className="text-muted-foreground">
-                                                            {attachment.created_at ? formatDate(attachment.created_at) : 'N/A'}
-                                                        </TableCell>
-                                                        <TableCell className="text-right">
-                                                            <Button variant="ghost" size="sm" asChild>
-                                                                <a href={route('user.pembinaan.attachments.download', attachment.id)} download>
-                                                                    <Download className="h-4 w-4" />
-                                                                </a>
-                                                            </Button>
-                                                        </TableCell>
+                                        <div className="overflow-x-auto rounded-md border">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead className="min-w-[200px] whitespace-nowrap">Document</TableHead>
+                                                        <TableHead className="whitespace-nowrap">Type</TableHead>
+                                                        <TableHead className="whitespace-nowrap">Uploaded</TableHead>
+                                                        <TableHead className="text-right whitespace-nowrap">Action</TableHead>
                                                     </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {registration.attachments.map((attachment) => (
+                                                        <TableRow key={attachment.id}>
+                                                            <TableCell className="min-w-[200px]">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span>{getFileIcon(attachment.file_name)}</span>
+                                                                    <span className="font-medium">{attachment.file_name}</span>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="whitespace-nowrap">
+                                                                <Badge variant="outline" className="capitalize">
+                                                                    {attachment.document_type?.replace('_', ' ') || 'N/A'}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="whitespace-nowrap text-muted-foreground">
+                                                                {attachment.created_at ? formatDate(attachment.created_at) : 'N/A'}
+                                                            </TableCell>
+                                                            <TableCell className="text-right whitespace-nowrap">
+                                                                <Button variant="ghost" size="sm" asChild>
+                                                                    <a href={route('user.pembinaan.attachments.download', attachment.id)} download>
+                                                                        <Download className="h-4 w-4" />
+                                                                    </a>
+                                                                </Button>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
                                     ) : (
                                         <p className="py-6 text-center text-sm text-muted-foreground">No documents uploaded</p>
                                     )}
@@ -328,12 +330,12 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                                     <CardContent className="space-y-4">
                                         {registration.reviews.map((review) => (
                                             <div key={review.id} className="space-y-3 rounded-lg border p-4">
-                                                <div className="flex items-start justify-between">
+                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                                     <div>
                                                         <p className="font-semibold">{review.reviewer?.name}</p>
                                                         <p className="text-sm text-muted-foreground">{formatDate(review.reviewed_at)}</p>
                                                     </div>
-                                                    <div className="text-right">
+                                                    <div className="text-left sm:text-right">
                                                         <p className="text-2xl font-bold">{review.score}</p>
                                                         <p className="text-xs text-muted-foreground">Score</p>
                                                     </div>
@@ -378,8 +380,8 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                                     {registration.assessment ? (
                                         <div className="space-y-4">
                                             {/* Assessment Status */}
-                                            <div className="flex items-center justify-between rounded-lg border p-4">
-                                                <div>
+                                            <div className="flex flex-col items-center justify-between gap-4 rounded-lg border p-4 sm:flex-row sm:gap-0">
+                                                <div className="text-center sm:text-left">
                                                     <p className="font-semibold">Assessment Status</p>
                                                     {(() => {
                                                         const status = registration.assessment.status;
@@ -398,7 +400,7 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                                                         );
                                                     })()}
                                                 </div>
-                                                <div className="text-right text-sm text-muted-foreground">
+                                                <div className="text-center text-sm text-muted-foreground sm:text-right">
                                                     {registration.assessment.updated_at && (
                                                         <p>Last updated: {formatDate(registration.assessment.updated_at)}</p>
                                                     )}
@@ -411,10 +413,10 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                                             )}
 
                                             {/* Action Buttons */}
-                                            <div className="flex gap-2 pt-2">
+                                            <div className="flex flex-col gap-2 pt-2 sm:flex-row">
                                                 {registration.assessment.status === 'draft' && (
                                                     <>
-                                                        <Button className="flex-1" asChild>
+                                                        <Button className="w-full sm:w-auto sm:flex-1" asChild>
                                                             <Link href={route('user.assessments.edit', registration.assessment.id)}>
                                                                 <FileText className="mr-2 h-4 w-4" />
                                                                 Continue Assessment
@@ -423,7 +425,7 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                                                     </>
                                                 )}
                                                 {registration.assessment.status === 'submitted' && (
-                                                    <Button variant="outline" className="flex-1" asChild>
+                                                    <Button variant="outline" className="w-full sm:w-auto sm:flex-1" asChild>
                                                         <Link href={route('user.assessments.show', registration.assessment.id)}>
                                                             <FileText className="mr-2 h-4 w-4" />
                                                             View Submission
@@ -432,7 +434,7 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
                                                 )}
                                                 {registration.assessment.status === 'reviewed' && (
                                                     <>
-                                                        <Button variant="outline" className="flex-1" asChild>
+                                                        <Button variant="outline" className="w-full sm:w-auto sm:flex-1" asChild>
                                                             <Link href={route('user.assessments.show', registration.assessment.id)}>
                                                                 <FileText className="mr-2 h-4 w-4" />
                                                                 View Results

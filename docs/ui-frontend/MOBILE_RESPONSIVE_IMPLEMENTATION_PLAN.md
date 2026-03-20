@@ -1,0 +1,317 @@
+﻿# Mobile Responsive Implementation Plan (Semua Page)
+
+Tanggal: 18 Maret 2026  
+Project: Jurnal MU (Laravel + Inertia React)
+
+## 1. Ringkasan Eksekutif
+
+Dokumen ini adalah rencana implementasi **mobile responsive view** berdasarkan analisis seluruh halaman pada `resources/js/pages`.
+
+- Total file page yang dianalisis: **73 file** (di luar `__tests__`)
+- Distribusi risiko responsive (heuristik code-scan + review manual):
+  - **High**: 22 page
+  - **Medium**: 6 page
+  - **Low**: 45 page
+
+Fokus implementasi: memperbaiki pengalaman mobile tanpa mengubah behavior bisnis, policy akses, atau alur data.
+
+## 2. Cakupan Analisis
+
+Analisis mencakup semua area berikut:
+
+- `Admin/*`
+- `AdminKampus/*`
+- `User/*`
+- `Dikti/*`
+- `Journals/*` (public)
+- `Browse/*`
+- `auth/*`
+- `settings/*`
+- root pages (`dashboard.tsx`, `welcome.tsx`, `Resources.tsx`, `Support.tsx`)
+
+## 3. Temuan Utama per Pola UI
+
+### 3.1 Tabel padat kolom (risiko tertinggi)
+Pola dominan pada halaman list management:
+- Kolom > 5, aksi berderet (view/edit/delete/approve/reject), status badge, metadata panjang.
+- Banyak page sudah punya `overflow-x-auto`, tetapi belum cukup untuk UX mobile yang nyaman (tetap padat/overflow panjang).
+
+### 3.2 Baris filter horizontal fixed width
+Pola umum:
+- Filter/search masih `form className="flex gap-4"` dengan komponen `w-48`, `w-64`.
+- Pada layar kecil, komponen saling dorong/terpotong dan tombol action turun tidak konsisten.
+
+### 3.3 Header + action buttons belum mobile-first
+- Header utama cenderung `justify-between` satu baris.
+- Tombol CTA penting (Add/Search/Clear/Toggle) belum selalu punya fallback stack/wrap di mobile.
+
+### 3.4 Tabs dan statistik ringkas
+- Ditemukan `TabsList className="grid w-full grid-cols-4"` pada profil user.
+- Potensi kepadatan label + badge di lebar 320–390px.
+
+### 3.5 Halaman auth/settings relatif aman
+- Sebagian besar layout single-column (`max-w-md`, `space-y-*`), risiko rendah.
+
+## 4. Prinsip Implementasi (Standar Tim)
+
+1. **Mobile-first**: style default untuk mobile, naik ke `sm/md/lg` untuk desktop.
+2. **Minim perubahan behavior**: hanya layout/visual responsive.
+3. **Reuse komponen existing** (shadcn/ui + Tailwind tokens), tanpa hardcode design token baru.
+4. **Progressive disclosure** di mobile:
+   - Kolom sekunder disembunyikan di mobile (`hidden md:table-cell`),
+   - Data penting tetap terlihat,
+   - Aksi utama tetap 1 tap.
+5. **Aksesibilitas tetap terjaga**: focus state, touch target, label tombol ikon.
+
+## 5. Arsitektur Solusi Responsive
+
+### 5.1 Fondasi global (dikerjakan dulu)
+- Standarisasi wrapper konten page:
+  - `p-4 sm:p-6`
+  - heading container menjadi `flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`
+- Standarisasi form filter:
+  - dari `flex gap-4` menjadi `flex flex-col gap-3 md:flex-row`
+  - semua trigger/select fixed width diubah ke `w-full md:w-48` / `md:w-64`
+- Standarisasi action group:
+  - `flex flex-wrap gap-2`
+
+### 5.2 Strategi tabel lintas role
+- Desktop tetap table penuh.
+- Mobile:
+  - Opsi A (cepat): pertahankan table + `overflow-x-auto` + set `min-w-*` yang konsisten.
+  - Opsi B (prioritas tinggi): render card list khusus mobile untuk tabel kompleks.
+- Kolom prioritas mobile:
+  - tampil: nama, status, metrik utama, aksi utama
+  - sembunyi: metadata sekunder (last login, tanggal detail, kolom deskriptif panjang)
+
+### 5.3 Pagination mobile
+- Mobile tampil `Prev/Next` + ringkasan halaman.
+- Desktop tetap nomor halaman penuh.
+
+### 5.4 Tabs, dashboard, dan public pages
+- Tabs: `grid-cols-2 sm:grid-cols-4` untuk profil user.
+- Dashboard cards: pastikan base `grid-cols-1` + breakpoint bertahap.
+- Public page navbar (`welcome`, `Journals/Index`): action login/register/dashboard disusun wrap/stack aman mobile.
+
+## 6. Prioritas Implementasi (Backlog by Risk)
+
+### P0 â€” High Risk (wajib dulu)
+- AdminKampus/Users/Index.tsx (Selesai)
+- Admin/AdminKampus/Index.tsx (Selesai)
+- User/Journals/Show.tsx (Selesai)
+- AdminKampus/Pembinaan/Index.tsx (Selesai)
+- AdminKampus/Assessments/Index.tsx (Selesai)
+- Admin/Universities/Index.tsx (Selesai)
+- Admin/Journals/Index.tsx (Selesai)
+- AdminKampus/Journals/Show.tsx (Selesai)
+- Dikti/Assessments/Index.tsx (Selesai)
+- Admin/Journals/Show.tsx (Selesai)
+- AdminKampus/Journals/Index.tsx (Selesai)
+- Admin/Users/Index.tsx (Selesai)
+- Admin/BorangIndikator/Index.tsx (Selesai)
+- User/Assessments/Index.tsx (Selesai)
+- Admin/Pembinaan/Index.tsx (Selesai)
+- Admin/Pembinaan/Show.tsx (Selesai)
+- User/Journals/Index.tsx (Selesai)
+- AdminKampus/Users/Show.tsx (Selesai)
+- AdminKampus/Pembinaan/Show.tsx (Selesai)
+- Admin/Users/Show.tsx (Selesai)
+- User/Pembinaan/Registration.tsx (Selesai)
+- Admin/AdminKampus/Show.tsx (Selesai)
+
+### P1 â€” Medium Risk
+- welcome.tsx (Selesai)
+- dashboard.tsx (Selesai)
+- Journals/Index.tsx (Selesai)
+- Journals/Show.tsx (Selesai)
+- User/Profil/Index.tsx (Selesai)
+- User/Pembinaan/Index.tsx (Selesai)
+
+### P2 â€” Low Risk
+Semua page lain (45 file) dikerjakan setelah P0/P1 untuk hardening dan konsistensi.
+
+## 7. Rencana Eksekusi Bertahap
+
+### Phase 1 â€” Baseline & reusable patterns (Selesai)
+- Menetapkan guideline utility class responsive dengan Tailwind:
+  - **container page**: `flex flex-col gap-4 rounded-xl p-4`
+  - **section header**: `flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`
+  - **filter form**: `flex flex-col gap-3 md:flex-row md:items-center` dan `flex-col sm:flex-row` pada action group.
+  - **action group (CTA)**: `w-full sm:w-auto` untuk button agar full-width di mobile.
+  - **input width**: mengganti w-48/w-64 menjadi `w-full md:w-48` / `w-full md:w-64`.
+  - **table col priority**: sembunyikan kolom tersunder (`Contact`, `Journals`, `Last Login`) menggunakan `hidden lg:table-cell` atau `hidden md:table-cell`, pastikan scrollable dengan `overflow-x-auto min-w-[800px] md:min-w-full`.
+- Terapkan ke 2 halaman referensi terbesar:
+  - `AdminKampus/Users/Index.tsx` (Selesai)
+  - `Admin/AdminKampus/Index.tsx` (Selesai)
+
+### Phase 2 â€” High risk tables (Selesai)
+- Refactor halaman P0 berbasis tabel (admin/admin kampus/user list).
+- Implement mobile card-view untuk tabel sangat padat (khusus page dengan aksi multi tombol).
+  - **Batch 1 (Pioneer / Base logic)**
+    - `Admin/Universities/Index.tsx` (Selesai)
+    - `AdminKampus/Journals/Index.tsx` (Selesai)
+  - **Batch 2 (Assessments Domain)**
+    - `AdminKampus/Assessments/Index.tsx` (Selesai)
+    - `Dikti/Assessments/Index.tsx` (Selesai)
+    - `User/Assessments/Index.tsx` (Selesai)
+  - **Batch 3 (Journals & Users Domain)**
+    - `Admin/Journals/Index.tsx` (Selesai)
+    - `Admin/Users/Index.tsx` (Selesai)
+    - `User/Journals/Index.tsx` (Selesai)
+    - `Admin/Journals/Show.tsx` (Selesai)
+    - `AdminKampus/Journals/Show.tsx` (Selesai)
+    - `User/Journals/Show.tsx` (Selesai)
+    - `Admin/Users/Show.tsx` (Selesai)
+    - `AdminKampus/Users/Show.tsx` (Selesai)
+  - **Batch 4 (Pembinaan & Misc)**
+    - `AdminKampus/Pembinaan/Index.tsx` (Selesai)
+    - `AdminKampus/Pembinaan/Show.tsx` (Selesai)
+    - `Admin/Pembinaan/Index.tsx` (Selesai)
+    - `Admin/Pembinaan/Show.tsx` (Selesai)
+    - `Admin/BorangIndikator/Index.tsx` (Selesai)
+    - `User/Pembinaan/Registration.tsx` (Selesai)
+    - `Admin/AdminKampus/Show.tsx` (Selesai)
+- Pastikan tombol aksi tetap dapat dijangkau ibu jari (thumb-friendly).
+
+### Phase 3 â€” Medium risk pages (Selesai)
+- Refactor `welcome`, `dashboard`, `Journals/Index`, `Journals/Show`, `User/Profil/Index`, `User/Pembinaan/Index`.
+- Fokus pada tabs, navbar, section spacing, dan card grid.
+- Telah menyesuaikan navigasi list dan membungkus Tabs pada pembinaan & Profile menjadi model scroll overflow tersembunyi yang responsive.
+
+### Phase 4 â€” Low risk hardening + QA (Selesai)
+- Menjalankan script standarisasi `p-4 sm:p-6` dan grid sizing pada halaman *Low Risk*.
+- Memperbarui komponen tombol aksi pada form menjadi mode wrap yang aman di mobile (`flex-col-reverse sm:flex-row`).
+- Merapikan margin input pada otentikasi.
+- Regression test lintas role + dark mode.
+
+Estimasi total: **10â€“15 hari kerja** (tergantung kapasitas tim & parallelisasi).
+
+## 8. Checklist Implementasi per Halaman (Template)
+
+Gunakan checklist berikut saat mengerjakan setiap page:
+
+- Header dan CTA tidak overflow di lebar 320px.
+- Filter/search stack rapi (`flex-col` mobile, `flex-row` desktop).
+- Select/Input fixed-width diganti `w-full md:w-*`.
+- Tabel:
+  - kolom penting tetap terlihat,
+  - kolom sekunder di-hide di mobile,
+  - aksi utama tetap visible.
+- Pagination mobile tidak terlalu padat.
+- Empty state dan flash message tetap proporsional.
+
+## 9. QA & Acceptance Criteria
+
+### 9.1 Viewport wajib uji
+- 320x568 (small mobile)
+- 375x812 (iPhone modern baseline)
+- 768x1024 (tablet)
+- >=1024 (desktop)
+
+### 9.2 Acceptance Criteria global
+- Tidak ada horizontal scroll pada container utama (kecuali table wrapper yang memang diizinkan).
+- Tidak ada elemen penting terpotong.
+- Semua tombol aksi utama dapat diakses tanpa zoom.
+- Tidak ada regression fungsi CRUD/filter/pagination.
+
+### 9.3 Test strategy
+- Manual exploratory per role: Super Admin, Admin Kampus, User, Public.
+- Validasi visual dark/light mode.
+- Tambah smoke checklist di docs testing setelah implementasi phase selesai.
+
+## 10. Risiko & Mitigasi
+
+- Risiko: perubahan table layout mempengaruhi kecepatan akses data.  
+  Mitigasi: pertahankan desktop table penuh; card-view hanya mobile.
+
+- Risiko: inkonsistensi antar halaman karena implementasi bertahap.  
+  Mitigasi: lock pattern class dan lakukan PR review dengan checklist yang sama.
+
+- Risiko: scope melebar ke redesign UI.  
+  Mitigasi: batasi ke responsive behavior, bukan redesign visual total.
+
+## 11. Lampiran A â€” Inventaris Page Hasil Analisis
+
+Status berikut merepresentasikan semua 73 page yang dianalisis.
+
+### HIGH
+- AdminKampus/Users/Index.tsx (Selesai)
+- Admin/AdminKampus/Index.tsx (Selesai)
+- User/Journals/Show.tsx (Selesai)
+- AdminKampus/Pembinaan/Index.tsx (Selesai)
+- AdminKampus/Assessments/Index.tsx (Selesai)
+- Admin/Universities/Index.tsx (Selesai)
+- Admin/Journals/Index.tsx (Selesai)
+- AdminKampus/Journals/Show.tsx (Selesai)
+- Dikti/Assessments/Index.tsx (Selesai)
+- Admin/Journals/Show.tsx (Selesai)
+- AdminKampus/Journals/Index.tsx (Selesai)
+- Admin/Users/Index.tsx (Selesai)
+- Admin/BorangIndikator/Index.tsx (Selesai)
+- User/Assessments/Index.tsx (Selesai)
+- Admin/Pembinaan/Index.tsx (Selesai)
+- Admin/Pembinaan/Show.tsx (Selesai)
+- User/Journals/Index.tsx (Selesai)
+- AdminKampus/Users/Show.tsx (Selesai)
+- AdminKampus/Pembinaan/Show.tsx (Selesai)
+- Admin/Users/Show.tsx (Selesai)
+- User/Pembinaan/Registration.tsx (Selesai)
+- Admin/AdminKampus/Show.tsx (Selesai)
+
+### MEDIUM
+- welcome.tsx (Selesai)
+- dashboard.tsx (Selesai)
+- Journals/Index.tsx (Selesai)
+- Journals/Show.tsx (Selesai)
+- User/Profil/Index.tsx (Selesai)
+- User/Pembinaan/Index.tsx (Selesai)
+
+### LOW (Selesai)
+- User/Journals/Create.tsx (Selesai)
+- AdminKampus/Journals/Edit.tsx (Selesai)
+- User/Journals/Edit.tsx (Selesai)
+- AdminKampus/Journals/Create.tsx (Selesai)
+- AdminKampus/Journals/Import.tsx (Selesai)
+- Admin/Universities/Show.tsx (Selesai)
+- Admin/Reviewers/Index.tsx (Selesai)
+- User/Assessments/Create.tsx (Selesai)
+- User/Assessments/Show.tsx (Selesai)
+- Browse/Universities.tsx (Selesai)
+- Admin/Universities/Edit.tsx (Selesai)
+- Admin/Universities/Create.tsx (Selesai)
+- Admin/Pembinaan/Edit.tsx (Selesai)
+- Admin/Pembinaan/Create.tsx (Selesai)
+- AdminKampus/Assessments/Show.tsx (Selesai)
+- User/Pembinaan/Show.tsx (Selesai)
+- User/Profil/Edit.tsx (Selesai)
+- User/Pembinaan/Register.tsx (Selesai)
+- Admin/BorangIndikator/List.tsx (Selesai)
+- Errors/403.tsx (Selesai)
+- auth/login.tsx (Selesai)
+- AdminKampus/Users/Edit.tsx (Selesai)
+- auth/register.tsx (Selesai)
+- AdminKampus/Users/Create.tsx (Selesai)
+- Dikti/Assessments/Show.tsx (Selesai)
+- Admin/AdminKampus/Create.tsx (Selesai)
+- settings/profile.tsx (Selesai)
+- Admin/Users/Edit.tsx (Selesai)
+- Admin/Users/Create.tsx (Selesai)
+- AdminKampus/Assessments/Review.tsx (Selesai)
+- Admin/AdminKampus/Edit.tsx (Selesai)
+- User/Assessments/Edit.tsx (Selesai)
+- auth/reset-password.tsx
+- auth/googleCallback.tsx (Selesai)
+- Resources.tsx (Selesai)
+- Support.tsx (Selesai)
+- settings/appearance.tsx (Selesai)
+- settings/password.tsx (Selesai)
+- auth/verify-email.tsx
+- Admin/Assessments/Index.tsx (Selesai)
+- AdminKampus/Reviewer/Index.tsx (Selesai)
+- Admin/DataMaster/Index.tsx (Selesai)
+- Admin/BorangIndikator/Tree.tsx (Selesai)
+- auth/forgot-password.tsx
+- auth/confirm-password.tsx
+
+
+

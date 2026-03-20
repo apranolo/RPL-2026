@@ -63,7 +63,7 @@ export default function ReviewersIndex() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Reviewer Management - Coming Soon" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 sm:p-6">
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Under Construction Banner */}
                     <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">

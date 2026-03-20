@@ -20,6 +20,7 @@
  */
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -94,7 +95,7 @@ export default function PembinaanIndex({ registrations, filters, category }: Pro
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
                                     <Award className="h-8 w-8 text-blue-600 dark:text-blue-400" />
@@ -139,8 +140,8 @@ export default function PembinaanIndex({ registrations, filters, category }: Pro
                         {Math.min(registrations.current_page * registrations.per_page, registrations.total)} of {registrations.total} registrations
                     </div>
 
-                    {/* Registrations Table */}
-                    <div className="overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                    {/* Registrations Table - Desktop */}
+                    <div className="hidden overflow-x-auto rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
                         {registrations.data.length > 0 ? (
                             <Table>
                                 <TableHeader>
@@ -216,9 +217,54 @@ export default function PembinaanIndex({ registrations, filters, category }: Pro
                         )}
                     </div>
 
+                    {/* Registrations List - Mobile */}
+                    <div className="space-y-4 md:hidden">
+                        {registrations.data.length > 0 ? (
+                            registrations.data.map((registration) => (
+                                <Card key={registration.id} className="overflow-hidden">
+                                    <CardContent className="space-y-4 p-4">
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <div className="font-medium">{registration.pembinaan?.name}</div>
+                                                <div className="text-sm text-muted-foreground capitalize">{registration.pembinaan?.category}</div>
+                                            </div>
+                                            <div>{getStatusBadge(registration.status)}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-medium text-muted-foreground">Journal</div>
+                                            <div className="font-medium">{registration.journal?.title}</div>
+                                            <div className="text-sm text-muted-foreground">ISSN: {registration.journal?.issn}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-medium text-muted-foreground">Pengelola</div>
+                                            <div className="text-sm">{registration.user?.name}</div>
+                                            <div className="text-xs text-muted-foreground">{registration.user?.email}</div>
+                                        </div>
+                                        <div className="flex items-center justify-between border-t pt-4">
+                                            <div className="text-sm text-muted-foreground">{formatDate(registration.registered_at)}</div>
+                                            <Button variant="ghost" size="icon" asChild title="View Details">
+                                                <Link href={route('admin-kampus.pembinaan.registrations.show', registration.id)}>
+                                                    <Eye className="h-4 w-4" />
+                                                </Link>
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))
+                        ) : (
+                            <Card>
+                                <CardContent className="flex flex-col items-center justify-center p-6 py-12 text-center">
+                                    <FileText className="mb-2 h-12 w-12 text-muted-foreground/50" />
+                                    <p className="font-medium text-muted-foreground">No registrations found</p>
+                                    <p className="text-sm text-muted-foreground">No registrations match your current filters</p>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+
                     {/* Pagination */}
                     {registrations.last_page > 1 && (
-                        <div className="mt-6 flex items-center justify-between">
+                        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div className="text-sm text-muted-foreground">
                                 Page {registrations.current_page} of {registrations.last_page}
                             </div>

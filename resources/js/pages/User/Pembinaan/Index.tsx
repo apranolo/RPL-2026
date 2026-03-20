@@ -94,7 +94,7 @@ export default function PembinaanIndex({ availablePrograms, myRegistrations, cat
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
                                     <Award className="h-8 w-8 text-blue-600 dark:text-blue-400" />
@@ -107,27 +107,29 @@ export default function PembinaanIndex({ availablePrograms, myRegistrations, cat
 
                     {/* Tabs */}
                     <div className="space-y-6">
-                        <Tabs defaultValue="available" className="space-y-6">
-                            <TabsList>
-                                <TabsTrigger value="available" className="gap-2">
-                                    <Award className="h-4 w-4" />
-                                    Available Programs
-                                    {availablePrograms.length > 0 && (
-                                        <Badge variant="secondary" className="ml-1">
-                                            {availablePrograms.length}
-                                        </Badge>
-                                    )}
-                                </TabsTrigger>
-                                <TabsTrigger value="registrations" className="gap-2">
-                                    <FileText className="h-4 w-4" />
-                                    My Registrations
-                                    {myRegistrations.total > 0 && (
-                                        <Badge variant="secondary" className="ml-1">
-                                            {myRegistrations.total}
-                                        </Badge>
-                                    )}
-                                </TabsTrigger>
-                            </TabsList>
+                        <Tabs defaultValue="available" className="w-full space-y-6">
+                            <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                                <TabsList className="inline-flex w-max min-w-full sm:grid sm:grid-cols-2">
+                                    <TabsTrigger value="available" className="gap-2">
+                                        <Award className="h-4 w-4" />
+                                        Available Programs
+                                        {availablePrograms.length > 0 && (
+                                            <Badge variant="secondary" className="ml-1">
+                                                {availablePrograms.length}
+                                            </Badge>
+                                        )}
+                                    </TabsTrigger>
+                                    <TabsTrigger value="registrations" className="gap-2">
+                                        <FileText className="h-4 w-4" />
+                                        My Registrations
+                                        {myRegistrations.total > 0 && (
+                                            <Badge variant="secondary" className="ml-1">
+                                                {myRegistrations.total}
+                                            </Badge>
+                                        )}
+                                    </TabsTrigger>
+                                </TabsList>
+                            </div>
 
                             {/* Available Programs Tab */}
                             <TabsContent value="available" className="space-y-4">
@@ -196,14 +198,14 @@ export default function PembinaanIndex({ availablePrograms, myRegistrations, cat
                                                             )}
                                                         </div>
                                                     </CardContent>
-                                                    <CardFooter className="gap-2">
-                                                        <Button variant="outline" size="sm" asChild className="flex-1">
+                                                    <CardFooter className="mt-auto w-full flex-col gap-2 sm:flex-row">
+                                                        <Button variant="outline" size="sm" asChild className="w-full sm:flex-1">
                                                             <Link href={route('user.pembinaan.programs.show', program.id)}>
                                                                 <Eye className="mr-2 h-4 w-4" />
                                                                 View Details
                                                             </Link>
                                                         </Button>
-                                                        <Button size="sm" asChild className="flex-1" disabled={quotaFull}>
+                                                        <Button size="sm" asChild className="w-full sm:flex-1" disabled={quotaFull}>
                                                             <Link href={route('user.pembinaan.programs.register-form', program.id)}>
                                                                 <Plus className="mr-2 h-4 w-4" />
                                                                 {quotaFull ? 'Quota Full' : 'Register'}

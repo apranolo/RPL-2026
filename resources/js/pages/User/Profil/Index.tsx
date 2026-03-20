@@ -165,34 +165,36 @@ export default function ProfilIndex({ user, statistics, journals, recentActivity
 
             <div className="space-y-6">
                 <Tabs defaultValue="overview" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="overview">
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">Overview</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="journals">
-                            <ClipboardCheck className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">Jurnal Saya</span>
-                            {journals.length > 0 && (
-                                <Badge variant="secondary" className="ml-2 hidden sm:inline-flex">
-                                    {journals.length}
-                                </Badge>
-                            )}
-                        </TabsTrigger>
-                        <TabsTrigger value="activity">
-                            <History className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">Riwayat</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="notifications">
-                            <Bell className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">Notifikasi</span>
-                            {localUnreadCount > 0 && (
-                                <Badge variant="destructive" className="ml-2">
-                                    {localUnreadCount}
-                                </Badge>
-                            )}
-                        </TabsTrigger>
-                    </TabsList>
+                    <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                        <TabsList className="inline-flex w-max min-w-full sm:grid sm:grid-cols-4">
+                            <TabsTrigger value="overview">
+                                <BookOpen className="mr-2 h-4 w-4" />
+                                <span>Overview</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="journals">
+                                <ClipboardCheck className="mr-2 h-4 w-4" />
+                                <span>Jurnal Saya</span>
+                                {journals.length > 0 && (
+                                    <Badge variant="secondary" className="ml-2">
+                                        {journals.length}
+                                    </Badge>
+                                )}
+                            </TabsTrigger>
+                            <TabsTrigger value="activity">
+                                <History className="mr-2 h-4 w-4" />
+                                <span>Riwayat</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="notifications">
+                                <Bell className="mr-2 h-4 w-4" />
+                                <span>Notifikasi</span>
+                                {localUnreadCount > 0 && (
+                                    <Badge variant="destructive" className="ml-2">
+                                        {localUnreadCount}
+                                    </Badge>
+                                )}
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
 
                     {/* Tab 1: Overview */}
                     <TabsContent value="overview" className="space-y-6">
@@ -246,7 +248,7 @@ export default function ProfilIndex({ user, statistics, journals, recentActivity
                         {journals.length > 0 ? (
                             <div className="rounded-lg border border-sidebar-border/70 bg-card dark:border-sidebar-border">
                                 <div className="overflow-x-auto">
-                                    <table className="w-full">
+                                    <table className="w-full min-w-[800px] whitespace-nowrap">
                                         <thead className="border-b border-sidebar-border/70 bg-muted/50 dark:border-sidebar-border">
                                             <tr>
                                                 <th className="px-4 py-3 text-left text-sm font-semibold">Judul Jurnal</th>

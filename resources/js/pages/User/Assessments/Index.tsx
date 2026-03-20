@@ -7,6 +7,7 @@
  */
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -121,8 +122,8 @@ export default function AssessmentsIndex({ assessments, filters }: Props) {
                         <h1 className="text-3xl font-bold tracking-tight">Self-Assessment</h1>
                         <p className="mt-2 text-muted-foreground">Kelola penilaian mandiri untuk jurnal Anda</p>
                     </div>
-                    <Link href={route('user.assessments.create')}>
-                        <Button size="lg" className="shadow-sm">
+                    <Link href={route('user.assessments.create')} className="w-full md:w-auto">
+                        <Button size="lg" className="w-full shadow-sm md:w-auto">
                             <Plus className="mr-2 h-4 w-4" />
                             Buat Assessment Baru
                         </Button>
@@ -130,12 +131,12 @@ export default function AssessmentsIndex({ assessments, filters }: Props) {
                 </div>
 
                 {/* Filters */}
-                <div className="mb-6 flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm sm:flex-row">
+                <div className="mb-6 flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:flex-row">
                     <div className="flex-1">
                         <Input placeholder="Cari jurnal..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full" />
                     </div>
                     <Select value={status || 'all'} onValueChange={(value) => setStatus(value === 'all' ? '' : value)}>
-                        <SelectTrigger className="w-full sm:w-[200px]">
+                        <SelectTrigger className="w-full md:w-[200px]">
                             <SelectValue placeholder="Semua Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -147,8 +148,88 @@ export default function AssessmentsIndex({ assessments, filters }: Props) {
                     </Select>
                 </div>
 
-                {/* Table */}
-                <div className="mb-6 overflow-hidden rounded-lg border bg-card shadow-sm">
+                {/* Mobile View */}
+                <div className="mb-6 grid grid-cols-1 gap-4 md:hidden">
+                    {assessments.data.length === 0 ? (
+                        <Card>
+                            <CardContent className="flex flex-col items-center justify-center py-8">
+                                <FileText className="mb-4 h-12 w-12 text-muted-foreground/50" />
+                                <p className="mb-2 font-medium text-muted-foreground">Belum ada assessment</p>
+                                <p className="text-center text-sm text-muted-foreground">Buat assessment pertama Anda untuk memulai!</p>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        assessments.data.map((assessment) => (
+                            <Card key={assessment.id}>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-base font-medium">{assessment.journal.title}</CardTitle>
+                                    <div className="text-sm text-muted-foreground">ISSN: {assessment.journal.issn}</div>
+                                </CardHeader>
+                                <CardContent className="space-y-4 pb-4">
+                                    <div className="grid grid-cols-1 gap-2 text-sm">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-muted-foreground">Tanggal:</span>
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                                <span>{new Date(assessment.assessment_date).toLocaleDateString('id-ID')}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-muted-foreground">Periode:</span>
+                                            <span>{assessment.period || '-'}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-muted-foreground">Status:</span>
+                                            <span>{getStatusBadge(assessment)}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-muted-foreground">Skor:</span>
+                                            <div className="text-right">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                                                    <span className="font-semibold">{Number(assessment.total_score).toFixed(2)}</span>
+                                                    <span className="text-muted-foreground">/ {Number(assessment.max_score).toFixed(2)}</span>
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">({Number(assessment.percentage).toFixed(1)}%)</div>
+                                            </div>
+                                        </div>
+                                        {assessment.status !== 'draft' && (
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-muted-foreground">Grade:</span>
+                                                <span>{getGradeBadge(assessment.percentage)}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                                <CardFooter className="flex justify-end gap-2 pt-0">
+                                    <Button variant="outline" size="sm" asChild>
+                                        <Link href={route('user.assessments.show', assessment.id)}>
+                                            <Eye className="mr-2 h-4 w-4" />
+                                            View
+                                        </Link>
+                                    </Button>
+                                    {assessment.status === 'draft' && (
+                                        <>
+                                            <Button variant="outline" size="sm" asChild>
+                                                <Link href={route('user.assessments.edit', assessment.id)}>
+                                                    <Edit className="mr-2 h-4 w-4" />
+                                                    Edit
+                                                </Link>
+                                            </Button>
+                                            <Button variant="destructive" size="sm" onClick={() => handleDelete(assessment.id)}>
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Delete
+                                            </Button>
+                                        </>
+                                    )}
+                                </CardFooter>
+                            </Card>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="mb-6 hidden overflow-x-auto rounded-lg border bg-card shadow-sm md:block">
                     <Table>
                         <TableHeader>
                             <TableRow>

@@ -146,23 +146,25 @@ export default function JournalsIndex({ journals, filters, universities, scienti
                             </Link>
                         </div>
 
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 sm:gap-4">
                             {auth?.user ? (
                                 <Link href={route('dashboard')}>
                                     <Button variant="secondary" className="border-0 bg-white font-bold text-[#079C4E] hover:bg-gray-100">
                                         <Home className="mr-2 h-4 w-4" />
-                                        Dashboard
+                                        <span className="hidden sm:inline">Dashboard</span>
                                     </Button>
                                 </Link>
                             ) : (
                                 <>
                                     <Link href={route('login')}>
-                                        <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white">
+                                        <Button variant="ghost" className="px-2 text-white hover:bg-white/20 hover:text-white sm:px-4">
                                             Log in
                                         </Button>
                                     </Link>
                                     <Link href={route('register')}>
-                                        <Button className="border-0 bg-[#FCEE1F] font-bold text-black hover:bg-[#e3d51b]">Register</Button>
+                                        <Button className="border-0 bg-[#FCEE1F] px-3 font-bold text-black hover:bg-[#e3d51b] sm:px-4">
+                                            Register
+                                        </Button>
                                     </Link>
                                 </>
                             )}
@@ -267,12 +269,12 @@ export default function JournalsIndex({ journals, filters, universities, scienti
                                         </SelectContent>
                                     </Select>
 
-                                    <div className="flex gap-2">
-                                        <Button type="submit" className="h-12 flex-1 bg-[#079C4E] hover:bg-[#068A42]">
+                                    <div className="flex flex-col gap-2 sm:flex-row">
+                                        <Button type="submit" className="h-12 w-full bg-[#079C4E] hover:bg-[#068A42] sm:flex-1">
                                             Search
                                         </Button>
                                         {hasActiveFilters && (
-                                            <Button type="button" variant="outline" onClick={handleClearFilters} className="h-12">
+                                            <Button type="button" variant="outline" onClick={handleClearFilters} className="h-12 w-full sm:w-auto">
                                                 Clear
                                             </Button>
                                         )}
