@@ -406,7 +406,7 @@ export default function AssessmentsIndex({ assessments, filters, availablePeriod
                                             key={index}
                                             variant={link.active ? 'default' : 'outline'}
                                             size="sm"
-                                            className={`hidden h-8 w-8 p-0 sm:flex ${link.active ? 'flex' : ''}`}
+                                            className="hidden h-8 w-8 p-0 sm:flex"
                                             disabled={!link.url}
                                             onClick={() => link.url && router.visit(link.url)}
                                         >

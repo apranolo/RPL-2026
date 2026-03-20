@@ -319,7 +319,7 @@ export default function DiktiAssessmentsIndex({ assessments, filters }: Props) {
                                             key={index}
                                             variant={link.active ? 'default' : 'outline'}
                                             size="sm"
-                                            className={`hidden h-8 w-8 p-0 md:flex ${link.active ? 'flex' : ''}`}
+                                            className="hidden h-8 w-8 p-0 md:flex"
                                             disabled={!link.url}
                                             onClick={() => link.url && router.visit(link.url)}
                                         >
