@@ -434,15 +434,21 @@ export default function JournalsIndex({ journals, filters, universities, scienti
                                         <div className="mb-3 flex items-start justify-between">
                                             <div>
                                                 <div className="font-semibold text-foreground">{journal.title}</div>
-                                                <a
-                                                    href={journal.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="mt-1 flex items-center gap-1 text-xs text-blue-600 hover:underline dark:text-blue-400"
-                                                >
-                                                    {journal.url.substring(0, 35)}...
-                                                    <ExternalLink className="h-3 w-3" />
-                                                </a>
+                                                {journal.url ? (
+                                                    <a
+                                                        href={journal.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="mt-1 flex items-center gap-1 text-xs text-blue-600 hover:underline dark:text-blue-400"
+                                                    >
+                                                        {journal.url.length > 35 ? `${journal.url.substring(0, 35)}...` : journal.url}
+                                                        <ExternalLink className="h-3 w-3" />
+                                                    </a>
+                                                ) : (
+                                                    <span className="mt-1 block text-xs text-muted-foreground">
+                                                        No URL provided
+                                                    </span>
+                                                )}
                                             </div>
                                             <Badge className={getSintaRankColor(journal.sinta_rank)}>{journal.sinta_rank_label}</Badge>
                                         </div>

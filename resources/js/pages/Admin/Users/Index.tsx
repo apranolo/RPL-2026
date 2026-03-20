@@ -569,16 +569,32 @@ export default function UsersIndex({ users, universities, filters }: Props) {
 
                                         <div className="mt-4 flex justify-end gap-2 border-t border-sidebar-border/70 pt-3 dark:border-sidebar-border">
                                             <Link href={route('admin.users.show', user.id)}>
-                                                <Button variant="outline" size="sm">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    title={`View user ${user.name}`}
+                                                    aria-label={`View user ${user.name}`}
+                                                >
                                                     <Eye className="h-4 w-4" />
                                                 </Button>
                                             </Link>
                                             <Link href={route('admin.users.edit', user.id)}>
-                                                <Button variant="outline" size="sm">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    title={`Edit user ${user.name}`}
+                                                    aria-label={`Edit user ${user.name}`}
+                                                >
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
                                             </Link>
-                                            <Button variant="outline" size="sm" onClick={() => openDeleteDialog(user.id, user.name)}>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                title={`Delete user ${user.name}`}
+                                                aria-label={`Delete user ${user.name}`}
+                                                onClick={() => openDeleteDialog(user.id, user.name)}
+                                            >
                                                 <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                                             </Button>
                                         </div>

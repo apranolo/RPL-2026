@@ -47,7 +47,7 @@ Pola umum:
 
 ### 3.4 Tabs dan statistik ringkas
 - Ditemukan `TabsList className="grid w-full grid-cols-4"` pada profil user.
-- Potensi kepadatan label + badge di lebar 320â€“390px.
+- Potensi kepadatan label + badge di lebar 320–390px.
 
 ### 3.5 Halaman auth/settings relatif aman
 - Sebagian besar layout single-column (`max-w-md`, `space-y-*`), risiko rendah.

@@ -600,6 +600,7 @@ export default function JournalsIndex({
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="sm">
                                                         <MoreHorizontal className="h-4 w-4" />
+                                                        <span className="sr-only">Open journal actions menu</span>
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
