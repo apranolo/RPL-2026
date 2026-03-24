@@ -104,8 +104,8 @@ class StoreJournalRequest extends FormRequest
     {
         $mergeData = [];
 
-        // Transform indexations from frontend format to database format        
-        if ($this->has('indexations') && is_array($this->indexations)) {        
+        // Transform indexations from frontend format to database format
+        if ($this->has('indexations') && is_array($this->indexations)) {
             $transformed = [];
             foreach ($this->indexations as $item) {
                 if (isset($item['platform'])) {
@@ -134,7 +134,7 @@ class StoreJournalRequest extends FormRequest
             }
         }
 
-        if (!empty($mergeData)) {
+        if (! empty($mergeData)) {
             $this->merge($mergeData);
         }
     }

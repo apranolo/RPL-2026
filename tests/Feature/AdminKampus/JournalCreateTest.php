@@ -17,13 +17,13 @@ beforeEach(function () {
 function validJournalPayload(int $fieldId): array
 {
     return [
-        'title'               => 'Jurnal Teknologi Informasi',
-        'e_issn'              => '1111-2222',
-        'url'                 => 'https://journal.example.ac.id',
-        'oai_pmh_url'         => 'https://journal.example.ac.id/oai',
-        'frequency'           => 'Quarterly',
+        'title' => 'Jurnal Teknologi Informasi',
+        'e_issn' => '1111-2222',
+        'url' => 'https://journal.example.ac.id',
+        'oai_pmh_url' => 'https://journal.example.ac.id/oai',
+        'frequency' => 'Quarterly',
         'scientific_field_id' => $fieldId,
-        'sinta_rank'          => 'non_sinta',
+        'sinta_rank' => 'non_sinta',
     ];
 }
 
@@ -43,25 +43,25 @@ test('admin_kampus_dapat_membuat_jurnal_tanpa_menentukan_user_id', function () {
     // Jurnal di-assign ke admin kampus itu sendiri karena tidak ada user_id di form
     // Jurnal langsung berstatus approved karena dibuat oleh Admin Kampus (Bug #4 fix)
     $this->assertDatabaseHas('journals', [
-        'title'           => 'Jurnal Teknologi Informasi',
-        'user_id'         => $adminKampus->id,
-        'university_id'   => $university->id,
-        'e_issn'          => '1111-2222',
-        'sinta_rank'      => 'non_sinta',
+        'title' => 'Jurnal Teknologi Informasi',
+        'user_id' => $adminKampus->id,
+        'university_id' => $university->id,
+        'e_issn' => '1111-2222',
+        'sinta_rank' => 'non_sinta',
         'approval_status' => 'approved',
-        'approved_by'     => $adminKampus->id,
+        'approved_by' => $adminKampus->id,
     ]);
 });
 
 test('admin_kampus_dapat_membuat_jurnal_dan_assign_ke_user_di_universitas_yang_sama', function () {
     $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create(['is_active' => true]);
-    $user       = User::factory()->user($university->id)->create(['is_active' => true]);
-    $field      = ScientificField::factory()->create(['is_active' => true]);
+    $user = User::factory()->user($university->id)->create(['is_active' => true]);
+    $field = ScientificField::factory()->create(['is_active' => true]);
 
     $payload = array_merge(validJournalPayload($field->id), [
-        'title'   => 'Jurnal Kimia Terapan',
-        'e_issn'  => '3333-4444',
+        'title' => 'Jurnal Kimia Terapan',
+        'e_issn' => '3333-4444',
         'user_id' => $user->id,
     ]);
 
@@ -72,23 +72,23 @@ test('admin_kampus_dapat_membuat_jurnal_dan_assign_ke_user_di_universitas_yang_s
     // Jurnal di-assign ke user yang dipilih, bukan ke admin kampus
     // Jurnal langsung approved karena dibuat oleh Admin Kampus
     $this->assertDatabaseHas('journals', [
-        'e_issn'          => '3333-4444',
-        'user_id'         => $user->id,
-        'university_id'   => $university->id,
+        'e_issn' => '3333-4444',
+        'user_id' => $user->id,
+        'university_id' => $university->id,
         'approval_status' => 'approved',
     ]);
 });
 
 test('admin_kampus_dapat_membuat_jurnal_dengan_sinta_rank', function () {
-    $university  = University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create(['is_active' => true]);
-    $field       = ScientificField::factory()->create(['is_active' => true]);
+    $field = ScientificField::factory()->create(['is_active' => true]);
 
     $payload = array_merge(validJournalPayload($field->id), [
-        'e_issn'                  => '5555-6666',
-        'sinta_rank'              => 'sinta_2',
+        'e_issn' => '5555-6666',
+        'sinta_rank' => 'sinta_2',
         'accreditation_start_year' => 2023,
-        'accreditation_end_year'  => 2028,
+        'accreditation_end_year' => 2028,
         'accreditation_sk_number' => '108/E/KPT/2023',
     ]);
 
@@ -103,10 +103,10 @@ test('admin_kampus_dapat_membuat_jurnal_dengan_sinta_rank', function () {
 });
 
 test('halaman_create_jurnal_dapat_diakses_admin_kampus_dengan_daftar_user_universitasnya', function () {
-    $university  = University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create(['is_active' => true]);
-    $user1       = User::factory()->user($university->id)->create(['is_active' => true]);
-    $user2       = User::factory()->user($university->id)->create(['is_active' => true]);
+    $user1 = User::factory()->user($university->id)->create(['is_active' => true]);
+    $user2 = User::factory()->user($university->id)->create(['is_active' => true]);
     ScientificField::factory()->create(['is_active' => true]);
 
     $response = $this->actingAs($adminKampus)
@@ -127,9 +127,9 @@ test('halaman_create_jurnal_dapat_diakses_admin_kampus_dengan_daftar_user_univer
 // ---------------------------------------------------------------------------
 
 test('gagal_simpan_jika_title_kosong', function () {
-    $university  = University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create(['is_active' => true]);
-    $field       = ScientificField::factory()->create(['is_active' => true]);
+    $field = ScientificField::factory()->create(['is_active' => true]);
 
     $payload = array_merge(validJournalPayload($field->id), ['title' => '']);
 
@@ -141,9 +141,9 @@ test('gagal_simpan_jika_title_kosong', function () {
 });
 
 test('gagal_simpan_jika_e_issn_format_tidak_valid', function () {
-    $university  = University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create(['is_active' => true]);
-    $field       = ScientificField::factory()->create(['is_active' => true]);
+    $field = ScientificField::factory()->create(['is_active' => true]);
 
     $payload = array_merge(validJournalPayload($field->id), ['e_issn' => '12345678']); // tanpa tanda hubung
 
@@ -153,9 +153,9 @@ test('gagal_simpan_jika_e_issn_format_tidak_valid', function () {
 });
 
 test('gagal_simpan_jika_sinta_rank_tidak_valid', function () {
-    $university  = University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create(['is_active' => true]);
-    $field       = ScientificField::factory()->create(['is_active' => true]);
+    $field = ScientificField::factory()->create(['is_active' => true]);
 
     $payload = array_merge(validJournalPayload($field->id), ['sinta_rank' => 'rank_xyz']);
 
@@ -172,11 +172,11 @@ test('gagal_jika_admin_kampus_mencoba_assign_jurnal_ke_user_dari_universitas_lai
     $university1 = University::factory()->create();
     $university2 = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university1->id)->create(['is_active' => true]);
-    $userLain    = User::factory()->user($university2->id)->create(['is_active' => true]);
-    $field       = ScientificField::factory()->create(['is_active' => true]);
+    $userLain = User::factory()->user($university2->id)->create(['is_active' => true]);
+    $field = ScientificField::factory()->create(['is_active' => true]);
 
     $payload = array_merge(validJournalPayload($field->id), [
-        'e_issn'  => '9999-8888',
+        'e_issn' => '9999-8888',
         'user_id' => $userLain->id,  // user dari universitas lain!
     ]);
 
@@ -213,7 +213,7 @@ test('user_role_tidak_dapat_mengakses_form_buat_jurnal_admin_kampus', function (
 
 test('user_role_tidak_dapat_menyimpan_jurnal_melalui_route_admin_kampus', function () {
     $university = University::factory()->create();
-    $user  = User::factory()->user($university->id)->create(['is_active' => true]);
+    $user = User::factory()->user($university->id)->create(['is_active' => true]);
     $field = ScientificField::factory()->create(['is_active' => true]);
 
     $this->actingAs($user)
@@ -243,7 +243,7 @@ test('super_admin_tidak_dapat_menyimpan_jurnal_melalui_route_admin_kampus', func
 });
 
 test('admin_kampus_tidak_aktif_diarahkan_ke_login', function () {
-    $university  = University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create(['is_active' => false]);
 
     // CheckRole middleware logout dan redirect ke login untuk user tidak aktif
@@ -256,9 +256,9 @@ test('admin_kampus_dari_universitas_berbeda_tidak_bisa_assign_ke_user_universita
     // Admin Kampus A tidak bisa assign jurnal ke user universitas B
     $universityA = University::factory()->create();
     $universityB = University::factory()->create();
-    $adminA      = User::factory()->adminKampus($universityA->id)->create(['is_active' => true]);
-    $userB       = User::factory()->user($universityB->id)->create(['is_active' => true]);
-    $field       = ScientificField::factory()->create(['is_active' => true]);
+    $adminA = User::factory()->adminKampus($universityA->id)->create(['is_active' => true]);
+    $userB = User::factory()->user($universityB->id)->create(['is_active' => true]);
+    $field = ScientificField::factory()->create(['is_active' => true]);
 
     $payload = array_merge(validJournalPayload($field->id), ['user_id' => $userB->id]);
 
