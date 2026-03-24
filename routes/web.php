@@ -66,7 +66,6 @@ Route::get('/storage/{path}', function (string $path) {
     }
 })->where('path', '.+')->name('storage.serve');
 
-
 //  Laman Page
 Route::get('/', function () {
     // Get featured journals (SINTA 1-2, with cover images)

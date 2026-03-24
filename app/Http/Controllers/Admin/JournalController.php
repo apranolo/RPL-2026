@@ -68,7 +68,7 @@ class JournalController extends Controller
 
         // Paginate results
         $journals = $query
-            ->orderBy('title')
+            ->latest()
             ->paginate(10)
             ->withQueryString()
             ->through(fn ($journal) => [
