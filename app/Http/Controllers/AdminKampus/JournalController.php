@@ -482,6 +482,50 @@ class JournalController extends Controller
     }
 
     /**
+     * @route POST /admin-kampus/harvest/bulk
+     *
+     * @features Dispatch background job to harvest articles from OAI-PMH endpoint for multiple journals.
+     */
+    public function bulkHarvest(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'journal_ids' => ['required', 'array', 'min:1'],
+            'journal_ids.*' => ['integer', 'exists:journals,id'],
+        ]);
+
+        $journals = Journal::whereIn('id', $request->input('journal_ids'))->get();
+        $dispatchedCount = 0;
+        $skippedCount = 0;
+
+        foreach ($journals as $journal) {
+            // Check policy manually vs university since it's an array
+            if (Auth::user()->university_id !== $journal->university_id) {
+                // Skip if unauthorized
+                continue;
+            }
+
+            if (empty($journal->oai_pmh_url)) {
+                $skippedCount++;
+
+                continue;
+            }
+
+            $clearExisting = (bool) $request->input('force', false);
+            HarvestJournalArticlesJob::dispatch($journal, null, $clearExisting)->onQueue('harvesting');
+            $dispatchedCount++;
+        }
+
+        $message = "Proses massal OAI-PMH sinkronisasi dijadwalkan untuk $dispatchedCount jurnal.";
+        if ($skippedCount > 0) {
+            $message .= " (Lewati $skippedCount jurnal tanpa URL OAI-PMH)";
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', $message);
+    }
+
+    /**
      * Show the form for creating a new journal.
      *
      * @route GET /admin-kampus/journals/create

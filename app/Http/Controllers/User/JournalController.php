@@ -5,11 +5,14 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreJournalRequest;
 use App\Http\Requests\UpdateJournalRequest;
+use App\Jobs\HarvestJournalArticlesJob;
 use App\Models\Journal;
 use App\Models\ScientificField;
 use App\Services\JournalCoverService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class JournalController extends Controller
@@ -128,6 +131,19 @@ class JournalController extends Controller
             'articles' => fn ($q) => $q->latest()->limit(10),
         ]);
 
+        // OAI-PMH: fetch last harvest log
+        $lastHarvestLog = DB::table('oai_harvesting_logs')
+            ->where('journal_id', $journal->id)
+            ->orderByDesc('harvested_at')
+            ->first();
+
+        // OAI-PMH: check for pending queue job
+        $isHarvestPending = DB::table('jobs')
+            ->where('queue', 'harvesting')
+            ->where('payload', 'like', '%HarvestJournalArticlesJob%')
+            ->where('payload', 'like', '%i:'.$journal->id.';%')
+            ->exists();
+
         return Inertia::render('User/Journals/Show', [
             'journal' => $journal,
             'statistics' => [
@@ -135,6 +151,8 @@ class JournalController extends Controller
                 'latest_score' => $journal->assessments()->latest()->first()?->total_score,
                 'total_articles' => $journal->articles()->count(),
             ],
+            'lastHarvestLog' => $lastHarvestLog,
+            'isHarvestPending' => $isHarvestPending,
         ]);
     }
 
@@ -224,5 +242,32 @@ class JournalController extends Controller
             ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values()
             ->toArray();
+    }
+
+    /**
+     * @route POST /user/journals/{journal}/harvest
+     *
+     * @features Dispatch background job to harvest articles from OAI-PMH endpoint for self-managed journals.
+     */
+    public function harvest(Request $request, Journal $journal): RedirectResponse
+    {
+        $this->authorize('update', $journal);
+
+        if (empty($journal->oai_pmh_url)) {
+            return redirect()
+                ->route('user.journals.show', $journal)
+                ->with('error', 'Jurnal ini belum memiliki OAI-PMH URL. Tambahkan URL-nya terlebih dahulu.');
+        }
+
+        $clearExisting = (bool) $request->input('force', false);
+        HarvestJournalArticlesJob::dispatch($journal, null, $clearExisting)->onQueue('harvesting');
+
+        $message = $clearExisting
+            ? 'Force sync dijadwalkan. Semua artikel lama akan dihapus dan diimport ulang.'
+            : 'Sinkronisasi OAI dijadwalkan. Proses berjalan pada background.';
+
+        return redirect()
+            ->back()
+            ->with('success', $message);
     }
 }
