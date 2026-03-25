@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -168,9 +169,41 @@ export default function JournalsIndex({
     const [reassigningJournal, setReassigningJournal] = useState<Journal | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deletingJournal, setDeletingJournal] = useState<Journal | null>(null);
+    
+    // Bulk harvest state
+    const [selectedJournals, setSelectedJournals] = useState<number[]>([]);
+    const [isBulkHarvesting, setIsBulkHarvesting] = useState(false);
 
     const rejectForm = useForm({ reason: '' });
     const reassignForm = useForm({ new_user_id: '', reason: '' });
+
+    const toggleSelectAll = () => {
+        if (selectedJournals.length === journals.data.length) {
+            setSelectedJournals([]);
+        } else {
+            setSelectedJournals(journals.data.map((j) => j.id));
+        }
+    };
+
+    const toggleSelect = (id: number) => {
+        setSelectedJournals((prev) => (prev.includes(id) ? prev.filter((jId) => jId !== id) : [...prev, id]));
+    };
+
+    const handleBulkHarvest = () => {
+        if (selectedJournals.length === 0) return;
+        if (!confirm(`Sinkronisasi OAI akan dijalankan untuk ${selectedJournals.length} jurnal yang dipilih. Lanjutkan?`)) return;
+
+        setIsBulkHarvesting(true);
+        router.post(
+            route('admin-kampus.journals.harvest.bulk'),
+            { journal_ids: selectedJournals },
+            {
+                preserveScroll: true,
+                onSuccess: () => setSelectedJournals([]),
+                onFinish: () => setIsBulkHarvesting(false),
+            }
+        );
+    };
 
     const handleApprove = (journal: Journal) => {
         if (confirm(`Approve journal "${journal.title}"?`)) {
@@ -510,9 +543,25 @@ export default function JournalsIndex({
                     </div>
 
                     {/* Results Count */}
-                    <div className="mb-4 text-sm text-muted-foreground">
-                        Showing {journals.data.length > 0 ? (journals.current_page - 1) * journals.per_page + 1 : 0} to{' '}
-                        {Math.min(journals.current_page * journals.per_page, journals.total)} of {journals.total} journals
+                    <div className="mb-4 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+                        <div className="text-sm text-muted-foreground">
+                            Showing {journals.data.length > 0 ? (journals.current_page - 1) * journals.per_page + 1 : 0} to{' '}
+                            {Math.min(journals.current_page * journals.per_page, journals.total)} of {journals.total} journals
+                        </div>
+                        {selectedJournals.length > 0 && (
+                            <div className="flex items-center gap-4 rounded-md bg-secondary/50 px-4 py-2 text-sm">
+                                <span className="font-medium text-foreground">{selectedJournals.length} jurnal dipilih</span>
+                                <Button
+                                    size="sm"
+                                    onClick={handleBulkHarvest}
+                                    disabled={isBulkHarvesting}
+                                    className="gap-2"
+                                >
+                                    <RefreshCw className={`h-4 w-4 ${isBulkHarvesting ? 'animate-spin' : ''}`} />
+                                    {isBulkHarvesting ? 'Syncing...' : 'Sync OAI'}
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Mobile Card View */}
@@ -658,6 +707,13 @@ export default function JournalsIndex({
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-12 text-center">
+                                        <Checkbox
+                                            checked={journals.data.length > 0 && selectedJournals.length === journals.data.length}
+                                            onCheckedChange={toggleSelectAll}
+                                            aria-label="Select all"
+                                        />
+                                    </TableHead>
                                     <TableHead>Journal Title</TableHead>
                                     <TableHead>ISSN</TableHead>
                                     <TableHead>Pengelola</TableHead>
@@ -671,7 +727,7 @@ export default function JournalsIndex({
                             <TableBody>
                                 {journals.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="py-12 text-center">
+                                        <TableCell colSpan={9} className="py-12 text-center">
                                             <div className="flex flex-col items-center gap-2">
                                                 <BookOpen className="h-12 w-12 text-muted-foreground/50" />
                                                 <p className="font-medium text-muted-foreground">
@@ -688,6 +744,13 @@ export default function JournalsIndex({
                                 ) : (
                                     journals.data.map((journal) => (
                                         <TableRow key={journal.id}>
+                                            <TableCell className="text-center">
+                                                <Checkbox
+                                                    checked={selectedJournals.includes(journal.id)}
+                                                    onCheckedChange={() => toggleSelect(journal.id)}
+                                                    aria-label={`Select ${journal.title}`}
+                                                />
+                                            </TableCell>
                                             <TableCell>
                                                 <div>
                                                     <div className="font-semibold text-foreground">{journal.title}</div>
