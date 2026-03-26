@@ -805,6 +805,7 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
                                         {new Date(lastHarvestLog.harvested_at).toLocaleString('id-ID', {
                                             dateStyle: 'medium',
                                             timeStyle: 'short',
+                                            timeZone: 'Asia/Jakarta',
                                         })}
                                     </div>
                                 </div>
