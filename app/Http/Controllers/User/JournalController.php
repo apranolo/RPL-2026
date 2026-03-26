@@ -269,8 +269,8 @@ class JournalController extends Controller
         HarvestJournalArticlesJob::dispatch($journal, null, $clearExisting)->onQueue('harvesting');
 
         $message = $clearExisting
-            ? 'Force sync dijadwalkan. Semua artikel lama akan dihapus dan diimport ulang.'
-            : 'Sinkronisasi OAI dijadwalkan. Proses berjalan pada background.';
+            ? 'Permintaan force sync OAI telah dikirim. Jika tidak ada proses sinkronisasi lain yang sudah dijadwalkan, semua artikel lama akan dihapus dan diimport ulang ketika proses berjalan.'
+            : 'Permintaan sinkronisasi OAI telah dikirim. Proses berjalan di background dan dapat digabung dengan sinkronisasi yang sudah dijadwalkan.';
 
         return redirect()
             ->back()
