@@ -138,10 +138,16 @@ class JournalController extends Controller
             ->first();
 
         // OAI-PMH: check for pending queue job
-        $isHarvestPending = DB::table('jobs')
+        $queueConfig = config('queue.connections.database', []);
+        $jobsTable = $queueConfig['table'] ?? 'jobs';
+        $queueConnection = $queueConfig['connection'] ?? null;
+
+        $jobsQuery = $queueConnection
+            ? DB::connection($queueConnection)->table($jobsTable)
+            : DB::table($jobsTable);
+
+        $isHarvestPending = $jobsQuery
             ->where('queue', 'harvesting')
-            ->where('payload', 'like', '%HarvestJournalArticlesJob%')
-            ->where('payload', 'like', '%i:'.$journal->id.';%')
             ->exists();
 
         return Inertia::render('User/Journals/Show', [
