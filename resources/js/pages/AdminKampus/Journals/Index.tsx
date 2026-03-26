@@ -45,7 +45,7 @@ import {
     Upload,
     X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -173,6 +173,11 @@ export default function JournalsIndex({
     // Bulk harvest state
     const [selectedJournals, setSelectedJournals] = useState<number[]>([]);
     const [isBulkHarvesting, setIsBulkHarvesting] = useState(false);
+
+    // Clear selection when journal list changes (e.g. pagination, filtering)
+    useEffect(() => {
+        setSelectedJournals([]);
+    }, [journals.data, journals.current_page]);
 
     const rejectForm = useForm({ reason: '' });
     const reassignForm = useForm({ new_user_id: '', reason: '' });
