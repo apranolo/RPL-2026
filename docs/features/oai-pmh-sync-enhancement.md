@@ -64,6 +64,6 @@ Untuk memastikan kelancaran fitur dan keamanan hak akses, testing (Feature Tests
 ---
 
 ## 4. Kesimpulan
-Semua kebutuhan (issue) sinkronisasi OAI-PMH massal Admin Kampus dan OAI-PMH mandiri User telah berhasil ditambahkan, diuji, dan aman dari kerentanan integritas data (Database Integrity Constraint) setelah penyesuaian simulasi _Factoy_.
+Semua kebutuhan (issue) sinkronisasi OAI-PMH massal Admin Kampus dan OAI-PMH mandiri User telah berhasil ditambahkan, diuji, dan aman dari kerentanan integritas data (Database Integrity Constraint) setelah penyesuaian simulasi _Factory_.
 
 Status Eksekusi QA: **100% PASS** `(7/7 Assertions sukses pada modul terkait)`
