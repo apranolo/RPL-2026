@@ -166,7 +166,7 @@ export default function ProfilEdit({ scientificFields, status }: EditProfilProps
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
                             <Button type="submit" disabled={processing}>
                                 {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
                             </Button>

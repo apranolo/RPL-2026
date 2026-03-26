@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -179,7 +180,7 @@ export default function PembinaanIndex({ pembinaan, filters }: Props) {
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h1 className="text-3xl font-bold tracking-tight">Pembinaan Programs</h1>
                                 <p className="mt-1 text-muted-foreground">Manage coaching and training programs</p>
@@ -252,8 +253,8 @@ export default function PembinaanIndex({ pembinaan, filters }: Props) {
                         </div>
                     </div>
 
-                    {/* Programs Table Card */}
-                    <div className="overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                    {/* Programs Table - Desktop */}
+                    <div className="hidden overflow-x-auto rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -341,9 +342,94 @@ export default function PembinaanIndex({ pembinaan, filters }: Props) {
                         </Table>
                     </div>
 
+                    {/* Programs List - Mobile */}
+                    <div className="space-y-4 md:hidden">
+                        {pembinaan.data.length === 0 ? (
+                            <Card>
+                                <CardContent className="flex flex-col items-center justify-center p-6 py-12 text-center text-muted-foreground">
+                                    <FileText className="mb-2 h-12 w-12" />
+                                    <p>No programs found</p>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            pembinaan.data.map((program) => (
+                                <Card key={program.id} className="overflow-hidden">
+                                    <CardContent className="space-y-4 p-4">
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <div className="font-medium">{program.name}</div>
+                                                {program.accreditation_template && (
+                                                    <div className="text-sm text-muted-foreground">{program.accreditation_template.name}</div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col items-end gap-2">
+                                                {getStatusBadge(program.status)}
+                                                {getCategoryBadge(program.category)}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <span className="text-muted-foreground">Registration Period</span>
+                                                <div className="mt-1 flex items-center gap-1">
+                                                    <CalendarDays className="h-3 w-3" />
+                                                    <span>
+                                                        {formatDate(program.registration_start)} - {formatDate(program.registration_end)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span className="text-muted-foreground">Quota</span>
+                                                <div className="mt-1 font-medium">{program.quota ? program.quota : '∞'}</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="rounded-md border border-sidebar-border/50 bg-sidebar p-3">
+                                            <div className="mb-1 text-center text-sm text-muted-foreground">Registrations</div>
+                                            <div className="flex items-center justify-around">
+                                                <div className="text-center">
+                                                    <div className="font-medium">{program.approved_registrations_count}</div>
+                                                    <div className="text-xs text-muted-foreground">approved</div>
+                                                </div>
+                                                <div className="text-center">
+                                                    <div className="font-medium">{program.pending_registrations_count}</div>
+                                                    <div className="text-xs text-muted-foreground">pending</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-end gap-2 border-t pt-4">
+                                            <Button variant="ghost" size="icon" asChild title="View Details">
+                                                <Link href={route('admin.pembinaan.show', program.id)}>
+                                                    <Eye className="h-4 w-4" />
+                                                </Link>
+                                            </Button>
+                                            <Button variant="ghost" size="icon" asChild title="Edit Program">
+                                                <Link href={route('admin.pembinaan.edit', program.id)}>
+                                                    <Edit className="h-4 w-4" />
+                                                </Link>
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleToggleStatus(program.id, program.status)}
+                                                title="Toggle Status"
+                                            >
+                                                <Power className="h-4 w-4" />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" onClick={() => setDeleteId(program.id)} title="Delete Program">
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))
+                        )}
+                    </div>
+
                     {/* Pagination */}
                     {pembinaan.data.length > 0 && (
-                        <div className="flex items-center justify-between border-t pt-4">
+                        <div className="flex flex-col gap-4 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
                             <div className="text-sm text-muted-foreground">
                                 Total: <span className="font-medium">{pembinaan.total}</span> program{pembinaan.total !== 1 ? 's' : ''}
                             </div>

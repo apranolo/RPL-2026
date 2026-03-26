@@ -202,39 +202,41 @@ export default function PembinaanShow({ pembinaan, registrations, filters }: Pro
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6 space-y-4">
-                        <Button variant="ghost" size="sm" className="h-auto gap-2 p-0" asChild>
+                        <Button variant="ghost" size="sm" className="h-auto w-full justify-start gap-2 p-0 sm:w-auto" asChild>
                             <Link href={route('admin.pembinaan.index')}>
                                 <ArrowLeft className="h-4 w-4" />
                                 Back to List
                             </Link>
                         </Button>
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight">{pembinaan.name}</h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {pembinaan.category.charAt(0).toUpperCase() + pembinaan.category.slice(1)}
-                                {pembinaan.accreditation_template && ` • ${pembinaan.accreditation_template.name}`}
-                            </p>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                            {getStatusBadge(pembinaan.status)}
-                            {pembinaan.category === 'akreditasi' && <Badge variant="outline">Akreditasi</Badge>}
-                            {pembinaan.category === 'indeksasi' && <Badge variant="outline">Indeksasi</Badge>}
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <h1 className="text-3xl font-bold tracking-tight">{pembinaan.name}</h1>
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                    {pembinaan.category.charAt(0).toUpperCase() + pembinaan.category.slice(1)}
+                                    {pembinaan.accreditation_template && ` • ${pembinaan.accreditation_template.name}`}
+                                </p>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 sm:mt-1">
+                                {getStatusBadge(pembinaan.status)}
+                                {pembinaan.category === 'akreditasi' && <Badge variant="outline">Akreditasi</Badge>}
+                                {pembinaan.category === 'indeksasi' && <Badge variant="outline">Indeksasi</Badge>}
+                            </div>
                         </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="mb-6 flex gap-2">
-                        <Button variant="outline" onClick={handleToggleStatus}>
+                    <div className="mb-6 flex flex-col gap-2 sm:flex-row">
+                        <Button variant="outline" className="w-full sm:w-auto" onClick={handleToggleStatus}>
                             <Power className="mr-2 h-4 w-4" />
                             Toggle Status
                         </Button>
-                        <Button asChild>
+                        <Button className="w-full sm:w-auto" asChild>
                             <Link href={route('admin.pembinaan.edit', pembinaan.id)}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit
                             </Link>
                         </Button>
-                        <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+                        <Button variant="destructive" className="w-full sm:w-auto" onClick={() => setShowDeleteDialog(true)}>
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
                         </Button>
@@ -242,7 +244,7 @@ export default function PembinaanShow({ pembinaan, registrations, filters }: Pro
 
                     {/* Program Info Cards */}
                     {pembinaan.registrations_count > 0 ? (
-                        <div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardTitle className="text-sm font-medium">Total Registrations</CardTitle>
@@ -321,7 +323,7 @@ export default function PembinaanShow({ pembinaan, registrations, filters }: Pro
                                 </div>
                             )}
 
-                            <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div>
                                     <h3 className="mb-2 flex items-center gap-2 text-sm font-medium">
                                         <CalendarDays className="h-4 w-4" />
@@ -400,7 +402,7 @@ export default function PembinaanShow({ pembinaan, registrations, filters }: Pro
                                                 setStatus('');
                                                 router.get(route('admin.pembinaan.show', pembinaan.id));
                                             }}
-                                            className="whitespace-nowrap"
+                                            className="w-full whitespace-nowrap lg:w-auto"
                                         >
                                             Clear Filters
                                         </Button>
@@ -409,66 +411,68 @@ export default function PembinaanShow({ pembinaan, registrations, filters }: Pro
                             </div>
 
                             {/* Table */}
-                            <div className="dark:border-sidebar-border\ overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Journal</TableHead>
-                                            <TableHead>University</TableHead>
-                                            <TableHead>Pengelola</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead>Registered</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {registrations.data.length === 0 ? (
+                            <div className="overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                                <div className="overflow-x-auto">
+                                    <Table className="min-w-[800px]">
+                                        <TableHeader>
                                             <TableRow>
-                                                <TableCell colSpan={6} className="h-24 text-center">
-                                                    <div className="flex flex-col items-center justify-center text-muted-foreground">
-                                                        <Users className="mb-2 h-8 w-8" />
-                                                        <p>No registrations found</p>
-                                                    </div>
-                                                </TableCell>
+                                                <TableHead>Journal</TableHead>
+                                                <TableHead>University</TableHead>
+                                                <TableHead>Pengelola</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead>Registered</TableHead>
+                                                <TableHead className="text-right">Actions</TableHead>
                                             </TableRow>
-                                        ) : (
-                                            registrations.data.map((registration) => (
-                                                <TableRow key={registration.id}>
-                                                    <TableCell>
-                                                        <div>
-                                                            <div className="font-medium">{registration.journal.title}</div>
-                                                            <div className="text-sm text-muted-foreground">ISSN: {registration.journal.issn}</div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {registration.journal.university.short_name || registration.journal.university.name}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div>
-                                                            <div className="text-sm">{registration.user.name}</div>
-                                                            <div className="text-xs text-muted-foreground">{registration.user.email}</div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>{getStatusBadge(registration.status)}</TableCell>
-                                                    <TableCell className="text-sm">{formatDate(registration.registered_at)}</TableCell>
-                                                    <TableCell>
-                                                        <div className="flex justify-end">
-                                                            <Button variant="ghost" size="icon" title="View Details">
-                                                                <Eye className="h-4 w-4" />
-                                                            </Button>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {registrations.data.length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="h-24 text-center">
+                                                        <div className="flex flex-col items-center justify-center text-muted-foreground">
+                                                            <Users className="mb-2 h-8 w-8" />
+                                                            <p>No registrations found</p>
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>
-                                            ))
-                                        )}
-                                    </TableBody>
-                                </Table>
+                                            ) : (
+                                                registrations.data.map((registration) => (
+                                                    <TableRow key={registration.id}>
+                                                        <TableCell>
+                                                            <div>
+                                                                <div className="font-medium">{registration.journal.title}</div>
+                                                                <div className="text-sm text-muted-foreground">ISSN: {registration.journal.issn}</div>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {registration.journal.university.short_name || registration.journal.university.name}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div>
+                                                                <div className="text-sm">{registration.user.name}</div>
+                                                                <div className="text-xs text-muted-foreground">{registration.user.email}</div>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>{getStatusBadge(registration.status)}</TableCell>
+                                                        <TableCell className="text-sm">{formatDate(registration.registered_at)}</TableCell>
+                                                        <TableCell>
+                                                            <div className="flex justify-end">
+                                                                <Button variant="ghost" size="icon" title="View Details">
+                                                                    <Eye className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </div>
 
                             {/* Pagination */}
                             {registrations.data.length > 0 && (
-                                <div className="pt-4\ flex items-center justify-between border-t">
-                                    <div className="text-sm text-muted-foreground">
+                                <div className="flex flex-col items-center justify-between gap-4 border-t pt-4 sm:flex-row sm:gap-0">
+                                    <div className="text-center text-sm text-muted-foreground sm:text-left">
                                         Showing {registrations.from} to {registrations.to} of {registrations.total} registrations
                                     </div>
                                     <div className="flex gap-2">

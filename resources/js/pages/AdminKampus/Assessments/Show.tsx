@@ -185,7 +185,7 @@ export default function AssessmentShow({ assessment }: Props) {
                                 <CardDescription>Total keseluruhan editor, reviewer, dan author di semua terbitan</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                                     {assessment.jumlah_editor !== null && (
                                         <div className="rounded-lg border p-4">
                                             <div className="mb-1 text-sm text-muted-foreground">Jumlah Editor</div>

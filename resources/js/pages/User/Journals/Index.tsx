@@ -17,6 +17,7 @@
 import SintaBadge from '@/components/badges/SintaBadge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -150,7 +151,7 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                             <div>
                                 <h1 className="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
                                     <BookOpen className="h-8 w-8 text-blue-600 dark:text-blue-400" />
@@ -158,8 +159,8 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                                 </h1>
                                 <p className="mt-1 text-gray-600 dark:text-gray-400">Manage journals that you are responsible for</p>
                             </div>
-                            <Link href={route('user.journals.create')}>
-                                <Button className="flex items-center gap-2">
+                            <Link href={route('user.journals.create')} className="w-full sm:w-auto">
+                                <Button className="flex w-full items-center justify-center gap-2 sm:w-auto">
                                     <Plus className="h-4 w-4" />
                                     Add New Journal
                                 </Button>
@@ -261,8 +262,8 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                         </form>
                     </div>
 
-                    {/* Table */}
-                    <div className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
+                    {/* Table View (Desktop) */}
+                    <div className="hidden overflow-hidden rounded-lg bg-white shadow-sm md:block dark:bg-gray-800">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -423,6 +424,169 @@ export default function JournalsIndex({ journals, filters: initialFilters, scien
                                     >
                                         Next
                                         <ChevronRight className="ml-1 h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Card View (Mobile) */}
+                    <div className="block space-y-4 md:hidden">
+                        {journals.data.length === 0 ? (
+                            <Card>
+                                <CardContent className="py-8 text-center text-gray-500 dark:text-gray-400">
+                                    No journals found.{' '}
+                                    {filters.search || filters.sinta_rank || filters.scientific_field_id || filters.approval_status
+                                        ? 'Try adjusting your filters.'
+                                        : 'Click "Add New Journal" to start.'}
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            journals.data.map((journal) => (
+                                <Card key={journal.id} className="overflow-hidden">
+                                    <CardContent className="p-4">
+                                        <div className="mb-3 flex items-start justify-between">
+                                            <div className="flex flex-col">
+                                                <Link
+                                                    href={route('user.journals.show', journal.id)}
+                                                    className="font-semibold text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
+                                                >
+                                                    {journal.title}
+                                                </Link>
+                                                {journal.url && (
+                                                    <a
+                                                        href={journal.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="mt-1 flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                                    >
+                                                        Visit Website <ExternalLink className="h-3 w-3" />
+                                                    </a>
+                                                )}
+                                            </div>
+                                            <SintaBadge rank={journal.sinta_rank} />
+                                        </div>
+
+                                        <div className="space-y-2 text-sm">
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">ISSN</span>
+                                                <span className="text-right">
+                                                    {journal.issn && <span>Print: {journal.issn} </span>}
+                                                    {journal.e_issn && <span>Elec: {journal.e_issn}</span>}
+                                                    {!journal.issn && !journal.e_issn && <span className="text-gray-400 dark:text-gray-500">-</span>}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">Scientific Field</span>
+                                                <span className="text-right">{journal.scientific_field?.name || '-'}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between border-t pt-2 dark:border-sidebar-border">
+                                                <span className="text-muted-foreground">Status</span>
+                                                <TooltipProvider>
+                                                    <div className="flex items-center gap-2">
+                                                        {getApprovalStatusBadge(journal.approval_status, journal.approval_status_label)}
+                                                        {journal.approval_status === 'rejected' && journal.rejection_reason && (
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <AlertCircle className="h-4 w-4 cursor-help text-red-500 dark:text-red-400" />
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    <p className="max-w-xs">{journal.rejection_reason}</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        )}
+                                                    </div>
+                                                </TooltipProvider>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4 flex flex-wrap justify-end gap-2 border-t pt-3 dark:border-sidebar-border">
+                                            <Link href={route('user.journals.show', journal.id)} className="flex-1 sm:flex-none">
+                                                <Button variant="outline" size="sm" className="w-full">
+                                                    <Eye className="mr-2 h-4 w-4" /> View
+                                                </Button>
+                                            </Link>
+
+                                            {journal.latest_assessment ? (
+                                                <Link
+                                                    href={route('user.assessments.show', journal.latest_assessment.id)}
+                                                    className="flex-1 sm:flex-none"
+                                                >
+                                                    <Button variant="outline" size="sm" className="w-full">
+                                                        <FileText className="mr-2 h-4 w-4" /> Assessment
+                                                    </Button>
+                                                </Link>
+                                            ) : (
+                                                <Link
+                                                    href={route('user.assessments.create', { journal_id: journal.id })}
+                                                    className="flex-1 sm:flex-none"
+                                                >
+                                                    <Button variant="outline" size="sm" className="w-full">
+                                                        <Plus className="mr-2 h-4 w-4" /> Assessment
+                                                    </Button>
+                                                </Link>
+                                            )}
+
+                                            <Link href={route('user.journals.edit', journal.id)}>
+                                                <Button variant="outline" size="sm">
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                            </Link>
+
+                                            {journal.approval_status !== 'approved' && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(journal.id, journal.title)}
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))
+                        )}
+
+                        {/* Mobile Pagination */}
+                        {journals.total > 0 && (
+                            <div className="mt-4 flex flex-col items-center justify-between gap-4 text-sm">
+                                <div className="w-full text-center text-muted-foreground">
+                                    Showing {journals.from} to {journals.to} of {journals.total} journals
+                                </div>
+                                <div className="flex w-full justify-between gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={journals.current_page === 1}
+                                        onClick={() =>
+                                            router.get(
+                                                route('user.journals.index'),
+                                                { ...filters, page: journals.current_page - 1 },
+                                                { preserveState: true, preserveScroll: true },
+                                            )
+                                        }
+                                        className="flex-1"
+                                    >
+                                        <ChevronLeft className="mr-2 h-4 w-4" />
+                                        Prev
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={journals.current_page === journals.last_page}
+                                        onClick={() =>
+                                            router.get(
+                                                route('user.journals.index'),
+                                                { ...filters, page: journals.current_page + 1 },
+                                                { preserveState: true, preserveScroll: true },
+                                            )
+                                        }
+                                        className="flex-1"
+                                    >
+                                        Next
+                                        <ChevronRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>

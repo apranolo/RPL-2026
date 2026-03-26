@@ -17,12 +17,14 @@
  */
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -43,7 +45,7 @@ import {
     Upload,
     X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -167,9 +169,46 @@ export default function JournalsIndex({
     const [reassigningJournal, setReassigningJournal] = useState<Journal | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deletingJournal, setDeletingJournal] = useState<Journal | null>(null);
+    
+    // Bulk harvest state
+    const [selectedJournals, setSelectedJournals] = useState<number[]>([]);
+    const [isBulkHarvesting, setIsBulkHarvesting] = useState(false);
+
+    // Clear selection when journal list changes (e.g. pagination, filtering)
+    useEffect(() => {
+        setSelectedJournals([]);
+    }, [journals.data, journals.current_page]);
 
     const rejectForm = useForm({ reason: '' });
     const reassignForm = useForm({ new_user_id: '', reason: '' });
+
+    const toggleSelectAll = () => {
+        if (selectedJournals.length === journals.data.length) {
+            setSelectedJournals([]);
+        } else {
+            setSelectedJournals(journals.data.map((j) => j.id));
+        }
+    };
+
+    const toggleSelect = (id: number) => {
+        setSelectedJournals((prev) => (prev.includes(id) ? prev.filter((jId) => jId !== id) : [...prev, id]));
+    };
+
+    const handleBulkHarvest = () => {
+        if (selectedJournals.length === 0) return;
+        if (!confirm(`Sinkronisasi OAI akan dijalankan untuk ${selectedJournals.length} jurnal yang dipilih. Lanjutkan?`)) return;
+
+        setIsBulkHarvesting(true);
+        router.post(
+            route('admin-kampus.journals.harvest.bulk'),
+            { journal_ids: selectedJournals },
+            {
+                preserveScroll: true,
+                onSuccess: () => setSelectedJournals([]),
+                onFinish: () => setIsBulkHarvesting(false),
+            }
+        );
+    };
 
     const handleApprove = (journal: Journal) => {
         if (confirm(`Approve journal "${journal.title}"?`)) {
@@ -297,29 +336,27 @@ export default function JournalsIndex({
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
-                    <div className="mb-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
-                                    <BookOpen className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                                    Journals Management
-                                </h1>
-                                <p className="mt-1 text-muted-foreground">View and monitor journals from your university</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Link href={route('admin-kampus.journals.import')}>
-                                    <Button variant="outline">
-                                        <Upload className="mr-2 h-4 w-4" />
-                                        Import CSV
-                                    </Button>
-                                </Link>
-                                <Link href={route('admin-kampus.journals.create')}>
-                                    <Button>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add New Journal
-                                    </Button>
-                                </Link>
-                            </div>
+                    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
+                                <BookOpen className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                                Journals Management
+                            </h1>
+                            <p className="mt-1 text-muted-foreground">View and monitor journals from your university</p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Link href={route('admin-kampus.journals.import')}>
+                                <Button variant="outline">
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Import CSV
+                                </Button>
+                            </Link>
+                            <Link href={route('admin-kampus.journals.create')}>
+                                <Button>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Add New Journal
+                                </Button>
+                            </Link>
                         </div>
                     </div>
 
@@ -336,18 +373,20 @@ export default function JournalsIndex({
                     )}
 
                     {/* Filters */}
-                    <div className="mb-6 rounded-lg border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
-                        <form onSubmit={handleSearch} className="space-y-4">
-                            {/* Search */}
-                            <div className="relative">
-                                <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
-                                <Input
-                                    type="text"
-                                    placeholder="Search by journal title, ISSN, or e-ISSN..."
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    className="pl-10"
-                                />
+                    <div className="mb-6 rounded-xl border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
+                        <form onSubmit={handleSearch} className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                {/* Search */}
+                                <div className="relative flex-1">
+                                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        type="text"
+                                        placeholder="Search by journal title, ISSN, or e-ISSN..."
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        className="pl-9"
+                                    />
+                                </div>
                             </div>
 
                             {/* Filter Row */}
@@ -509,16 +548,177 @@ export default function JournalsIndex({
                     </div>
 
                     {/* Results Count */}
-                    <div className="mb-4 text-sm text-muted-foreground">
-                        Showing {journals.data.length > 0 ? (journals.current_page - 1) * journals.per_page + 1 : 0} to{' '}
-                        {Math.min(journals.current_page * journals.per_page, journals.total)} of {journals.total} journals
+                    <div className="mb-4 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+                        <div className="text-sm text-muted-foreground">
+                            Showing {journals.data.length > 0 ? (journals.current_page - 1) * journals.per_page + 1 : 0} to{' '}
+                            {Math.min(journals.current_page * journals.per_page, journals.total)} of {journals.total} journals
+                        </div>
+                        {selectedJournals.length > 0 && (
+                            <div className="flex items-center gap-4 rounded-md bg-secondary/50 px-4 py-2 text-sm">
+                                <span className="font-medium text-foreground">{selectedJournals.length} jurnal dipilih</span>
+                                <Button
+                                    size="sm"
+                                    onClick={handleBulkHarvest}
+                                    disabled={isBulkHarvesting}
+                                    className="gap-2"
+                                >
+                                    <RefreshCw className={`h-4 w-4 ${isBulkHarvesting ? 'animate-spin' : ''}`} />
+                                    {isBulkHarvesting ? 'Syncing...' : 'Sync OAI'}
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Table */}
-                    <div className="overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                    {/* Mobile Card View */}
+                    <div className="grid grid-cols-1 gap-4 md:hidden">
+                        {journals.data.length === 0 ? (
+                            <Card>
+                                <CardContent className="flex flex-col items-center justify-center py-12">
+                                    <BookOpen className="mb-4 h-12 w-12 text-muted-foreground/50" />
+                                    <p className="font-medium text-muted-foreground">
+                                        {hasActiveFilters ? 'No journals found matching your filters' : 'Belum ada jurnal terdaftar'}
+                                    </p>
+                                    {!hasActiveFilters && (
+                                        <p className="mt-1 text-sm text-muted-foreground">User dapat menambahkan jurnal melalui dashboard mereka.</p>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            journals.data.map((journal) => (
+                                <Card key={journal.id}>
+                                    <CardHeader className="pb-2">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div>
+                                                <CardTitle className="text-base">{journal.title}</CardTitle>
+                                                <a
+                                                    href={journal.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="mt-1 flex items-center gap-1 text-xs text-blue-600 hover:underline dark:text-blue-400"
+                                                >
+                                                    {journal.url.substring(0, 40)}...
+                                                    <ExternalLink className="h-3 w-3" />
+                                                </a>
+                                            </div>
+                                            <Badge className={getSintaRankColor(journal.sinta_rank)}>{journal.sinta_rank_label}</Badge>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4 pb-4">
+                                        <div className="grid grid-cols-2 gap-2 text-sm">
+                                            <div>
+                                                <span className="block text-xs text-muted-foreground">Pengelola</span>
+                                                <span className="font-medium">{journal.user.name}</span>
+                                                <span className="block text-xs text-muted-foreground">{journal.user.email}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-xs text-muted-foreground">ISSN</span>
+                                                <span>{journal.issn || '-'}</span>
+                                                <span className="block text-xs text-muted-foreground">e-ISSN: {journal.e_issn || '-'}</span>
+                                            </div>
+                                            <div className="col-span-2">
+                                                <span className="block text-xs text-muted-foreground">Bidang Ilmu</span>
+                                                <span>{journal.scientific_field?.name || '-'}</span>
+                                            </div>
+                                            <div className="col-span-2">
+                                                <span className="mb-1 block text-xs text-muted-foreground">Indexations</span>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {journal.indexation_labels && journal.indexation_labels.length > 0 ? (
+                                                        journal.indexation_labels.map((label, idx) => (
+                                                            <Badge key={idx} variant="outline" className="text-xs">
+                                                                {label}
+                                                            </Badge>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-xs text-muted-foreground">-</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
+                                        {(() => {
+                                            const badge = getApprovalStatusBadge(journal.approval_status);
+                                            return <Badge className={badge.color}>{badge.label}</Badge>;
+                                        })()}
+
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => router.visit(route('admin-kampus.journals.show', journal.id))}
+                                            >
+                                                <Eye className="h-4 w-4 sm:mr-2" />
+                                                <span className="hidden sm:inline">View</span>
+                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="sm">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                        <span className="sr-only">Open journal actions menu</span>
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => router.visit(route('admin-kampus.journals.edit', journal.id))}>
+                                                        <Pencil className="mr-2 h-4 w-4" />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                    {journal.approval_status === 'pending' && (
+                                                        <>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
+                                                                onClick={() => handleApprove(journal)}
+                                                                className="text-green-600 dark:text-green-400"
+                                                            >
+                                                                <Check className="mr-2 h-4 w-4" />
+                                                                Approve
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() => handleReject(journal)}
+                                                                className="text-red-600 dark:text-red-400"
+                                                            >
+                                                                <X className="mr-2 h-4 w-4" />
+                                                                Reject
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem onClick={() => handleReassign(journal)}>
+                                                        <RefreshCw className="mr-2 h-4 w-4" />
+                                                        Reassign Manager
+                                                    </DropdownMenuItem>
+                                                    {journal.approval_status !== 'approved' && (
+                                                        <>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
+                                                                onClick={() => handleDelete(journal)}
+                                                                className="text-red-600 dark:text-red-400"
+                                                            >
+                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                                Delete
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </CardFooter>
+                                </Card>
+                            ))
+                        )}
+                    </div>
+
+                    {/* Table View (Desktop) */}
+                    <div className="hidden overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-12 text-center">
+                                        <Checkbox
+                                            checked={journals.data.length > 0 && selectedJournals.length === journals.data.length}
+                                            onCheckedChange={toggleSelectAll}
+                                            aria-label="Select all"
+                                        />
+                                    </TableHead>
                                     <TableHead>Journal Title</TableHead>
                                     <TableHead>ISSN</TableHead>
                                     <TableHead>Pengelola</TableHead>
@@ -532,7 +732,7 @@ export default function JournalsIndex({
                             <TableBody>
                                 {journals.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="py-12 text-center">
+                                        <TableCell colSpan={9} className="py-12 text-center">
                                             <div className="flex flex-col items-center gap-2">
                                                 <BookOpen className="h-12 w-12 text-muted-foreground/50" />
                                                 <p className="font-medium text-muted-foreground">
@@ -549,6 +749,13 @@ export default function JournalsIndex({
                                 ) : (
                                     journals.data.map((journal) => (
                                         <TableRow key={journal.id}>
+                                            <TableCell className="text-center">
+                                                <Checkbox
+                                                    checked={selectedJournals.includes(journal.id)}
+                                                    onCheckedChange={() => toggleSelect(journal.id)}
+                                                    aria-label={`Select ${journal.title}`}
+                                                />
+                                            </TableCell>
                                             <TableCell>
                                                 <div>
                                                     <div className="font-semibold text-foreground">{journal.title}</div>
@@ -672,11 +879,16 @@ export default function JournalsIndex({
 
                     {/* Pagination */}
                     {journals.last_page > 1 && (
-                        <div className="mt-6 flex items-center justify-between">
+                        <div className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
                             <div className="text-sm text-muted-foreground">
-                                Page {journals.current_page} of {journals.last_page}
+                                Showing{' '}
+                                <span className="font-medium">
+                                    {journals.data.length > 0 ? (journals.current_page - 1) * journals.per_page + 1 : 0}
+                                </span>{' '}
+                                to <span className="font-medium">{Math.min(journals.current_page * journals.per_page, journals.total)}</span> of{' '}
+                                <span className="font-medium">{journals.total}</span> results
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap items-center justify-center gap-2">
                                 {journals.links.map((link, index) => {
                                     if (link.label === '&laquo; Previous') {
                                         return (

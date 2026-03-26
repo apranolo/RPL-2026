@@ -132,27 +132,30 @@ export default function JournalsShow() {
                                 Journal MU
                             </span>
                         </Link>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 sm:gap-4">
                             <Link href={route('journals.index')}>
-                                <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white">
-                                    All Journals
+                                <Button variant="ghost" className="px-2 text-white hover:bg-white/20 hover:text-white sm:px-4">
+                                    <span className="hidden sm:inline">All Journals</span>
+                                    <span className="sm:hidden">Journals</span>
                                 </Button>
                             </Link>
                             {auth?.user ? (
                                 <Link href={route('dashboard')}>
-                                    <Button variant="secondary" className="border-0 bg-white font-bold text-[#079C4E] hover:bg-gray-100">
+                                    <Button variant="secondary" className="border-0 bg-white px-3 font-bold text-[#079C4E] hover:bg-gray-100 sm:px-4">
                                         Dashboard
                                     </Button>
                                 </Link>
                             ) : (
                                 <>
                                     <Link href={route('login')}>
-                                        <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white">
+                                        <Button variant="ghost" className="px-2 text-white hover:bg-white/20 hover:text-white sm:px-4">
                                             Log in
                                         </Button>
                                     </Link>
                                     <Link href={route('register')}>
-                                        <Button className="border-0 bg-[#FCEE1F] font-bold text-black hover:bg-[#e3d51b]">Register</Button>
+                                        <Button className="border-0 bg-[#FCEE1F] px-3 font-bold text-black hover:bg-[#e3d51b] sm:px-4">
+                                            Register
+                                        </Button>
                                     </Link>
                                 </>
                             )}
@@ -176,9 +179,173 @@ export default function JournalsShow() {
                 </div>
 
                 {/* MAIN CONTENT GRID (Garuda Layout: Left Sidebar - Main - Right Sidebar) */}
-                <main className="mx-auto grid max-w-7xl gap-6 px-4 pb-16 sm:px-6 lg:grid-cols-12 lg:px-8">
+                <main className="mx-auto flex flex-col gap-6 px-4 pb-16 sm:px-6 lg:grid lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:px-8">
+                    {/* 1) MOBILE ORDER 1: Journal Header & Metadata */}
+                    <div className="order-1 space-y-6 lg:order-none lg:col-span-6 lg:col-start-4 lg:row-start-1">
+                        {/* Journal Header */}
+                        <div className="mb-6 rounded-xl border bg-card p-6 shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
+                            <h1 className="font-heading mb-3 text-2xl leading-tight font-bold text-foreground">{journal.title}</h1>
+
+                            <div className="mb-4 flex flex-wrap gap-3 text-xs">
+                                {journal.issn && (
+                                    <span className="font-medium text-muted-foreground">
+                                        ISSN: <span className="text-foreground">{journal.issn}</span>
+                                    </span>
+                                )}
+                                {journal.e_issn && (
+                                    <>
+                                        <span className="text-border">|</span>
+                                        <span className="font-medium text-muted-foreground">
+                                            E-ISSN: <span className="text-primary">{journal.e_issn}</span>
+                                        </span>
+                                    </>
+                                )}
+                            </div>
+
+                            <p className="mb-1 text-sm text-muted-foreground">
+                                <span className="font-semibold text-foreground">Published by:</span> {journal.publisher || journal.university.name}
+                            </p>
+                            {journal.scientific_field && (
+                                <p className="mb-4 text-sm text-muted-foreground">
+                                    <span className="font-semibold">Core Subject:</span> {journal.scientific_field.name}
+                                </p>
+                            )}
+
+                            <div className="flex flex-wrap items-center gap-2">
+                                <SintaBadge rank={journal.sinta_rank ?? null} />
+                                {journal.accreditation_label && (
+                                    <Badge
+                                        variant="outline"
+                                        className="border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300"
+                                    >
+                                        {journal.accreditation_label}
+                                    </Badge>
+                                )}
+                                {journal.indexation_labels && journal.indexation_labels.length > 0 && (
+                                    <>
+                                        {journal.indexation_labels.map((indexation, idx) => (
+                                            <Badge
+                                                key={idx}
+                                                variant="outline"
+                                                className="border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-700 dark:bg-purple-950 dark:text-purple-300"
+                                            >
+                                                {indexation}
+                                            </Badge>
+                                        ))}
+                                    </>
+                                )}
+                                <a href={journal.url} target="_blank" rel="noopener noreferrer">
+                                    <Button size="sm" variant="secondary" className="h-7 text-xs">
+                                        <Globe className="mr-1 h-3 w-3" /> Website
+                                    </Button>
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* Journal Metadata Panel */}
+                        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            {journal.frequency_label && (
+                                <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                        <Calendar className="h-3.5 w-3.5" />
+                                        Frequency
+                                    </div>
+                                    <p className="text-sm font-bold text-foreground">{journal.frequency_label}</p>
+                                </div>
+                            )}
+                            {journal.first_published_year && (
+                                <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                        <Info className="h-3.5 w-3.5" />
+                                        Since
+                                    </div>
+                                    <p className="text-sm font-bold text-foreground">{journal.first_published_year}</p>
+                                </div>
+                            )}
+                            {(journal.accreditation_start_year || journal.accreditation_end_year) && (
+                                <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                        <BadgeCheck className="h-3.5 w-3.5" />
+                                        Accreditation Period
+                                    </div>
+                                    <p className="text-sm font-bold text-foreground">
+                                        {journal.accreditation_start_year ?? '?'} &ndash; {journal.accreditation_end_year ?? '?'}
+                                    </p>
+                                </div>
+                            )}
+                            {journal.accreditation_sk_number && (
+                                <div className="rounded-xl border bg-card p-4 shadow-sm sm:col-span-1 dark:border-border dark:bg-card">
+                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                        <FileText className="h-3.5 w-3.5" />
+                                        SK Number
+                                    </div>
+                                    <p className="text-xs font-medium break-all text-foreground">{journal.accreditation_sk_number}</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Description & Scope Section */}
+                        {(journal.about || journal.scope) && (
+                            <div className="mb-6 space-y-4">
+                                {journal.about && (
+                                    <div className="rounded-xl border bg-card p-6 shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
+                                        <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
+                                            <BookOpen className="h-5 w-5 text-primary" />
+                                            About Journal
+                                        </h2>
+                                        <div className="relative">
+                                            <p
+                                                className={`text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground transition-all duration-300 ${
+                                                    showAbout ? '' : 'line-clamp-4'
+                                                }`}
+                                            >
+                                                {journal.about}
+                                            </p>
+                                            {!showAbout && (
+                                                <div className="pointer-events-none absolute bottom-0 left-0 h-8 w-full bg-gradient-to-t from-card to-transparent" />
+                                            )}
+                                        </div>
+                                        <button
+                                            onClick={() => setShowAbout((prev) => !prev)}
+                                            className="mt-3 flex items-center gap-1 text-xs font-semibold text-primary transition-colors hover:text-primary/80"
+                                        >
+                                            {showAbout ? 'View Less ▲' : 'View More ▼'}
+                                        </button>
+                                    </div>
+                                )}
+                                {journal.scope && (
+                                    <div className="rounded-xl border bg-card p-6 shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
+                                        <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
+                                            <Target className="h-5 w-5 text-primary" />
+                                            Scope and Focus
+                                        </h2>
+                                        <div className="relative">
+                                            <p
+                                                className={`text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground transition-all duration-300 ${
+                                                    showScope ? '' : 'line-clamp-4'
+                                                }`}
+                                            >
+                                                {journal.scope}
+                                            </p>
+                                            {!showScope && (
+                                                <div className="pointer-events-none absolute bottom-0 left-0 h-8 w-full bg-gradient-to-t from-card to-transparent" />
+                                            )}
+                                        </div>
+                                        <button
+                                            onClick={() => setShowScope((prev) => !prev)}
+                                            className="mt-3 flex items-center gap-1 text-xs font-semibold text-primary transition-colors hover:text-primary/80"
+                                        >
+                                            {showScope ? 'View Less ▲' : 'View More ▼'}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     {/* LEFT SIDEBAR (Journal Info & Menu) - 3 Columns */}
-                    <aside className="space-y-6 lg:col-span-3">
+                    {/* 2) MOBILE ORDER 2: Left Sidebar (Journal Info & Menu) - 3 Columns */}
+                    <aside className="order-2 space-y-6 lg:order-none lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-1">
                         {/* Cover Image */}
                         <div className="overflow-hidden rounded-xl border bg-card shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
                             <div className="aspect-[3/4] w-full bg-muted dark:bg-muted">
@@ -292,167 +459,8 @@ export default function JournalsShow() {
                     </aside>
 
                     {/* CENTER CONTENT (Header & Articles) - 6 Columns */}
-                    <div className="lg:col-span-6">
-                        {/* Journal Header */}
-                        <div className="mb-6 rounded-xl border bg-card p-6 shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
-                            <h1 className="font-heading mb-3 text-2xl leading-tight font-bold text-foreground">{journal.title}</h1>
-
-                            <div className="mb-4 flex flex-wrap gap-3 text-xs">
-                                {journal.issn && (
-                                    <span className="font-medium text-muted-foreground">
-                                        ISSN: <span className="text-foreground">{journal.issn}</span>
-                                    </span>
-                                )}
-                                {journal.e_issn && (
-                                    <>
-                                        <span className="text-border">|</span>
-                                        <span className="font-medium text-muted-foreground">
-                                            E-ISSN: <span className="text-primary">{journal.e_issn}</span>
-                                        </span>
-                                    </>
-                                )}
-                            </div>
-
-                            <p className="mb-1 text-sm text-muted-foreground">
-                                <span className="font-semibold text-foreground">Published by:</span> {journal.publisher || journal.university.name}
-                            </p>
-                            {journal.scientific_field && (
-                                <p className="mb-4 text-sm text-muted-foreground">
-                                    <span className="font-semibold">Core Subject:</span> {journal.scientific_field.name}
-                                </p>
-                            )}
-
-                            <div className="flex flex-wrap items-center gap-2">
-                                <SintaBadge rank={journal.sinta_rank ?? null} />
-                                {journal.accreditation_label && (
-                                    <Badge
-                                        variant="outline"
-                                        className="border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300"
-                                    >
-                                        {journal.accreditation_label}
-                                    </Badge>
-                                )}
-                                {journal.indexation_labels && journal.indexation_labels.length > 0 && (
-                                    <>
-                                        {journal.indexation_labels.map((indexation, idx) => (
-                                            <Badge
-                                                key={idx}
-                                                variant="outline"
-                                                className="border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-700 dark:bg-purple-950 dark:text-purple-300"
-                                            >
-                                                {indexation}
-                                            </Badge>
-                                        ))}
-                                    </>
-                                )}
-                                <a href={journal.url} target="_blank" rel="noopener noreferrer">
-                                    <Button size="sm" variant="secondary" className="h-7 text-xs">
-                                        <Globe className="mr-1 h-3 w-3" /> Website
-                                    </Button>
-                                </a>
-                            </div>
-                        </div>
-
-                        {/* Journal Metadata Panel */}
-                        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                            {journal.frequency_label && (
-                                <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
-                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                                        <Calendar className="h-3.5 w-3.5" />
-                                        Frequency
-                                    </div>
-                                    <p className="text-sm font-bold text-foreground">{journal.frequency_label}</p>
-                                </div>
-                            )}
-                            {journal.first_published_year && (
-                                <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
-                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                                        <Info className="h-3.5 w-3.5" />
-                                        Since
-                                    </div>
-                                    <p className="text-sm font-bold text-foreground">{journal.first_published_year}</p>
-                                </div>
-                            )}
-                            {(journal.accreditation_start_year || journal.accreditation_end_year) && (
-                                <div className="rounded-xl border bg-card p-4 shadow-sm dark:border-border dark:bg-card">
-                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                                        <BadgeCheck className="h-3.5 w-3.5" />
-                                        Accreditation Period
-                                    </div>
-                                    <p className="text-sm font-bold text-foreground">
-                                        {journal.accreditation_start_year ?? '?'} &ndash; {journal.accreditation_end_year ?? '?'}
-                                    </p>
-                                </div>
-                            )}
-                            {journal.accreditation_sk_number && (
-                                <div className="col-span-2 rounded-xl border bg-card p-4 shadow-sm sm:col-span-1 dark:border-border dark:bg-card">
-                                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                                        <FileText className="h-3.5 w-3.5" />
-                                        SK Number
-                                    </div>
-                                    <p className="text-xs font-medium break-all text-foreground">{journal.accreditation_sk_number}</p>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Description & Scope Section */}
-                        {(journal.about || journal.scope) && (
-                            <div className="mb-6 space-y-4">
-                                {journal.about && (
-                                    <div className="rounded-xl border bg-card p-6 shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
-                                        <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
-                                            <BookOpen className="h-5 w-5 text-primary" />
-                                            About Journal
-                                        </h2>
-                                        <div className="relative">
-                                            <p
-                                                className={`text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground transition-all duration-300 ${
-                                                    showAbout ? '' : 'line-clamp-4'
-                                                }`}
-                                            >
-                                                {journal.about}
-                                            </p>
-                                            {!showAbout && (
-                                                <div className="pointer-events-none absolute bottom-0 left-0 h-8 w-full bg-gradient-to-t from-card to-transparent" />
-                                            )}
-                                        </div>
-                                        <button
-                                            onClick={() => setShowAbout((prev) => !prev)}
-                                            className="mt-3 flex items-center gap-1 text-xs font-semibold text-primary transition-colors hover:text-primary/80"
-                                        >
-                                            {showAbout ? 'View Less ▲' : 'View More ▼'}
-                                        </button>
-                                    </div>
-                                )}
-                                {journal.scope && (
-                                    <div className="rounded-xl border bg-card p-6 shadow-md transition-shadow hover:shadow-lg dark:border-border dark:bg-card">
-                                        <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
-                                            <Target className="h-5 w-5 text-primary" />
-                                            Scope and Focus
-                                        </h2>
-                                        <div className="relative">
-                                            <p
-                                                className={`text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground transition-all duration-300 ${
-                                                    showScope ? '' : 'line-clamp-4'
-                                                }`}
-                                            >
-                                                {journal.scope}
-                                            </p>
-                                            {!showScope && (
-                                                <div className="pointer-events-none absolute bottom-0 left-0 h-8 w-full bg-gradient-to-t from-card to-transparent" />
-                                            )}
-                                        </div>
-                                        <button
-                                            onClick={() => setShowScope((prev) => !prev)}
-                                            className="mt-3 flex items-center gap-1 text-xs font-semibold text-primary transition-colors hover:text-primary/80"
-                                        >
-                                            {showScope ? 'View Less ▲' : 'View More ▼'}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
+                    {/* 4) MOBILE ORDER 4: Articles List */}
+                    <div className="order-4 lg:order-none lg:col-span-6 lg:col-start-4 lg:row-start-2">
                         {/* Search Bar */}
                         <div className="mb-6 flex gap-2">
                             <form onSubmit={handleSearch} className="flex flex-1 gap-2">
@@ -613,7 +621,7 @@ export default function JournalsShow() {
                                 </div>
                             )}
                             {articles.last_page > 1 && (
-                                <div className="mt-8 flex justify-center gap-1">
+                                <div className="mt-8 flex flex-wrap justify-center gap-1">
                                     {articles.links.map((link, i) => {
                                         const isNavButton = link.label.includes('Previous') || link.label.includes('Next');
                                         const buttonClass = isNavButton ? 'px-3 py-2' : 'h-9 w-9';
@@ -643,7 +651,8 @@ export default function JournalsShow() {
                     </div>
 
                     {/* RIGHT SIDEBAR (Filters) - 3 Columns */}
-                    <aside className="space-y-6 lg:col-span-3">
+                    {/* 3) MOBILE ORDER 3: Filters (Right Sidebar) */}
+                    <aside className="order-3 space-y-6 lg:order-none lg:col-span-3 lg:col-start-10 lg:row-span-2 lg:row-start-1">
                         {/* Filter By Year */}
                         <div className="rounded-xl border bg-card shadow-md dark:border-border dark:bg-card">
                             <div className="border-b border-border bg-muted px-4 py-3 text-sm font-semibold text-foreground dark:border-border dark:bg-muted">

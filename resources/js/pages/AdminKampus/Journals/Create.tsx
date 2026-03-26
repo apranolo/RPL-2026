@@ -128,7 +128,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                         <AlertCircle className="h-4 w-4" />
                                         <AlertTitle>Terdapat kesalahan pada form</AlertTitle>
                                         <AlertDescription>
-                                            <ul className="mt-1 list-disc pl-4 text-sm space-y-1">
+                                            <ul className="mt-1 list-disc space-y-1 pl-4 text-sm">
                                                 {Object.entries(errors).map(([field, message]) => (
                                                     <li key={field}>{message as string}</li>
                                                 ))}
@@ -563,7 +563,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                 {errors.indexations && <p className="mt-1 text-sm text-red-600">{errors.indexations}</p>}
                             </div>
 
-                            <div className="flex items-center justify-end gap-4 border-t pt-4 dark:border-gray-700">
+                            <div className="flex flex-col-reverse items-stretch justify-end gap-4 border-t pt-4 sm:flex-row sm:items-center dark:border-gray-700">
                                 <Link href={route('admin-kampus.journals.index')}>
                                     <Button type="button" variant="outline">
                                         Cancel

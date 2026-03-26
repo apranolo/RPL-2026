@@ -6,9 +6,7 @@ use App\Models\Journal;
 use App\Models\ScientificField;
 use App\Models\University;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class JournalFormFixTest extends TestCase
@@ -16,14 +14,16 @@ class JournalFormFixTest extends TestCase
     use RefreshDatabase;
 
     protected $university;
+
     protected $user;
+
     protected $scientificField;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->seedRoles();
-        
+
         $this->university = University::factory()->create();
         $this->user = User::factory()->user($this->university->id)->create([
             'is_active' => true,
@@ -80,7 +80,7 @@ class JournalFormFixTest extends TestCase
         $this->actingAs($this->user);
 
         $data = $this->getValidJournalData();
-        $data['first_published_year'] = "2018"; // Send as string
+        $data['first_published_year'] = '2018'; // Send as string
 
         $response = $this->post(route('user.journals.store'), $data);
 
@@ -106,7 +106,7 @@ class JournalFormFixTest extends TestCase
         $this->assertDatabaseHas('journals', [
             'title' => 'Jurnal Teknologi Baru',
         ]);
-        
+
         $journal = Journal::where('title', 'Jurnal Teknologi Baru')->first();
         $this->assertEquals($localToday, $journal->accreditation_sk_date->format('Y-m-d'));
     }
@@ -114,7 +114,7 @@ class JournalFormFixTest extends TestCase
     public function test_accreditation_sk_date_today_local_timezone_is_accepted_in_update()
     {
         $this->actingAs($this->user);
-        
+
         $journal = Journal::factory()->create([
             'user_id' => $this->user->id,
             'university_id' => $this->university->id,

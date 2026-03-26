@@ -376,7 +376,7 @@ export default function AssessmentForm({ journals, indicators, assessment }: Pro
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="assessment_date">Tanggal Assessment *</Label>
                                 <Input
@@ -448,7 +448,7 @@ export default function AssessmentForm({ journals, indicators, assessment }: Pro
                         <CardDescription>Total keseluruhan editor, reviewer, dan author di semua terbitan</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                             <div className="space-y-2">
                                 <Label htmlFor="jumlah_editor">Jumlah Editor</Label>
                                 <Input

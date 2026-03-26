@@ -66,7 +66,6 @@ Route::get('/storage/{path}', function (string $path) {
     }
 })->where('path', '.+')->name('storage.serve');
 
-
 //  Laman Page
 Route::get('/', function () {
     // Get featured journals (SINTA 1-2, with cover images)
@@ -351,6 +350,8 @@ Route::middleware(['auth'])->group(function () {
                 ->name('reassign');
 
             // OAI-PMH Article Harvest (dispatches to queue)
+            Route::post('harvest/bulk', [\App\Http\Controllers\AdminKampus\JournalController::class, 'bulkHarvest'])
+                ->name('harvest.bulk');
             Route::post('{journal}/harvest', [\App\Http\Controllers\AdminKampus\JournalController::class, 'harvest'])
                 ->name('harvest');
         });
@@ -459,6 +460,10 @@ Route::middleware(['auth'])->group(function () {
         // Cover image upload (dedicated endpoint)
         Route::patch('journals/{journal}/cover', [UserJournalController::class, 'uploadCover'])
             ->name('journals.upload-cover');
+
+        // OAI-PMH Article Harvest
+        Route::post('journals/{journal}/harvest', [UserJournalController::class, 'harvest'])
+            ->name('journals.harvest');
 
         // Assessments Management
         Route::prefix('assessments')->name('assessments.')->group(function () {

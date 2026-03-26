@@ -59,23 +59,25 @@ export default function Welcome() {
                             </span>
                         </div>
 
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 sm:gap-4">
                             {auth?.user ? (
                                 <Link href={route('dashboard')}>
                                     <Button variant="secondary" className="border-0 bg-white font-bold text-[#079C4E] hover:bg-gray-100">
                                         <LayoutDashboard className="mr-2 h-4 w-4" />
-                                        Dashboard
+                                        <span className="hidden sm:inline">Dashboard</span>
                                     </Button>
                                 </Link>
                             ) : (
                                 <>
                                     <Link href={route('login')}>
-                                        <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white">
+                                        <Button variant="ghost" className="px-2 text-white hover:bg-white/20 hover:text-white sm:px-4">
                                             Log in
                                         </Button>
                                     </Link>
                                     <Link href={route('register')}>
-                                        <Button className="border-0 bg-[#FCEE1F] font-bold text-black hover:bg-[#e3d51b]">Register</Button>
+                                        <Button className="border-0 bg-[#FCEE1F] px-3 font-bold text-black hover:bg-[#e3d51b] sm:px-4">
+                                            Register
+                                        </Button>
                                     </Link>
                                 </>
                             )}
@@ -207,11 +209,18 @@ export default function Welcome() {
                                     Join thousands of authors contributing to the advancement of science and technology through Muhammadiyah's network
                                     of accredited journals.
                                 </p>
-                                <div className="mt-8 flex justify-center gap-4">
-                                    <Button size="lg" className="bg-[#FCEE1F] px-8 text-lg font-bold text-[#1A2A75] hover:bg-[#e3d51b]">
+                                <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                                    <Button
+                                        size="lg"
+                                        className="w-full bg-[#FCEE1F] px-8 text-lg font-bold text-[#1A2A75] hover:bg-[#e3d51b] sm:w-auto"
+                                    >
                                         Submit Manuscript
                                     </Button>
-                                    <Button size="lg" variant="outline" className="border-white px-8 text-white hover:bg-white hover:text-[#1A2A75]">
+                                    <Button
+                                        size="lg"
+                                        variant="outline"
+                                        className="w-full border-white px-8 text-white hover:bg-white hover:text-[#1A2A75] sm:w-auto"
+                                    >
                                         Author Guidelines
                                     </Button>
                                 </div>

@@ -92,6 +92,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -228,7 +229,7 @@ export default function UsersIndex({ users, universities, filters }: Props) {
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                     {/* Header */}
                     <div className="mb-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                             <div>
                                 <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
                                     <UserCheck className="h-8 w-8 text-blue-600 dark:text-blue-400" />
@@ -236,8 +237,8 @@ export default function UsersIndex({ users, universities, filters }: Props) {
                                 </h1>
                                 <p className="mt-1 text-muted-foreground">Manage journal managers across all PTM universities</p>
                             </div>
-                            <Link href={route('admin.users.create')}>
-                                <Button className="flex items-center gap-2">
+                            <Link href={route('admin.users.create')} className="w-full sm:w-auto">
+                                <Button className="flex w-full items-center justify-center gap-2 sm:w-auto">
                                     <Plus className="h-4 w-4" />
                                     Add Pengelola Jurnal
                                 </Button>
@@ -247,9 +248,9 @@ export default function UsersIndex({ users, universities, filters }: Props) {
 
                     {/* Filters */}
                     <div className="mb-6 rounded-lg border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
-                        <form onSubmit={handleSearch} className="flex gap-4">
+                        <form onSubmit={handleSearch} className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
                             {/* Search */}
-                            <div className="flex-1">
+                            <div className="w-full sm:flex-1">
                                 <div className="relative">
                                     <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
                                     <Input
@@ -263,17 +264,19 @@ export default function UsersIndex({ users, universities, filters }: Props) {
                             </div>
 
                             {/* University Filter */}
-                            <UniversityFilterCombobox
-                                universities={universities}
-                                value={universityId}
-                                onValueChange={setUniversityId}
-                                placeholder="All Universities"
-                                className="w-64"
-                            />
+                            <div className="w-full sm:w-auto">
+                                <UniversityFilterCombobox
+                                    universities={universities}
+                                    value={universityId}
+                                    onValueChange={setUniversityId}
+                                    placeholder="All Universities"
+                                    className="w-full sm:w-64"
+                                />
+                            </div>
 
                             {/* Status Filter */}
                             <Select value={isActiveFilter || 'all'} onValueChange={(value) => setIsActiveFilter(value === 'all' ? '' : value)}>
-                                <SelectTrigger className="w-40">
+                                <SelectTrigger className="w-full sm:w-40">
                                     <SelectValue placeholder="All Status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -285,7 +288,7 @@ export default function UsersIndex({ users, universities, filters }: Props) {
 
                             {/* Reviewer Filter */}
                             <Select value={isReviewerFilter || 'all'} onValueChange={(value) => setIsReviewerFilter(value === 'all' ? '' : value)}>
-                                <SelectTrigger className="w-40">
+                                <SelectTrigger className="w-full sm:w-40">
                                     <SelectValue placeholder="Reviewer" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -295,27 +298,32 @@ export default function UsersIndex({ users, universities, filters }: Props) {
                                 </SelectContent>
                             </Select>
 
-                            <Button type="submit">Search</Button>
-                            {(search || universityId || isActiveFilter || isReviewerFilter) && (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => {
-                                        setSearch('');
-                                        setUniversityId('');
-                                        setIsActiveFilter('');
-                                        setIsReviewerFilter('');
-                                        router.get(route('admin.users.index'));
-                                    }}
-                                >
-                                    Clear
+                            <div className="flex w-full gap-2 sm:w-auto">
+                                <Button type="submit" className="flex-1 sm:flex-none">
+                                    Search
                                 </Button>
-                            )}
+                                {(search || universityId || isActiveFilter || isReviewerFilter) && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="flex-1 sm:flex-none"
+                                        onClick={() => {
+                                            setSearch('');
+                                            setUniversityId('');
+                                            setIsActiveFilter('');
+                                            setIsReviewerFilter('');
+                                            router.get(route('admin.users.index'));
+                                        }}
+                                    >
+                                        Clear
+                                    </Button>
+                                )}
+                            </div>
                         </form>
                     </div>
 
-                    {/* Table */}
-                    <div className="overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border">
+                    {/* Table View (Desktop) */}
+                    <div className="hidden overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -437,7 +445,7 @@ export default function UsersIndex({ users, universities, filters }: Props) {
                             </TableBody>
                         </Table>
 
-                        {/* Pagination */}
+                        {/* Pagination Desktop */}
                         {users.last_page > 1 && (
                             <div className="border-t border-sidebar-border/70 px-6 py-4 dark:border-sidebar-border">
                                 <div className="flex items-center justify-between">
@@ -467,6 +475,162 @@ export default function UsersIndex({ users, universities, filters }: Props) {
                                             );
                                         })}
                                     </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Card View (Mobile) */}
+                    <div className="block space-y-4 md:hidden">
+                        {users.data.length === 0 ? (
+                            <Card className="border-sidebar-border/70 dark:border-sidebar-border">
+                                <CardContent className="flex flex-col items-center gap-2 py-8 text-center text-muted-foreground">
+                                    <UserCheck className="h-12 w-12 opacity-20" />
+                                    No users found.
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            users.data.map((user) => (
+                                <Card key={user.id} className="overflow-hidden border-sidebar-border/70 dark:border-sidebar-border">
+                                    <CardContent className="p-4">
+                                        <div className="mb-3 flex items-start justify-between">
+                                            <div className="flex items-center gap-3">
+                                                {user.avatar_url ? (
+                                                    <img src={user.avatar_url} alt={user.name} className="h-10 w-10 rounded-full" />
+                                                ) : (
+                                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
+                                                        <span className="font-semibold text-blue-600 dark:text-blue-400">
+                                                            {user.name.charAt(0).toUpperCase()}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <div className="font-semibold break-all text-foreground">{user.name}</div>
+                                                    <div className="text-xs break-all text-muted-foreground">{user.email}</div>
+                                                </div>
+                                            </div>
+                                            {user.is_active ? (
+                                                <Badge className="ml-2 shrink-0 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/20">
+                                                    Active
+                                                </Badge>
+                                            ) : (
+                                                <Badge className="ml-2 shrink-0 bg-gray-100 text-gray-800 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-800">
+                                                    Inactive
+                                                </Badge>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-2 text-sm">
+                                            {/* Roles */}
+                                            {user.roles && user.roles.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 pb-2">
+                                                    {user.roles.map((role) => (
+                                                        <Badge
+                                                            key={role.id}
+                                                            className="bg-blue-100 text-xs text-blue-800 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                                                        >
+                                                            {role.display_name}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            <div className="flex justify-between border-t border-sidebar-border/70 pt-2 dark:border-sidebar-border">
+                                                <span className="text-muted-foreground">University</span>
+                                                <span className="text-right">
+                                                    {user.university ? (
+                                                        <>
+                                                            <div className="font-medium text-foreground">{user.university.code}</div>
+                                                            <div className="text-xs text-muted-foreground">{user.university.short_name}</div>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-muted-foreground">-</span>
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="flex items-center text-muted-foreground">
+                                                    <BookOpen className="mr-1 inline h-4 w-4" />
+                                                    Journals
+                                                </span>
+                                                <span className="font-medium">{user.journals_count}</span>
+                                            </div>
+                                            {user.phone && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">Phone</span>
+                                                    <span>{user.phone}</span>
+                                                </div>
+                                            )}
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">Last Login</span>
+                                                <span>{user.last_login_at || '-'}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4 flex justify-end gap-2 border-t border-sidebar-border/70 pt-3 dark:border-sidebar-border">
+                                            <Link href={route('admin.users.show', user.id)}>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    title={`View user ${user.name}`}
+                                                    aria-label={`View user ${user.name}`}
+                                                >
+                                                    <Eye className="h-4 w-4" />
+                                                </Button>
+                                            </Link>
+                                            <Link href={route('admin.users.edit', user.id)}>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    title={`Edit user ${user.name}`}
+                                                    aria-label={`Edit user ${user.name}`}
+                                                >
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                            </Link>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                title={`Delete user ${user.name}`}
+                                                aria-label={`Delete user ${user.name}`}
+                                                onClick={() => openDeleteDialog(user.id, user.name)}
+                                            >
+                                                <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))
+                        )}
+
+                        {/* Pagination Mobile */}
+                        {users.last_page > 1 && (
+                            <div className="mt-4 flex flex-col items-center gap-2 text-sm">
+                                <div className="text-muted-foreground">
+                                    Page {users.current_page} of {users.last_page}
+                                </div>
+                                <div className="flex w-full justify-center gap-2">
+                                    {users.links.map((link, index) => {
+                                        if (link.url === null) return null;
+                                        // Only show prev/next on mobile
+                                        const isFirst = index === 0;
+                                        const isLast = index === users.links.length - 1;
+                                        if (!isFirst && !isLast && !link.active) return null;
+
+                                        return (
+                                            <Link key={index} href={link.url} preserveState preserveScroll>
+                                                <Button variant={link.active ? 'default' : 'outline'} size="sm" disabled={!link.url}>
+                                                    {isFirst ? (
+                                                        <ChevronLeft className="h-4 w-4" />
+                                                    ) : isLast ? (
+                                                        <ChevronRight className="h-4 w-4" />
+                                                    ) : (
+                                                        <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                    )}
+                                                </Button>
+                                            </Link>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

@@ -67,6 +67,7 @@ Dokumentasi testing dan quality assurance
 Dokumentasi UI/Frontend
 - `TUTORIAL_SLIDES_CONTENT.md` - Konten tutorial slides
 - `UI_PROGRESS_SCREENSHOTS.md` - Progress screenshot UI
+- `MOBILE_RESPONSIVE_IMPLEMENTATION_PLAN.md` - Rencana implementasi responsive mobile untuk seluruh page
 
 ### 📝 [meeting-notes](./meeting-notes/)
 Catatan rapat dan diskusi proyek
