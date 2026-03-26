@@ -31,7 +31,7 @@ it('can trigger harvest for own journal', function () {
     });
 });
 
-it('cannot trigger harvest for someone elses journal', function () {
+it("cannot trigger harvest for someone else's journal", function () {
     $university = \App\Models\University::factory()->create();
     $user = User::factory()->user($university->id)->create();
     $university2 = \App\Models\University::factory()->create();
