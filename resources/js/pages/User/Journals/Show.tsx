@@ -12,10 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type BreadcrumbItem, type SharedData, type OaiHarvestingLog } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { AlertCircle, ArrowLeft, BookOpen, Camera, CheckCircle, Edit, ExternalLink, FileText, Globe, Mail, Trash2, XCircle } from 'lucide-react';
+import { AlertCircle, ArrowLeft, BookOpen, Camera, CheckCircle, Edit, ExternalLink, FileText, Globe, Mail, Trash2, XCircle, Clock, Database, RefreshCw, CheckCircle2, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
 interface University {
@@ -97,12 +98,38 @@ interface Statistics {
 interface Props {
     journal: Journal;
     statistics: Statistics;
+    lastHarvestLog?: OaiHarvestingLog | null;
+    isHarvestPending?: boolean;
 }
 
-export default function JournalShow({ journal, statistics }: Props) {
+export default function JournalShow({ journal, statistics, lastHarvestLog, isHarvestPending }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [showCoverForm, setShowCoverForm] = useState(false);
     const coverForm = useForm({ cover_image: null as File | null });
+    const [harvesting, setHarvesting] = useState(false);
+    const [forceSyncing, setForceSyncing] = useState(false);
+
+    const handleHarvest = () => {
+        setHarvesting(true);
+        router.post(
+            route('user.journals.harvest', journal.id),
+            {},
+            {
+                onFinish: () => setHarvesting(false),
+            },
+        );
+    };
+
+    const handleForceSync = () => {
+        setForceSyncing(true);
+        router.post(
+            route('user.journals.harvest', journal.id),
+            { force: 1 },
+            {
+                onFinish: () => setForceSyncing(false),
+            },
+        );
+    };
 
     const handleCoverSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -626,6 +653,175 @@ export default function JournalShow({ journal, statistics }: Props) {
                                 )}
                             </TabsContent>
                         </Tabs>
+                    </CardContent>
+                </Card>
+
+                {/* OAI-PMH Harvest Section */}
+                <Card className="mb-0 overflow-hidden border-sidebar-border/70 shadow-sm dark:border-sidebar-border">
+                    <div className="flex flex-col gap-4 border-b border-sidebar-border/70 p-6 sm:flex-row sm:items-center sm:justify-between dark:border-sidebar-border">
+                        <div className="flex items-center gap-2">
+                            <Database className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            <h3 className="text-lg font-semibold text-foreground">Artikel OAI-PMH</h3>
+                            <Badge variant="secondary" className="ml-1">
+                                {statistics.total_articles} artikel
+                            </Badge>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3">
+                            {isHarvestPending && (
+                                <span className="flex w-full items-center gap-1.5 text-sm text-amber-600 sm:w-auto dark:text-amber-400">
+                                    <Clock className="h-4 w-4 animate-pulse" />
+                                    Dalam antrian...
+                                </span>
+                            )}
+                            <Button
+                                onClick={handleHarvest}
+                                disabled={harvesting || isHarvestPending || !journal.oai_pmh_url}
+                                size="sm"
+                                className="gap-2"
+                                title={
+                                    !journal.oai_pmh_url
+                                        ? 'Tambahkan OAI-PMH URL di form edit jurnal terlebih dahulu'
+                                        : 'Sync artikel dari OAI-PMH endpoint'
+                                }
+                            >
+                                <RefreshCw className={`h-4 w-4 ${harvesting ? 'animate-spin' : ''}`} />
+                                {harvesting ? 'Mengirim...' : isHarvestPending ? 'Antrian Aktif' : 'Sync Artikel'}
+                            </Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        disabled={forceSyncing || !journal.oai_pmh_url}
+                                        size="sm"
+                                        variant="outline"
+                                        className="gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                                        title="Hapus semua artikel lama lalu import ulang dari awal"
+                                    >
+                                        <Trash2 className={`h-4 w-4 ${forceSyncing ? 'animate-spin' : ''}`} />
+                                        {forceSyncing ? 'Memproses...' : 'Force Sync'}
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Konfirmasi Force Sync</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Tindakan ini akan <strong>menghapus semua artikel yang sudah tersimpan</strong> untuk jurnal ini,
+                                            kemudian mengimport ulang seluruh data dari OAI-PMH endpoint dari awal.
+                                            <br />
+                                            <br />
+                                            Gunakan opsi ini jika terdapat <strong>data duplikat</strong> atau artikel tidak ter-update dengan
+                                            benar setelah sync biasa. Proses tidak dapat dibatalkan.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={handleForceSync}
+                                            className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-600"
+                                        >
+                                            Ya, Hapus & Import Ulang
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    </div>
+
+                    <CardContent className="p-6">
+                        {/* OAI-PMH URL */}
+                        {journal.oai_pmh_url ? (
+                            <div className="mb-4 flex items-start gap-2 rounded-md bg-muted/50 p-3 text-sm">
+                                <Globe className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                                <div>
+                                    <span className="text-muted-foreground">OAI-PMH Endpoint: </span>
+                                    <a
+                                        href={journal.oai_pmh_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="break-all font-mono text-blue-600 hover:underline dark:text-blue-400"
+                                    >
+                                        {journal.oai_pmh_url}
+                                        <ExternalLink className="ml-1 inline h-3 w-3" />
+                                    </a>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mb-4 flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+                                <AlertCircle className="h-4 w-4 shrink-0" />
+                                <span>
+                                    OAI-PMH URL belum dikonfigurasi. Tambahkan melalui{' '}
+                                    <Link href={route('user.journals.edit', journal.id)} className="font-medium underline">
+                                        form edit jurnal
+                                    </Link>
+                                    .
+                                </span>
+                            </div>
+                        )}
+
+                        {/* Last harvest log */}
+                        {lastHarvestLog ? (
+                            <div className="space-y-3">
+                                <p className="text-sm font-medium text-foreground">Riwayat Harvest Terakhir</p>
+                                <div className="flex flex-wrap items-center gap-4 rounded-md border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                                    {/* Status */}
+                                    <div className="flex items-center gap-1.5 text-sm">
+                                        {lastHarvestLog.status === 'success' && (
+                                            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                        )}
+                                        {lastHarvestLog.status === 'partial' && <AlertCircle className="h-4 w-4 text-amber-500" />}
+                                        {lastHarvestLog.status === 'failed' && <XCircle className="h-4 w-4 text-red-500" />}
+                                        <Badge
+                                            variant={
+                                                lastHarvestLog.status === 'success'
+                                                    ? 'outline'
+                                                    : lastHarvestLog.status === 'partial'
+                                                      ? 'default'
+                                                      : 'destructive'
+                                            }
+                                            className={
+                                                lastHarvestLog.status === 'success' ? 'border-green-300 text-green-700 dark:text-green-400' : ''
+                                            }
+                                        >
+                                            {lastHarvestLog.status === 'success'
+                                                ? 'Berhasil'
+                                                : lastHarvestLog.status === 'partial'
+                                                  ? 'Sebagian'
+                                                  : 'Gagal'}
+                                        </Badge>
+                                    </div>
+
+                                    {/* Stats */}
+                                    <div className="flex gap-4 text-sm text-muted-foreground">
+                                        <span>
+                                            Ditemukan: <span className="font-medium text-foreground">{lastHarvestLog.records_found ?? 0}</span>
+                                        </span>
+                                        <span>
+                                            Diimpor: <span className="font-medium text-foreground">{lastHarvestLog.records_imported ?? 0}</span>
+                                        </span>
+                                    </div>
+
+                                    {/* Timestamp */}
+                                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                        <Clock className="h-3.5 w-3.5" />
+                                        {new Date(lastHarvestLog.harvested_at).toLocaleString('id-ID', {
+                                            dateStyle: 'medium',
+                                            timeStyle: 'short',
+                                            timeZone: 'Asia/Jakarta',
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Error message */}
+                                {lastHarvestLog.status === 'failed' && lastHarvestLog.error_message && (
+                                    <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+                                        <span className="font-medium">Error:</span> {lastHarvestLog.error_message}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">
+                                Belum pernah di-harvest. Klik <strong>Sync Artikel</strong> untuk memulai sinkronisasi OAI.
+                            </p>
+                        )}
                     </CardContent>
                 </Card>
             </div>
