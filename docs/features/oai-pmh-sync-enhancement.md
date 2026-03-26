@@ -56,7 +56,7 @@ Untuk memastikan kelancaran fitur dan keamanan hak akses, testing (Feature Tests
 - Memastikan User biasa dapat melakukan sinkronisasi untuk jurnal dimana ia berkedudukan sebagai `user_id`, disusul pengiriman status ke queue `harvesting`.
 
 ✅ **it cannot trigger harvest for someone elses journal** (Berhasil)
-- Terdapat sistem _autorization block_ jika User yang sedang login bermaksud menyentuh OAI Sync dari jurnal orang lain atau universitas lain.
+- Terdapat sistem _authorization block_ jika User yang sedang login bermaksud menyentuh OAI Sync dari jurnal orang lain atau universitas lain.
 
 ✅ **it cannot trigger harvest if oai_pmh_url is missing** (Berhasil)
 - Memberikan verifikasi ketat dimana form request OAI-PMH tidak akan dilanjutkan apabila jurnal target tidak mendaftarkan OAI url (field berupa empty/null).
