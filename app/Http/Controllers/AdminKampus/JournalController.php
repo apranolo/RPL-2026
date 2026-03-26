@@ -482,7 +482,7 @@ class JournalController extends Controller
     }
 
     /**
-     * @route POST /admin-kampus/harvest/bulk
+     * @route POST /admin-kampus/journals/harvest/bulk
      *
      * @features Dispatch background job to harvest articles from OAI-PMH endpoint for multiple journals.
      */
