@@ -490,7 +490,13 @@ class JournalController extends Controller
     {
         $request->validate([
             'journal_ids' => ['required', 'array', 'min:1'],
-            'journal_ids.*' => ['integer', 'exists:journals,id'],
+            'journal_ids.*' => [
+                'integer',
+                'distinct',
+                \Illuminate\Validation\Rule::exists('journals', 'id')->where(function ($query) {
+                    $query->where('university_id', Auth::user()->university_id);
+                }),
+            ],
         ]);
 
         $journals = Journal::whereIn('id', $request->input('journal_ids'))->get();
@@ -498,11 +504,7 @@ class JournalController extends Controller
         $skippedCount = 0;
 
         foreach ($journals as $journal) {
-            // Check policy manually vs university since it's an array
-            if (Auth::user()->university_id !== $journal->university_id) {
-                // Skip if unauthorized
-                continue;
-            }
+            $this->authorize('update', $journal);
 
             if (empty($journal->oai_pmh_url)) {
                 $skippedCount++;
