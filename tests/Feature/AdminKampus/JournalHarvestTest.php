@@ -54,6 +54,9 @@ it('cannot bulk harvest journals from different university', function () {
             'journal_ids' => [$otherJournal->id],
         ]);
 
+    $response->assertRedirect()
+        ->assertSessionHasNoErrors();
+
     // Validation ensures that either the journal is ignored or throws an error.
     // Assuming policy handles this or they get filtered out, we just assert no job is dispatched.
     Queue::assertNotPushed(HarvestJournalArticlesJob::class);
