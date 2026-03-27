@@ -8,6 +8,9 @@ use App\Models\ScientificField;
 use App\Models\University;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Jobs\HarvestJournalArticlesJob;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -186,6 +189,9 @@ class JournalController extends Controller
                 // Indexations
                 'indexations' => $journal->indexations,
                 'indexation_labels' => $journal->indexation_labels,
+                
+                // OAI-PMH
+                'oai_urls' => $journal->oai_urls,
 
                 'is_active' => $journal->is_active,
                 'created_at' => $journal->created_at->format('Y-m-d H:i'),
@@ -223,6 +229,42 @@ class JournalController extends Controller
                     ],
                 ]),
             ],
+            'articles' => $journal->articles()->latest('oai_datestamp')->get(),
+            'lastHarvestLog' => DB::table('oai_harvesting_logs')
+                ->where('journal_id', $journal->id)
+                ->orderByDesc('harvested_at')
+                ->first(),
+            'isHarvestPending' => DB::table('jobs')
+                ->where('queue', 'harvesting')
+                ->where('payload', 'like', '%"journal_id":' . $journal->id . '%')
+                ->exists(),
         ]);
+    }
+
+    /**
+     * @route POST /admin/journals/{journal}/harvest
+     *
+     * @features Dispatch background job to harvest articles from OAI-PMH endpoint.
+     */
+    public function harvest(Request $request, Journal $journal): RedirectResponse
+    {
+        $this->authorize('update', $journal);
+
+        if (empty($journal->oai_urls)) {
+            return redirect()
+                ->route('admin.journals.show', $journal)
+                ->with('error', 'Jurnal ini belum memiliki OAI-PMH URL.');
+        }
+
+        $clearExisting = (bool) $request->input('force', false);
+        HarvestJournalArticlesJob::dispatch($journal, null, $clearExisting)->onQueue('harvesting');
+
+        $message = $clearExisting
+            ? 'Permintaan force sync OAI telah dikirim.'
+            : 'Permintaan sinkronisasi OAI telah dikirim.';
+
+        return redirect()
+            ->back()
+            ->with('success', $message);
     }
 }

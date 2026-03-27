@@ -259,7 +259,7 @@ class JournalController extends Controller
     {
         $this->authorize('update', $journal);
 
-        if (empty($journal->oai_pmh_url)) {
+        if (empty($journal->oai_urls)) {
             return redirect()
                 ->route('user.journals.show', $journal)
                 ->with('error', 'Jurnal ini belum memiliki OAI-PMH URL. Tambahkan URL-nya terlebih dahulu.');

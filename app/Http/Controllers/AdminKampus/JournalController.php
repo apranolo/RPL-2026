@@ -398,7 +398,7 @@ class JournalController extends Controller
                 'indexation_labels' => $journal->indexation_labels,
 
                 // OAI-PMH
-                'oai_pmh_url' => $journal->oai_pmh_url,
+                'oai_urls' => $journal->oai_urls,
 
                 // Cover image
                 'cover_image' => $journal->cover_image,
@@ -459,7 +459,7 @@ class JournalController extends Controller
     {
         $this->authorize('update', $journal);
 
-        if (empty($journal->oai_pmh_url)) {
+        if (empty($journal->oai_urls)) {
             return redirect()
                 ->route('admin-kampus.journals.show', $journal)
                 ->with('error', 'Jurnal ini belum memiliki OAI-PMH URL. Tambahkan URL-nya terlebih dahulu melalui form edit jurnal.');
@@ -506,7 +506,7 @@ class JournalController extends Controller
         foreach ($journals as $journal) {
             $this->authorize('update', $journal);
 
-            if (empty($journal->oai_pmh_url)) {
+            if (empty($journal->oai_urls)) {
                 $skippedCount++;
 
                 continue;
