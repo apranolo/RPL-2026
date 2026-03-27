@@ -60,7 +60,8 @@ class UpdateJournalRequest extends FormRequest
             'phone' => 'nullable|string|max:50',
 
             // Additional Info
-            'oai_pmh_url' => 'required|url|max:500',
+            'oai_urls' => 'reequired|array',
+            'oai_urls.*' => 'url|max:500',
             'about' => 'nullable|string|max:1000',
             'scope' => 'nullable|string|max:2500',
 
@@ -86,8 +87,8 @@ class UpdateJournalRequest extends FormRequest
             'sinta_rank.required' => 'Peringkat akreditasi wajib dipilih.',
             'sinta_rank.in' => 'Peringkat akreditasi tidak valid.',
             'accreditation_end_year.gte' => 'Tahun akhir akreditasi harus setelah tahun mulai.',
-            'oai_pmh_url.required' => 'URL OAI-PMH wajib diisi.',
-            'oai_pmh_url.url' => 'Format URL OAI-PMH tidak valid.',
+            'oai_urls.array' => 'Format OAI-PMH URLs wajib diisi dan harus berupa array.',
+            'oai_urls.*.url' => 'Format URL OAI-PMH tidak valid.',
             'indexations.*.url.url' => 'Format URL indeksasi tidak valid.',
             'cover_image.image' => 'File cover harus berupa gambar.',
             'cover_image.mimes' => 'Format cover harus JPEG, PNG, JPG, atau WebP.',
