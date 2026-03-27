@@ -35,7 +35,7 @@ class HarvestJournalArticles extends Command
         // Determine which journals to harvest
         if ($this->option('all')) {
             $this->info('Harvesting articles from all journals with OAI-PMH URLs...');
-            $journals = Journal::whereNotNull('oai_pmh_url')
+            $journals = Journal::whereNotNull('oai_urls')
                 ->where('is_active', true)
                 ->get();
 
@@ -55,7 +55,7 @@ class HarvestJournalArticles extends Command
                 return Command::FAILURE;
             }
 
-            if (! $journal->oai_pmh_url) {
+            if (empty($journal->oai_urls)) {
                 $this->error("Journal '{$journal->title}' does not have OAI-PMH URL configured.");
 
                 return Command::FAILURE;
@@ -77,7 +77,7 @@ class HarvestJournalArticles extends Command
 
         foreach ($journals as $journal) {
             $this->info("\n📚 Harvesting: {$journal->title}");
-            $this->info("   OAI-PMH URL: {$journal->oai_pmh_url}");
+            $this->info("    OAI-PMH URLs: " . implode(', ', $journal->oai_urls));
 
             try {
                 $stats = $harvester->harvest($journal, $fromDate);
