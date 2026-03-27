@@ -149,7 +149,7 @@ export interface Journal {
     issn: string;
     e_issn?: string;
     url?: string;
-    oai_pmh_url?: string;
+    oai_urls?: string[];
     cover_image_url?: string;
     cover_image?: string;
     publisher?: string;
