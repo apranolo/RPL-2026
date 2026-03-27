@@ -34,7 +34,7 @@ class OAIPMHTestSeeder extends Seeder
         foreach ($journals as $index => $journal) {
             if (isset($testUrls[$index])) {
                 $journal->update([
-                    'oai_pmh_url' => $testUrls[$index],
+                    'oai_urls' => [$testUrls[$index]],
                 ]);
                 $this->command->info("  ✓ Updated: {$journal->title}");
                 $this->command->info("    OAI-PMH: {$testUrls[$index]}");
