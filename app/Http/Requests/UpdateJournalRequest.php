@@ -60,7 +60,7 @@ class UpdateJournalRequest extends FormRequest
             'phone' => 'nullable|string|max:50',
 
             // Additional Info
-            'oai_urls' => 'reequired|array',
+            'oai_urls' => 'required|array',
             'oai_urls.*' => 'url|max:500',
             'about' => 'nullable|string|max:1000',
             'scope' => 'nullable|string|max:2500',
