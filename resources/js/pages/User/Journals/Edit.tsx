@@ -61,7 +61,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, BookOpen } from 'lucide-react';
+import { ArrowLeft, BookOpen, Trash2 } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 interface Journal {
@@ -84,7 +84,7 @@ interface Journal {
     editor_in_chief?: string | null;
     email?: string | null;
     phone?: string | null;
-    oai_pmh_url?: string | null;
+    oai_urls?: string[] | null;
     about?: string | null;
     scope?: string | null;
     // Cover image
@@ -136,7 +136,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
         editor_in_chief: journal.editor_in_chief || '',
         email: journal.email || '',
         phone: journal.phone || '',
-        oai_pmh_url: journal.oai_pmh_url || '',
+        oai_urls: journal.oai_urls || [''],
         about: journal.about || '',
         scope: journal.scope || '',
         // Indexations
@@ -462,21 +462,49 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                         {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                                     </div>
 
-                                    <div>
-                                        <Label htmlFor="oai_pmh_url">
-                                            OAI-PMH URL <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Input
-                                            id="oai_pmh_url"
-                                            type="url"
-                                            value={data.oai_pmh_url}
-                                            onChange={(e) => setData('oai_pmh_url', e.target.value)}
-                                            placeholder="https://journal.ac.id/index.php/jite/oai"
-                                            className="mt-1"
-                                            required
-                                        />
-                                        <p className="mt-1 text-xs text-muted-foreground">Wajib diisi untuk harvesting dan indeksasi metadata</p>
-                                        {errors.oai_pmh_url && <p className="mt-1 text-sm text-red-600">{errors.oai_pmh_url}</p>}
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <Label>OAI-PMH URLs (Multi)</Label>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setData('oai_urls', [...(data.oai_urls || []), ''])}
+                                            >
+                                                Tambah URL OAI
+                                            </Button>
+                                        </div>
+                                        {(data.oai_urls || []).map((oaiUrl, index) => (
+                                            <div key={index} className="flex items-center gap-2">
+                                                <Input
+                                                    type="url"
+                                                    value={oaiUrl}
+                                                    onChange={(e) => {
+                                                        const newUrls = [...(data.oai_urls || [])];
+                                                        newUrls[index] = e.target.value;
+                                                        setData('oai_urls', newUrls);
+                                                    }}
+                                                    placeholder="https://journal.ac.id/index.php/jite/oai"
+                                                    className="mt-1"
+                                                />
+                                                {(data.oai_urls || []).length > 1 && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-red-500 hover:text-red-700"
+                                                        onClick={() => {
+                                                            const newUrls = (data.oai_urls || []).filter((_, i) => i !== index);
+                                                            setData('oai_urls', newUrls);
+                                                        }}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        ))}
+                                        <p className="mt-1 text-xs text-muted-foreground">URL untuk harvesting dan indeksasi metadata</p>
+                                        {errors.oai_urls && <p className="mt-1 text-sm text-red-600">{errors.oai_urls}</p>}
                                     </div>
                                 </div>
 
