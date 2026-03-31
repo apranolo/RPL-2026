@@ -128,7 +128,6 @@ class JournalController extends Controller
             'scientificField',
             'university',
             'assessments' => fn ($q) => $q->latest()->limit(10),
-            'articles' => fn ($q) => $q->latest()->limit(10),
         ]);
 
         // OAI-PMH: fetch last harvest log
@@ -150,12 +149,95 @@ class JournalController extends Controller
             ->where('queue', 'harvesting')
             ->exists();
 
+        $articlesCount = $journal->articles()->count();
+        $articles = $journal->articles()
+            ->orderBy('publication_date', 'desc')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn ($article) => [
+                'id' => $article->id,
+                'title' => $article->title,
+                'authors' => $article->authors,
+                'publication_date' => $article->publication_date?->format('Y-m-d'),
+                'abstract' => $article->abstract,
+                'doi' => $article->doi,
+                'url' => $article->article_url,
+            ]);
+
         return Inertia::render('User/Journals/Show', [
-            'journal' => $journal,
+            'journal' => [
+                'id' => $journal->id,
+                'title' => $journal->title,
+                'issn' => $journal->issn,
+                'e_issn' => $journal->e_issn,
+                'url' => $journal->url,
+                'publisher' => $journal->publisher,
+                'frequency' => $journal->frequency,
+                'frequency_label' => $journal->frequency_label,
+                'first_published_year' => $journal->first_published_year,
+                'editor_in_chief' => $journal->editor_in_chief,
+                'email' => $journal->email,
+                'phone' => $journal->phone,
+                'about' => $journal->about,
+                'scope' => $journal->scope,
+                
+                'sinta_rank' => $journal->sinta_rank,
+                'sinta_rank_label' => $journal->sinta_rank_label,
+                
+                // Accreditation
+                'accreditation_start_year' => $journal->accreditation_start_year,
+                'accreditation_end_year' => $journal->accreditation_end_year,
+                'accreditation_sk_number' => $journal->accreditation_sk_number,
+                'accreditation_sk_date' => $journal->accreditation_sk_date?->format('Y-m-d'),
+                
+                // Indexations
+                'indexations' => $journal->indexations,
+                
+                // OAI-PMH - IMPORTANT: Must be included explicitly
+                'oai_urls' => $journal->oai_urls,
+                
+                // Cover image
+                'cover_image' => $journal->cover_image,
+                'cover_image_url' => $journal->cover_image_url,
+                
+                // Status
+                'is_active' => $journal->is_active,
+                'approval_status' => $journal->approval_status,
+                'approval_status_label' => $journal->approval_status_label,
+                'rejection_reason' => $journal->rejection_reason,
+                'approved_at' => $journal->approved_at,
+                
+                // Timestamps
+                'created_at' => $journal->created_at->format('Y-m-d H:i'),
+                'updated_at' => $journal->updated_at->format('Y-m-d H:i'),
+                
+                // Relationships
+                'university' => [
+                    'id' => $journal->university->id,
+                    'name' => $journal->university->name,
+                ],
+                'scientific_field' => $journal->scientificField ? [
+                    'id' => $journal->scientificField->id,
+                    'name' => $journal->scientificField->name,
+                ] : null,
+                'assessments' => $journal->assessments->map(fn ($assessment) => [
+                    'id' => $assessment->id,
+                    'assessment_date' => $assessment->assessment_date,
+                    'period' => $assessment->period,
+                    'status' => $assessment->status,
+                    'status_label' => $assessment->status_label,
+                    'total_score' => $assessment->total_score,
+                    'max_score' => $assessment->max_score,
+                    'percentage' => $assessment->percentage,
+                    'grade' => $assessment->grade,
+                    'submitted_at' => $assessment->submitted_at?->format('Y-m-d H:i'),
+                ])->values(),
+            ],
+            'articles' => $articles,
             'statistics' => [
                 'total_assessments' => $journal->assessments()->count(),
                 'latest_score' => $journal->assessments()->latest()->first()?->total_score,
-                'total_articles' => $journal->articles()->count(),
+                'total_articles' => $articlesCount,
             ],
             'lastHarvestLog' => $lastHarvestLog,
             'isHarvestPending' => $isHarvestPending,
