@@ -103,6 +103,15 @@ class ScientificFieldSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'code' => 'MULTI',
+                'name' => 'Multidisiplin',
+                'description' => 'Meliputi berbagai disiplin ilmu atau lintas disiplin',
+                'parent_id' => null,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
         DB::table('scientific_fields')->insert($fields);
