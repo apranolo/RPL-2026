@@ -367,6 +367,19 @@ class JournalController extends Controller
             ->exists();
 
         $articlesCount = $journal->articles()->count();
+        $articles = $journal->articles()
+            ->orderBy('publication_date', 'desc')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn ($article) => [
+                'id' => $article->id,
+                'title' => $article->title,
+                'authors' => $article->authors,
+                'publication_date' => $article->publication_date?->format('Y-m-d'),
+                'abstract' => $article->abstract,
+                'doi' => $article->doi,
+                'url' => $article->article_url,
+            ]);
 
         return Inertia::render('AdminKampus/Journals/Show', [
             'journal' => [
@@ -440,6 +453,7 @@ class JournalController extends Controller
                     ],
                 ]),
             ],
+            'articles' => $articles,
             'articlesCount' => $articlesCount,
             'lastHarvestLog' => $lastHarvestLog ? (array) $lastHarvestLog : null,
             'isHarvestPending' => $isHarvestPending,
