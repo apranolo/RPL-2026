@@ -40,7 +40,7 @@ class JournalFormFixTest extends TestCase
             'frequency' => 'Bulanan',
             'scientific_field_id' => $this->scientificField->id,
             'sinta_rank' => 'non_sinta',
-            'oai_pmh_url' => 'https://jurnal.contoh.com/oai',
+            'oai_urls' => ['https://jurnal.contoh.com/oai'],
         ];
     }
 
