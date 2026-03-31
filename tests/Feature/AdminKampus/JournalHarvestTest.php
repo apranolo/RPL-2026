@@ -17,11 +17,11 @@ it('can bulk harvest journals from same university', function () {
     $adminKampus = User::factory()->adminKampus($university->id)->create();
     $journal1 = Journal::factory()->create([
         'university_id' => $university->id,
-        'oai_pmh_url' => 'https://example.com/oai',
+        'oai_urls' => ['https://example.com/oai'],
     ]);
     $journal2 = Journal::factory()->create([
         'university_id' => $university->id,
-        'oai_pmh_url' => 'https://example.com/oai2',
+        'oai_urls' => ['https://example.com/oai2'],
     ]);
 
     actingAs($adminKampus)
@@ -46,7 +46,7 @@ it('cannot bulk harvest journals from different university', function () {
     $otherUniversity = \App\Models\University::factory()->create();
     $otherJournal = Journal::factory()->create([
         'university_id' => $otherUniversity->id,
-        'oai_pmh_url' => 'https://example.com/oai',
+        'oai_urls' => ['https://example.com/oai'],
     ]);
 
     $response = actingAs($adminKampus)

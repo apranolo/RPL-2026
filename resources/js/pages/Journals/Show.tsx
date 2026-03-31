@@ -11,7 +11,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { type Article, type Journal, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BadgeCheck, BookOpen, Calendar, ChevronRight, Download, FileText, Globe, Info, Mail, MapPin, Search, Target, User } from 'lucide-react';
+import {
+    BadgeCheck,
+    BookOpen,
+    Calendar,
+    ChevronDown,
+    ChevronRight,
+    Download,
+    FileText,
+    Globe,
+    Info,
+    Mail,
+    MapPin,
+    Search,
+    Target,
+    User,
+} from 'lucide-react';
 import React, { useState } from 'react';
 import Chart from 'react-apexcharts';
 
@@ -41,6 +56,7 @@ export default function JournalsShow() {
     const [yearTo, setYearTo] = useState<string>(queries.year_end || '');
     const [showAbout, setShowAbout] = useState(false);
     const [showScope, setShowScope] = useState(false);
+    const [isOaiExpanded, setIsOaiExpanded] = useState(false);
 
     // Dynamic year range from article data
     const minYear =
@@ -388,16 +404,47 @@ export default function JournalsShow() {
                                 >
                                     <ChevronRight className="h-4 w-4" /> Home Page
                                 </Link>
-                                {journal.oai_pmh_url && (
-                                    <a
-                                        href={journal.oai_pmh_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-3 border-b border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-primary dark:border-border dark:hover:bg-muted"
-                                    >
-                                        <ChevronRight className="h-4 w-4" /> OAI Link
-                                    </a>
+
+                                {/* OAI URLs Accordion */}
+                                {journal.oai_urls && journal.oai_urls.length > 0 && (
+                                    <div className="border-b border-border dark:border-border">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsOaiExpanded(!isOaiExpanded)}
+                                            className={`flex w-full items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-muted dark:hover:bg-muted ${isOaiExpanded ? 'font-medium text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                                        >
+                                            <div className="flex h-4 w-4 items-center justify-center transition-transform duration-200">
+                                                {isOaiExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                            </div>
+                                            <span>OAI-PMH {journal.oai_urls.length > 1 ? 'Links' : 'Link'}</span>
+                                        </button>
+
+                                        {/* Dropdown Items */}
+                                        <div
+                                            className={`grid transition-all duration-300 ease-in-out ${isOaiExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                                        >
+                                            <div className="overflow-hidden">
+                                                <div className="flex flex-col bg-muted/30 pt-1 pb-2 dark:bg-muted/10">
+                                                    {journal.oai_urls.map((oai, idx) => (
+                                                        <a
+                                                            key={idx}
+                                                            href={oai}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-3 py-2 pr-4 pl-11 text-sm text-muted-foreground transition-colors hover:text-primary"
+                                                        >
+                                                            <Globe className="h-3.5 w-3.5 shrink-0" />
+                                                            <span className="truncate">
+                                                                {journal.oai_urls!.length > 1 ? `OAI Link ${idx + 1}` : 'OAI-PMH Endpoint'}
+                                                            </span>
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 )}
+
                                 <a
                                     href={journal.url}
                                     target="_blank"

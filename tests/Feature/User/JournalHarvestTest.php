@@ -18,7 +18,7 @@ it('can trigger harvest for own journal', function () {
     $journal = Journal::factory()->create([
         'user_id' => $user->id,
         'university_id' => $user->university_id,
-        'oai_pmh_url' => 'https://example.com/oai',
+        'oai_urls' => ['https://example.com/oai'],
     ]);
 
     actingAs($user)
@@ -37,7 +37,7 @@ it("cannot trigger harvest for someone else's journal", function () {
     $university2 = \App\Models\University::factory()->create();
     $otherJournal = Journal::factory()->create([
         'university_id' => $university2->id,
-        'oai_pmh_url' => 'https://example.com/oai',
+        'oai_urls' => ['https://example.com/oai'],
     ]);
 
     actingAs($user)
@@ -47,13 +47,13 @@ it("cannot trigger harvest for someone else's journal", function () {
     Queue::assertNotPushed(HarvestJournalArticlesJob::class);
 });
 
-it('cannot trigger harvest if oai_pmh_url is missing', function () {
+it('cannot trigger harvest if oai_urls is missing', function () {
     $university = \App\Models\University::factory()->create();
     $user = User::factory()->user($university->id)->create();
     $journal = Journal::factory()->create([
         'user_id' => $user->id,
         'university_id' => $user->university_id,
-        'oai_pmh_url' => '',
+        'oai_urls' => [],
     ]);
 
     actingAs($user)

@@ -445,9 +445,7 @@ export default function JournalsIndex({ journals, filters, universities, scienti
                                                         <ExternalLink className="h-3 w-3" />
                                                     </a>
                                                 ) : (
-                                                    <span className="mt-1 block text-xs text-muted-foreground">
-                                                        No URL provided
-                                                    </span>
+                                                    <span className="mt-1 block text-xs text-muted-foreground">No URL provided</span>
                                                 )}
                                             </div>
                                             <Badge className={getSintaRankColor(journal.sinta_rank)}>{journal.sinta_rank_label}</Badge>
