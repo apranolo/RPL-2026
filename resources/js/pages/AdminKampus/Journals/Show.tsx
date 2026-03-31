@@ -21,6 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PaginationLink } from '@/components/ui/pagination';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type OaiHarvestingLog } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
@@ -108,7 +109,7 @@ interface Journal {
     indexations?: Record<string, { indexed_at: string }> | null;
     indexation_labels?: string[];
     // OAI-PMH
-    oai_pmh_url?: string | null;
+    oai_urls?: string[] | null;
     // Cover
     cover_image?: string | null;
     cover_image_url?: string | null;
@@ -121,14 +122,42 @@ interface Journal {
     assessments: Assessment[];
 }
 
+interface Article {
+    id: number;
+    title: string;
+    authors: string | string[];
+    publication_date: string | null;
+    abstract: string | null;
+    doi: string | null;
+    url: string | null;
+}
+
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+interface PaginatedData<T> {
+    data: T[];
+    links: PaginationLink[];
+    current_page: number;
+    last_page: number;
+    from: number | null;
+    to: number | null;
+    total: number;
+    per_page: number;
+}
+
 interface Props {
     journal: Journal;
+    articles: PaginatedData<Article>;
     articlesCount: number;
     lastHarvestLog: OaiHarvestingLog | null;
     isHarvestPending: boolean;
 }
 
-export default function JournalShow({ journal, articlesCount, lastHarvestLog, isHarvestPending }: Props) {
+export default function JournalShow({ journal, articles, articlesCount, lastHarvestLog, isHarvestPending }: Props) {
     const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
     const [harvesting, setHarvesting] = useState(false);
     const [forceSyncing, setForceSyncing] = useState(false);
@@ -471,11 +500,11 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                 )}
                                 <Button
                                     onClick={handleHarvest}
-                                    disabled={harvesting || isHarvestPending || !journal.oai_pmh_url}
+                                    disabled={harvesting || isHarvestPending || !journal.oai_urls || journal.oai_urls.length === 0}
                                     size="sm"
                                     className="gap-2"
                                     title={
-                                        !journal.oai_pmh_url
+                                        !journal.oai_urls || journal.oai_urls.length === 0
                                             ? 'Tambahkan OAI-PMH URL di form edit jurnal terlebih dahulu'
                                             : 'Sync artikel dari OAI-PMH endpoint'
                                     }
@@ -486,7 +515,7 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                         <Button
-                                            disabled={forceSyncing || !journal.oai_pmh_url}
+                                            disabled={forceSyncing || !journal.oai_urls || journal.oai_urls.length === 0}
                                             size="sm"
                                             variant="outline"
                                             className="gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
@@ -523,21 +552,27 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                         </div>
 
                         <CardContent className="p-6">
-                            {/* OAI-PMH URL */}
-                            {journal.oai_pmh_url ? (
+                            {/* OAI-PMH URLs */}
+                            {journal.oai_urls && journal.oai_urls.length > 0 ? (
                                 <div className="mb-4 flex items-start gap-2 rounded-md bg-muted/50 p-3 text-sm">
                                     <Globe className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                                     <div>
-                                        <span className="text-muted-foreground">OAI-PMH Endpoint: </span>
-                                        <a
-                                            href={journal.oai_pmh_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="font-mono break-all text-blue-600 hover:underline dark:text-blue-400"
-                                        >
-                                            {journal.oai_pmh_url}
-                                            <ExternalLink className="ml-1 inline h-3 w-3" />
-                                        </a>
+                                        <span className="text-muted-foreground">OAI-PMH Endpoints: </span>
+                                        <ul className="mt-1 flex flex-col gap-1">
+                                            {journal.oai_urls.map((oai, idx) => (
+                                                <li key={idx}>
+                                                    <a
+                                                        href={oai}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="font-mono break-all text-blue-600 hover:underline dark:text-blue-400"
+                                                    >
+                                                        {oai}
+                                                        <ExternalLink className="ml-1 inline h-3 w-3" />
+                                                    </a>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
                                 </div>
                             ) : (
@@ -616,6 +651,143 @@ export default function JournalShow({ journal, articlesCount, lastHarvestLog, is
                                 <p className="text-sm text-muted-foreground">
                                     Belum pernah di-harvest. Klik <strong>Sync Artikel</strong> untuk memulai.
                                 </p>
+                            )}
+
+                            {/* Articles Table */}
+                            {articles && articles.data.length > 0 ? (
+                                <div className="mt-8 space-y-4">
+                                    <h4 className="text-md font-semibold text-foreground">Daftar Artikel (Total: {articles.total})</h4>
+                                    <div className="overflow-x-auto rounded-md border border-sidebar-border/70 dark:border-sidebar-border">
+                                        <table className="w-full text-left text-sm text-muted-foreground">
+                                            <thead className="bg-muted/50 text-xs text-foreground uppercase">
+                                                <tr>
+                                                    <th className="px-4 py-3 font-medium">Judul</th>
+                                                    <th className="px-4 py-3 font-medium">Penulis</th>
+                                                    <th className="cursor-pointer px-4 py-3 font-medium">Tanggal Publish</th>
+                                                    <th className="px-4 py-3 text-right font-medium">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {articles.data.map((article) => (
+                                                    <tr
+                                                        key={article.id}
+                                                        className="border-b border-sidebar-border/70 last:border-0 hover:bg-muted/30 dark:border-sidebar-border"
+                                                    >
+                                                        <td className="px-4 py-3">
+                                                            <p className="line-clamp-2 font-medium text-foreground" title={article.title}>
+                                                                {article.title}
+                                                            </p>
+                                                            {article.doi && (
+                                                                <a
+                                                                    href={`https://doi.org/${article.doi}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="mt-1 inline-flex items-center gap-1 text-xs text-blue-600 hover:underline dark:text-blue-400"
+                                                                >
+                                                                    DOI: {article.doi}
+                                                                </a>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <p
+                                                                className="line-clamp-2 text-sm"
+                                                                title={Array.isArray(article.authors) ? article.authors.join(', ') : article.authors}
+                                                            >
+                                                                {Array.isArray(article.authors) ? article.authors.join(', ') : article.authors}
+                                                            </p>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-sm whitespace-nowrap">{article.publication_date || '-'}</td>
+                                                        <td className="px-4 py-3 text-right">
+                                                            {article.url && (
+                                                                <a
+                                                                    href={article.url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100 hover:text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40"
+                                                                    title="Buka Artikel"
+                                                                >
+                                                                    Buka <ExternalLink className="h-3 w-3" />
+                                                                </a>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Pagination */}
+                                    {articles.last_page > 1 && (
+                                        <div className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
+                                            <div className="text-sm text-muted-foreground">
+                                                Showing <span className="font-medium">{articles.from || 0}</span> to{' '}
+                                                <span className="font-medium">{articles.to || 0}</span> of{' '}
+                                                <span className="font-medium">{articles.total}</span> results
+                                            </div>
+                                            <div className="flex flex-wrap items-center justify-center gap-2">
+                                                {articles.links.map((link, index) => {
+                                                    const isPrev = link.label.includes('Previous');
+                                                    const isNext = link.label.includes('Next');
+
+                                                    if (isPrev) {
+                                                        return (
+                                                            <Button
+                                                                key={index}
+                                                                variant="outline"
+                                                                size="sm"
+                                                                disabled={!link.url}
+                                                                onClick={() => link.url && router.visit(link.url, { preserveScroll: true })}
+                                                            >
+                                                                &laquo; Previous
+                                                            </Button>
+                                                        );
+                                                    }
+                                                    if (isNext) {
+                                                        return (
+                                                            <Button
+                                                                key={index}
+                                                                variant="outline"
+                                                                size="sm"
+                                                                disabled={!link.url}
+                                                                onClick={() => link.url && router.visit(link.url, { preserveScroll: true })}
+                                                            >
+                                                                Next &raquo;
+                                                            </Button>
+                                                        );
+                                                    }
+
+                                                    // Only show max 5 page numbers (simplify logic if needed, but standard Inertia gives 1..n + ...)
+                                                    if (link.label === '...') {
+                                                        return (
+                                                            <span key={index} className="px-2 text-muted-foreground">
+                                                                ...
+                                                            </span>
+                                                        );
+                                                    }
+
+                                                    return (
+                                                        <Button
+                                                            key={index}
+                                                            variant={link.active ? 'default' : 'outline'}
+                                                            size="sm"
+                                                            className={link.active ? 'pointer-events-none' : ''}
+                                                            onClick={() => link.url && router.visit(link.url, { preserveScroll: true })}
+                                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                                        />
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="mt-8 rounded-md border border-dashed border-sidebar-border/70 bg-muted/20 p-8 text-center dark:border-sidebar-border">
+                                    <BookOpen className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
+                                    <h4 className="text-md font-medium text-foreground">Belum ada artikel</h4>
+                                    <p className="mt-1 text-sm text-muted-foreground">
+                                        Klik tombol "Sync Artikel" di atas untuk memulai mengambil data artikel dari OAI-PMH endpoint.
+                                    </p>
+                                </div>
                             )}
                         </CardContent>
                     </Card>
