@@ -77,7 +77,7 @@ class HarvestJournalArticles extends Command
 
         foreach ($journals as $journal) {
             $this->info("\n📚 Harvesting: {$journal->title}");
-            $this->info("    OAI-PMH URLs: " . implode(', ', $journal->oai_urls));
+            $this->info('    OAI-PMH URLs: '.implode(', ', $journal->oai_urls));
 
             try {
                 $stats = $harvester->harvest($journal, $fromDate);

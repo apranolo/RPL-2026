@@ -25,7 +25,7 @@ return new class extends Migration
                     \Illuminate\Support\Facades\DB::table('journals')
                         ->where('id', $journal->id)
                         ->update([
-                            'oai_urls' => json_encode([$journal->oai_pmh_url])
+                            'oai_urls' => json_encode([$journal->oai_pmh_url]),
                         ]);
                 }
             });
@@ -54,7 +54,7 @@ return new class extends Migration
                     \Illuminate\Support\Facades\DB::table('journals')
                         ->where('id', $journal->id)
                         ->update([
-                            'oai_pmh_url' => !empty($urls) ? $urls[0] : ''
+                            'oai_pmh_url' => ! empty($urls) ? $urls[0] : '',
                         ]);
                 }
             });

@@ -41,7 +41,9 @@ class OAIPMHHarvester
         ];
 
         foreach ($journal->oai_urls as $index => $oai_url) {
-            if (empty($oai_url)) continue;
+            if (empty($oai_url)) {
+                continue;
+            }
 
             $stats = [
                 'records_found' => 0,
@@ -90,7 +92,7 @@ class OAIPMHHarvester
                             try {
                                 $this->processRecord($journal, $record, $stats);
                             } catch (\Exception $e) {
-                                $stats['errors'][] = "From {$oai_url}: " . $e->getMessage();
+                                $stats['errors'][] = "From {$oai_url}: ".$e->getMessage();
                                 Log::error("Error processing OAI record ({$oai_url}): {$e->getMessage()}");
                             }
                         }

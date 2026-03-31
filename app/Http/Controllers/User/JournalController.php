@@ -180,37 +180,37 @@ class JournalController extends Controller
                 'phone' => $journal->phone,
                 'about' => $journal->about,
                 'scope' => $journal->scope,
-                
+
                 'sinta_rank' => $journal->sinta_rank,
                 'sinta_rank_label' => $journal->sinta_rank_label,
-                
+
                 // Accreditation
                 'accreditation_start_year' => $journal->accreditation_start_year,
                 'accreditation_end_year' => $journal->accreditation_end_year,
                 'accreditation_sk_number' => $journal->accreditation_sk_number,
                 'accreditation_sk_date' => $journal->accreditation_sk_date?->format('Y-m-d'),
-                
+
                 // Indexations
                 'indexations' => $journal->indexations,
-                
+
                 // OAI-PMH - IMPORTANT: Must be included explicitly
                 'oai_urls' => $journal->oai_urls,
-                
+
                 // Cover image
                 'cover_image' => $journal->cover_image,
                 'cover_image_url' => $journal->cover_image_url,
-                
+
                 // Status
                 'is_active' => $journal->is_active,
                 'approval_status' => $journal->approval_status,
                 'approval_status_label' => $journal->approval_status_label,
                 'rejection_reason' => $journal->rejection_reason,
                 'approved_at' => $journal->approved_at,
-                
+
                 // Timestamps
                 'created_at' => $journal->created_at->format('Y-m-d H:i'),
                 'updated_at' => $journal->updated_at->format('Y-m-d H:i'),
-                
+
                 // Relationships
                 'university' => [
                     'id' => $journal->university->id,
