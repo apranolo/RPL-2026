@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\HarvestJournalArticlesJob;
 use App\Models\Journal;
 use App\Models\ScientificField;
 use App\Models\University;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use App\Jobs\HarvestJournalArticlesJob;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -160,6 +160,21 @@ class JournalController extends Controller
             },
         ]);
 
+        $articlesCount = $journal->articles()->count();
+        $articles = $journal->articles()
+            ->orderBy('publication_date', 'desc')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn ($article) => [
+                'id' => $article->id,
+                'title' => $article->title,
+                'authors' => $article->authors,
+                'publication_date' => $article->publication_date?->format('Y-m-d'),
+                'abstract' => $article->abstract,
+                'doi' => $article->doi,
+                'url' => $article->article_url,
+            ]);
+
         return Inertia::render('Admin/Journals/Show', [
             'journal' => [
                 'id' => $journal->id,
@@ -189,7 +204,7 @@ class JournalController extends Controller
                 // Indexations
                 'indexations' => $journal->indexations,
                 'indexation_labels' => $journal->indexation_labels,
-                
+
                 // OAI-PMH
                 'oai_urls' => $journal->oai_urls,
 
@@ -229,14 +244,15 @@ class JournalController extends Controller
                     ],
                 ]),
             ],
-            'articles' => $journal->articles()->latest('oai_datestamp')->get(),
+            'articles' => $articles,
+            'articlesCount' => $articlesCount,
             'lastHarvestLog' => DB::table('oai_harvesting_logs')
                 ->where('journal_id', $journal->id)
                 ->orderByDesc('harvested_at')
                 ->first(),
             'isHarvestPending' => DB::table('jobs')
                 ->where('queue', 'harvesting')
-                ->where('payload', 'like', '%"journal_id":' . $journal->id . '%')
+                ->where('payload', 'like', '%"journal_id":'.$journal->id.'%')
                 ->exists(),
         ]);
     }
