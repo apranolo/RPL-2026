@@ -264,6 +264,8 @@ Route::middleware(['auth'])->group(function () {
             ->name('journals.index');
         Route::get('journals/{journal}', [\App\Http\Controllers\Admin\JournalController::class, 'show'])
             ->name('journals.show');
+        Route::post('journals/{journal}/harvest', [\App\Http\Controllers\Admin\JournalController::class, 'harvest'])
+            ->name('journals.harvest');
 
         // View all assessments (read-only for monitoring)
         Route::get('assessments', [AdminAssessmentController::class, 'index'])

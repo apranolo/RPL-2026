@@ -18,13 +18,13 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -169,7 +169,7 @@ export default function JournalsIndex({
     const [reassigningJournal, setReassigningJournal] = useState<Journal | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deletingJournal, setDeletingJournal] = useState<Journal | null>(null);
-    
+
     // Bulk harvest state
     const [selectedJournals, setSelectedJournals] = useState<number[]>([]);
     const [isBulkHarvesting, setIsBulkHarvesting] = useState(false);
@@ -206,7 +206,7 @@ export default function JournalsIndex({
                 preserveScroll: true,
                 onSuccess: () => setSelectedJournals([]),
                 onFinish: () => setIsBulkHarvesting(false),
-            }
+            },
         );
     };
 
@@ -556,12 +556,7 @@ export default function JournalsIndex({
                         {selectedJournals.length > 0 && (
                             <div className="flex items-center gap-4 rounded-md bg-secondary/50 px-4 py-2 text-sm">
                                 <span className="font-medium text-foreground">{selectedJournals.length} jurnal dipilih</span>
-                                <Button
-                                    size="sm"
-                                    onClick={handleBulkHarvest}
-                                    disabled={isBulkHarvesting}
-                                    className="gap-2"
-                                >
+                                <Button size="sm" onClick={handleBulkHarvest} disabled={isBulkHarvesting} className="gap-2">
                                     <RefreshCw className={`h-4 w-4 ${isBulkHarvesting ? 'animate-spin' : ''}`} />
                                     {isBulkHarvesting ? 'Syncing...' : 'Sync OAI'}
                                 </Button>

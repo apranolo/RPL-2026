@@ -99,7 +99,7 @@ function journalPayload(int $fieldId): array
         'title' => 'Jurnal Uji Cover',
         'e_issn' => '1111-2222',
         'url' => 'https://journal.example.ac.id',
-        'oai_pmh_url' => 'https://journal.example.ac.id/oai',
+        'oai_urls' => ['https://journal.example.ac.id/oai'],
         'frequency' => 'Quarterly',
         'scientific_field_id' => $fieldId,
         'sinta_rank' => 'non_sinta',

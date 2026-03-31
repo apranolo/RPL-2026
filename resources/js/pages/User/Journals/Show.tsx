@@ -7,16 +7,41 @@
  */
 import { AccreditationBadge, IndexationBadge, SintaBadge } from '@/components/badges';
 import { JournalCoverUpload } from '@/components/JournalCoverUpload';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData, type OaiHarvestingLog } from '@/types';
+import { type BreadcrumbItem, type OaiHarvestingLog, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { AlertCircle, ArrowLeft, BookOpen, Camera, CheckCircle, Edit, ExternalLink, FileText, Globe, Mail, Trash2, XCircle, Clock, Database, RefreshCw, CheckCircle2, TrendingUp } from 'lucide-react';
+import {
+    AlertCircle,
+    ArrowLeft,
+    BookOpen,
+    Camera,
+    CheckCircle,
+    CheckCircle2,
+    Clock,
+    Database,
+    Edit,
+    ExternalLink,
+    Globe,
+    Mail,
+    RefreshCw,
+    Trash2,
+    XCircle,
+} from 'lucide-react';
 import { useState } from 'react';
 
 interface University {
@@ -45,10 +70,28 @@ interface Assessment {
 interface Article {
     id: number;
     title: string;
-    authors: string;
-    published_date: string;
-    volume: string | null;
-    issue: string | null;
+    authors: string | string[];
+    publication_date: string | null;
+    abstract: string | null;
+    doi: string | null;
+    url: string | null;
+}
+
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+interface PaginatedData<T> {
+    data: T[];
+    links: PaginationLink[];
+    current_page: number;
+    last_page: number;
+    from: number | null;
+    to: number | null;
+    total: number;
+    per_page: number;
 }
 
 interface Journal {
@@ -57,7 +100,7 @@ interface Journal {
     issn: string;
     e_issn: string | null;
     url: string | null;
-    oai_pmh_url: string | null;
+    oai_urls: string[] | null;
     publisher: string | null;
     frequency: string;
     frequency_label: string;
@@ -86,7 +129,6 @@ interface Journal {
     university: University;
     scientific_field: ScientificField | null;
     assessments: Assessment[];
-    articles: Article[];
 }
 
 interface Statistics {
@@ -97,12 +139,13 @@ interface Statistics {
 
 interface Props {
     journal: Journal;
+    articles: PaginatedData<Article>;
     statistics: Statistics;
     lastHarvestLog?: OaiHarvestingLog | null;
     isHarvestPending?: boolean;
 }
 
-export default function JournalShow({ journal, statistics, lastHarvestLog, isHarvestPending }: Props) {
+export default function JournalShow({ journal, articles, statistics, lastHarvestLog, isHarvestPending }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [showCoverForm, setShowCoverForm] = useState(false);
     const coverForm = useForm({ cover_image: null as File | null });
@@ -317,14 +360,6 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
                                         Assessments
                                         {statistics.total_assessments > 0 && <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs dark:bg-blue-900/30 dark:text-blue-400">{statistics.total_assessments}</span>}
                                     </TabsTrigger> */}
-                                    <TabsTrigger value="articles">
-                                        Articles
-                                        {statistics.total_articles > 0 && (
-                                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs dark:bg-blue-900/30 dark:text-blue-400">
-                                                {statistics.total_articles}
-                                            </span>
-                                        )}
-                                    </TabsTrigger>
                                 </TabsList>
                             </div>
 
@@ -375,10 +410,16 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
                                                 <p className="font-medium">-</p>
                                             )}
                                         </div>
-                                        {journal.oai_pmh_url && (
+                                        {journal.oai_urls && journal.oai_urls.length > 0 && (
                                             <div className="md:col-span-2">
-                                                <p className="text-sm text-muted-foreground">OAI-PMH URL</p>
-                                                <p className="font-mono text-sm">{journal.oai_pmh_url}</p>
+                                                <p className="text-sm text-muted-foreground">OAI-PMH URLs</p>
+                                                <ul className="list-inside list-disc">
+                                                    {journal.oai_urls.map((oai, idx) => (
+                                                        <li key={idx}>
+                                                            <p className="inline font-mono text-sm">{oai}</p>
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                             </div>
                                         )}
                                     </div>
@@ -487,7 +528,6 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
 
                                 {journal.assessments.length === 0 ? (
                                     <div className="rounded-lg border-2 border-dashed p-8 text-center sm:p-12 dark:border-gray-700">
-                                        <FileText className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
                                         <h3 className="mt-4 text-lg font-semibold">No Assessments Yet</h3>
                                         <p className="mt-2 text-sm text-muted-foreground">Create your first assessment to evaluate this journal.</p>
                                         <Link href={route('user.assessments.create', { journal_id: journal.id })}>
@@ -579,79 +619,6 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
                                     </div>
                                 )}
                             </TabsContent> */}
-
-                            {/* Articles Tab */}
-                            <TabsContent value="articles" className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-semibold">Published Articles</h3>
-                                </div>
-
-                                {journal.articles.length === 0 ? (
-                                    <div className="rounded-lg border-2 border-dashed p-12 text-center dark:border-gray-700">
-                                        <FileText className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
-                                        <h3 className="mt-4 text-lg font-semibold">No Articles Yet</h3>
-                                        <p className="mt-2 text-sm text-muted-foreground">Articles published in this journal will appear here.</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {/* Mobile view: Stacked cards */}
-                                        <div className="grid grid-cols-1 gap-4 md:hidden">
-                                            {journal.articles.map((article) => (
-                                                <Card key={article.id} className="overflow-hidden">
-                                                    <CardContent className="space-y-3 p-4">
-                                                        <div>
-                                                            <h4 className="leading-tight font-semibold text-gray-900 dark:text-gray-100">
-                                                                {article.title}
-                                                            </h4>
-                                                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{article.authors}</p>
-                                                        </div>
-                                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
-                                                            <div className="flex items-center gap-1.5 focus:outline-none">
-                                                                <FileText className="h-4 w-4" />
-                                                                <span>{new Date(article.published_date).toLocaleDateString('id-ID')}</span>
-                                                            </div>
-                                                            {article.volume && article.issue && (
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <BookOpen className="h-4 w-4" />
-                                                                    <span>
-                                                                        Vol {article.volume}, No {article.issue}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            ))}
-                                        </div>
-
-                                        {/* Desktop view: Table */}
-                                        <div className="hidden overflow-x-auto rounded-md border md:block">
-                                            <Table>
-                                                <TableHeader>
-                                                    <TableRow>
-                                                        <TableHead>Title</TableHead>
-                                                        <TableHead>Authors</TableHead>
-                                                        <TableHead>Published</TableHead>
-                                                        <TableHead>Volume/Issue</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {journal.articles.map((article) => (
-                                                        <TableRow key={article.id}>
-                                                            <TableCell className="font-medium">{article.title}</TableCell>
-                                                            <TableCell>{article.authors}</TableCell>
-                                                            <TableCell>{new Date(article.published_date).toLocaleDateString('id-ID')}</TableCell>
-                                                            <TableCell>
-                                                                {article.volume && article.issue ? `Vol ${article.volume}, No ${article.issue}` : '-'}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </div>
-                                    </div>
-                                )}
-                            </TabsContent>
                         </Tabs>
                     </CardContent>
                 </Card>
@@ -675,11 +642,11 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
                             )}
                             <Button
                                 onClick={handleHarvest}
-                                disabled={harvesting || isHarvestPending || !journal.oai_pmh_url}
+                                disabled={harvesting || isHarvestPending || !journal.oai_urls || journal.oai_urls.length === 0}
                                 size="sm"
                                 className="gap-2"
                                 title={
-                                    !journal.oai_pmh_url
+                                    !journal.oai_urls || journal.oai_urls.length === 0
                                         ? 'Tambahkan OAI-PMH URL di form edit jurnal terlebih dahulu'
                                         : 'Sync artikel dari OAI-PMH endpoint'
                                 }
@@ -690,7 +657,7 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <Button
-                                        disabled={forceSyncing || !journal.oai_pmh_url}
+                                        disabled={forceSyncing || !journal.oai_urls || journal.oai_urls.length === 0}
                                         size="sm"
                                         variant="outline"
                                         className="gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
@@ -704,12 +671,12 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>Konfirmasi Force Sync</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            Tindakan ini akan <strong>menghapus semua artikel yang sudah tersimpan</strong> untuk jurnal ini,
-                                            kemudian mengimport ulang seluruh data dari OAI-PMH endpoint dari awal.
+                                            Tindakan ini akan <strong>menghapus semua artikel yang sudah tersimpan</strong> untuk jurnal ini, kemudian
+                                            mengimport ulang seluruh data dari OAI-PMH endpoint dari awal.
                                             <br />
                                             <br />
-                                            Gunakan opsi ini jika terdapat <strong>data duplikat</strong> atau artikel tidak ter-update dengan
-                                            benar setelah sync biasa. Proses tidak dapat dibatalkan.
+                                            Gunakan opsi ini jika terdapat <strong>data duplikat</strong> atau artikel tidak ter-update dengan benar
+                                            setelah sync biasa. Proses tidak dapat dibatalkan.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -727,21 +694,27 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
                     </div>
 
                     <CardContent className="p-6">
-                        {/* OAI-PMH URL */}
-                        {journal.oai_pmh_url ? (
+                        {/* OAI-PMH URLs */}
+                        {journal.oai_urls && journal.oai_urls.length > 0 ? (
                             <div className="mb-4 flex items-start gap-2 rounded-md bg-muted/50 p-3 text-sm">
                                 <Globe className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                                 <div>
-                                    <span className="text-muted-foreground">OAI-PMH Endpoint: </span>
-                                    <a
-                                        href={journal.oai_pmh_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="break-all font-mono text-blue-600 hover:underline dark:text-blue-400"
-                                    >
-                                        {journal.oai_pmh_url}
-                                        <ExternalLink className="ml-1 inline h-3 w-3" />
-                                    </a>
+                                    <span className="text-muted-foreground">OAI-PMH Endpoints: </span>
+                                    <ul className="mt-1 flex flex-col gap-1">
+                                        {journal.oai_urls.map((oai, idx) => (
+                                            <li key={idx}>
+                                                <a
+                                                    href={oai}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="font-mono break-all text-blue-600 hover:underline dark:text-blue-400"
+                                                >
+                                                    {oai}
+                                                    <ExternalLink className="ml-1 inline h-3 w-3" />
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
                             </div>
                         ) : (
@@ -821,6 +794,141 @@ export default function JournalShow({ journal, statistics, lastHarvestLog, isHar
                             <p className="text-sm text-muted-foreground">
                                 Belum pernah di-harvest. Klik <strong>Sync Artikel</strong> untuk memulai sinkronisasi OAI.
                             </p>
+                        )}
+                        {/* Articles Table */}
+                        {articles && articles.data.length > 0 ? (
+                            <div className="mt-8 space-y-4">
+                                <h4 className="text-md font-semibold text-foreground">Daftar Artikel (Total: {articles.total})</h4>
+                                <div className="overflow-x-auto rounded-md border border-sidebar-border/70 dark:border-sidebar-border">
+                                    <table className="w-full text-left text-sm text-muted-foreground">
+                                        <thead className="bg-muted/50 text-xs text-foreground uppercase">
+                                            <tr>
+                                                <th className="px-4 py-3 font-medium">Judul</th>
+                                                <th className="px-4 py-3 font-medium">Penulis</th>
+                                                <th className="cursor-pointer px-4 py-3 font-medium">Tanggal Publish</th>
+                                                <th className="px-4 py-3 text-right font-medium">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {articles.data.map((article) => (
+                                                <tr
+                                                    key={article.id}
+                                                    className="border-b border-sidebar-border/70 last:border-0 hover:bg-muted/30 dark:border-sidebar-border"
+                                                >
+                                                    <td className="px-4 py-3">
+                                                        <p className="line-clamp-2 font-medium text-foreground" title={article.title}>
+                                                            {article.title}
+                                                        </p>
+                                                        {article.doi && (
+                                                            <a
+                                                                href={`https://doi.org/${article.doi}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="mt-1 inline-flex items-center gap-1 text-xs text-blue-600 hover:underline dark:text-blue-400"
+                                                            >
+                                                                DOI: {article.doi}
+                                                            </a>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <p
+                                                            className="line-clamp-2 text-sm"
+                                                            title={Array.isArray(article.authors) ? article.authors.join(', ') : article.authors}
+                                                        >
+                                                            {Array.isArray(article.authors) ? article.authors.join(', ') : article.authors}
+                                                        </p>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm whitespace-nowrap">{article.publication_date || '-'}</td>
+                                                    <td className="px-4 py-3 text-right">
+                                                        {article.url && (
+                                                            <a
+                                                                href={article.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100 hover:text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40"
+                                                                title="Buka Artikel"
+                                                            >
+                                                                Buka <ExternalLink className="h-3 w-3" />
+                                                            </a>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Pagination */}
+                                {articles.last_page > 1 && (
+                                    <div className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
+                                        <div className="text-sm text-muted-foreground">
+                                            Showing <span className="font-medium">{articles.from || 0}</span> to{' '}
+                                            <span className="font-medium">{articles.to || 0}</span> of{' '}
+                                            <span className="font-medium">{articles.total}</span> results
+                                        </div>
+                                        <div className="flex flex-wrap items-center justify-center gap-2">
+                                            {articles.links.map((link, index) => {
+                                                const isPrev = link.label.includes('Previous');
+                                                const isNext = link.label.includes('Next');
+
+                                                if (isPrev) {
+                                                    return (
+                                                        <Button
+                                                            key={index}
+                                                            variant="outline"
+                                                            size="sm"
+                                                            disabled={!link.url}
+                                                            onClick={() => link.url && router.visit(link.url, { preserveScroll: true })}
+                                                        >
+                                                            &laquo; Previous
+                                                        </Button>
+                                                    );
+                                                }
+                                                if (isNext) {
+                                                    return (
+                                                        <Button
+                                                            key={index}
+                                                            variant="outline"
+                                                            size="sm"
+                                                            disabled={!link.url}
+                                                            onClick={() => link.url && router.visit(link.url, { preserveScroll: true })}
+                                                        >
+                                                            Next &raquo;
+                                                        </Button>
+                                                    );
+                                                }
+
+                                                if (link.label === '...') {
+                                                    return (
+                                                        <span key={index} className="px-2 text-muted-foreground">
+                                                            ...
+                                                        </span>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <Button
+                                                        key={index}
+                                                        variant={link.active ? 'default' : 'outline'}
+                                                        size="sm"
+                                                        className={link.active ? 'pointer-events-none' : ''}
+                                                        onClick={() => link.url && router.visit(link.url, { preserveScroll: true })}
+                                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="mt-8 rounded-md border border-dashed border-sidebar-border/70 bg-muted/20 p-8 text-center dark:border-sidebar-border">
+                                <BookOpen className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
+                                <h4 className="text-md font-medium text-foreground">Belum ada artikel</h4>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Klik tombol "Sync Artikel" di atas untuk memulai mengambil data artikel dari OAI-PMH endpoint.
+                                </p>
+                            </div>
                         )}
                     </CardContent>
                 </Card>

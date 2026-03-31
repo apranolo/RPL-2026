@@ -146,7 +146,7 @@ class JournalsImport
                 'first_published_year' => $validated['publication_year'] ?? null,
                 'sinta_rank' => $sintaRank,
                 'url' => $validated['url'] ?? null,
-                'oai_pmh_url' => $validated['oai_url'] ?? '',
+                'oai_urls' => isset($validated['oai_url']) && ! empty($validated['oai_url']) ? [$validated['oai_url']] : [],
                 'email' => $validated['email'] ?? null,
                 'phone' => $validated['phone'] ?? null,
                 'university_id' => $this->universityId,
