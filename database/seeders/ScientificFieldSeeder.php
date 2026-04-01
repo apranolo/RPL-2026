@@ -114,7 +114,11 @@ class ScientificFieldSeeder extends Seeder
             ],
         ];
 
-        DB::table('scientific_fields')->insert($fields);
+        DB::table('scientific_fields')->upsert(
+            $fields,
+            ['code'], // unique key
+            ['name', 'description', 'parent_id', 'is_active', 'updated_at']
+        );
 
         $this->command->info(count($fields).' Scientific fields seeded successfully.');
     }
