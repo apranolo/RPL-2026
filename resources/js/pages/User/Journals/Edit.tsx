@@ -489,6 +489,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                                                         }}
                                                         placeholder="https://journal.ac.id/index.php/jite/oai"
                                                         className="mt-1"
+                                                        aria-label={`OAI-PMH URL #${index + 1}`}
                                                         required
                                                     />
                                                     {(data.oai_urls || []).length > 1 && (
