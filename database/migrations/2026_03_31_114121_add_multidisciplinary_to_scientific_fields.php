@@ -12,15 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::table('scientific_fields')->insert([
-            'code' => 'MULTI',
-            'name' => 'Multidisiplin',
-            'description' => 'Meliputi berbagai disiplin ilmu atau lintas disiplin',
-            'parent_id' => null,
-            'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        DB::table('scientific_fields')->updateOrInsert(
+            ['code' => 'MULTI'],
+            [
+                'name' => 'Multidisiplin',
+                'description' => 'Meliputi berbagai disiplin ilmu atau lintas disiplin',
+                'parent_id' => null,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
     }
 
     /**
