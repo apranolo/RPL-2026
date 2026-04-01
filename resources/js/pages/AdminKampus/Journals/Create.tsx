@@ -441,7 +441,9 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
 
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <Label>OAI-PMH URLs (Multi)</Label>
+                                            <Label>
+                                                OAI-PMH URLs (Multi) <span className="text-red-500">*</span>
+                                            </Label>
                                             <Button
                                                 type="button"
                                                 variant="outline"
@@ -452,31 +454,37 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                                             </Button>
                                         </div>
                                         {data.oai_urls.map((oaiUrl, index) => (
-                                            <div key={index} className="flex items-center gap-2">
-                                                <Input
-                                                    type="url"
-                                                    value={oaiUrl}
-                                                    onChange={(e) => {
-                                                        const newUrls = [...data.oai_urls];
-                                                        newUrls[index] = e.target.value;
-                                                        setData('oai_urls', newUrls);
-                                                    }}
-                                                    placeholder="https://journal.ac.id/index.php/jite/oai"
-                                                    className="mt-1"
-                                                />
-                                                {data.oai_urls.length > 1 && (
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="text-red-500 hover:text-red-700"
-                                                        onClick={() => {
-                                                            const newUrls = data.oai_urls.filter((_, i) => i !== index);
+                                            <div key={index} className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2">
+                                                    <Input
+                                                        type="url"
+                                                        value={oaiUrl}
+                                                        onChange={(e) => {
+                                                            const newUrls = [...data.oai_urls];
+                                                            newUrls[index] = e.target.value;
                                                             setData('oai_urls', newUrls);
                                                         }}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
+                                                        placeholder="https://journal.ac.id/index.php/jite/oai"
+                                                        className="mt-1"
+                                                        required
+                                                    />
+                                                    {data.oai_urls.length > 1 && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="text-red-500 hover:text-red-700"
+                                                            onClick={() => {
+                                                                const newUrls = data.oai_urls.filter((_, i) => i !== index);
+                                                                setData('oai_urls', newUrls);
+                                                            }}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                                {errors[`oai_urls.${index}` as keyof typeof errors] && (
+                                                    <p className="mt-1 text-sm text-red-600">{errors[`oai_urls.${index}` as keyof typeof errors]}</p>
                                                 )}
                                             </div>
                                         ))}
