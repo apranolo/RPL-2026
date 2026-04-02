@@ -139,23 +139,31 @@ export default function Welcome() {
                     </div>
 
                     <div className="relative z-20 mx-auto -mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-                            {[1, 2, 3, 4, 5, 6].map((score) => (
-                                <Link
-                                    key={score}
-                                    href={route('journals.index', { sinta_rank: `sinta_${score}` })}
-                                    className="group cursor-pointer overflow-hidden rounded-xl border-b-4 bg-white p-4 shadow-lg transition-transform hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
-                                    style={{ borderColor: score <= 2 ? '#E11A1F' : score <= 4 ? '#FCEE1F' : '#1A2A75' }}
-                                >
-                                    <div className="mb-1 text-xs font-bold text-gray-400 uppercase">Accredited</div>
-                                    <div className="flex items-end justify-between">
-                                        <span className="text-2xl font-bold text-gray-900 dark:text-white">SINTA {score}</span>
-                                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 transition-colors group-hover:bg-[#079C4E] group-hover:text-white dark:bg-zinc-700 dark:text-gray-300">
-                                            {sintaStats[`sinta_${score}`] || 0} Journals
-                                        </span>
-                                    </div>
-                                </Link>
-                            ))}
+                        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-7">
+                            {[1, 2, 3, 4, 5, 6, 'non_sinta'].map((score) => {
+                                const isSinta = typeof score === 'number';
+                                const rankKey = isSinta ? `sinta_${score}` : 'non_sinta';
+                                const rankLabel = isSinta ? `SINTA ${score}` : 'Non-SINTA';
+                                const borderColor = isSinta && score <= 2 ? '#E11A1F' : isSinta && score <= 4 ? '#FCEE1F' : isSinta ? '#1A2A75' : '#9CA3AF';
+                                const subtitle = isSinta ? 'Accredited' : 'Unaccredited';
+
+                                return (
+                                    <Link
+                                        key={score}
+                                        href={route('journals.index', { sinta_rank: rankKey })}
+                                        className="group cursor-pointer overflow-hidden rounded-xl border-b-4 bg-white p-4 shadow-lg transition-transform hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
+                                        style={{ borderColor }}
+                                    >
+                                        <div className="mb-1 text-xs font-bold text-gray-400 uppercase">{subtitle}</div>
+                                        <div className="flex items-end justify-between">
+                                            <span className="text-xl font-bold text-gray-900 xl:text-2xl dark:text-white">{rankLabel}</span>
+                                            <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 transition-colors group-hover:bg-[#079C4E] group-hover:text-white dark:bg-zinc-700 dark:text-gray-300">
+                                                {sintaStats[rankKey] || 0}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
                    
