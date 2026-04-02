@@ -138,9 +138,6 @@ export default function Welcome() {
                         </div>
                     </div>
 
-                    {/* STATS / ACCREDITATION CARDS - Temporarily hidden per meeting notes (Feb 11) */}
-                    {/* TODO: Re-enable after finalizing chart design */}
-                    {/*
                     <div className="relative z-20 mx-auto -mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
                             {[1, 2, 3, 4, 5, 6].map((score) => (
@@ -161,7 +158,7 @@ export default function Welcome() {
                             ))}
                         </div>
                     </div>
-                    */}
+                   
                 </div>
 
                 {/* MAIN CONTENT AREA */}
