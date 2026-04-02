@@ -31,7 +31,6 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,46 +66,7 @@ Route::get('/storage/{path}', function (string $path) {
 })->where('path', '.+')->name('storage.serve');
 
 //  Laman Page
-Route::get('/', function () {
-    // Get featured journals (SINTA 1-2, with cover images)
-    $featuredJournals = \App\Models\Journal::with(['university', 'scientificField'])
-        ->where('is_active', true)
-        ->whereNotNull('sinta_rank')
-        ->whereIn('sinta_rank', [1, 2])
-        ->orderBy('sinta_rank')
-        ->limit(4)
-        ->get()
-        ->map(fn ($journal) => [
-            'id' => $journal->id,
-            'title' => $journal->title,
-            'sinta_rank' => $journal->sinta_rank,
-            'sinta_rank_label' => $journal->sinta_rank_label,
-            'issn' => $journal->issn,
-            'e_issn' => $journal->e_issn,
-            'university' => $journal->university->name ?? 'Unknown',
-            'cover_image_url' => $journal->cover_image_url,
-            'indexation_labels' => $journal->indexation_labels,
-        ]);
-
-    // Get SINTA statistics
-    $sintaStats = [];
-    for ($rank = 1; $rank <= 6; $rank++) {
-        $sintaStats[$rank] = \App\Models\Journal::where('is_active', true)
-            ->where('sinta_rank', $rank)
-            ->count();
-    }
-
-    // Get total universities and journals
-    $totalUniversities = \App\Models\University::where('is_active', true)->count();
-    $totalJournals = \App\Models\Journal::where('is_active', true)->count();
-
-    return Inertia::render('welcome', [
-        'featuredJournals' => $featuredJournals,
-        'sintaStats' => $sintaStats,
-        'totalUniversities' => $totalUniversities,
-        'totalJournals' => $totalJournals,
-    ]);
-})->name('home');
+Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 /*
 |--------------------------------------------------------------------------

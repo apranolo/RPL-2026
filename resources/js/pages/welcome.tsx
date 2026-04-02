@@ -138,30 +138,42 @@ export default function Welcome() {
                         </div>
                     </div>
 
-                    {/* STATS / ACCREDITATION CARDS - Temporarily hidden per meeting notes (Feb 11) */}
-                    {/* TODO: Re-enable after finalizing chart design */}
-                    {/*
                     <div className="relative z-20 mx-auto -mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-                            {[1, 2, 3, 4, 5, 6].map((score) => (
-                                <Link
-                                    key={score}
-                                    href={route('journals.index', { sinta_rank: `sinta_${score}` })}
-                                    className="group cursor-pointer overflow-hidden rounded-xl border-b-4 bg-white p-4 shadow-lg transition-transform hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
-                                    style={{ borderColor: score <= 2 ? '#E11A1F' : score <= 4 ? '#FCEE1F' : '#1A2A75' }}
-                                >
-                                    <div className="mb-1 text-xs font-bold text-gray-400 uppercase">Accredited</div>
-                                    <div className="flex items-end justify-between">
-                                        <span className="text-2xl font-bold text-gray-900 dark:text-white">SINTA {score}</span>
-                                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 transition-colors group-hover:bg-[#079C4E] group-hover:text-white dark:bg-zinc-700 dark:text-gray-300">
-                                            {sintaStats[`sinta_${score}`] || 0} Journals
-                                        </span>
-                                    </div>
-                                </Link>
-                            ))}
+                        <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+                            {[1, 2, 3, 4, 5, 6, 'non_sinta'].map((score) => {
+                                const isSinta = typeof score === 'number';
+                                const rankKey = isSinta ? `sinta_${score}` : 'non_sinta';
+                                const rankLabel = isSinta ? `SINTA ${score}` : 'Non-SINTA';
+                                const borderColor = isSinta && score <= 2 ? '#E11A1F' : isSinta && score <= 4 ? '#FCEE1F' : isSinta ? '#1A2A75' : '#9CA3AF';
+                                const subtitle = isSinta ? 'Accredited' : 'Indexed Only';
+
+                                return (
+                                    <Link
+                                        key={score}
+                                        href={route('journals.index', { sinta_rank: rankKey })}
+                                        className="group flex-1 min-w-[140px] max-w-[200px] cursor-pointer overflow-hidden rounded-xl border-b-4 bg-white p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
+                                        style={{ borderColor }}
+                                    >
+                                        <div className="mb-2 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase sm:text-xs">
+                                            {subtitle}
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-lg font-bold text-gray-900 leading-tight whitespace-nowrap sm:text-xl dark:text-white">
+                                                {rankLabel}
+                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="inline-flex items-center justify-center rounded-lg bg-emerald-50 px-2 py-1 text-sm font-black text-[#079C4E] ring-1 ring-emerald-500/20 transition-colors group-hover:bg-[#079C4E] group-hover:text-white dark:bg-emerald-500/10">
+                                                    {sintaStats[rankKey] || 0}
+                                                </span>
+                                                <span className="text-[10px] font-medium text-muted-foreground sm:text-xs">Journals</span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
-                    */}
+                   
                 </div>
 
                 {/* MAIN CONTENT AREA */}
