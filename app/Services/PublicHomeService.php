@@ -59,6 +59,17 @@ class PublicHomeService
                     ->count();
             }
 
+            // Non-SINTA (Unaccredited but Indexed)
+            $stats['non_sinta'] = Journal::where('is_active', true)
+                ->where(function ($query) {
+                    $query->whereNull('sinta_rank')
+                        ->orWhere('sinta_rank', '');
+                })
+                ->whereNotNull('indexations')
+                ->where('indexations', '!=', '[]')
+                ->where('indexations', '!=', '')
+                ->count();
+
             return $stats;
         });
     }

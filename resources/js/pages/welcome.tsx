@@ -145,7 +145,7 @@ export default function Welcome() {
                                 const rankKey = isSinta ? `sinta_${score}` : 'non_sinta';
                                 const rankLabel = isSinta ? `SINTA ${score}` : 'Non-SINTA';
                                 const borderColor = isSinta && score <= 2 ? '#E11A1F' : isSinta && score <= 4 ? '#FCEE1F' : isSinta ? '#1A2A75' : '#9CA3AF';
-                                const subtitle = isSinta ? 'Accredited' : 'Unaccredited';
+                                const subtitle = isSinta ? 'Accredited' : 'Indexed Only';
 
                                 return (
                                     <Link
