@@ -16,3 +16,11 @@ Schedule::command('journals:harvest-articles --all')
     ->withoutOverlapping()
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/auto-harvest.log'));
+
+// Refresh featured journals cache setiap hari pada tengah malam (00:00 WIB)
+Schedule::command('journals:refresh-featured')
+    ->dailyAt('00:00')
+    ->timezone('Asia/Jakarta')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/refresh-featured.log'));
