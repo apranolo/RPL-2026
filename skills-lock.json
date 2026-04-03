@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "laravel-inertia-react": {
+      "source": "asyrafhussin/agent-skills",
+      "sourceType": "github",
+      "computedHash": "48153a3ab923ee477416dad35ee8cf814b2cb324829d140098a092f4e33dd2c6"
+    }
+  }
+}
