@@ -8,7 +8,7 @@ use App\Http\Requests\UpdateJournalRequest;
 use App\Jobs\HarvestJournalArticlesJob;
 use App\Models\Journal;
 use App\Models\ScientificField;
-use App\Services\JournalCoverService;
+use App\Services\JournalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,11 +17,11 @@ use Inertia\Inertia;
 
 class JournalController extends Controller
 {
-    protected JournalCoverService $coverService;
+    protected JournalService $journalService;
 
-    public function __construct(JournalCoverService $coverService)
+    public function __construct(JournalService $journalService)
     {
-        $this->coverService = $coverService;
+        $this->journalService = $journalService;
     }
 
     /**
@@ -100,21 +100,18 @@ class JournalController extends Controller
         }
 
         $validated = $request->validated();
-        $validated['user_id'] = $user->id;
-        $validated['university_id'] = $user->university_id;
 
-        // Bug fix: unset cover_image so UploadedFile object is not passed to Journal::create()
-        // The file is handled separately after the record is created.
-        unset($validated['cover_image']);
+        try {
+            $this->journalService->createJournal(
+                $validated,
+                $request->file('cover_image'),
+                $user
+            );
 
-        $journal = Journal::create($validated);
-
-        // Handle optional cover image upload
-        if ($request->hasFile('cover_image')) {
-            $journal->update(['cover_image' => $this->coverService->upload($request->file('cover_image'), $journal)]);
+            return redirect()->route('user.journals.index')->with('success', 'Jurnal berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan jurnal. Silakan coba lagi nanti.');
         }
-
-        return redirect()->route('user.journals.index')->with('success', 'Jurnal berhasil ditambahkan.');
     }
 
     /**
