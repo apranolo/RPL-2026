@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "database-optimizer": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "c7be77ec61941a7a86bde9e5277f629c4b64b36116f5f3a73da0db226aed9ef1"
+    },
     "laravel-inertia-react": {
       "source": "asyrafhussin/agent-skills",
       "sourceType": "github",
