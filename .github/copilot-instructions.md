@@ -172,16 +172,58 @@ npm run build:ssr         # SSR support
 The `.agents` folder contains reusable skill definitions for AI agents working on this project. Each skill provides specialized knowledge and capabilities in a specific domain:
 
 ### Available Skills
-- **[laravel-expert](../.agents/skills/laravel-expert/SKILL.md)** - Laravel framework expertise, architecture patterns, best practices for the PHP backend
-- **[react-expert](../.agents/skills/react-expert/SKILL.md)** - React 19 and modern React patterns, with references for hooks, performance optimization, server components, state management, and testing
-- **[frontend-design](../.agents/skills/frontend-design/SKILL.md)** - Frontend design principles, UI/UX patterns, component design, accessibility
-- **[qa-test-engineer](../.agents/skills/qa-test-engineer/SKILL.md)** - QA processes, test engineering, test automation (Pest, Dusk, Jest/Vitest), with AI agent configuration
-- **[security-auditor](../.agents/skills/security-auditor/SKILL.md)** - Security best practices, vulnerability assessment, secure coding patterns for Laravel and React
+
+#### Backend & Database
+- **[database-optimizer](../.agents/skills/database-optimizer/SKILL.md)**
+  - *Description*: Optimizes database queries and improves performance across PostgreSQL and MySQL systems. 
+  - *Use Cases*: Investigating slow queries, analyzing execution plans, scaling database performance. 
+  - *Triggers*: `database optimization`, `slow query`, `EXPLAIN ANALYZE`, `MySQL tuning`.
+- **[laravel-expert](../.agents/skills/laravel-expert/SKILL.md)**
+  - *Description*: Laravel framework expertise, architecture patterns, best practices for the PHP backend.
+  - *Use Cases*: Working with Laravel routing, PHP APIs, Eloquent ORM.
+  - *Triggers*: `laravel`, `php`, `eloquent`, `artisan`.
+
+#### Frontend & Integration
+- **[laravel-inertia-react](../.agents/skills/laravel-inertia-react/SKILL.md)**
+  - *Description*: Laravel + Inertia.js + React integration patterns. 
+  - *Use Cases*: Building Inertia page components, handling forms with useForm, managing shared data, implementing persistent layouts.
+  - *Triggers*: `inertia.js`, `page props`, `form handling`, `shared data`.
+- **[react-expert](../.agents/skills/react-expert/SKILL.md)**
+  - *Description*: React 19 and modern React patterns, with references for hooks, performance optimization, server components, state management, and testing.
+  - *Use Cases*: Building React 18+/19 components, UI state manipulation, implementing Suspense.
+  - *Triggers*: `react`, `hooks`, `state management`, `server components`.
+- **[frontend-design](../.agents/skills/frontend-design/SKILL.md)**
+  - *Description*: Frontend design principles, UI/UX patterns, component design, accessibility.
+  - *Use Cases*: Building polished web components, pages, or full applications avoiding generic AI aesthetics.
+  - *Triggers*: `ui design`, `ux patterns`, `web components`, `accessibility`.
+- **[tailwind-design-system](../.agents/skills/tailwind-design-system/SKILL.md)**
+  - *Description*: Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and responsive patterns.
+  - *Use Cases*: Creating component libraries, standardizing UI patterns, implementing responsive designs.
+  - *Triggers*: `tailwind css`, `design tokens`, `component library`, `responsive`.
+
+#### Testing & DevOps
+- **[devops-engineer](../.agents/skills/devops-engineer/SKILL.md)**
+  - *Description*: Creates Dockerfiles, configures CI/CD pipelines, deploys infrastructure, and manages incident response.
+  - *Use Cases*: Setting up CI/CD, containerizing applications, configuring cloud infrastructure.
+  - *Triggers*: `docker`, `kubernetes`, `ci/cd`, `github actions`, `terraform`.
+- **[qa-test-engineer](../.agents/skills/qa-test-engineer/SKILL.md)**
+  - *Description*: QA processes, test engineering, test automation (Pest, Dusk, Jest/Vitest), with AI agent configuration.
+  - *Use Cases*: Designing risk-based test strategies, writing unit/feature tests, UI testing automation.
+  - *Triggers*: `testing`, `test automation`, `pest`, `dusk`, `qa`.
+
+#### Security
+- **[security-auditor](../.agents/skills/security-auditor/SKILL.md)**
+  - *Description*: Expert security auditor specializing in DevSecOps and comprehensive security reviews.
+  - *Use Cases*: Security best practices, vulnerability assessment, secure coding patterns for Laravel and React.
+  - *Triggers*: `security`, `vulnerability`, `devsecops`, `secure coding`.
 
 ### Usage
 Agents should reference these skills when:
+- Working on database queries or optimizing loads (use **database-optimizer**)
 - Working on backend features (use **laravel-expert**)
-- Building UI components (use **react-expert** + **frontend-design**)
+- Working on the React frontend connecting to Laravel (use **laravel-inertia-react**)
+- Building UI components and styling (use **react-expert** + **frontend-design** + **tailwind-design-system**)
+- Working on infrastructure, CI/CD, or deployment (use **devops-engineer**)
 - Writing tests (use **qa-test-engineer**)
 - Reviewing security implications (use **security-auditor**)
 
