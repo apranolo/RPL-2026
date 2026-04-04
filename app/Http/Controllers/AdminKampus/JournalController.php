@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class JournalController extends Controller
 {
     protected JournalCoverService $coverService;
+
     private JournalService $journalService;
 
     public function __construct(JournalCoverService $coverService, JournalService $journalService)
