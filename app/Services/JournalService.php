@@ -66,7 +66,10 @@ class JournalService
             } catch (\Exception $e) {
                 Log::error("Failed to create journal", [
                     'creator_id' => $creator->id,
-                    'data' => $data,
+                    'target_user_id' => $targetUserId,
+                    'university_id' => $data['university_id'] ?? $creator->university_id,
+                    'journal_user_id' => $data['user_id'] ?? null,
+                    'submitted_fields' => array_keys($data),
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
                 ]);
