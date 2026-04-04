@@ -73,4 +73,51 @@ class JournalService
             }
         });
     }
+
+    /**
+     * Update an existing journal with transaction and logging.
+     *
+     * @param array $data Validated journal data
+     * @param UploadedFile|null $coverFile Optional cover image file
+     * @param Journal $journal The journal to be updated
+     * @param User $updater The user updating the journal
+     * @return Journal
+     * @throws \Exception
+     */
+    public function updateJournal(array $data, ?UploadedFile $coverFile, Journal $journal, User $updater): Journal
+    {
+        return DB::transaction(function () use ($data, $coverFile, $journal, $updater) {
+            try {
+                // Ensure cover_image is not processed during normal update
+                unset($data['cover_image']);
+
+                $journal->update($data);
+                Log::info("Journal updated successfully", ['journal_id' => $journal->id, 'updater_id' => $updater->id]);
+
+                if ($coverFile) {
+                    try {
+                        $coverPath = $this->coverService->upload($coverFile, $journal);
+                        $journal->update(['cover_image' => $coverPath]);
+                    } catch (\Exception $e) {
+                        Log::warning("Failed to upload cover image for journal update", [
+                            'journal_id' => $journal->id,
+                            'error' => $e->getMessage()
+                        ]);
+                        // Log warning but allow the journal update to succeed
+                    }
+                }
+
+                return $journal;
+            } catch (\Exception $e) {
+                Log::error("Failed to update journal", [
+                    'updater_id' => $updater->id,
+                    'journal_id' => $journal->id,
+                    'data' => $data,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                throw $e;
+            }
+        });
+    }
 }
