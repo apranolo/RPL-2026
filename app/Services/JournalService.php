@@ -17,11 +17,11 @@ class JournalService
     /**
      * Create a new journal with transaction and logging.
      *
-     * @param array $data Validated journal data
-     * @param UploadedFile|null $coverFile Optional cover image file
-     * @param User $creator The user creating the journal (Admin Kampus or User)
-     * @param int|null $targetUserId Optional specific user ID to own the journal (for Admin Kampus)
-     * @return Journal
+     * @param  array  $data  Validated journal data
+     * @param  UploadedFile|null  $coverFile  Optional cover image file
+     * @param  User  $creator  The user creating the journal (Admin Kampus or User)
+     * @param  int|null  $targetUserId  Optional specific user ID to own the journal (for Admin Kampus)
+     *
      * @throws \Exception
      */
     public function createJournal(array $data, ?UploadedFile $coverFile, User $creator, ?int $targetUserId = null): Journal
@@ -46,7 +46,7 @@ class JournalService
                 unset($data['cover_image']);
 
                 $journal = Journal::create($data);
-                Log::info("Journal created successfully", ['journal_id' => $journal->id, 'creator_id' => $creator->id]);
+                Log::info('Journal created successfully', ['journal_id' => $journal->id, 'creator_id' => $creator->id]);
 
                 if ($coverFile) {
                     DB::afterCommit(function () use ($coverFile, $journal) {
@@ -54,9 +54,9 @@ class JournalService
                             $coverPath = $this->coverService->upload($coverFile, $journal);
                             $journal->update(['cover_image' => $coverPath]);
                         } catch (\Exception $e) {
-                            Log::warning("Failed to upload cover image for journal", [
+                            Log::warning('Failed to upload cover image for journal', [
                                 'journal_id' => $journal->id,
-                                'error' => $e->getMessage()
+                                'error' => $e->getMessage(),
                             ]);
                         }
                     });
@@ -64,7 +64,7 @@ class JournalService
 
                 return $journal;
             } catch (\Exception $e) {
-                Log::error("Failed to create journal", [
+                Log::error('Failed to create journal', [
                     'creator_id' => $creator->id,
                     'target_user_id' => $targetUserId,
                     'university_id' => $data['university_id'] ?? $creator->university_id,
@@ -81,31 +81,28 @@ class JournalService
     /**
      * Update an existing journal with transaction and logging.
      *
-     * @param array $data Validated journal data
-     * @param UploadedFile|null $coverFile Optional cover image file
-     * @param Journal $journal The journal to be updated
-     * @param User $updater The user updating the journal
-     * @return Journal
+     * @param  array  $data  Validated journal data
+     * @param  UploadedFile|null  $coverFile  Optional cover image file
+     * @param  Journal  $journal  The journal to be updated
+     * @param  User  $updater  The user updating the journal
+     *
      * @throws \Exception
      */
     public function updateJournal(array $data, ?UploadedFile $coverFile, Journal $journal, User $updater): Journal
     {
-        return DB::transaction(function () use ($data, $coverFile, $journal, $updater) {
         try {
-            $journal = DB::transaction(function () use ($data, $journal, $updater) {
+            DB::transaction(function () use ($data, $journal, $updater) {
                 // Ensure cover_image is not processed during normal update
                 unset($data['cover_image']);
 
                 $journal->update($data);
-                Log::info("Journal updated successfully", ['journal_id' => $journal->id, 'updater_id' => $updater->id]);
-
-                return $journal;
+                Log::info('Journal updated successfully', ['journal_id' => $journal->id, 'updater_id' => $updater->id]);
             });
         } catch (\Exception $e) {
-            Log::error("Failed to update journal", [
+            Log::error('Failed to update journal', [
                 'updater_id' => $updater->id,
                 'journal_id' => $journal->id,
-                'data' => $data,
+                'data' => array_keys($data),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -117,9 +114,9 @@ class JournalService
                 $coverPath = $this->coverService->upload($coverFile, $journal);
                 $journal->update(['cover_image' => $coverPath]);
             } catch (\Exception $e) {
-                Log::warning("Failed to upload cover image for journal update", [
+                Log::warning('Failed to upload cover image for journal update', [
                     'journal_id' => $journal->id,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 // Log warning but allow the journal update to succeed
             }
@@ -131,8 +128,6 @@ class JournalService
     /**
      * Update only the cover image for a journal.
      *
-     * @param UploadedFile $coverFile
-     * @param Journal $journal
      * @return string The new cover path
      */
     public function updateCover(UploadedFile $coverFile, Journal $journal): string

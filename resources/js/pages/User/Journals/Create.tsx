@@ -6,12 +6,12 @@
  *
  * @route POST /user/journals
  */
+import JournalForm from '@/components/JournalForm';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import JournalForm from '@/components/JournalForm';
 
 interface Props {
     scientificFields: Array<{
@@ -53,7 +53,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                     </div>
 
                     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <JournalForm 
+                        <JournalForm
                             submitUrl={route('user.journals.store')}
                             cancelUrl={route('user.journals.index')}
                             scientificFields={scientificFields}

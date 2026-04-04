@@ -7,12 +7,12 @@
  *
  * @route PUT /admin-kampus/journals/{id}
  */
+import JournalForm, { type JournalFormData } from '@/components/JournalForm';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import JournalForm, { type JournalFormData } from '@/components/JournalForm';
 
 interface Journal {
     id: number;
@@ -36,6 +36,7 @@ interface Journal {
     about?: string | null;
     scope?: string | null;
     cover_image?: string | null;
+    cover_image_url?: string | null;
     indexations?: Record<string, { url: string }> | null;
     user_id?: number | null;
 }
@@ -59,7 +60,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
     if (journal.indexations) {
         formattedIndexations = Object.entries(journal.indexations).map(([platform, data]) => ({
             platform,
-            url: data.url || ''
+            url: data.url || '',
         }));
     }
 
@@ -108,7 +109,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                     </div>
 
                     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <JournalForm 
+                        <JournalForm
                             submitUrl={route('admin-kampus.journals.update', journal.id)}
                             cancelUrl={route('admin-kampus.journals.index')}
                             scientificFields={scientificFields}

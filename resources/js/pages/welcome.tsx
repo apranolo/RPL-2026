@@ -148,21 +148,22 @@ export default function Welcome() {
                                 const isSinta = typeof score === 'number';
                                 const rankKey = isSinta ? `sinta_${score}` : 'non_sinta';
                                 const rankLabel = isSinta ? `SINTA ${score}` : 'Non-SINTA';
-                                const borderColor = isSinta && score <= 2 ? '#E11A1F' : isSinta && score <= 4 ? '#FCEE1F' : isSinta ? '#1A2A75' : '#9CA3AF';
+                                const borderColor =
+                                    isSinta && score <= 2 ? '#E11A1F' : isSinta && score <= 4 ? '#FCEE1F' : isSinta ? '#1A2A75' : '#9CA3AF';
                                 const subtitle = isSinta ? 'Accredited' : 'Indexed Only';
 
                                 return (
                                     <Link
                                         key={score}
                                         href={route('journals.index', { sinta_rank: rankKey })}
-                                        className="group flex-1 min-w-[140px] max-w-[200px] cursor-pointer overflow-hidden rounded-xl border-b-4 bg-white p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
+                                        className="group max-w-[200px] min-w-[140px] flex-1 cursor-pointer overflow-hidden rounded-xl border-b-4 bg-white p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
                                         style={{ borderColor }}
                                     >
                                         <div className="mb-2 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase sm:text-xs">
                                             {subtitle}
                                         </div>
                                         <div className="flex flex-col gap-2">
-                                            <span className="text-lg font-bold text-gray-900 leading-tight whitespace-nowrap sm:text-xl dark:text-white">
+                                            <span className="text-lg leading-tight font-bold whitespace-nowrap text-gray-900 sm:text-xl dark:text-white">
                                                 {rankLabel}
                                             </span>
                                             <div className="flex items-center gap-2">
@@ -177,7 +178,6 @@ export default function Welcome() {
                             })}
                         </div>
                     </div>
-                   
                 </div>
 
                 {/* MAIN CONTENT AREA */}
@@ -225,7 +225,8 @@ export default function Welcome() {
                                             Journals by Subject
                                         </h2>
                                         <p className="text-blue-100">
-                                            Explore our extensive collection of journals categorized by scientific fields, showcasing the diverse research output from Muhammadiyah Universities across Indonesia.
+                                            Explore our extensive collection of journals categorized by scientific fields, showcasing the diverse
+                                            research output from Muhammadiyah Universities across Indonesia.
                                         </p>
                                         <Link href={route('journals.index')}>
                                             <Button

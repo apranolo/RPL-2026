@@ -7,12 +7,12 @@
  *
  * @route POST /admin-kampus/journals
  */
+import JournalForm from '@/components/JournalForm';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import JournalForm from '@/components/JournalForm';
 
 interface UniversityUser {
     id: number;
@@ -61,7 +61,7 @@ export default function JournalsCreate({ scientificFields, sintaRankOptions, ind
                     </div>
 
                     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <JournalForm 
+                        <JournalForm
                             submitUrl={route('admin-kampus.journals.store')}
                             cancelUrl={route('admin-kampus.journals.index')}
                             scientificFields={scientificFields}
