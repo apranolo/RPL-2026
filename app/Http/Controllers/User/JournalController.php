@@ -304,7 +304,7 @@ class JournalController extends Controller
             'cover_image.dimensions' => 'Resolusi cover minimal 300x400 piksel.',
         ]);
 
-        $journal->update(['cover_image' => $this->coverService->upload($request->file('cover_image'), $journal)]);
+        $this->journalService->updateCover($request->file('cover_image'), $journal);
 
         return redirect()->route('user.journals.show', $journal)
             ->with('success', 'Cover jurnal berhasil diperbarui.');
