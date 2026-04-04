@@ -50,6 +50,7 @@ interface Props {
     universityUsers?: UniversityUser[]; // If provided, shows the journal assignment field
     initialData?: Partial<JournalFormData>; // Provide this for edit forms
     isEdit?: boolean;
+    currentCover?: string | null;
 }
 
 export default function JournalForm({
@@ -61,6 +62,7 @@ export default function JournalForm({
     universityUsers,
     initialData,
     isEdit = false,
+    currentCover = null,
 }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         title: initialData?.title || '',
@@ -514,7 +516,11 @@ export default function JournalForm({
                 <div>
                     <Label>Cover Image (Opsional)</Label>
                     <div className="mt-1">
-                        <JournalCoverUpload onChange={(file) => setData('cover_image' as any, file)} error={errors.cover_image} />
+                        <JournalCoverUpload
+                            currentCover={currentCover}
+                            onChange={(file) => setData('cover_image' as any, file)}
+                            error={errors.cover_image}
+                        />
                         {hasErrors && (
                             <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
                                 Jika sebelumnya sudah memilih gambar, silakan pilih ulang setelah memperbaiki error di atas.

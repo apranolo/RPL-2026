@@ -116,6 +116,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
                             indexationOptions={indexationOptions}
                             initialData={initialData}
                             isEdit={true}
+                            currentCover={journal.cover_image ?? journal.cover_image_url}
                         />
                     </div>
                 </div>
