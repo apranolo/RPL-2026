@@ -21,12 +21,14 @@ class HomeController extends Controller
         $featuredJournals = $this->homeService->getFeaturedJournals();
         $sintaStats = $this->homeService->getSintaStats();
         $overallStats = $this->homeService->getOverallStats();
+        $scientificFields = $this->homeService->getTopScientificFields();
 
         return Inertia::render('welcome', [
             'featuredJournals' => $featuredJournals,
             'sintaStats' => $sintaStats,
             'totalUniversities' => $overallStats['totalUniversities'],
             'totalJournals' => $overallStats['totalJournals'],
+            'scientificFields' => $scientificFields,
         ]);
     }
 }
