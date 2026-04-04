@@ -57,3 +57,11 @@ jobs:
                 body: `${reviewMessage}\n\n*Automated checks will verify the changes.*`
               });
             }
+            
+            // Assign the PR to the author
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              assignees: [prAuthor]
+            });

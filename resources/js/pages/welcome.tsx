@@ -23,10 +23,14 @@ interface WelcomeProps extends SharedData {
     sintaStats: Record<string, number>;
     totalUniversities: number;
     totalJournals: number;
+    scientificFields?: Array<{
+        id: number;
+        name: string;
+    }>;
 }
 
 export default function Welcome() {
-    const { auth, featuredJournals, sintaStats } = usePage<WelcomeProps>().props;
+    const { auth, featuredJournals, sintaStats, scientificFields } = usePage<WelcomeProps>().props;
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearch = () => {
@@ -144,21 +148,22 @@ export default function Welcome() {
                                 const isSinta = typeof score === 'number';
                                 const rankKey = isSinta ? `sinta_${score}` : 'non_sinta';
                                 const rankLabel = isSinta ? `SINTA ${score}` : 'Non-SINTA';
-                                const borderColor = isSinta && score <= 2 ? '#E11A1F' : isSinta && score <= 4 ? '#FCEE1F' : isSinta ? '#1A2A75' : '#9CA3AF';
+                                const borderColor =
+                                    isSinta && score <= 2 ? '#E11A1F' : isSinta && score <= 4 ? '#FCEE1F' : isSinta ? '#1A2A75' : '#9CA3AF';
                                 const subtitle = isSinta ? 'Accredited' : 'Indexed Only';
 
                                 return (
                                     <Link
                                         key={score}
                                         href={route('journals.index', { sinta_rank: rankKey })}
-                                        className="group flex-1 min-w-[140px] max-w-[200px] cursor-pointer overflow-hidden rounded-xl border-b-4 bg-white p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
+                                        className="group max-w-[200px] min-w-[140px] flex-1 cursor-pointer overflow-hidden rounded-xl border-b-4 bg-white p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
                                         style={{ borderColor }}
                                     >
                                         <div className="mb-2 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase sm:text-xs">
                                             {subtitle}
                                         </div>
                                         <div className="flex flex-col gap-2">
-                                            <span className="text-lg font-bold text-gray-900 leading-tight whitespace-nowrap sm:text-xl dark:text-white">
+                                            <span className="text-lg leading-tight font-bold whitespace-nowrap text-gray-900 sm:text-xl dark:text-white">
                                                 {rankLabel}
                                             </span>
                                             <div className="flex items-center gap-2">
@@ -173,7 +178,6 @@ export default function Welcome() {
                             })}
                         </div>
                     </div>
-                   
                 </div>
 
                 {/* MAIN CONTENT AREA */}
@@ -206,6 +210,54 @@ export default function Welcome() {
                             />
                         ))}
                     </div>
+
+                    {/* JOURNALS BY SUBJECT SECTION */}
+                    {scientificFields && scientificFields.length > 0 && (
+                        <div className="relative left-1/2 mt-24 w-screen -translate-x-1/2 bg-[#1D5F82] px-4 py-20 text-white sm:px-6 lg:px-8 dark:bg-[#021A3B]">
+                            <div className="mx-auto max-w-7xl">
+                                <div className="grid gap-12 lg:grid-cols-[1fr_3fr]">
+                                    {/* Header / Title area */}
+                                    <div className="space-y-6">
+                                        <div className="inline-flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
+                                            <LayoutDashboard className="h-8 w-8 text-[#FCEE1F]" />
+                                        </div>
+                                        <h2 className="font-heading text-3xl font-bold" style={{ fontFamily: '"El Messiri", serif' }}>
+                                            Journals by Subject
+                                        </h2>
+                                        <p className="text-blue-100">
+                                            Explore our extensive collection of journals categorized by scientific fields, showcasing the diverse
+                                            research output from Muhammadiyah Universities across Indonesia.
+                                        </p>
+                                        <Link href={route('journals.index')}>
+                                            <Button
+                                                variant="outline"
+                                                className="mt-4 rounded-full border-white/30 bg-transparent text-white hover:bg-white hover:text-[#06326E]"
+                                            >
+                                                View all journals
+                                                <ArrowRight className="ml-2 h-4 w-4" />
+                                            </Button>
+                                        </Link>
+                                    </div>
+
+                                    {/* Subjects Grid */}
+                                    <div className="grid gap-x-8 gap-y-0 sm:grid-cols-2">
+                                        {scientificFields.map((field) => (
+                                            <Link
+                                                key={field.id}
+                                                href={route('journals.index', { scientific_field_id: field.id })}
+                                                className="group flex w-full items-center justify-between border-b border-white/10 py-5 transition-colors hover:border-white/40"
+                                            >
+                                                <span className="font-medium text-blue-50 transition-colors group-hover:text-white">
+                                                    {field.name}
+                                                </span>
+                                                <ArrowRight className="h-4 w-4 text-white/0 transition-all group-hover:-translate-x-1 group-hover:text-white/50" />
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* CTA Section */}
                     <div className="mt-24 overflow-hidden rounded-3xl bg-[#1A2A75] text-white shadow-2xl">

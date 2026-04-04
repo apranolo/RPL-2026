@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Cache;
 it('loads the welcome page with correct inertia components and props', function () {
     // Setup test data
     $university = University::factory()->create(['is_active' => true]);
-    
+
     // Create SINTA 1 & 2 journals (Featured)
     Journal::factory()->count(2)->create([
         'university_id' => $university->id,
@@ -19,7 +19,7 @@ it('loads the welcome page with correct inertia components and props', function 
         'sinta_rank' => 'sinta_2',
         'is_active' => true,
     ]);
-    
+
     // Non-featured journal
     Journal::factory()->create([
         'university_id' => $university->id,
@@ -60,9 +60,9 @@ it('can refresh the featured journals cache via artisan command', function () {
 
     // Run the command
     $this->artisan('journals:refresh-featured')
-         ->expectsOutput('Refreshing featured journals cache...')
-         ->expectsOutput('Featured journals cache refreshed successfully!')
-         ->assertExitCode(0);
+        ->expectsOutput('Refreshing featured journals cache...')
+        ->expectsOutput('Featured journals cache refreshed successfully!')
+        ->assertExitCode(0);
 
     // Assert cache was refreshed (dummy data replaced by valid collection)
     expect(Cache::get('featured_journals_welcome')->first())->not->toBe('dummy data');
