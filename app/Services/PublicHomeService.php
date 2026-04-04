@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Journal;
+use App\Models\ScientificField;
 use App\Models\University;
 use Illuminate\Support\Facades\Cache;
 
@@ -84,6 +85,22 @@ class PublicHomeService
                 'totalUniversities' => University::where('is_active', true)->count(),
                 'totalJournals' => Journal::where('is_active', true)->count(),
             ];
+        });
+    }
+
+    /**
+     * Get top scientific fields by journal count (cached)
+     */
+    public function getTopScientificFields()
+    {
+        return Cache::remember('home_top_scientific_fields', now()->addHours(6), function () {
+            return ScientificField::withCount(['journals' => function ($query) {
+                $query->where('is_active', true);
+            }])
+                ->having('journals_count', '>', 0)
+                ->orderByDesc('journals_count')
+                ->take(12)
+                ->get(['id', 'name']);
         });
     }
 }
