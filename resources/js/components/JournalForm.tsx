@@ -64,7 +64,7 @@ export default function JournalForm({
     isEdit = false,
     currentCover = null,
 }: Props) {
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm<JournalFormData>({
         title: initialData?.title || '',
         issn: initialData?.issn || '',
         e_issn: initialData?.e_issn || '',
@@ -85,7 +85,7 @@ export default function JournalForm({
         about: initialData?.about || '',
         scope: initialData?.scope || '',
         indexations: initialData?.indexations || [],
-        cover_image: null as File | null,
+        cover_image: null,
         user_id: initialData?.user_id || '',
         ...(isEdit ? { _method: 'put' } : {}),
     });
@@ -141,6 +141,9 @@ export default function JournalForm({
                                 <SelectValue placeholder="Select user (leave empty for self)" />
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem value=" ">
+                                    <span className="italic text-muted-foreground">(Assign to me)</span>
+                                </SelectItem>
                                 {universityUsers.map((user) => (
                                     <SelectItem key={user.id} value={user.id.toString()}>
                                         {user.name} ({user.email})
@@ -468,6 +471,8 @@ export default function JournalForm({
                                                 const newUrls = data.oai_urls.filter((_, i) => i !== index);
                                                 setData('oai_urls', newUrls);
                                             }}
+                                            title={`Hapus URL OAI-PMH #${index + 1}`}
+                                            aria-label={`Hapus URL OAI-PMH #${index + 1}`}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -518,7 +523,7 @@ export default function JournalForm({
                     <div className="mt-1">
                         <JournalCoverUpload
                             currentCover={currentCover}
-                            onChange={(file) => setData('cover_image' as any, file)}
+                            onChange={(file) => setData('cover_image', file)}
                             error={errors.cover_image}
                         />
                         {hasErrors && (
