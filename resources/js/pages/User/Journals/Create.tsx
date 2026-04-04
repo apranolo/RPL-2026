@@ -4,7 +4,7 @@
  * @features
  * - Uses shared JournalForm for journal registration
  *
- * @route POST /journals
+ * @route POST /user/journals
  */
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
