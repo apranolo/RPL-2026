@@ -49,16 +49,17 @@ class JournalService
                 Log::info("Journal created successfully", ['journal_id' => $journal->id, 'creator_id' => $creator->id]);
 
                 if ($coverFile) {
-                    try {
-                        $coverPath = $this->coverService->upload($coverFile, $journal);
-                        $journal->update(['cover_image' => $coverPath]);
-                    } catch (\Exception $e) {
-                        Log::warning("Failed to upload cover image for journal", [
-                            'journal_id' => $journal->id,
-                            'error' => $e->getMessage()
-                        ]);
-                        // We intentionally do not throw here to allow journal creation to succeed even if cover fails.
-                    }
+                    DB::afterCommit(function () use ($coverFile, $journal) {
+                        try {
+                            $coverPath = $this->coverService->upload($coverFile, $journal);
+                            $journal->update(['cover_image' => $coverPath]);
+                        } catch (\Exception $e) {
+                            Log::warning("Failed to upload cover image for journal", [
+                                'journal_id' => $journal->id,
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                    });
                 }
 
                 return $journal;
@@ -95,16 +96,17 @@ class JournalService
                 Log::info("Journal updated successfully", ['journal_id' => $journal->id, 'updater_id' => $updater->id]);
 
                 if ($coverFile) {
-                    try {
-                        $coverPath = $this->coverService->upload($coverFile, $journal);
-                        $journal->update(['cover_image' => $coverPath]);
-                    } catch (\Exception $e) {
-                        Log::warning("Failed to upload cover image for journal update", [
-                            'journal_id' => $journal->id,
-                            'error' => $e->getMessage()
-                        ]);
-                        // Log warning but allow the journal update to succeed
-                    }
+                    DB::afterCommit(function () use ($coverFile, $journal) {
+                        try {
+                            $coverPath = $this->coverService->upload($coverFile, $journal);
+                            $journal->update(['cover_image' => $coverPath]);
+                        } catch (\Exception $e) {
+                            Log::warning("Failed to upload cover image for journal update", [
+                                'journal_id' => $journal->id,
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                    });
                 }
 
                 return $journal;
@@ -119,5 +121,20 @@ class JournalService
                 throw $e;
             }
         });
+    }
+
+    /**
+     * Update only the cover image for a journal.
+     *
+     * @param UploadedFile $coverFile
+     * @param Journal $journal
+     * @return string The new cover path
+     */
+    public function updateCover(UploadedFile $coverFile, Journal $journal): string
+    {
+        $coverPath = $this->coverService->upload($coverFile, $journal);
+        $journal->update(['cover_image' => $coverPath]);
+
+        return $coverPath;
     }
 }
