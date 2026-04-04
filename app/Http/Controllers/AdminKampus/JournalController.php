@@ -655,18 +655,21 @@ class JournalController extends Controller
 
         $validated = $request->validated();
 
-        // Handle optional cover image upload (file replaces text path in validated)
-        if ($request->hasFile('cover_image')) {
-            $validated['cover_image'] = $this->coverService->upload($request->file('cover_image'), $journal);
-        } else {
-            // Exclude cover_image from validated so existing value is preserved
-            unset($validated['cover_image']);
+        try {
+            $this->journalService->updateJournal(
+                $validated,
+                $request->file('cover_image'),
+                $journal,
+                Auth::user()
+            );
+
+            return redirect()->route('admin-kampus.journals.index')
+                ->with('success', 'Data jurnal berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat memperbarui jurnal. Silakan coba lagi.');
         }
-
-        $journal->update($validated);
-
-        return redirect()->route('admin-kampus.journals.index')
-            ->with('success', 'Data jurnal berhasil diperbarui.');
     }
 
     /**
