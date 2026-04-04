@@ -185,6 +185,7 @@ export default function JournalForm({
                             value={data.issn}
                             onChange={(e) => setData('issn', e.target.value)}
                             placeholder="xxxx-xxxx"
+                            pattern="^\d{4}-\d{3}[\dxX]$"
                             className="mt-1"
                         />
                         {errors.issn && <p className="mt-1 text-sm text-red-600">{errors.issn}</p>}
@@ -199,6 +200,7 @@ export default function JournalForm({
                             value={data.e_issn}
                             onChange={(e) => setData('e_issn', e.target.value)}
                             placeholder="xxxx-xxxx"
+                            pattern="^\d{4}-\d{3}[\dxX]$"
                             className="mt-1"
                             required
                         />
