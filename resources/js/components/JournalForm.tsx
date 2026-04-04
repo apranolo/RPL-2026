@@ -77,7 +77,7 @@ export default function JournalForm({
         accreditation_start_year: initialData?.accreditation_start_year || '',
         accreditation_end_year: initialData?.accreditation_end_year || '',
         accreditation_sk_number: initialData?.accreditation_sk_number || '',
-        accreditation_sk_date: initialData?.accreditation_sk_date || '',
+        accreditation_sk_date: initialData?.accreditation_sk_date ? initialData.accreditation_sk_date.substring(0, 10) : '',
         editor_in_chief: initialData?.editor_in_chief || '',
         email: initialData?.email || '',
         phone: initialData?.phone || '',

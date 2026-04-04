@@ -74,7 +74,7 @@ export default function JournalsEdit({ journal, scientificFields, sintaRankOptio
         accreditation_start_year: journal.accreditation_start_year ? String(journal.accreditation_start_year) : '',
         accreditation_end_year: journal.accreditation_end_year ? String(journal.accreditation_end_year) : '',
         accreditation_sk_number: journal.accreditation_sk_number || '',
-        accreditation_sk_date: journal.accreditation_sk_date || '',
+        accreditation_sk_date: journal.accreditation_sk_date ? journal.accreditation_sk_date.substring(0, 10) : '',
         editor_in_chief: journal.editor_in_chief || '',
         email: journal.email || '',
         phone: journal.phone || '',
