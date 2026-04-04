@@ -24,8 +24,8 @@ class UpdateJournalRequest extends FormRequest
         return [
             // Basic Info
             'title' => 'required|string|max:255',
-            'issn' => 'nullable|string|max:20|regex:/^\d{4}-\d{4}$/',
-            'e_issn' => 'required|string|max:20|regex:/^\d{4}-\d{4}$/',
+            'issn' => 'nullable|string|max:20|regex:/^\d{4}-\d{3}[\dX]$/i',
+            'e_issn' => 'required|string|max:20|regex:/^\d{4}-\d{3}[\dX]$/i',
             'url' => 'required|url|max:500',
 
             // Publication Details
@@ -81,9 +81,9 @@ class UpdateJournalRequest extends FormRequest
             'url.url' => 'Format URL tidak valid.',
             'scientific_field_id.required' => 'Bidang ilmu wajib dipilih.',
             'scientific_field_id.exists' => 'Bidang ilmu tidak valid.',
-            'issn.regex' => 'Format ISSN harus xxxx-xxxx.',
+            'issn.regex' => 'Format ISSN harus xxxx-xxxx (karakter terakhir boleh \'X\').',
             'e_issn.required' => 'E-ISSN wajib diisi.',
-            'e_issn.regex' => 'Format E-ISSN harus xxxx-xxxx.',
+            'e_issn.regex' => 'Format E-ISSN harus xxxx-xxxx (karakter terakhir boleh \'X\').',
             'sinta_rank.required' => 'Peringkat akreditasi wajib dipilih.',
             'sinta_rank.in' => 'Peringkat akreditasi tidak valid.',
             'accreditation_end_year.gte' => 'Tahun akhir akreditasi harus setelah tahun mulai.',
