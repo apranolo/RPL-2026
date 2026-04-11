@@ -394,12 +394,11 @@ Route::middleware(['auth'])->group(function () {
 
         // Agenda Management
         Route::resource('events', \App\Http\Controllers\AdminKampus\AgendaController::class)
-            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
+            ->except(['show'])
             ->names([
                 'index' => 'events.index',
                 'create' => 'events.create',
                 'store' => 'events.store',
-                'show' => 'events.show',
                 'edit' => 'events.edit',
                 'update' => 'events.update',
                 'destroy' => 'events.destroy',
