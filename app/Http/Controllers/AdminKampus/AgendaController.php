@@ -107,6 +107,7 @@ class AgendaController extends Controller
             'location_link' => 'nullable|url|max:255',
             'registration_link' => 'nullable|url|max:255',
             'price' => 'nullable|numeric|min:0',
+            'quota' => 'nullable|integer|min:0',
             'contact_person_name' => 'nullable|string|max:100',
             'contact_person_phone' => 'nullable|string|max:50',
             'contact_person_email' => 'nullable|email|max:100',
@@ -123,6 +124,7 @@ class AgendaController extends Controller
         $validated['university_id'] = $request->user()->university_id;
         $validated['user_id'] = $request->user()->id;
         $validated['price'] = $validated['price'] ?? 0;
+        $validated['quota'] = $validated['quota'] ?? 0;
 
         Agenda::create($validated);
 
@@ -154,6 +156,7 @@ class AgendaController extends Controller
                 'location_link' => $event->location_link,
                 'registration_link' => $event->registration_link,
                 'price' => $event->price,
+                'quota' => $event->quota,
                 'contact_person_name' => $event->contact_person_name,
                 'contact_person_phone' => $event->contact_person_phone,
                 'contact_person_email' => $event->contact_person_email,
@@ -190,6 +193,7 @@ class AgendaController extends Controller
             'location_link' => 'nullable|url|max:255',
             'registration_link' => 'nullable|url|max:255',
             'price' => 'nullable|numeric|min:0',
+            'quota' => 'nullable|integer|min:0',
             'contact_person_name' => 'nullable|string|max:100',
             'contact_person_phone' => 'nullable|string|max:50',
             'contact_person_email' => 'nullable|email|max:100',
@@ -207,6 +211,7 @@ class AgendaController extends Controller
         }
 
         $validated['price'] = $validated['price'] ?? 0;
+        $validated['quota'] = $validated['quota'] ?? 0;
 
         $event->update($validated);
 
