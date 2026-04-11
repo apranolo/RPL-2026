@@ -58,12 +58,12 @@ it('allows active admin kampus to view agenda list', function () {
         'university_id' => $this->university->id,
     ]);
 
-    $response = actingAs($this->adminKampus)->get(route('admin-kampus.agendas.index'));
+    $response = actingAs($this->adminKampus)->get(route('admin-kampus.events.index'));
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('AdminKampus/Events/Index')
-        ->has('agendas.data', 3)
+        ->has('events.data', 3)
     );
 });
 
@@ -73,12 +73,12 @@ it('prevents admin kampus from viewing other university agendas', function () {
         'university_id' => $otherUniv->id,
     ]);
 
-    $response = actingAs($this->adminKampus)->get(route('admin-kampus.agendas.index'));
+    $response = actingAs($this->adminKampus)->get(route('admin-kampus.events.index'));
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('AdminKampus/Events/Index')
-        ->has('agendas.data', 0) // Should be empty since it's filtered
+        ->has('events.data', 0) // Should be empty since it's filtered
     );
 });
 
@@ -86,9 +86,9 @@ it('allows admin kampus to store a new agenda', function () {
     $payload = validAgendaPayload();
 
     $response = actingAs($this->adminKampus)
-        ->post(route('admin-kampus.agendas.store'), $payload);
+        ->post(route('admin-kampus.events.store'), $payload);
 
-    $response->assertRedirect(route('admin-kampus.agendas.index'));
+    $response->assertRedirect(route('admin-kampus.events.index'));
     $this->assertDatabaseHas('agendas', [
         'title' => 'Test Agenda 1',
         'university_id' => $this->university->id,
@@ -106,9 +106,9 @@ it('allows admin kampus to update their own agenda', function () {
     $payload['title'] = 'Updated Title';
 
     $response = actingAs($this->adminKampus)
-        ->put(route('admin-kampus.agendas.update', $agenda), $payload);
+        ->put(route('admin-kampus.events.update', $agenda), $payload);
 
-    $response->assertRedirect(route('admin-kampus.agendas.index'));
+    $response->assertRedirect(route('admin-kampus.events.index'));
     $this->assertDatabaseHas('agendas', [
         'id' => $agenda->id,
         'title' => 'Updated Title',
@@ -125,7 +125,7 @@ it('prevents admin kampus from updating another university agenda', function () 
     $payload['title'] = 'Malicious Update';
 
     $response = actingAs($this->adminKampus)
-        ->put(route('admin-kampus.agendas.update', $agenda), $payload);
+        ->put(route('admin-kampus.events.update', $agenda), $payload);
 
     $response->assertForbidden();
     
@@ -141,8 +141,8 @@ it('allows admin kampus to soft delete their own agenda', function () {
     ]);
 
     $response = actingAs($this->adminKampus)
-        ->delete(route('admin-kampus.agendas.destroy', $agenda));
+        ->delete(route('admin-kampus.events.destroy', $agenda));
 
-    $response->assertRedirect(route('admin-kampus.agendas.index'));
+    $response->assertRedirect(route('admin-kampus.events.index'));
     $this->assertSoftDeleted('agendas', ['id' => $agenda->id]);
 });
