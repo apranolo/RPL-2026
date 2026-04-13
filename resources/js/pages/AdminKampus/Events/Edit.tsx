@@ -40,6 +40,7 @@ interface Agenda {
     contact_person_email: string | null;
     is_active: boolean;
     is_featured: boolean;
+    quota: number | null;
 }
 
 interface Props {
@@ -67,6 +68,7 @@ export default function EventsEdit({ agenda }: Props) {
         location_link: agenda.location_link || '',
         registration_link: agenda.registration_link || '',
         price: agenda.price || '',
+        quota: agenda.quota || '',
         contact_person_name: agenda.contact_person_name || '',
         contact_person_phone: agenda.contact_person_phone || '',
         contact_person_email: agenda.contact_person_email || '',
@@ -235,6 +237,17 @@ export default function EventsEdit({ agenda }: Props) {
                                     placeholder="0.00"
                                 />
                                 {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="quota">Quota</Label>
+                                <Input
+                                    id="quota"
+                                    type="number"
+                                    value={data.quota}
+                                    onChange={(e) => setData('quota', e.target.value)}
+                                    placeholder="0"
+                                />
+                                {errors.quota && <p className="text-sm text-red-500">{errors.quota}</p>}
                             </div>
 
                             {/* Contact Person Details */}
