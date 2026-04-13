@@ -43,6 +43,7 @@ interface Journal {
     } | null;
     sinta_rank: string | null;
     sinta_rank_label: string;
+    indexation_labels?: string[];
 }
 
 interface University {
@@ -84,9 +85,20 @@ interface Props {
     scientificFields: ScientificField[];
     sintaRanks: FilterOption[];
     indexationOptions: FilterOption[];
+    sintaStats: Record<string, number>;
+    indexationStats: Record<string, number>;
 }
 
-export default function JournalsIndex({ journals, filters, universities, scientificFields, sintaRanks, indexationOptions }: Props) {
+export default function JournalsIndex({ 
+    journals, 
+    filters, 
+    universities, 
+    scientificFields, 
+    sintaRanks, 
+    indexationOptions,
+    sintaStats,
+    indexationStats
+}: Props) {
     const { auth } = usePage<SharedData>().props;
     const [search, setSearch] = useState(filters.search || '');
     const [universityFilter, setUniversityFilter] = useState(filters.university_id?.toString() || '');
@@ -175,7 +187,7 @@ export default function JournalsIndex({ journals, filters, universities, scienti
                 {/* MAIN CONTENT */}
                 <main className="pt-16">
                     {/* Header Section */}
-                    <div className="bg-gradient-to-br from-[#079C4E] to-[#10816F] py-16 text-white">
+                    <div className="bg-gradient-to-br from-[#079C4E] to-[#10816F] pt-16 pb-20 text-white">
                         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <h1
                                 className="font-heading mb-4 text-4xl font-bold tracking-tight sm:text-5xl"
@@ -189,8 +201,77 @@ export default function JournalsIndex({ journals, filters, universities, scienti
                         </div>
                     </div>
 
+                    {/* Indexation & Sinta Cards Grid */}
+                    <div className="relative z-20 mx-auto -mt-10 mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                            {/* SINTA Cards (Row 1) */}
+                            {[1, 2, 3, 4, 5, 6].map((score) => {
+                                const rankKey = `sinta_${score}`;
+                                const rankLabel = `SINTA ${score}`;
+                                const borderColor = score <= 2 ? '#E11A1F' : score <= 4 ? '#FCEE1F' : '#1A2A75';
+
+                                return (
+                                    <Link
+                                        key={rankKey}
+                                        href={route('journals.index', { sinta_rank: rankKey })}
+                                        className="group flex flex-col justify-between overflow-hidden rounded-xl border-b-4 bg-white p-3 sm:p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
+                                        style={{ borderColor }}
+                                    >
+                                        <div className="mb-1 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase">
+                                            Accredited
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                                                {rankLabel}
+                                            </span>
+                                            <div className="mt-2 flex items-center gap-1.5 self-start">
+                                                <span className="inline-flex items-center justify-center rounded bg-emerald-50 px-2 py-0.5 text-xs font-black text-[#079C4E] ring-1 ring-emerald-500/20 transition-colors group-hover:bg-[#079C4E] group-hover:text-white dark:bg-emerald-500/10">
+                                                    {sintaStats[rankKey] || 0}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
+                            
+                            {/* Indexing Cards (Row 2) */}
+                            {[
+                                { key: 'scopus', label: 'Scopus', color: '#E9711C' },
+                                { key: 'web_of_science', label: 'WOS', color: '#5E31D6' },
+                                { key: 'doaj', label: 'DOAJ', color: '#019448' },
+                                { key: 'dimensions', label: 'Dimensions', color: '#13589B' },
+                                { key: 'ebsco', label: 'EBSCO', color: '#0054A6' },
+                                { key: 'proquest', label: 'ProQuest', color: '#0D83A6' }
+                            ].map((idx) => (
+                                <Link
+                                    key={idx.key}
+                                    href={route('journals.index', { indexation: idx.label === 'WOS' ? 'Web of Science' : idx.label })}
+                                    className="group flex flex-col justify-between overflow-hidden rounded-xl border-b-4 bg-white p-3 sm:p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
+                                    style={{ borderColor: idx.color }}
+                                >
+                                    <div className="mb-1 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase">
+                                        Indexed In
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight truncate" title={idx.label}>
+                                            {idx.label}
+                                        </span>
+                                        <div className="mt-2 flex items-center gap-1.5 self-start">
+                                            <span 
+                                                className="inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-black text-white transition-opacity group-hover:opacity-90"
+                                                style={{ backgroundColor: idx.color }}
+                                            >
+                                                {indexationStats[idx.key] || 0}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Filters Section */}
-                    <div className="mx-auto -mt-8 mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900">
                             <form onSubmit={handleSearch} className="space-y-4">
                                 {/* Search */}
@@ -318,6 +399,7 @@ export default function JournalsIndex({ journals, filters, universities, scienti
                                         e_issn={journal.e_issn}
                                         university={journal.university.name}
                                         external_url={journal.url}
+                                        indexation_labels={journal.indexation_labels}
                                     />
                                 ))}
                             </div>

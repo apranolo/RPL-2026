@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Article;
 use App\Models\Journal;
 use App\Models\ScientificField;
 use App\Models\University;
@@ -76,15 +77,39 @@ class PublicHomeService
     }
 
     /**
-     * Get overall university and journal counts (cached)
+     * Get overall university, journal, and article counts (cached)
      */
     public function getOverallStats()
     {
         return Cache::remember('home_overall_stats', now()->addHours(6), function () {
             return [
-                'totalUniversities' => University::where('is_active', true)->count(),
+                'totalUniversities' => University::where('is_active', true)
+                    ->whereHas('journals', function ($query) {
+                        $query->where('is_active', true);
+                    })->count(),
                 'totalJournals' => Journal::where('is_active', true)->count(),
+                'totalArticles' => Article::count(),
             ];
+        });
+    }
+
+    /**
+     * Get indexation statistics (cached)
+     */
+    public function getIndexationStats()
+    {
+        return Cache::remember('home_indexation_stats', now()->addHours(6), function () {
+            $platforms = ['Scopus', 'Web of Science', 'DOAJ', 'Dimensions', 'EBSCO', 'ProQuest'];
+            $stats = [];
+
+            foreach ($platforms as $platform) {
+                $stats[strtolower(str_replace(' ', '_', $platform))] = Journal::where('is_active', true)
+                    ->whereNotNull('indexations')
+                    ->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.\"$platform\"')")
+                    ->count();
+            }
+
+            return $stats;
         });
     }
 

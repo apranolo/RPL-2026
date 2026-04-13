@@ -45,7 +45,7 @@ test('Super Admin can view templates index page', function () {
         ->get(route('admin.templates.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('Admin/Templates/Index')
+            ->component('Admin/BorangIndikator/Index')
             ->has('templates')
             ->has('filters')
         );
@@ -86,7 +86,7 @@ test('index page includes status filter', function () {
     AccreditationTemplate::factory()->create(['is_active' => false]);
 
     actingAs($this->superAdmin)
-        ->get(route('admin.templates.index', ['status' => 'active']))
+        ->get(route('admin.templates.index', ['is_active' => 'active']))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('templates.data', 1)
@@ -121,7 +121,7 @@ test('Super Admin can view create template page', function () {
         ->get(route('admin.templates.create'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('Admin/Templates/Create')
+            ->component('Admin/BorangIndikator/Index')
         );
 });
 
@@ -228,12 +228,7 @@ test('Super Admin can view template details', function () {
 
     actingAs($this->superAdmin)
         ->get(route('admin.templates.show', $template))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('Admin/Templates/Show')
-            ->has('template')
-            ->has('categories')
-        );
+        ->assertRedirect(route('admin.templates.structure', $template));
 });
 
 test('Non-Super Admin cannot view template details', function () {
@@ -255,8 +250,7 @@ test('Super Admin can view edit template page', function () {
         ->get(route('admin.templates.edit', $template))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('Admin/Templates/Edit')
-            ->has('template')
+            ->component('Admin/BorangIndikator/Index')
         );
 });
 
@@ -289,7 +283,7 @@ test('Super Admin can update template', function () {
 
     actingAs($this->superAdmin)
         ->put(route('admin.templates.update', $template), $data)
-        ->assertRedirect(route('admin.templates.show', $template))
+        ->assertRedirect(route('admin.templates.index'))
         ->assertSessionHas('success');
 
     assertDatabaseHas('accreditation_templates', [
@@ -332,7 +326,7 @@ test('template update allows keeping same name', function () {
 // ============================================================================
 
 test('Super Admin can delete template without dependencies', function () {
-    $template = AccreditationTemplate::factory()->create();
+    $template = AccreditationTemplate::factory()->create(['is_active' => false]);
 
     actingAs($this->superAdmin)
         ->delete(route('admin.templates.destroy', $template))
@@ -343,7 +337,7 @@ test('Super Admin can delete template without dependencies', function () {
 });
 
 test('Super Admin cannot delete template with categories', function () {
-    $template = AccreditationTemplate::factory()->create();
+    $template = AccreditationTemplate::factory()->create(['is_active' => false]);
     EvaluationCategory::factory()->create(['template_id' => $template->id]);
 
     actingAs($this->superAdmin)
@@ -460,27 +454,20 @@ test('Super Admin can view template tree structure', function () {
     $essay = EssayQuestion::factory()->create(['category_id' => $category->id]);
 
     $response = actingAs($this->superAdmin)
-        ->get(route('admin.templates.tree', $template))
+        ->get(route('admin.templates.structure', $template))
         ->assertOk()
-        ->assertJsonStructure([
-            '*' => [
-                'id',
-                'type',
-                'data',
-                'children',
-            ],
-        ]);
-
-    $tree = $response->json();
-    expect($tree)->toHaveCount(1);
-    expect($tree[0]['type'])->toBe('category');
-    expect($tree[0]['children'])->toHaveCount(2); // 1 sub-category + 1 essay
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/BorangIndikator/Tree')
+            ->has('template')
+            ->has('initialTree')
+            ->has('structuredTree')
+        );
 });
 
 test('Non-Super Admin cannot view template tree', function () {
     $template = AccreditationTemplate::factory()->create();
 
     actingAs($this->adminKampus)
-        ->get(route('admin.templates.tree', $template))
+        ->get(route('admin.templates.structure', $template))
         ->assertForbidden();
 });

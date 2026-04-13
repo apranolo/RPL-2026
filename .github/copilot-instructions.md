@@ -201,6 +201,16 @@ The `.agents` folder contains reusable skill definitions for AI agents working o
   - *Use Cases*: Creating component libraries, standardizing UI patterns, implementing responsive designs.
   - *Triggers*: `tailwind css`, `design tokens`, `component library`, `responsive`.
 
+#### UI & Components
+- **[shadcn-ui](../.agents/skills/shadcn-ui/SKILL.md)**
+  - *Description*: Expert guidance for integrating and building applications with shadcn/ui components.
+  - *Use Cases*: Component discovery, installation, customization, and following best practices for accessible UI.
+  - *Triggers*: `shadcn`, `ui components`, `radix ui`, `accessible components`.
+- **[ui-ux-pro-max](../.agents/skills/ui-ux-pro-max/SKILL.md)**
+  - *Description*: UI/UX design intelligence for web and mobile with 50+ styles and 161 color palettes.
+  - *Use Cases*: Designing new pages, component refactoring, choosing color schemes, accessibility reviews.
+  - *Triggers*: `ui design`, `ux patterns`, `dashboard layout`, `visual consistency`.
+
 #### Testing & DevOps
 - **[devops-engineer](../.agents/skills/devops-engineer/SKILL.md)**
   - *Description*: Creates Dockerfiles, configures CI/CD pipelines, deploys infrastructure, and manages incident response.
@@ -222,12 +232,12 @@ Agents should reference these skills when:
 - Working on database queries or optimizing loads (use **database-optimizer**)
 - Working on backend features (use **laravel-expert**)
 - Working on the React frontend connecting to Laravel (use **laravel-inertia-react**)
-- Building UI components and styling (use **react-expert** + **frontend-design** + **tailwind-design-system**)
+- Building UI components and styling (use **react-expert** + **frontend-design** + **tailwind-design-system** + **shadcn-ui** + **ui-ux-pro-max**)
 - Working on infrastructure, CI/CD, or deployment (use **devops-engineer**)
 - Writing tests (use **qa-test-engineer**)
 - Reviewing security implications (use **security-auditor**)
 
-Each skill includes SKILL.md with detailed guidelines. Some skills include additional references and agent configurations (e.g., react-expert has hook patterns, performance guides; qa-test-engineer has OpenAI agent config).
+Each skill includes SKILL.md with detailed guidelines. Some skills include additional references and agent configurations (e.g., react-expert has hook patterns, performance guides; qa-test-engineer has OpenAI agent config; shadcn-ui has setup and migration guides).
 
 ## GitHub Actions (PR Automation)
 Automated checks run on every PR (see [.github/workflows/](workflows/)):
