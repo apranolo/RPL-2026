@@ -16,6 +16,11 @@
       "sourceType": "github",
       "computedHash": "48153a3ab923ee477416dad35ee8cf814b2cb324829d140098a092f4e33dd2c6"
     },
+    "shadcn-ui": {
+      "source": "google-labs-code/stitch-skills",
+      "sourceType": "github",
+      "computedHash": "119a14a004bd30fa99d386df599bd0db8d057cca146f7ee08349daed48b2ea55"
+    },
     "tailwind-design-system": {
       "source": "wshobson/agents",
       "sourceType": "github",
