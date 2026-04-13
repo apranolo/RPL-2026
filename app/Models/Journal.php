@@ -340,7 +340,7 @@ class Journal extends Model
 
         return $query->whereNotNull('indexations')
             ->where(function ($q) use ($platform) {
-                $q->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.".$platform."')");
+                $q->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.\"$platform\"')");
             });
     }
 

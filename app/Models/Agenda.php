@@ -66,9 +66,15 @@ class Agenda extends Model
     public static function generateUniqueSlug(string $title): string
     {
         $slug = Str::slug($title);
-        $count = static::whereRaw("slug RLIKE '^{$slug}(-[0-9]+)?$'")->withTrashed()->count();
+        $originalSlug = $slug;
+        $count = 1;
 
-        return $count ? "{$slug}-{$count}" : $slug;
+        while (static::where('slug', $slug)->withTrashed()->exists()) {
+            $slug = "{$originalSlug}-{$count}";
+            $count++;
+        }
+
+        return $slug;
     }
 
     public function university(): BelongsTo

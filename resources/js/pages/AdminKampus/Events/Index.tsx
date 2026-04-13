@@ -194,6 +194,8 @@ export default function EventsIndex({ events, filters, flash }: Props) {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => router.visit(route('admin-kampus.events.edit', event.id))}
+                                                        title="Edit Event"
+                                                        aria-label="Edit Event"
                                                     >
                                                         <Edit className="h-4 w-4 text-blue-500" />
                                                     </Button>
@@ -201,6 +203,8 @@ export default function EventsIndex({ events, filters, flash }: Props) {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => handleDelete(event)}
+                                                        title="Delete Event"
+                                                        aria-label="Delete Event"
                                                     >
                                                         <Trash2 className="h-4 w-4 text-red-500" />
                                                     </Button>

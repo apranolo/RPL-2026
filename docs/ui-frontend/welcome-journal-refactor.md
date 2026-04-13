@@ -23,7 +23,7 @@ Sesuai dengan saran dosen pembimbing, terdapat penyesuaian rancangan antarmuka p
 
 ### 3. Backend & Services (Infrastruktur Data)
 - Modifikasi logika query dilakukan pada layer `PublicHomeService.php`.
-- Menambahkan method baru `getIndexationStats()` untuk menghitung perulangan status indexation (yang diselidiki melalui operan `whereJsonContains('indexations', $platform)` mengingat field tersebut di set array JSON di database).
+- Menambahkan method baru `getIndexationStats()` untuk menghitung perulangan status indexation. Karena `indexations` disimpan sebagai **JSON Object** dengan platform sebagai key (misal: `{"Scopus": {"status": true}}`), pencarian dilakukan menggunakan `JSON_CONTAINS_PATH(indexations, 'one', '$.PlatformName')`.
 - Modifikasi scope hitungan Total University `->whereHas('journals')` agar representatif dengan jumlah entitas kampus yang terintegrasi publikasinya.
 - Controller `PublicJournalController.php` telah disesuaikan agar mengirimkan prop baru `$indexationStats` dan `$sintaStats` kepada Inertia Page (`Journals/Index`).
 

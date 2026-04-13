@@ -7,10 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarDays, MapPin, Clock, Search } from 'lucide-react';
 import { PaginatedData } from '@/types';
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { Pagination } from '@/components/ui/pagination';
 import { Progress } from '@/components/ui/progress';
-import { useEffect } from 'react';
 
 interface AgendaItem {
     id: number;
@@ -61,7 +60,7 @@ function EventCard({ agenda }: { agenda: AgendaItem }) {
     }, [agenda.date_start, agenda.time_start]);
 
     const formatDate = (dateString: string | null) => {
-        if (!dateString) return 'TBA';
+        if (!dateString) return { day: 'TBA', monthAndYear: 'TBA' };
         const d = new Date(dateString);
         return {
             day: d.toLocaleDateString('id-ID', { day: 'numeric' }),
@@ -89,7 +88,7 @@ function EventCard({ agenda }: { agenda: AgendaItem }) {
                 {/* Date Highlight Badge */}
                 <div className="absolute top-4 right-4 bg-background/95 backdrop-blur rounded-xl shadow-lg border border-border/50 text-center overflow-hidden flex flex-col min-w-[60px]">
                     <div className="bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
-                        {dateFormatted.monthAndYear !== 'TBA' ? new Date(agenda.date_start!).toLocaleDateString('id-ID', { month: 'short' }) : 'TBA'}
+                        {agenda.date_start ? new Date(agenda.date_start).toLocaleDateString('id-ID', { month: 'short' }) : 'TBA'}
                     </div>
                     <div className="px-3 py-1.5 text-xl font-black text-foreground">
                         {dateFormatted.day}

@@ -4,7 +4,11 @@ use App\Models\Agenda;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use function Pest\Laravel\actingAs;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->seedRoles();
@@ -96,6 +100,90 @@ it('allows admin kampus to store a new agenda', function () {
     ]);
 });
 
+it('preserves null quota for unlimited events', function () {
+    $payload = validAgendaPayload();
+    unset($payload['quota']); // Omit quota
+
+    actingAs($this->adminKampus)
+        ->post(route('admin-kampus.events.store'), $payload)
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('agendas', [
+        'title' => 'Test Agenda 1',
+        'quota' => null,
+    ]);
+
+    $agenda = Agenda::where('title', 'Test Agenda 1')->first();
+
+    $updatePayload = validAgendaPayload();
+    $updatePayload['title'] = 'Updated Title';
+    unset($updatePayload['quota']); // Omit quota in update as well
+
+    actingAs($this->adminKampus)
+        ->put(route('admin-kampus.events.update', $agenda->id), $updatePayload)
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('agendas', [
+        'id' => $agenda->id,
+        'title' => 'Updated Title',
+        'quota' => null,
+    ]);
+});
+
+it('generates unique slugs for duplicate titles correctly', function () {
+    // Create first agenda
+    Agenda::factory()->create([
+        'title' => 'Test Slug',
+        'slug' => null, // Allow boot() generating slug
+        'university_id' => $this->university->id
+    ]);
+
+    // Create second agenda with same title
+    $agenda2 = Agenda::factory()->create([
+        'title' => 'Test Slug',
+        'slug' => null,
+        'university_id' => $this->university->id
+    ]);
+
+    expect($agenda2->slug)->toBe('test-slug-1');
+
+    // Create third agenda with same title
+    $agenda3 = Agenda::factory()->create([
+        'title' => 'Test Slug',
+        'slug' => null,
+        'university_id' => $this->university->id
+    ]);
+
+    expect($agenda3->slug)->toBe('test-slug-2');
+
+    // Manually delete test-slug-1 to create a "hole"
+    Agenda::where('slug', 'test-slug-1')->forceDelete();
+
+    // Create fourth agenda - should fill the hole or handle it
+    $agenda4 = Agenda::factory()->create([
+        'title' => 'Test Slug',
+        'slug' => null,
+        'university_id' => $this->university->id
+    ]);
+
+    // Since we deleted test-slug-1, the next free one is test-slug-1
+    expect($agenda4->slug)->toBe('test-slug-1');
+});
+
+it('allows setting quota to zero explicitly', function () {
+    $payload = validAgendaPayload();
+    $payload['quota'] = 0;
+
+    actingAs($this->adminKampus)
+        ->post(route('admin-kampus.events.store'), $payload)
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('agendas', [
+        'title' => 'Test Agenda 1',
+        'quota' => 0,
+    ]);
+});
+
 it('allows admin kampus to update their own agenda', function () {
     $agenda = Agenda::factory()->create([
         'university_id' => $this->university->id,
@@ -128,7 +216,7 @@ it('prevents admin kampus from updating another university agenda', function () 
         ->put(route('admin-kampus.events.update', $agenda), $payload);
 
     $response->assertForbidden();
-    
+
     $this->assertDatabaseMissing('agendas', [
         'id' => $agenda->id,
         'title' => 'Malicious Update',

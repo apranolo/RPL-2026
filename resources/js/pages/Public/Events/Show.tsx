@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import PublicLayout from '@/layouts/public-layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CalendarDays, MapPin, Clock, ArrowLeft, Mail, Phone, ExternalLink, Globe, User } from 'lucide-react';
