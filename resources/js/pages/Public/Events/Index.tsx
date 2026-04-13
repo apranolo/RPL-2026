@@ -39,22 +39,24 @@ function EventCard({ agenda }: { agenda: AgendaItem }) {
     useEffect(() => {
         if (!agenda.date_start) return;
 
-        const interval = setInterval(() => {
+        const updateCountdown = () => {
             const startDateTime = new Date(`${agenda.date_start}T${agenda.time_start || '00:00'}`);
             const now = new Date();
             const diff = startDateTime.getTime() - now.getTime();
 
             if (diff <= 0) {
                 setCountdown('Event Started');
-                clearInterval(interval);
                 return;
             }
 
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             setCountdown(`Starts in ${days}d ${hours}h`);
-        }, 1000);
+        };
 
+        updateCountdown();
+
+        const interval = setInterval(updateCountdown, 60000);
         return () => clearInterval(interval);
     }, [agenda.date_start, agenda.time_start]);
 
