@@ -33,9 +33,10 @@ it('loads the welcome page with correct inertia components and props', function 
     $response->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
         ->component('welcome')
         ->has('featuredJournals', 4)
-        ->has('sintaStats')
         ->has('totalUniversities')
         ->has('totalJournals')
+        ->has('totalArticles')
+        ->has('scientificFields')
     );
 });
 
