@@ -123,10 +123,9 @@ export default function Show({ agenda }: Props) {
                                 <CardTitle className="text-xl">About the Event</CardTitle>
                             </CardHeader>
                             <CardContent className="pt-6">
-                                <div 
-                                    className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg"
-                                    dangerouslySetInnerHTML={{ __html: agenda.description || '<p>No description provided.</p>' }}
-                                />
+                                <div className="max-w-none whitespace-pre-line break-words text-sm leading-7 text-foreground">
+                                    {agenda.description || 'No description provided.'}
+                                </div>
                             </CardContent>
                         </Card>
 
