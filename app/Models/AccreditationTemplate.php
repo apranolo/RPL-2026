@@ -178,6 +178,7 @@ class AccreditationTemplate extends Model
      * Check if this template can be deleted.
      * Cannot delete if:
      * - It's the only active template of its type
+     * - It has categories, indicators, or essay questions
      * - It has submitted assessments using its indicators
      */
     public function canBeDeleted(): bool
@@ -194,12 +195,23 @@ class AccreditationTemplate extends Model
             }
         }
 
+        // Check for child relationships
+        if ($this->categories()->exists()) {
+            return false;
+        }
+
+        if ($this->essayQuestions()->exists()) {
+            return false;
+        }
+
         // Check if any indicators from this template are used in submitted assessments
-        $indicatorsUsedInAssessments = EvaluationIndicator::whereHas('subCategory.category', function ($query) {
-            $query->where('template_id', $this->id);
-        })->whereHas('responses.journalAssessment', function ($query) {
-            $query->where('status', 'submitted');
-        })->exists();
+        $indicatorsUsedInAssessments = EvaluationIndicator::query()
+            ->join('evaluation_sub_categories', 'evaluation_indicators.sub_category_id', '=', 'evaluation_sub_categories.id')
+            ->join('evaluation_categories', 'evaluation_sub_categories.category_id', '=', 'evaluation_categories.id')
+            ->where('evaluation_categories.template_id', $this->id)
+            ->whereHas('responses.journalAssessment', function ($query) {
+                $query->where('status', 'submitted');
+            })->exists();
 
         return ! $indicatorsUsedInAssessments;
     }
@@ -251,6 +263,8 @@ class AccreditationTemplate extends Model
                 foreach ($subCategory->indicators as $indicator) {
                     $indicatorClone = $indicator->replicate();
                     $indicatorClone->sub_category_id = $subCategoryClone->id;
+                    // Append "-C" and a short unique hash to stay within the 20-char limit of the 'code' column
+                    $indicatorClone->code = substr($indicator->code, 0, 10).'-C'.substr(md5(uniqid()), 0, 4);
                     $indicatorClone->save();
                 }
             }

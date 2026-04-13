@@ -35,7 +35,7 @@ class AgendaFactory extends Factory
             'time_end' => '15:00',
             'location_type' => $this->faker->randomElement(['Online', 'Offline', 'Hybrid']),
             'location_venue' => $this->faker->company(),
-            'location_link' => 'https://zoom.us/j/' . $this->faker->randomNumber(9),
+            'location_link' => 'https://zoom.us/j/'.$this->faker->randomNumber(9),
             'registration_link' => $this->faker->url(),
             'price' => $this->faker->randomElement([0, 50000, 150000]),
             'contact_person_name' => $this->faker->name(),

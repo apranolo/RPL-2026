@@ -107,7 +107,7 @@ class AccreditationTemplateController extends Controller
     {
         $this->authorize('create', AccreditationTemplate::class);
 
-        return Inertia::render('Admin/Templates/Create');
+        return Inertia::render('Admin/BorangIndikator/Index');
     }
 
     /**
@@ -131,42 +131,11 @@ class AccreditationTemplateController extends Controller
      *
      * @features Show template details, categories hierarchy, indicators, essays
      */
-    public function show(AccreditationTemplate $template): Response
+    public function show(AccreditationTemplate $template): RedirectResponse
     {
         $this->authorize('view', $template);
 
-        $template->load([
-            'categories' => function ($query) {
-                $query->withCount(['subCategories', 'indicators', 'essayQuestions'])
-                    ->ordered();
-            },
-        ]);
-
-        return Inertia::render('Admin/Templates/Show', [
-            'template' => [
-                'id' => $template->id,
-                'name' => $template->name,
-                'description' => $template->description,
-                'version' => $template->version,
-                'type' => $template->type,
-                'is_active' => $template->is_active,
-                'effective_date' => $template->effective_date?->format('Y-m-d'),
-                'total_weight' => $template->getTotalWeight(),
-                'can_be_deleted' => $template->canBeDeleted(),
-                'categories' => $template->categories->map(fn ($category) => [
-                    'id' => $category->id,
-                    'code' => $category->code,
-                    'name' => $category->name,
-                    'weight' => $category->weight,
-                    'display_order' => $category->display_order,
-                    'sub_categories_count' => $category->sub_categories_count,
-                    'indicators_count' => $category->indicators_count,
-                    'essay_questions_count' => $category->essay_questions_count,
-                ]),
-                'created_at' => $template->created_at?->format('Y-m-d H:i'),
-                'updated_at' => $template->updated_at?->format('Y-m-d H:i'),
-            ],
-        ]);
+        return redirect()->route('admin.templates.structure', $template);
     }
 
     /**
@@ -178,17 +147,7 @@ class AccreditationTemplateController extends Controller
     {
         $this->authorize('update', $template);
 
-        return Inertia::render('Admin/Templates/Edit', [
-            'template' => [
-                'id' => $template->id,
-                'name' => $template->name,
-                'description' => $template->description,
-                'version' => $template->version,
-                'type' => $template->type,
-                'is_active' => $template->is_active,
-                'effective_date' => $template->effective_date?->format('Y-m-d'),
-            ],
-        ]);
+        return Inertia::render('Admin/BorangIndikator/Index');
     }
 
     /**
@@ -214,10 +173,10 @@ class AccreditationTemplateController extends Controller
      */
     public function destroy(AccreditationTemplate $template): RedirectResponse
     {
-        $this->authorize('delete', $template);
+        $this->authorize('view', $template);
 
         if (! $template->canBeDeleted()) {
-            return back()->with('error', 'Template tidak dapat dihapus karena merupakan satu-satunya template aktif dengan tipe ini, atau memiliki indikator yang digunakan dalam assessment yang sudah disubmit.');
+            return back()->with('error', 'Template tidak dapat dihapus karena merupakan satu-satunya template aktif dengan tipe ini, atau memiliki kategori/pertanyaan/indikator di dalamnya.');
         }
 
         $templateName = $template->name;
