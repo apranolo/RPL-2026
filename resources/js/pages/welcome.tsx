@@ -3,7 +3,7 @@ import JournalCard from '@/components/journal-card';
 import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowRight, LayoutDashboard, Search } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, LayoutDashboard, Library, Search } from 'lucide-react';
 import { useState } from 'react';
 
 interface WelcomeProps extends SharedData {
@@ -20,9 +20,9 @@ interface WelcomeProps extends SharedData {
         cover_image_url?: string;
         indexation_labels?: string[];
     }>;
-    sintaStats: Record<string, number>;
     totalUniversities: number;
     totalJournals: number;
+    totalArticles: number;
     scientificFields?: Array<{
         id: number;
         name: string;
@@ -30,7 +30,7 @@ interface WelcomeProps extends SharedData {
 }
 
 export default function Welcome() {
-    const { auth, featuredJournals, sintaStats, scientificFields } = usePage<WelcomeProps>().props;
+    const { auth, featuredJournals, totalUniversities, totalJournals, totalArticles, scientificFields } = usePage<WelcomeProps>().props;
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearch = () => {
@@ -142,40 +142,61 @@ export default function Welcome() {
                         </div>
                     </div>
 
-                    <div className="relative z-20 mx-auto -mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-                            {[1, 2, 3, 4, 5, 6, 'non_sinta'].map((score) => {
-                                const isSinta = typeof score === 'number';
-                                const rankKey = isSinta ? `sinta_${score}` : 'non_sinta';
-                                const rankLabel = isSinta ? `SINTA ${score}` : 'Non-SINTA';
-                                const borderColor =
-                                    isSinta && score <= 2 ? '#E11A1F' : isSinta && score <= 4 ? '#FCEE1F' : isSinta ? '#1A2A75' : '#9CA3AF';
-                                const subtitle = isSinta ? 'Accredited' : 'Indexed Only';
+                    <div className="relative z-20 mx-auto -mt-16 max-w-5xl px-4 sm:px-6 lg:px-8">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
+                            {/* Total Journals Stat Card */}
+                            <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl dark:bg-zinc-900 border-l-4 border-l-[#079C4E]">
+                                <div className="absolute -right-4 -top-4 rounded-full bg-emerald-50 p-6 mix-blend-multiply opacity-50 transition-transform group-hover:scale-110 dark:bg-emerald-900/20"></div>
+                                <div className="relative flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                            Total Journals
+                                        </p>
+                                        <p className="mt-2 text-4xl font-black text-gray-900 dark:text-white">
+                                            {new Intl.NumberFormat('id-ID').format(totalJournals || 0)}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-xl bg-emerald-100 p-4 text-[#079C4E] dark:bg-[#079C4E]/20">
+                                        <Library className="h-8 w-8" />
+                                    </div>
+                                </div>
+                            </div>
 
-                                return (
-                                    <Link
-                                        key={score}
-                                        href={route('journals.index', { sinta_rank: rankKey })}
-                                        className="group max-w-[200px] min-w-[140px] flex-1 cursor-pointer overflow-hidden rounded-xl border-b-4 bg-white p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
-                                        style={{ borderColor }}
-                                    >
-                                        <div className="mb-2 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase sm:text-xs">
-                                            {subtitle}
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <span className="text-lg leading-tight font-bold whitespace-nowrap text-gray-900 sm:text-xl dark:text-white">
-                                                {rankLabel}
-                                            </span>
-                                            <div className="flex items-center gap-2">
-                                                <span className="inline-flex items-center justify-center rounded-lg bg-emerald-50 px-2 py-1 text-sm font-black text-[#079C4E] ring-1 ring-emerald-500/20 transition-colors group-hover:bg-[#079C4E] group-hover:text-white dark:bg-emerald-500/10">
-                                                    {sintaStats[rankKey] || 0}
-                                                </span>
-                                                <span className="text-[10px] font-medium text-muted-foreground sm:text-xs">Journals</span>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                );
-                            })}
+                            {/* Total Articles Stat Card */}
+                            <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl dark:bg-zinc-900 border-l-4 border-l-[#1A2A75]">
+                                <div className="absolute -right-4 -top-4 rounded-full bg-blue-50 p-6 mix-blend-multiply opacity-50 transition-transform group-hover:scale-110 dark:bg-blue-900/20"></div>
+                                <div className="relative flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                            Total Articles
+                                        </p>
+                                        <p className="mt-2 text-4xl font-black text-gray-900 dark:text-white">
+                                            {new Intl.NumberFormat('id-ID').format(totalArticles || 0)}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-xl bg-[#1A2A75]/10 p-4 text-[#1A2A75] dark:bg-[#1A2A75]/20 dark:text-blue-400">
+                                        <BookOpen className="h-8 w-8" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Total Universities Stat Card */}
+                            <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl dark:bg-zinc-900 border-l-4 border-l-[#FCEE1F]">
+                                <div className="absolute -right-4 -top-4 rounded-full bg-yellow-50 p-6 mix-blend-multiply opacity-50 transition-transform group-hover:scale-110 dark:bg-yellow-900/20"></div>
+                                <div className="relative flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                            Total Universities
+                                        </p>
+                                        <p className="mt-2 text-4xl font-black text-gray-900 dark:text-white">
+                                            {new Intl.NumberFormat('id-ID').format(totalUniversities || 0)}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-xl bg-[#FCEE1F]/20 p-4 text-yellow-700 dark:bg-[#FCEE1F]/10 dark:text-yellow-400">
+                                        <GraduationCap className="h-8 w-8" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
