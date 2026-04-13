@@ -19,15 +19,14 @@ class HomeController extends Controller
     public function index(Request $request): Response
     {
         $featuredJournals = $this->homeService->getFeaturedJournals();
-        $sintaStats = $this->homeService->getSintaStats();
         $overallStats = $this->homeService->getOverallStats();
         $scientificFields = $this->homeService->getTopScientificFields();
 
         return Inertia::render('welcome', [
             'featuredJournals' => $featuredJournals,
-            'sintaStats' => $sintaStats,
             'totalUniversities' => $overallStats['totalUniversities'],
             'totalJournals' => $overallStats['totalJournals'],
+            'totalArticles' => $overallStats['totalArticles'],
             'scientificFields' => $scientificFields,
         ]);
     }
