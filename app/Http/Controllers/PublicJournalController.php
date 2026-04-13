@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Journal;
 use App\Models\ScientificField;
 use App\Models\University;
+use App\Services\PublicHomeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -18,6 +19,10 @@ use Inertia\Response;
  */
 class PublicJournalController extends Controller
 {
+    public function __construct(
+        protected PublicHomeService $homeService
+    ) {}
+
     /**
      * Display a publicly accessible listing of journals.
      *
@@ -78,6 +83,7 @@ class PublicJournalController extends Controller
                 ] : null,
                 'sinta_rank' => $journal->sinta_rank,
                 'sinta_rank_label' => $journal->sinta_rank_label,
+                'indexation_labels' => $journal->indexation_labels,
             ]);
 
         // Get filter options (with cache)
@@ -100,6 +106,9 @@ class PublicJournalController extends Controller
             ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
             ->values();
 
+        $sintaStats = $this->homeService->getSintaStats();
+        $indexationStats = $this->homeService->getIndexationStats();
+
         return Inertia::render('Journals/Index', [
             'journals' => $journals,
             'filters' => $request->only(['search', 'university_id', 'sinta_rank', 'scientific_field_id', 'indexation']),
@@ -107,6 +116,8 @@ class PublicJournalController extends Controller
             'scientificFields' => $scientificFields,
             'sintaRanks' => $sintaRanks,
             'indexationOptions' => $indexationOptions,
+            'sintaStats' => $sintaStats,
+            'indexationStats' => $indexationStats,
         ]);
     }
 
