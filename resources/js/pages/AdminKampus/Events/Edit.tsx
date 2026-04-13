@@ -301,7 +301,7 @@ export default function EventsEdit({ agenda }: Props) {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-ap">
+                        <div className="flex justify-end gap-2">
                             <Link href={route('admin-kampus.events.index')} className="mr-2">
                                 <Button variant="outline" type="button">Cancel</Button>
                             </Link>
