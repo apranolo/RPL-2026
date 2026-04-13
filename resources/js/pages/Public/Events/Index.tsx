@@ -139,8 +139,8 @@ function EventCard({ agenda }: { agenda: AgendaItem }) {
                         <div className="flex items-start gap-2">
                             <MapPin className="h-4 w-4 shrink-0 text-primary mt-0.5" />
                             <span className="line-clamp-1 capitalize">
-                                {agenda.location_type === 'online' ? 'Online' :
-                                    agenda.location_type === 'hybrid' ? `Hybrid - ${agenda.location_venue || 'TBA'}` :
+                                {agenda.location_type.toLowerCase() === 'online' ? 'Online' :
+                                    agenda.location_type.toLowerCase() === 'hybrid' ? `Hybrid - ${agenda.location_venue || 'TBA'}` :
                                     (agenda.location_venue || 'Venue TBA')}
                             </span>
                         </div>
