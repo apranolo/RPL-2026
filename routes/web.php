@@ -84,6 +84,12 @@ Route::get('/journals/{journal}', [\App\Http\Controllers\PublicJournalController
 Route::get('/browse/universities', [\App\Http\Controllers\PublicJournalController::class, 'browseUniversities'])
     ->name('browse.universities');
 
+// Public access to view events
+Route::get('/events', [\App\Http\Controllers\PublicEventController::class, 'index'])
+    ->name('events.index');
+Route::get('/events/{event}', [\App\Http\Controllers\PublicEventController::class, 'show'])
+    ->name('events.show');
+
 /*
 |--------------------------------------------------------------------------
 | Guest Routes (Redirect jika sudah login)
@@ -385,6 +391,18 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{assessment}/request-revision', [AdminKampusAssessmentController::class, 'requestRevision'])
                 ->name('request-revision');
         });
+
+        // Agenda Management
+        Route::resource('events', \App\Http\Controllers\AdminKampus\AgendaController::class)
+            ->except(['show'])
+            ->names([
+                'index' => 'events.index',
+                'create' => 'events.create',
+                'store' => 'events.store',
+                'edit' => 'events.edit',
+                'update' => 'events.update',
+                'destroy' => 'events.destroy',
+            ]);
 
     });
 
