@@ -24,7 +24,7 @@ import { type BreadcrumbItem } from '@/types';
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin-kampus/dashboard' },
     { title: 'Events', href: '/admin-kampus/events' },
-    { title: 'Create Event', href: '/admin-Kampus/events/create' },
+    { title: 'Create Event', href: '/admin-kampus/events/create' },
 ];
 
 export default function EventsCreate() {
@@ -275,7 +275,7 @@ export default function EventsCreate() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-ap">
+                        <div className="flex justify-end gap-2">
                             <Link href={route('admin-kampus.events.index')} className="mr-2">
                                 <Button variant="outline" type="button">Cancel</Button>
                             </Link>
