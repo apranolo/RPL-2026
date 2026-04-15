@@ -1,0 +1,59 @@
+name: PR Welcome Message
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  welcome:
+    name: Welcome and Guide
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Add welcome comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prAuthor = context.payload.pull_request.user.login;
+            const prNumber = context.payload.pull_request.number;
+            
+            const message = `## 👋 Welcome @${prAuthor}!
+            
+            Thank you for your contribution to **jurnal_mu**! 
+            
+            ### 📋 Checklist
+            
+            Before your PR can be merged, please ensure:
+            
+            - [ ] All tests pass ✅
+            - [ ] Code follows project style guidelines (Pint/ESLint/Prettier)
+            - [ ] TypeScript types are correct
+            - [ ] Documentation is updated (if needed)
+            - [ ] Commit messages are clear and descriptive
+            
+            ### 🤖 Automated Checks
+            
+            Your PR will automatically be checked for:
+            - **PHP Code Style** (Laravel Pint)
+            - **JavaScript/TypeScript Linting** (ESLint)
+            - **Code Formatting** (Prettier)
+            - **Type Safety** (TypeScript)
+            - **Tests** (Pest)
+            
+            The PR has also been automatically labeled based on the files you've changed.
+            
+            ### 📝 Need Help?
+            
+            If you need any assistance, feel free to ask questions in the comments!
+            
+            ---
+            *This is an automated message. The maintainers will review your PR soon.*`;
+            
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: message
+            });

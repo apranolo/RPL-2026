@@ -1,0 +1,67 @@
+name: PR Auto Assignment
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+jobs:
+  auto-assign:
+    name: Auto Assign PR
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Auto-assign PR based on files changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const prAuthor = context.payload.pull_request.user.login;
+            
+            // Get list of changed files
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+            
+            const filePaths = files.map(f => f.filename);
+            
+            // Determine if this needs specific reviewer based on changed files
+            let needsReview = true;
+            let reviewMessage = '';
+            
+            // Check if only documentation changed
+            const onlyDocs = filePaths.every(path => 
+              path.endsWith('.md') || path.startsWith('docs/')
+            );
+            
+            // Check if only tests changed
+            const onlyTests = filePaths.every(path => 
+              path.startsWith('tests/')
+            );
+            
+            if (onlyDocs) {
+              reviewMessage = '📚 This PR only contains documentation changes.';
+            } else if (onlyTests) {
+              reviewMessage = '🧪 This PR only contains test changes.';
+            }
+            
+            if (reviewMessage) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `${reviewMessage}\n\n*Automated checks will verify the changes.*`
+              });
+            }
+            
+            // Assign the PR to the author
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              assignees: [prAuthor]
+            });

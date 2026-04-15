@@ -1,0 +1,30 @@
+# Configuration for actions/labeler
+# Automatically label PRs based on changed files
+
+'backend':
+  - changed-files:
+    - any-glob-to-any-file: ['app/**', 'config/**', 'database/**', 'routes/**', 'tests/**/*.php']
+
+'frontend':
+  - changed-files:
+    - any-glob-to-any-file: ['resources/**/*.tsx', 'resources/**/*.ts', 'resources/**/*.jsx', 'resources/**/*.js', 'resources/**/*.css']
+
+'documentation':
+  - changed-files:
+    - any-glob-to-any-file: ['docs/**', '*.md', 'README*']
+
+'dependencies':
+  - changed-files:
+    - any-glob-to-any-file: ['composer.json', 'composer.lock', 'package.json', 'package-lock.json']
+
+'ci/cd':
+  - changed-files:
+    - any-glob-to-any-file: ['.github/**']
+
+'configuration':
+  - changed-files:
+    - any-glob-to-any-file: ['config/**', '.env.example', '*.config.js', '*.config.ts', 'tsconfig.json', 'phpunit.xml']
+
+'tests':
+  - changed-files:
+    - any-glob-to-any-file: ['tests/**']
