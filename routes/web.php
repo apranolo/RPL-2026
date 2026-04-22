@@ -28,6 +28,7 @@ use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\ProposalController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -552,6 +553,22 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Proposal Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('proposals')->name('proposals.')->group(function () {
+        Route::get('/', [ProposalController::class, 'index'])->name('index');
+        Route::get('/create', [ProposalController::class, 'create'])->name('create');
+        Route::post('/', [ProposalController::class, 'store'])->name('store');
+        Route::get('/{id}', [ProposalController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [ProposalController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ProposalController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ProposalController::class, 'destroy'])->name('destroy');
+    });
 });
 
 require __DIR__.'/settings.php';
