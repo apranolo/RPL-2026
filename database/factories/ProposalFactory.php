@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Factories;
+use App\Models\ResearchSchema;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,7 +18,10 @@ class ProposalFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => $this->faker->sentence,
+            'description' => $this->faker->paragraph,
+            'user_id' => \App\Models\User::inRandomOrder()->first()->id ?? 1,
+            'research_schema_id' => ResearchSchema::inRandomOrder()->first()->id ?? 1,
         ];
     }
 }

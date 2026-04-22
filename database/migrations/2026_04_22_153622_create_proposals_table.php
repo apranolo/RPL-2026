@@ -12,8 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('proposals', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+                $table->id();
+                $table->string('title');
+                $table->text('description');
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+                // INI PENTING
+                $table->foreignId('research_schema_id')
+                    ->constrained('research_schemas')
+                    ->onDelete('cascade');
+
+                $table->timestamps();
         });
     }
 
@@ -24,4 +33,5 @@ return new class extends Migration
     {
         Schema::dropIfExists('proposals');
     }
+
 };

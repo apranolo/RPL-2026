@@ -569,6 +569,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}', [ProposalController::class, 'update'])->name('update');
         Route::delete('/{id}', [ProposalController::class, 'destroy'])->name('destroy');
     });
+
 });
 
 require __DIR__.'/settings.php';
