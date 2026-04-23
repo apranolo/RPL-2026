@@ -9,18 +9,18 @@ class ResearchOutput extends Model
 {
     // Kategori statis
     const KATEGORI = [
-        'jurnal'    => 'Jurnal',
-        'buku'      => 'Buku',
-        'hki'       => 'HKI',
+        'jurnal' => 'Jurnal',
+        'buku' => 'Buku',
+        'hki' => 'HKI',
         'prosiding' => 'Prosiding',
-        'produk'    => 'Produk/Prototipe',
+        'produk' => 'Produk/Prototipe',
     ];
 
     const STATUS = [
-        'draft'     => 'Draft',
+        'draft' => 'Draft',
         'submitted' => 'Submitted',
-        'approved'  => 'Approved',
-        'rejected'  => 'Rejected',
+        'approved' => 'Approved',
+        'rejected' => 'Rejected',
     ];
 
     protected $fillable = [

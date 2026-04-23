@@ -20,7 +20,7 @@ return new class extends Migration
                 'buku',
                 'hki',
                 'prosiding',
-                'produk'
+                'produk',
             ]);
             $table->string('judul');
             $table->string('file_path')->nullable();

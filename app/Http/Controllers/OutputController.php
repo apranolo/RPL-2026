@@ -10,9 +10,9 @@ class OutputController extends Controller
     public function index()
     {
         $outputs = ResearchOutput::with('user')
-                    ->where('user_id', Auth::id())
-                    ->latest()
-                    ->paginate(10);
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
 
         return inertia('Output/Index', [
             'outputs' => $outputs,
