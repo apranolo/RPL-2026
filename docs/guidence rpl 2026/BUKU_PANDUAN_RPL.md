@@ -142,8 +142,9 @@ Setelah Anda menulis kode dan memastikan berjalan baik:
 ### 3. Pull Request (PR)
 1. Buka GitHub repository kelas Anda.
 2. Klik tombol **Compare & pull request** pada branch Anda.
-3. Berikan deskripsi yang jelas tentang apa yang Anda kerjakan.
-4. **Perhatian:** Proyek ini menggunakan GitHub Actions. Pastikan kode Anda lolos *linting* (QA) sebelum PR bisa di-merge oleh Dosen/Asisten.
+3. **PENTING:** Pastikan Target Branch untuk PR adalah branch `development`, bukan `main`. Segala fitur baru harus digabungkan ke `development` terlebih dahulu untuk pengujian integrasi.
+4. Berikan deskripsi yang jelas tentang apa yang Anda kerjakan.
+5. **Perhatian:** Proyek ini menggunakan GitHub Actions. Pastikan kode Anda lolos *linting* (QA) sebelum PR bisa di-merge oleh Dosen/Asisten.
 
 ---
 
