@@ -509,6 +509,11 @@ Route::middleware(['auth'])->group(function () {
             Route::post('registrations/{registration}/create-assessment', [UserPembinaanController::class, 'createAssessment'])
                 ->name('registrations.create-assessment');
         });
+
+        // Proposal
+        Route::prefix('proposal')->name('proposal.')->group(function (){
+
+        });
     });
 
     /*
@@ -554,15 +559,6 @@ Route::middleware(['auth'])->group(function () {
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Proposal Routes
-    |--------------------------------------------------------------------------
-    */
-
-    Route::middleware(['role:' . Role::USER])->group(function () {
-        Route::resource('proposals', ProposalController::class);
-    });
 
 });
 
