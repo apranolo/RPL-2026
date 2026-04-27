@@ -157,8 +157,14 @@ Setelah Anda menulis kode dan memastikan berjalan baik:
 
 1. Buka GitHub repository kelas Anda.
 2. Klik tombol **Compare & pull request** pada branch Anda.
+<<<<<<< HEAD:docs/development/BUKU_PANDUAN_RPL.md
 3. Berikan deskripsi yang jelas tentang apa yang Anda kerjakan.
 4. **Perhatian:** Proyek ini menggunakan GitHub Actions. Pastikan kode Anda lolos _linting_ (QA) sebelum PR bisa di-merge oleh Dosen/Asisten.
+=======
+3. **PENTING:** Pastikan Target Branch untuk PR adalah branch `development`, bukan `main`. Segala fitur baru harus digabungkan ke `development` terlebih dahulu untuk pengujian integrasi.
+4. Berikan deskripsi yang jelas tentang apa yang Anda kerjakan.
+5. **Perhatian:** Proyek ini menggunakan GitHub Actions. Pastikan kode Anda lolos *linting* (QA) sebelum PR bisa di-merge oleh Dosen/Asisten.
+>>>>>>> 3153b2ea46a5ec5fd9e47ec50b85dc94ec6d02ba:docs/guidence rpl 2026/BUKU_PANDUAN_RPL.md
 
 ---
 
