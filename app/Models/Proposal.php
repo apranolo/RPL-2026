@@ -13,6 +13,7 @@ class Proposal extends Model
         'title',
         'description',
         'user_id',
+        'research_schema_id',
     ];
 
     // Relasi ke User (Dosen)
@@ -22,7 +23,7 @@ class Proposal extends Model
     }
 
     public function researchSchema()
-{
-    return $this->belongsTo(ResearchSchema::class);
-}
+    {
+        return $this->belongsTo(ResearchSchema::class);
+    }
 }

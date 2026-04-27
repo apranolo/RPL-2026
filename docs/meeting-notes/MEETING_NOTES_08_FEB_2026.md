@@ -1,4 +1,5 @@
 # Meeting Notes - Bimbingan Jurnal MU
+
 **Tanggal**: 08 Februari 2026  
 **Status**: Production Launch Preparation - Phase 1 MVP  
 **Recording**: [View Recording](https://fathom.video/share/MHWsPpthUZ_sYqMcFYjbaukZqLgrtRwv)
@@ -10,6 +11,7 @@
 Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** ke 21 universitas Muhammadiyah "excellent". Meeting ini mengubah scope secara signifikan - fokus pada core functionality (user & journal management) dan **DEFER assessment system** untuk iterasi berikutnya.
 
 **Key Decision**: Two-Step Approval Workflow
+
 - Step 1: LPPM approve user registration
 - Step 2: LPPM approve journal submission
 
@@ -22,7 +24,9 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 ### Launch Strategy - Phased Approach
 
 #### Phase 1: Thursday Launch (Feb 12, 2026) - Core Platform
+
 **Include**:
+
 - ✅ User Registration & Management
 - ✅ University Selection
 - ✅ LPPM Approval Workflow (Users & Journals)
@@ -31,6 +35,7 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 - ✅ Browse by University
 
 **Explicitly DEFER**:
+
 - ❌ Assessment System (entire flow)
 - ❌ Pembinaan System
 - ❌ Reviewer Role & Management
@@ -38,7 +43,8 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 - ❌ OAI-PMH Harvesting (future enhancement)
 - ❌ Article-level Search
 
-**Rationale**: 
+**Rationale**:
+
 - Immediate need is a functional system for LPPM admins to populate journal data
 - Assessment system requires more complex workflows (reviewers, scoring, feedback)
 - Focus on data collection first, evaluation later
@@ -52,68 +58,69 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 #### User Registration → LPPM Approval → Journal Submission → LPPM Approval
 
 - [x] **Step 1: User Registration with University Selection** ✅ **IMPLEMENTED**
-  - User mendaftar via public registration form
-  - **New Field**: Dropdown pilihan universitas (21 universities)
-  - User memilih role: **LPPM Admin** atau **User** (Journal Manager)
-  - Setelah register, akun dalam status `pending_approval`
-  - **Implementation**:
-    - ✅ Migration: Add `approval_status` enum field to `users` table - DONE
-    - ✅ Values: `pending`, `approved`, `rejected` - DONE
-    - ✅ Add `approved_by` (foreign key to users) and `approved_at` timestamp - DONE
-    - ✅ Registration form: Add university dropdown (seeded from database) - DONE
-    - ✅ Role selection: LPPM Admin vs User - DONE
+    - User mendaftar via public registration form
+    - **New Field**: Dropdown pilihan universitas (21 universities)
+    - User memilih role: **LPPM Admin** atau **User** (Journal Manager)
+    - Setelah register, akun dalam status `pending_approval`
+    - **Implementation**:
+        - ✅ Migration: Add `approval_status` enum field to `users` table - DONE
+        - ✅ Values: `pending`, `approved`, `rejected` - DONE
+        - ✅ Add `approved_by` (foreign key to users) and `approved_at` timestamp - DONE
+        - ✅ Registration form: Add university dropdown (seeded from database) - DONE
+        - ✅ Role selection: LPPM Admin vs User - DONE
 
 - [x] **Step 2: LPPM Approval for User Registration** ✅ **IMPLEMENTED**
-  - LPPM admin melihat daftar user pending approval **di university mereka**
-  - LPPM dapat approve/reject dengan alasan
-  - Setelah di-approve, user dapat login dan submit journals
-  - **Notification**: Email ke user setelah approval/rejection (TODO: Phase 6)
-  - **Implementation**:
-    - ✅ Route: `GET /admin-kampus/users/pending` → Index pending users - DONE
-    - ✅ Controller: `AdminKampus\UserApprovalController@index()` - DONE
-    - ✅ Action: `POST /admin-kampus/users/{id}/approve` - DONE
-    - ✅ Action: `POST /admin-kampus/users/{id}/reject` - DONE
-    - ✅ Policy: `UserPolicy@approve()` - only LPPM from same university - DONE
-    - ✅ Frontend: Integrated in `AdminKampus/Users/Index.tsx` with separate pagination - DONE
-    - ✅ **UI Enhancement**: Pending approvals integrated in main Users index page for better UX - DONE
+    - LPPM admin melihat daftar user pending approval **di university mereka**
+    - LPPM dapat approve/reject dengan alasan
+    - Setelah di-approve, user dapat login dan submit journals
+    - **Notification**: Email ke user setelah approval/rejection (TODO: Phase 6)
+    - **Implementation**:
+        - ✅ Route: `GET /admin-kampus/users/pending` → Index pending users - DONE
+        - ✅ Controller: `AdminKampus\UserApprovalController@index()` - DONE
+        - ✅ Action: `POST /admin-kampus/users/{id}/approve` - DONE
+        - ✅ Action: `POST /admin-kampus/users/{id}/reject` - DONE
+        - ✅ Policy: `UserPolicy@approve()` - only LPPM from same university - DONE
+        - ✅ Frontend: Integrated in `AdminKampus/Users/Index.tsx` with separate pagination - DONE
+        - ✅ **UI Enhancement**: Pending approvals integrated in main Users index page for better UX - DONE
 
 - [x] **Step 3: Journal Submission** ✅ **IMPLEMENTED**
-  - Approved user dapat submit journal
-  - Journal dalam status `pending_approval` setelah submit
-  - **New Field**: `approval_status` on journals table
-  - Journal belum visible di public/dashboard sampai di-approve
-  - **Implementation**:
-    - ✅ Migration: Add `approval_status`, `approved_by`, `approved_at` to `journals` table - DONE
-    - ✅ Form: User submit journal via `/user/journals/create` - DONE (existing)
-    - ✅ Controller: `User\JournalController@store()` - set status to `pending_approval` - DONE (existing)
+    - Approved user dapat submit journal
+    - Journal dalam status `pending_approval` setelah submit
+    - **New Field**: `approval_status` on journals table
+    - Journal belum visible di public/dashboard sampai di-approve
+    - **Implementation**:
+        - ✅ Migration: Add `approval_status`, `approved_by`, `approved_at` to `journals` table - DONE
+        - ✅ Form: User submit journal via `/user/journals/create` - DONE (existing)
+        - ✅ Controller: `User\JournalController@store()` - set status to `pending_approval` - DONE (existing)
 
 - [x] **Step 4: LPPM Approval for Journal Submission** ✅ **IMPLEMENTED**
-  - LPPM melihat daftar journal pending approval di university mereka
-  - LPPM approve/reject journal dengan catatan
-  - Setelah approved, journal visible di platform
-  - **Implementation**:
-    - ✅ Route: `GET /admin-kampus/journals/pending` - DONE
-    - ✅ Controller: `AdminKampus\JournalApprovalController@index()` - DONE
-    - ✅ Action: `POST /admin-kampus/journals/{id}/approve` - DONE
-    - ✅ Action: `POST /admin-kampus/journals/{id}/reject` - DONE
-    - ✅ Policy: `JournalPolicy@approve()` - only LPPM from same university - DONE
-    - ✅ Frontend: `AdminKampus/Journals/PendingApproval.tsx` - DONE
+    - LPPM melihat daftar journal pending approval di university mereka
+    - LPPM approve/reject journal dengan catatan
+    - Setelah approved, journal visible di platform
+    - **Implementation**:
+        - ✅ Route: `GET /admin-kampus/journals/pending` - DONE
+        - ✅ Controller: `AdminKampus\JournalApprovalController@index()` - DONE
+        - ✅ Action: `POST /admin-kampus/journals/{id}/approve` - DONE
+        - ✅ Action: `POST /admin-kampus/journals/{id}/reject` - DONE
+        - ✅ Policy: `JournalPolicy@approve()` - only LPPM from same university - DONE
+        - ✅ Frontend: `AdminKampus/Journals/PendingApproval.tsx` - DONE
 
 #### LPPM Admin Registration Flow
+
 - [x] **LPPM Admin Registration → Dikti Approval** ✅ **IMPLEMENTED** (Feb 10, 2026)
-  - LPPM admin register via separate path (different from regular user)
-  - Dikti admin approve LPPM registration
-  - Dikti admin **assign role** LPPM (Admin Kampus) saat approval
-  - **Implementation**:
-    - ✅ Controller: `Admin\LppmApprovalController` created with `approve()` and `reject()` methods
-    - ✅ Routes: `POST /admin/users/{user}/approve-lppm` and `reject-lppm` added to web.php
-    - ✅ Frontend: Integrated pending LPPM section in `Admin/Users/Index.tsx` following AdminKampus pattern
-    - ✅ Dashboard: Pending LPPM count card added to Super Admin dashboard
-    - ✅ Policy: Existing `UserPolicy@approve()` supports LPPM approval by Super Admin
-    - ✅ Auto-activate: LPPM assigned Admin Kampus role and `is_active=true` on approval
-    - ✅ Rejection flow: Requires reason (10-500 chars), sets `rejection_reason` field
-  - **Pattern Used**: Integrated approval section (not separate page) following `AdminKampus/Users/Index.tsx`
-  - ⏳ Notification: Email to LPPM after approval/rejection (TODO: Phase 6)
+    - LPPM admin register via separate path (different from regular user)
+    - Dikti admin approve LPPM registration
+    - Dikti admin **assign role** LPPM (Admin Kampus) saat approval
+    - **Implementation**:
+        - ✅ Controller: `Admin\LppmApprovalController` created with `approve()` and `reject()` methods
+        - ✅ Routes: `POST /admin/users/{user}/approve-lppm` and `reject-lppm` added to web.php
+        - ✅ Frontend: Integrated pending LPPM section in `Admin/Users/Index.tsx` following AdminKampus pattern
+        - ✅ Dashboard: Pending LPPM count card added to Super Admin dashboard
+        - ✅ Policy: Existing `UserPolicy@approve()` supports LPPM approval by Super Admin
+        - ✅ Auto-activate: LPPM assigned Admin Kampus role and `is_active=true` on approval
+        - ✅ Rejection flow: Requires reason (10-500 chars), sets `rejection_reason` field
+    - **Pattern Used**: Integrated approval section (not separate page) following `AdminKampus/Users/Index.tsx`
+    - ⏳ Notification: Email to LPPM after approval/rejection (TODO: Phase 6)
 
 ---
 
@@ -122,49 +129,51 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 #### Relocate Journal Metrics from "Jurnal" Tab to Main Dashboard
 
 - [x] **Move Visualization Section to Dashboard** ✅ **IMPLEMENTED** (Feb 11, 2026)
-  - ✅ Visualization moved from `/journals` to `/dashboard`
-  - ✅ Main dashboard now shows key metrics
-  - Display key metrics:
-    - ✅ Total Journals
-    - ✅ Journals Terindeks Scopus
-    - ✅ Journals Terindeks SINTA
-    - ✅ Journals Non-SINTA
-  - ✅ Accessible to **all user roles** with different scope:
-    - ✅ **User**: Only journals they manage with status breakdown
-    - ✅ **LPPM**: All journals in their university
-    - ✅ **Dikti**: Aggregated data from all universities
-  - **Implementation**:
-    - ✅ Controller: `DashboardController@index()` with journal statistics and caching
-    - ✅ Component: `<StatisticsDashboard />` - comprehensive metrics visualization
-    - ✅ Existing visualization integrated into Dashboard
-    - ✅ Role-based scoping logic fully implemented
+    - ✅ Visualization moved from `/journals` to `/dashboard`
+    - ✅ Main dashboard now shows key metrics
+    - Display key metrics:
+        - ✅ Total Journals
+        - ✅ Journals Terindeks Scopus
+        - ✅ Journals Terindeks SINTA
+        - ✅ Journals Non-SINTA
+    - ✅ Accessible to **all user roles** with different scope:
+        - ✅ **User**: Only journals they manage with status breakdown
+        - ✅ **LPPM**: All journals in their university
+        - ✅ **Dikti**: Aggregated data from all universities
+    - **Implementation**:
+        - ✅ Controller: `DashboardController@index()` with journal statistics and caching
+        - ✅ Component: `<StatisticsDashboard />` - comprehensive metrics visualization
+        - ✅ Existing visualization integrated into Dashboard
+        - ✅ Role-based scoping logic fully implemented
 
 #### Dikti Dashboard - Aggregated Metrics
+
 - [x] **Dikti Dashboard: System-Wide Statistics** ✅ **IMPLEMENTED** (Feb 10, 2026)
-  - Dikti melihat collective data dari **semua universities**
-  - Metrics:
-    - Total journals across all universities ✅
-    - Scopus-indexed journals (system-wide) ✅
-    - SINTA-indexed journals (system-wide) ✅
-    - Non-SINTA journals ✅
-    - **Distribution by University** (table with percentage) ✅
-  - **Implementation**:
-    - Route: `GET /dashboard` (unified dashboard for all roles) ✅
-    - Controller: `DashboardController@index()` (role-based metrics) ✅
-    - Query: Aggregate journals across all universities with JOIN ✅
-    - Component: University distribution table with hover effects ✅
+    - Dikti melihat collective data dari **semua universities**
+    - Metrics:
+        - Total journals across all universities ✅
+        - Scopus-indexed journals (system-wide) ✅
+        - SINTA-indexed journals (system-wide) ✅
+        - Non-SINTA journals ✅
+        - **Distribution by University** (table with percentage) ✅
+    - **Implementation**:
+        - Route: `GET /dashboard` (unified dashboard for all roles) ✅
+        - Controller: `DashboardController@index()` (role-based metrics) ✅
+        - Query: Aggregate journals across all universities with JOIN ✅
+        - Component: University distribution table with hover effects ✅
 
 #### User Dashboard - Simplified
+
 - [x] **User Dashboard: Personal Journal View** ✅ **IMPLEMENTED** (Feb 10, 2026)
-  - User hanya melihat journals yang mereka manage
-  - Simple metrics:
-    - Total journals saya ✅
-    - Journals by status (pending, approved, rejected) ✅
-    - Indexation status ✅
-  - **Implementation**:
-    - Scope: `Journal::where('user_id', auth()->id())` ✅
-    - 4-column card layout with status breakdown ✅
-    - Color-coded cards: pending (amber), approved (green), rejected (red) ✅
+    - User hanya melihat journals yang mereka manage
+    - Simple metrics:
+        - Total journals saya ✅
+        - Journals by status (pending, approved, rejected) ✅
+        - Indexation status ✅
+    - **Implementation**:
+        - Scope: `Journal::where('user_id', auth()->id())` ✅
+        - 4-column card layout with status breakdown ✅
+        - Color-coded cards: pending (amber), approved (green), rejected (red) ✅
 
 ---
 
@@ -173,16 +182,16 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 #### Critical Feature for Continuity Management
 
 - [x] **LPPM Can Reassign Journal Manager** ✅ **IMPLEMENTED**
-  - Use Case: User leaves university, LPPM needs to transfer journal ownership
-  - LPPM dapat reassign journal dari satu user ke user lain **di university yang sama**
-  - **Audit Trail**: Log reassignment history (who reassigned, when, from/to)
-  - **Notification**: Both old and new manager notified (TODO: Phase 6)
-  - **Implementation**:
-    - ✅ Route: `POST /admin-kampus/journals/{id}/reassign` - DONE
-    - ✅ Controller: `AdminKampus\JournalController@reassign()` - DONE
-    - ✅ Policy: `JournalPolicy@reassign()` - LPPM only, same university - DONE
-    - ✅ Audit log uses existing `journal_reassignments` table - DONE
-    - ⏳ Frontend: Reassignment dialog component - PENDING (Phase 5)
+    - Use Case: User leaves university, LPPM needs to transfer journal ownership
+    - LPPM dapat reassign journal dari satu user ke user lain **di university yang sama**
+    - **Audit Trail**: Log reassignment history (who reassigned, when, from/to)
+    - **Notification**: Both old and new manager notified (TODO: Phase 6)
+    - **Implementation**:
+        - ✅ Route: `POST /admin-kampus/journals/{id}/reassign` - DONE
+        - ✅ Controller: `AdminKampus\JournalController@reassign()` - DONE
+        - ✅ Policy: `JournalPolicy@reassign()` - LPPM only, same university - DONE
+        - ✅ Audit log uses existing `journal_reassignments` table - DONE
+        - ⏳ Frontend: Reassignment dialog component - PENDING (Phase 5)
 
 ---
 
@@ -191,16 +200,16 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 #### LPPM Can Register Users on Behalf of University
 
 - [x] **LPPM Direct Registration Feature** ✅ **IMPLEMENTED**
-  - LPPM admin dapat register user **langsung** (bypass approval)
-  - User langsung active, tidak perlu approval lagi
-  - Use Case: LPPM mengundang specific users ke platform
-  - **Implementation**:
-    - ✅ Route: `GET /admin-kampus/users/create` - Registration form
-    - ✅ Controller: `AdminKampus\UserController@create()` and `@store()`
-    - ✅ Set `approval_status` = `approved` by default
-    - ✅ Set `approved_by` = LPPM admin ID
-    - ⏳ Generate random password, send via email (pending email setup)
-    - ⏳ User forced to change password on first login (pending)
+    - LPPM admin dapat register user **langsung** (bypass approval)
+    - User langsung active, tidak perlu approval lagi
+    - Use Case: LPPM mengundang specific users ke platform
+    - **Implementation**:
+        - ✅ Route: `GET /admin-kampus/users/create` - Registration form
+        - ✅ Controller: `AdminKampus\UserController@create()` and `@store()`
+        - ✅ Set `approval_status` = `approved` by default
+        - ✅ Set `approved_by` = LPPM admin ID
+        - ⏳ Generate random password, send via email (pending email setup)
+        - ⏳ User forced to change password on first login (pending)
 
 ---
 
@@ -209,16 +218,16 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 #### Seed Database with Target Universities
 
 - [x] **University Seeder for Production** ✅ **COMPLETED** (Feb 11, 2026)
-  - ✅ Received PTMA.json list from ADTRAINING (172 universities)
-  - ✅ Seeded ALL 172 universitas (not just 21 "excellent")
-  - ✅ Per advisor guidance: "Semua saja mas skalian, Nanti yg diundang memang bertahap"
-  - **Implementation**:
-    - ✅ Seeder: [UniversitySeeder.php](../database/seeders/UniversitySeeder.php) - Dynamic JSON loading
-    - ✅ Source: [PTMA.json](../database/PTMA.json) - 172 universities
-    - ✅ Features: Auto code mapping, error handling, progress bar, idempotent seeding
-    - ✅ Includes: code, ptm_code, name, accreditation_status, is_active
-    - ⏳ **Pending**: Complete data (address, city, website) - will be updated post-launch
-    - 📄 See: [UNIVERSITY_SEEDER_IMPLEMENTATION.md](UNIVERSITY_SEEDER_IMPLEMENTATION.md)
+    - ✅ Received PTMA.json list from ADTRAINING (172 universities)
+    - ✅ Seeded ALL 172 universitas (not just 21 "excellent")
+    - ✅ Per advisor guidance: "Semua saja mas skalian, Nanti yg diundang memang bertahap"
+    - **Implementation**:
+        - ✅ Seeder: [UniversitySeeder.php](../database/seeders/UniversitySeeder.php) - Dynamic JSON loading
+        - ✅ Source: [PTMA.json](../database/PTMA.json) - 172 universities
+        - ✅ Features: Auto code mapping, error handling, progress bar, idempotent seeding
+        - ✅ Includes: code, ptm_code, name, accreditation_status, is_active
+        - ⏳ **Pending**: Complete data (address, city, website) - will be updated post-launch
+        - 📄 See: [UNIVERSITY_SEEDER_IMPLEMENTATION.md](UNIVERSITY_SEEDER_IMPLEMENTATION.md)
 
 ---
 
@@ -227,16 +236,16 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 #### Harvest Article Metadata from Journal Endpoints
 
 - [ ] **Add OAI Field to Journal Registration** 🟡 **LOW PRIORITY - FUTURE**
-  - **New Field**: `oai_endpoint` (nullable string) in `journals` table
-  - Form: Text input for OAI-PMH endpoint URL
-  - **Goal**: Harvest article metadata (abstracts, issues) from journals
-  - **Mechanism**: Background job queries OAI endpoint periodically
-  - **Use Case**: Enable article-level search (like Garuda platform)
-  - **Status**: Deferred to post-launch iteration
-  - **Implementation**:
-    - Migration: `ALTER TABLE journals ADD COLUMN oai_endpoint VARCHAR(255) NULL`
-    - Form field: Optional URL input with validation
-    - Future: Create `ArticleHarvesterJob` using OAI-PMH protocol
+    - **New Field**: `oai_endpoint` (nullable string) in `journals` table
+    - Form: Text input for OAI-PMH endpoint URL
+    - **Goal**: Harvest article metadata (abstracts, issues) from journals
+    - **Mechanism**: Background job queries OAI endpoint periodically
+    - **Use Case**: Enable article-level search (like Garuda platform)
+    - **Status**: Deferred to post-launch iteration
+    - **Implementation**:
+        - Migration: `ALTER TABLE journals ADD COLUMN oai_endpoint VARCHAR(255) NULL`
+        - Form field: Optional URL input with validation
+        - Future: Create `ArticleHarvesterJob` using OAI-PMH protocol
 
 ---
 
@@ -245,24 +254,25 @@ Persiapan platform untuk **LAUNCH PRODUCTION** pada **Kamis, 12 Februari 2026** 
 #### Public Browse Feature for Journal Discovery
 
 - [x] **Browse Journals by University** ✅ **IMPLEMENTED** (Feb 11, 2026)
-  - ✅ Public page: Browse journals grouped by university
-  - ✅ Filter by university from searchable dropdown
-  - Display:
-    - ✅ University name, code, short name
-    - ✅ Total journals count per university
-    - ✅ List of journals (title, ISSN, indexation status, scientific field)
-  - **Implementation**:
-    - ✅ Route: `GET /browse/universities` - Public route
-    - ✅ Controller: `PublicJournalController@browseUniversities()`
-    - ✅ Query: Group journals by university, only show approved journals
-    - ✅ Component: `Browse/Universities.tsx` with filtering and pagination
-    - ✅ Features: Expandable view, journal cards, statistics caching
+    - ✅ Public page: Browse journals grouped by university
+    - ✅ Filter by university from searchable dropdown
+    - Display:
+        - ✅ University name, code, short name
+        - ✅ Total journals count per university
+        - ✅ List of journals (title, ISSN, indexation status, scientific field)
+    - **Implementation**:
+        - ✅ Route: `GET /browse/universities` - Public route
+        - ✅ Controller: `PublicJournalController@browseUniversities()`
+        - ✅ Query: Group journals by university, only show approved journals
+        - ✅ Component: `Browse/Universities.tsx` with filtering and pagination
+        - ✅ Features: Expandable view, journal cards, statistics caching
 
 ---
 
 ## 🗂️ Database Changes Required
 
 ### 1. User Approval Fields
+
 ```sql
 ALTER TABLE users
 ADD COLUMN approval_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending' AFTER role_id,
@@ -273,6 +283,7 @@ ADD FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL;
 ```
 
 ### 2. Journal Approval Fields
+
 ```sql
 ALTER TABLE journals
 ADD COLUMN approval_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending' AFTER status,
@@ -283,6 +294,7 @@ ADD FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL;
 ```
 
 ### 3. Journal Reassignment Audit Log
+
 ```sql
 CREATE TABLE journal_reassignments (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -301,6 +313,7 @@ CREATE TABLE journal_reassignments (
 ```
 
 ### 4. OAI-PMH Endpoint (Future)
+
 ```sql
 ALTER TABLE journals
 ADD COLUMN oai_endpoint VARCHAR(255) NULL AFTER website
@@ -326,63 +339,63 @@ class UserApprovalController extends Controller
     public function index(Request $request)
     {
         $this->authorize('approveUsers', User::class);
-        
+
         $query = User::where('university_id', auth()->user()->university_id)
             ->where('approval_status', 'pending')
             ->with('role');
-        
+
         $users = $query->paginate(15);
-        
+
         return Inertia::render('AdminKampus/Users/PendingApproval', [
             'users' => $users,
         ]);
     }
-    
+
     public function approve(Request $request, User $user)
     {
         $this->authorize('approve', $user);
-        
+
         // Ensure LPPM can only approve users from their university
         if ($user->university_id !== auth()->user()->university_id) {
             abort(403, 'Unauthorized');
         }
-        
+
         $user->update([
             'approval_status' => 'approved',
             'approved_by' => auth()->id(),
             'approved_at' => now(),
         ]);
-        
+
         // Send notification to user
         $user->notify(new UserApprovedNotification());
-        
+
         return redirect()
             ->route('admin-kampus.users.pending')
             ->with('success', 'User berhasil disetujui');
     }
-    
+
     public function reject(Request $request, User $user)
     {
         $request->validate([
             'reason' => 'required|string|min:10',
         ]);
-        
+
         $this->authorize('approve', $user);
-        
+
         if ($user->university_id !== auth()->user()->university_id) {
             abort(403, 'Unauthorized');
         }
-        
+
         $user->update([
             'approval_status' => 'rejected',
             'approved_by' => auth()->id(),
             'approved_at' => now(),
             'rejection_reason' => $request->reason,
         ]);
-        
+
         // Send notification to user
         $user->notify(new UserRejectedNotification($request->reason));
-        
+
         return redirect()
             ->route('admin-kampus.users.pending')
             ->with('success', 'User ditolak');
@@ -407,57 +420,57 @@ class JournalApprovalController extends Controller
         $query = Journal::where('university_id', auth()->user()->university_id)
             ->where('approval_status', 'pending')
             ->with(['user', 'scientific_field']);
-        
+
         $journals = $query->paginate(15);
-        
+
         return Inertia::render('AdminKampus/Journals/PendingApproval', [
             'journals' => $journals,
         ]);
     }
-    
+
     public function approve(Request $request, Journal $journal)
     {
         $this->authorize('approve', $journal);
-        
+
         if ($journal->university_id !== auth()->user()->university_id) {
             abort(403, 'Unauthorized');
         }
-        
+
         $journal->update([
             'approval_status' => 'approved',
             'approved_by' => auth()->id(),
             'approved_at' => now(),
         ]);
-        
+
         // Notify journal manager
         $journal->user->notify(new JournalApprovedNotification($journal));
-        
+
         return redirect()
             ->route('admin-kampus.journals.pending')
             ->with('success', 'Jurnal berhasil disetujui');
     }
-    
+
     public function reject(Request $request, Journal $journal)
     {
         $request->validate([
             'reason' => 'required|string|min:10',
         ]);
-        
+
         $this->authorize('approve', $journal);
-        
+
         if ($journal->university_id !== auth()->user()->university_id) {
             abort(403, 'Unauthorized');
         }
-        
+
         $journal->update([
             'approval_status' => 'rejected',
             'approved_by' => auth()->id(),
             'approved_at' => now(),
             'rejection_reason' => $request->reason,
         ]);
-        
+
         $journal->user->notify(new JournalRejectedNotification($journal, $request->reason));
-        
+
         return redirect()
             ->route('admin-kampus.journals.pending')
             ->with('success', 'Jurnal ditolak');
@@ -472,20 +485,20 @@ class JournalApprovalController extends Controller
 public function reassign(Request $request, Journal $journal)
 {
     $this->authorize('reassign', $journal);
-    
+
     $request->validate([
         'new_user_id' => 'required|exists:users,id',
         'reason' => 'nullable|string|max:500',
     ]);
-    
+
     // Ensure new user is from same university
     $newUser = User::findOrFail($request->new_user_id);
     if ($newUser->university_id !== auth()->user()->university_id) {
         return back()->withErrors(['error' => 'User harus dari universitas yang sama']);
     }
-    
+
     $oldUserId = $journal->user_id;
-    
+
     // Log reassignment
     \DB::table('journal_reassignments')->insert([
         'journal_id' => $journal->id,
@@ -496,17 +509,17 @@ public function reassign(Request $request, Journal $journal)
         'created_at' => now(),
         'updated_at' => now(),
     ]);
-    
+
     // Update journal ownership
     $journal->update([
         'user_id' => $request->new_user_id,
     ]);
-    
+
     // Notify both users
     $oldUser = User::find($oldUserId);
     $oldUser->notify(new JournalReassignedNotification($journal, 'removed'));
     $newUser->notify(new JournalReassignedNotification($journal, 'assigned'));
-    
+
     return back()->with('success', 'Jurnal berhasil di-reassign');
 }
 ```
@@ -518,7 +531,7 @@ public function reassign(Request $request, Journal $journal)
 public function index()
 {
     $user = auth()->user();
-    
+
     // Role-based metrics
     if ($user->isSuperAdmin()) {
         // System-wide metrics
@@ -574,7 +587,7 @@ public function index()
                 ->where('approval_status', 'rejected')->count(),
         ];
     }
-    
+
     return Inertia::render('Dashboard', [
         'metrics' => $metrics,
     ]);
@@ -591,7 +604,7 @@ public function create()
     $universities = \App\Models\University::where('status', 'active')
         ->orderBy('name')
         ->get(['id', 'name']);
-    
+
     return Inertia::render('Auth/Register', [
         'universities' => $universities,
     ]);
@@ -606,12 +619,12 @@ public function store(Request $request)
         'university_id' => 'required|exists:universities,id',
         'role_type' => 'required|in:lppm,user',
     ]);
-    
+
     // Determine pending role based on selection
-    $roleId = $request->role_type === 'lppm' 
+    $roleId = $request->role_type === 'lppm'
         ? null // Will be assigned by Dikti after approval
         : \App\Models\Role::where('name', 'User')->first()->id;
-    
+
     $user = User::create([
         'name' => $request->name,
         'email' => $request->email,
@@ -620,7 +633,7 @@ public function store(Request $request)
         'role_id' => $roleId,
         'approval_status' => 'pending',
     ]);
-    
+
     // Notify LPPM admin (if registering as User)
     // Or notify Dikti (if registering as LPPM)
     if ($request->role_type === 'lppm') {
@@ -634,7 +647,7 @@ public function store(Request $request)
             ->get();
         \Notification::send($lppmAdmins, new NewUserRegistrationNotification($user));
     }
-    
+
     return redirect()->route('login')
         ->with('status', 'Pendaftaran berhasil. Menunggu approval dari admin.');
 }
@@ -654,7 +667,7 @@ interface Props {
 
 export default function Register({ universities }: Props) {
   const [roleType, setRoleType] = useState<'lppm' | 'user'>('user');
-  
+
   const { data, setData, post, processing, errors } = useForm({
     name: '',
     email: '',
@@ -663,20 +676,20 @@ export default function Register({ universities }: Props) {
     university_id: '',
     role_type: 'user',
   });
-  
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     post(route('register'));
   };
-  
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Name, Email, Password fields... */}
-      
+
       <div className="space-y-2">
         <Label htmlFor="university">Universitas *</Label>
-        <Select 
-          value={data.university_id.toString()} 
+        <Select
+          value={data.university_id.toString()}
           onValueChange={(value) => setData('university_id', value)}
         >
           <SelectTrigger>
@@ -692,11 +705,11 @@ export default function Register({ universities }: Props) {
         </Select>
         {errors.university_id && <InputError message={errors.university_id} />}
       </div>
-      
+
       <div className="space-y-2">
         <Label>Daftar Sebagai *</Label>
-        <RadioGroup 
-          value={data.role_type} 
+        <RadioGroup
+          value={data.role_type}
           onValueChange={(value) => {
             setData('role_type', value);
             setRoleType(value as 'lppm' | 'user');
@@ -712,13 +725,13 @@ export default function Register({ universities }: Props) {
           </div>
         </RadioGroup>
         <p className="text-xs text-muted-foreground">
-          {roleType === 'lppm' 
-            ? 'Akun LPPM akan disetujui oleh Dikti' 
+          {roleType === 'lppm'
+            ? 'Akun LPPM akan disetujui oleh Dikti'
             : 'Akun User akan disetujui oleh LPPM universitas Anda'}
         </p>
         {errors.role_type && <InputError message={errors.role_type} />}
       </div>
-      
+
       <Button type="submit" disabled={processing} className="w-full">
         Daftar
       </Button>
@@ -746,16 +759,16 @@ interface Props {
 export default function PendingApproval({ users }: Props) {
   const [selectedUser, setSelectedUser] = useState<PendingUser | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-  
+
   const handleApprove = (userId: number) => {
     router.post(route('admin-kampus.users.approve', userId));
   };
-  
+
   const handleReject = (userId: number, reason: string) => {
     router.post(route('admin-kampus.users.reject', userId), { reason });
     setShowRejectDialog(false);
   };
-  
+
   return (
     <AppLayout title="Pending User Approvals">
       <Card>
@@ -796,16 +809,16 @@ export default function PendingApproval({ users }: Props) {
                     <TableCell>{formatDate(user.created_at)}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="default"
                           onClick={() => handleApprove(user.id)}
                         >
                           <CheckCircle className="w-4 h-4 mr-1" />
                           Approve
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="destructive"
                           onClick={() => {
                             setSelectedUser(user);
@@ -824,9 +837,9 @@ export default function PendingApproval({ users }: Props) {
           </Table>
         </CardContent>
       </Card>
-      
+
       {/* Reject Dialog with Reason */}
-      <RejectDialog 
+      <RejectDialog
         open={showRejectDialog}
         onClose={() => setShowRejectDialog(false)}
         onConfirm={(reason) => selectedUser && handleReject(selectedUser.id, reason)}
@@ -862,7 +875,7 @@ interface Props {
 
 export default function Dashboard({ metrics }: Props) {
   const user = usePage().props.auth.user;
-  
+
   return (
     <AppLayout title="Dashboard">
       <div className="space-y-6">
@@ -875,7 +888,7 @@ export default function Dashboard({ metrics }: Props) {
             {user.role.name} - {user.university?.name}
           </p>
         </div>
-        
+
         {/* Metrics Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <MetricCard
@@ -906,7 +919,7 @@ export default function Dashboard({ metrics }: Props) {
             variant="warning"
           />
         </div>
-        
+
         {/* LPPM: Pending Approvals */}
         {metrics.pending_approvals && (
           <Card>
@@ -945,7 +958,7 @@ export default function Dashboard({ metrics }: Props) {
             </CardContent>
           </Card>
         )}
-        
+
         {/* Dikti: Distribution by University */}
         {metrics.universities_distribution && (
           <Card>
@@ -991,17 +1004,17 @@ interface Props {
   onClose: () => void;
 }
 
-export default function JournalReassignDialog({ 
-  journal, 
-  users, 
-  open, 
-  onClose 
+export default function JournalReassignDialog({
+  journal,
+  users,
+  open,
+  onClose
 }: Props) {
   const { data, setData, post, processing, errors, reset } = useForm({
     new_user_id: '',
     reason: '',
   });
-  
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     post(route('admin-kampus.journals.reassign', journal.id), {
@@ -1011,7 +1024,7 @@ export default function JournalReassignDialog({
       },
     });
   };
-  
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
@@ -1021,17 +1034,17 @@ export default function JournalReassignDialog({
             Pindahkan ownership jurnal "{journal.name}" ke user lain
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Manager Saat Ini</Label>
             <Input value={journal.user.name} disabled />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="new_user">Manager Baru *</Label>
-            <Select 
-              value={data.new_user_id} 
+            <Select
+              value={data.new_user_id}
               onValueChange={(value) => setData('new_user_id', value)}
             >
               <SelectTrigger>
@@ -1049,7 +1062,7 @@ export default function JournalReassignDialog({
             </Select>
             {errors.new_user_id && <InputError message={errors.new_user_id} />}
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="reason">Alasan (Opsional)</Label>
             <Textarea
@@ -1061,7 +1074,7 @@ export default function JournalReassignDialog({
             />
             {errors.reason && <InputError message={errors.reason} />}
           </div>
-          
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Batal
@@ -1084,12 +1097,14 @@ export default function JournalReassignDialog({
 ### 🔴 **CRITICAL - Must Complete by Thursday Morning** (Feb 12, 2026)
 
 #### Day 1 - Sunday, Feb 9 (Today Evening Follow-up)
+
 - [x] Database migrations (user/journal approval fields, reassignment table) ✅
 - [x] University seeder (waiting for 21 universities list from ADTRAINING) ✅
 - [x] Registration form with university dropdown ✅
 - [x] User approval flow (LPPM approve users) ✅
 
 #### Day 2 - Monday, Feb 10
+
 - [x] Journal approval flow (LPPM approve journals) ✅
 - [x] Dashboard redesign (move visualizations, role-based metrics) ✅
 - [x] LPPM direct user registration ✅
@@ -1097,6 +1112,7 @@ export default function JournalReassignDialog({
 - [ ] Journal reassignment feature (frontend) ⏳ Phase 5
 
 #### Day 3 - Tuesday, Feb 11
+
 - [x] Dikti dashboard (system-wide metrics) ✅
 - [x] Browse by university (public page) ✅
 - [x] Dashboard redesign (move visualizations) ✅
@@ -1104,6 +1120,7 @@ export default function JournalReassignDialog({
 - [x] Bug fixes and polish ✅
 
 #### Day 4 - Wednesday, Feb 12 (Morning) - TODAY
+
 - [ ] Final testing ⏳
 - [ ] Production deployment ⏳
 - [ ] Data verification ⏳
@@ -1116,25 +1133,21 @@ export default function JournalReassignDialog({
 These features are explicitly deferred and will NOT be in Thursday launch:
 
 - ❌ **Assessment System** (entire module)
-  - Assessment submission flow
-  - Reviewer assignment
-  - Assessment review and feedback
-  - Assessment notes/timeline
-  
+    - Assessment submission flow
+    - Reviewer assignment
+    - Assessment review and feedback
+    - Assessment notes/timeline
 - ❌ **Pembinaan System** (entire module)
-  - Pembinaan registration
-  - Pembinaan periods
-  - Supporting documents upload
-  
+    - Pembinaan registration
+    - Pembinaan periods
+    - Supporting documents upload
 - ❌ **Reviewer Role** (not needed without assessments)
-  
 - ❌ **OAI-PMH Integration**
-  - Article harvesting
-  - Article-level search
-  
+    - Article harvesting
+    - Article-level search
 - ❌ **Advanced Search/Browse**
-  - Complex filtering
-  - Article search
+    - Complex filtering
+    - Article search
 
 **Rationale**: Focus on getting core platform functional for data population first. Assessment and advanced features can be added incrementally post-launch.
 
@@ -1143,6 +1156,7 @@ These features are explicitly deferred and will NOT be in Thursday launch:
 ## 🎯 Success Criteria for Thursday Launch
 
 ### Functional Requirements
+
 - [x] ✅ Users can register and select university
 - [x] ✅ LPPM can approve/reject user registrations
 - [x] ✅ Approved users can submit journals
@@ -1153,11 +1167,13 @@ These features are explicitly deferred and will NOT be in Thursday launch:
 - [ ] ⏳ Journal reassignment frontend (dialog UI) - Optional for launch
 
 ### Data Requirements
+
 - [x] ✅ 21 universities seeded in database (seeder ready)
 - [ ] ⏳ At least 1 LPPM admin per university created (manual/seeder needed)
 - [ ] ⏳ Sample journals for demo purposes (to be populated)
 
 ### Technical Requirements
+
 - [ ] ⏳ Production server deployed and accessible
 - [ ] ⏳ SSL certificate configured
 - [ ] ⏳ Database backed up
@@ -1165,6 +1181,7 @@ These features are explicitly deferred and will NOT be in Thursday launch:
 - [x] ✅ All critical bugs fixed (core features stable)
 
 ### User Acceptance
+
 - [x] ✅ ADTRAINING approves UI/UX
 - [x] ✅ Tutorial slides prepared
 - [x] ✅ User documentation ready
@@ -1174,17 +1191,17 @@ These features are explicitly deferred and will NOT be in Thursday launch:
 
 ## 🔒 Authorization Matrix (Updated)
 
-| Feature | User | LPPM | Dikti | Reviewer |
-|---------|------|------|-------|----------|
-| Register (public) | ✅ | ✅ | ❌ | ❌ |
-| Approve User Registration | ❌ | ✅ (own uni) | ✅ (LPPM only) | ❌ |
-| Submit Journal | ✅ | ❌ | ❌ | ❌ |
-| Approve Journal | ❌ | ✅ (own uni) | ❌ | ❌ |
-| Reassign Journal Manager | ❌ | ✅ (own uni) | ❌ | ❌ |
-| Register User Directly | ❌ | ✅ (own uni) | ✅ | ❌ |
-| View Dashboard (own) | ✅ | ✅ | ✅ | ❌ |
-| View System-Wide Metrics | ❌ | ❌ | ✅ | ❌ |
-| Browse Journals (public) | ✅ | ✅ | ✅ | ❌ |
+| Feature                   | User | LPPM         | Dikti          | Reviewer |
+| ------------------------- | ---- | ------------ | -------------- | -------- |
+| Register (public)         | ✅   | ✅           | ❌             | ❌       |
+| Approve User Registration | ❌   | ✅ (own uni) | ✅ (LPPM only) | ❌       |
+| Submit Journal            | ✅   | ❌           | ❌             | ❌       |
+| Approve Journal           | ❌   | ✅ (own uni) | ❌             | ❌       |
+| Reassign Journal Manager  | ❌   | ✅ (own uni) | ❌             | ❌       |
+| Register User Directly    | ❌   | ✅ (own uni) | ✅             | ❌       |
+| View Dashboard (own)      | ✅   | ✅           | ✅             | ❌       |
+| View System-Wide Metrics  | ❌   | ❌           | ✅             | ❌       |
+| Browse Journals (public)  | ✅   | ✅           | ✅             | ❌       |
 
 **Note**: Reviewer role is deferred. Assessment-related authorizations removed from this phase.
 
@@ -1203,7 +1220,7 @@ class UserPolicy
         // LPPM can view pending approvals for their university
         return $user->isAdminKampus();
     }
-    
+
     public function approve(User $user, User $targetUser): bool
     {
         // LPPM can approve users from their university
@@ -1212,15 +1229,15 @@ class UserPolicy
             // Dikti can approve LPPM only
             return $targetUser->role_id === null; // LPPM pending role
         }
-        
+
         if ($user->isAdminKampus()) {
             // LPPM can approve regular users from their university
             return $user->university_id === $targetUser->university_id;
         }
-        
+
         return false;
     }
-    
+
     public function registerDirectly(User $user): bool
     {
         // LPPM can register users directly in their university
@@ -1238,40 +1255,40 @@ class JournalPolicy
     public function approve(User $user, Journal $journal): bool
     {
         // LPPM can approve journals from their university
-        return $user->isAdminKampus() && 
+        return $user->isAdminKampus() &&
                $user->university_id === $journal->university_id;
     }
-    
+
     public function reassign(User $user, Journal $journal): bool
     {
         // LPPM can reassign journals in their university
-        return $user->isAdminKampus() && 
+        return $user->isAdminKampus() &&
                $user->university_id === $journal->university_id;
     }
-    
+
     public function viewAny(User $user): bool
     {
         // Public can browse approved journals
         return true;
     }
-    
+
     public function view(User $user, Journal $journal): bool
     {
         // User can view their own journals (any status)
         if ($user->id === $journal->user_id) {
             return true;
         }
-        
+
         // LPPM can view all journals in their university
         if ($user->isAdminKampus() && $user->university_id === $journal->university_id) {
             return true;
         }
-        
+
         // Dikti can view all
         if ($user->isSuperAdmin()) {
             return true;
         }
-        
+
         // Public can only view approved journals
         return $journal->approval_status === 'approved';
     }
@@ -1283,46 +1300,51 @@ class JournalPolicy
 ## 🚨 Critical Blockers & Dependencies
 
 ### External Dependencies
+
 1. **University List** - REQUIRED from ADTRAINING
-   - **Status**: ⏳ Waiting
-   - **Required By**: Sunday evening (Feb 9)
-   - **Impact**: Cannot seed database without this
-   - **Action**: ADTRAINING to email list to Akyas
+    - **Status**: ⏳ Waiting
+    - **Required By**: Sunday evening (Feb 9)
+    - **Impact**: Cannot seed database without this
+    - **Action**: ADTRAINING to email list to Akyas
 
 2. **Production Server Access**
-   - **Status**: ✅ Assumed ready
-   - **Required By**: Tuesday (Feb 11) for deployment
-   - **Impact**: Cannot deploy without server
+    - **Status**: ✅ Assumed ready
+    - **Required By**: Tuesday (Feb 11) for deployment
+    - **Impact**: Cannot deploy without server
 
 3. **Email Configuration**
-   - **Status**: ⏳ To be configured
-   - **Required By**: Monday (Feb 10)
-   - **Impact**: Notifications won't work without this
+    - **Status**: ⏳ To be configured
+    - **Required By**: Monday (Feb 10)
+    - **Impact**: Notifications won't work without this
 
 ### Internal Dependencies
+
 1. **Migration Order**
-   - Must run approval fields migrations before implementing controllers
-   - Must seed universities before testing registration
+    - Must run approval fields migrations before implementing controllers
+    - Must seed universities before testing registration
 
 2. **Testing Data**
-   - Need sample users for each university
-   - Need sample journals for demo
+    - Need sample users for each university
+    - Need sample journals for demo
 
 ---
 
 ## 📚 Related Documents
 
 ### Previous Meetings
+
 - [MEETING_NOTES_02_FEB_2026.md](MEETING_NOTES_02_FEB_2026.md) - Assessment flow (NOW DEFERRED)
 - [MEETING_NOTES_30_JAN_2026.md](MEETING_NOTES_30_JAN_2026.md) - Statistics dashboard
 - [MEETING_NOTES_16_JAN_2026.md](MEETING_NOTES_16_JAN_2026.md) - Initial requirements
 
 ### Technical Documentation
+
 - [ERD Database.md](ERD Database.md) - Database schema (needs update for approval fields)
 - [PEMBINAAN_CONTROLLERS_IMPLEMENTATION.md](PEMBINAAN_CONTROLLERS_IMPLEMENTATION.md) - Deferred module
 - [ASSESSMENT_FLOW.md](ASSESSMENT_FLOW.md) - Deferred module
 
 ### Project Planning
+
 - [jurnal_mu MVP.md](jurnal_mu MVP.md) - Original MVP scope (now revised)
 - [jurnal_mu project plan.md](jurnal_mu project plan.md) - Overall project plan
 
@@ -1341,12 +1363,14 @@ class JournalPolicy
 > "Thursday is non-negotiable. We need core functionality working."
 
 ### Design Philosophy
+
 - **Simplicity First**: Launch with minimal viable features
 - **Data Collection**: Priority is getting journals registered
 - **Gated Access**: Two-step approval ensures quality control
 - **Flexibility**: LPPM can reassign to handle staff turnover
 
 ### Risk Mitigation
+
 - **Deferred Complexity**: Assessment system is complex, defer it
 - **Focused Scope**: Only core features to reduce bugs
 - **Approval Workflow**: Prevents spam/invalid submissions
@@ -1357,6 +1381,7 @@ class JournalPolicy
 ## ✅ Action Items Summary
 
 ### Akyas (Developer)
+
 - [x] Implement user registration with university selection ✅
 - [x] Implement LPPM approval for users ✅
 - [x] Implement journal submission with approval ✅
@@ -1367,6 +1392,7 @@ class JournalPolicy
 - [ ] Prepare for Thursday launch ⏳
 
 ### ADTRAINING
+
 - [x] Send list of 21 universities to Akyas (URGENT)
 - [x] Create tutorial slides for launch
 - [x] Prepare demo script
@@ -1374,6 +1400,7 @@ class JournalPolicy
 - [x] Share Feb 12 online session link
 
 ### Team
+
 - [x] Progress check: Tomorrow (Feb 9) evening
 - [x] Final check: Wednesday (Feb 12) morning
 - [x] Launch: Thursday (Feb 12) presentation

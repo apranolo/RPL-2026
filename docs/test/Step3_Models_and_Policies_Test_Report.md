@@ -1,4 +1,5 @@
 # Step 3: Models & Policies Test Report
+
 ## Hierarchical Borang Indikator Management - v1.1
 
 **Date:** January 17, 2026  
@@ -9,14 +10,14 @@
 
 ## 📊 Executive Summary
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| **Total Tests** | 81 | ✅ PASSED |
-| **Unit Tests** | 62 | ✅ PASSED |
-| **Feature Tests** | 19 | ✅ PASSED |
-| **Test Duration** | 8.94 seconds | ✅ FAST |
-| **Code Coverage** | 5 Models, 5 Policies | ✅ COMPLETE |
-| **Assertions** | 188 | ✅ ALL VALID |
+| Metric            | Value                | Status       |
+| ----------------- | -------------------- | ------------ |
+| **Total Tests**   | 81                   | ✅ PASSED    |
+| **Unit Tests**    | 62                   | ✅ PASSED    |
+| **Feature Tests** | 19                   | ✅ PASSED    |
+| **Test Duration** | 8.94 seconds         | ✅ FAST      |
+| **Code Coverage** | 5 Models, 5 Policies | ✅ COMPLETE  |
+| **Assertions**    | 188                  | ✅ ALL VALID |
 
 ---
 
@@ -28,14 +29,14 @@
 php artisan test tests/Unit/Models
 ```
 
-| Test Suite | Tests | Pass | Fail | Duration |
-|------------|-------|------|------|----------|
-| **AccreditationTemplateTest** | 13 | 13 | 0 | 2.66s |
-| **EvaluationCategoryTest** | 10 | 10 | 0 | 0.26s |
-| **EvaluationSubCategoryTest** | 11 | 11 | 0 | 0.07s |
-| **EssayQuestionTest** | 13 | 13 | 0 | 0.05s |
-| **EvaluationIndicatorTest** | 15 | 15 | 0 | 0.08s |
-| **SUBTOTAL** | **62** | **62** | **0** | **5.09s** |
+| Test Suite                    | Tests  | Pass   | Fail  | Duration  |
+| ----------------------------- | ------ | ------ | ----- | --------- |
+| **AccreditationTemplateTest** | 13     | 13     | 0     | 2.66s     |
+| **EvaluationCategoryTest**    | 10     | 10     | 0     | 0.26s     |
+| **EvaluationSubCategoryTest** | 11     | 11     | 0     | 0.07s     |
+| **EssayQuestionTest**         | 13     | 13     | 0     | 0.05s     |
+| **EvaluationIndicatorTest**   | 15     | 15     | 0     | 0.08s     |
+| **SUBTOTAL**                  | **62** | **62** | **0** | **5.09s** |
 
 ### Feature Tests - Policies (19 tests)
 
@@ -43,16 +44,16 @@ php artisan test tests/Unit/Models
 php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 ```
 
-| Test Category | Tests | Pass | Fail | Duration |
-|---------------|-------|------|------|----------|
-| **AccreditationTemplate Policies** | 5 | 5 | 0 | 2.91s |
-| **EvaluationCategory Policies** | 2 | 2 | 0 | 0.09s |
-| **EvaluationSubCategory Policies** | 2 | 2 | 0 | 0.08s |
-| **EssayQuestion Policies** | 2 | 2 | 0 | 0.08s |
-| **EvaluationIndicator Policies** | 3 | 3 | 0 | 0.12s |
-| **Migration Permission Tests** | 2 | 2 | 0 | 0.08s |
-| **Cross-Role Authorization** | 3 | 3 | 0 | 0.12s |
-| **SUBTOTAL** | **19** | **19** | **0** | **4.03s** |
+| Test Category                      | Tests  | Pass   | Fail  | Duration  |
+| ---------------------------------- | ------ | ------ | ----- | --------- |
+| **AccreditationTemplate Policies** | 5      | 5      | 0     | 2.91s     |
+| **EvaluationCategory Policies**    | 2      | 2      | 0     | 0.09s     |
+| **EvaluationSubCategory Policies** | 2      | 2      | 0     | 0.08s     |
+| **EssayQuestion Policies**         | 2      | 2      | 0     | 0.08s     |
+| **EvaluationIndicator Policies**   | 3      | 3      | 0     | 0.12s     |
+| **Migration Permission Tests**     | 2      | 2      | 0     | 0.08s     |
+| **Cross-Role Authorization**       | 3      | 3      | 0     | 0.12s     |
+| **SUBTOTAL**                       | **19** | **19** | **0** | **4.03s** |
 
 ---
 
@@ -62,35 +63,38 @@ php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 
 **File:** `tests/Unit/Models/AccreditationTemplateTest.php`
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `accreditation template can be created` | Model creation with all attributes | ✅ |
-| 2 | `accreditation template has correct fillable attributes` | Fillable: name, description, version, type, is_active, effective_date | ✅ |
-| 3 | `accreditation template has categories relationship` | hasMany(categories) relationship works | ✅ |
-| 4 | `accreditation template has sub categories through relationship` | hasManyThrough(subCategories) retrieves data correctly | ✅ |
-| 5 | `accreditation template has indicators through relationship` | Custom 3-level relationship traversal works | ✅ |
-| 6 | `accreditation template has essay questions through relationship` | hasManyThrough(essayQuestions) retrieves data correctly | ✅ |
-| 7 | `active scope filters only active templates` | active() scope filters is_active=true | ✅ |
-| 8 | `by type scope filters templates by type` | byType('akreditasi'/'indeksasi') scope | ✅ |
-| 9 | `get total weight calculates sum of category weights` | getTotalWeight() sums category.weight | ✅ |
-| 10 | `can be deleted returns false if only active template of type` | Business rule: prevents deleting last active template | ✅ |
-| 11 | `can be deleted returns true if multiple active templates exist` | Business rule: allows deletion when alternatives exist | ✅ |
-| 12 | `clone template creates deep copy` | cloneTemplate() deep copies hierarchy | ✅ |
-| 13 | `soft delete works correctly` | Soft deletes with restore capability | ✅ |
+| #   | Test Name                                                         | Validates                                                             | Status |
+| --- | ----------------------------------------------------------------- | --------------------------------------------------------------------- | ------ |
+| 1   | `accreditation template can be created`                           | Model creation with all attributes                                    | ✅     |
+| 2   | `accreditation template has correct fillable attributes`          | Fillable: name, description, version, type, is_active, effective_date | ✅     |
+| 3   | `accreditation template has categories relationship`              | hasMany(categories) relationship works                                | ✅     |
+| 4   | `accreditation template has sub categories through relationship`  | hasManyThrough(subCategories) retrieves data correctly                | ✅     |
+| 5   | `accreditation template has indicators through relationship`      | Custom 3-level relationship traversal works                           | ✅     |
+| 6   | `accreditation template has essay questions through relationship` | hasManyThrough(essayQuestions) retrieves data correctly               | ✅     |
+| 7   | `active scope filters only active templates`                      | active() scope filters is_active=true                                 | ✅     |
+| 8   | `by type scope filters templates by type`                         | byType('akreditasi'/'indeksasi') scope                                | ✅     |
+| 9   | `get total weight calculates sum of category weights`             | getTotalWeight() sums category.weight                                 | ✅     |
+| 10  | `can be deleted returns false if only active template of type`    | Business rule: prevents deleting last active template                 | ✅     |
+| 11  | `can be deleted returns true if multiple active templates exist`  | Business rule: allows deletion when alternatives exist                | ✅     |
+| 12  | `clone template creates deep copy`                                | cloneTemplate() deep copies hierarchy                                 | ✅     |
+| 13  | `soft delete works correctly`                                     | Soft deletes with restore capability                                  | ✅     |
 
 **Relationships Tested:**
+
 - ✅ `hasMany(EvaluationCategory)` - categories (direct relationship)
 - ✅ `hasManyThrough(EvaluationSubCategory)` - subCategories (2-level through)
 - ✅ **Custom Query** `indicators()` - indicators (3-level: Template→Category→SubCategory→Indicator)
-  - **Note:** Laravel's `hasManyThrough` only supports 2-level relationships. For the 3-level hierarchy to indicators, a custom query method with accessor pattern is used.
+    - **Note:** Laravel's `hasManyThrough` only supports 2-level relationships. For the 3-level hierarchy to indicators, a custom query method with accessor pattern is used.
 - ✅ `hasManyThrough(EssayQuestion)` - essayQuestions (2-level through)
 
 **Business Methods Tested:**
+
 - ✅ `canBeDeleted()` - Checks if template can be safely deleted
 - ✅ `getTotalWeight()` - Calculates sum of category weights
 - ✅ `cloneTemplate(?string $newName)` - Deep copy with all children
 
 **Scopes Tested:**
+
 - ✅ `active()` - Filters is_active=true
 - ✅ `byType(string $type)` - Filters by akreditasi/indeksasi
 - ✅ `latest()` - Orders by effective_date DESC
@@ -101,30 +105,33 @@ php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 
 **File:** `tests/Unit/Models/EvaluationCategoryTest.php`
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `evaluation category can be created` | Model creation with code, name, weight | ✅ |
-| 2 | `evaluation category has correct fillable attributes` | Fillable: template_id, code, name, description, weight, display_order | ✅ |
-| 3 | `evaluation category belongs to template` | belongsTo(template) relationship | ✅ |
-| 4 | `evaluation category has sub categories relationship` | hasMany(subCategories) relationship | ✅ |
-| 5 | `evaluation category has essay questions relationship` | hasMany(essayQuestions) relationship | ✅ |
-| 6 | `ordered scope sorts by display_order` | ordered() scope sorts correctly | ✅ |
-| 7 | `for template scope filters by template id` | forTemplate($id) scope filters | ✅ |
-| 8 | `get statistics returns correct counts` | getStatistics() returns counts | ✅ |
-| 9 | `can be deleted returns true when no submitted assessments` | Business rule: prevents deletion if in use | ✅ |
-| 10 | `soft delete works correctly` | Soft deletes with restore | ✅ |
+| #   | Test Name                                                   | Validates                                                             | Status |
+| --- | ----------------------------------------------------------- | --------------------------------------------------------------------- | ------ |
+| 1   | `evaluation category can be created`                        | Model creation with code, name, weight                                | ✅     |
+| 2   | `evaluation category has correct fillable attributes`       | Fillable: template_id, code, name, description, weight, display_order | ✅     |
+| 3   | `evaluation category belongs to template`                   | belongsTo(template) relationship                                      | ✅     |
+| 4   | `evaluation category has sub categories relationship`       | hasMany(subCategories) relationship                                   | ✅     |
+| 5   | `evaluation category has essay questions relationship`      | hasMany(essayQuestions) relationship                                  | ✅     |
+| 6   | `ordered scope sorts by display_order`                      | ordered() scope sorts correctly                                       | ✅     |
+| 7   | `for template scope filters by template id`                 | forTemplate($id) scope filters                                        | ✅     |
+| 8   | `get statistics returns correct counts`                     | getStatistics() returns counts                                        | ✅     |
+| 9   | `can be deleted returns true when no submitted assessments` | Business rule: prevents deletion if in use                            | ✅     |
+| 10  | `soft delete works correctly`                               | Soft deletes with restore                                             | ✅     |
 
 **Relationships Tested:**
+
 - ✅ `belongsTo(AccreditationTemplate)` - template
 - ✅ `hasMany(EvaluationSubCategory)` - subCategories
 - ✅ `hasMany(EssayQuestion)` - essayQuestions
 - ✅ `hasManyThrough(EvaluationIndicator)` - indicators
 
 **Business Methods Tested:**
+
 - ✅ `canBeDeleted()` - Checks if indicators are used in submitted assessments
 - ✅ `getStatistics()` - Returns counts: sub_categories, indicators, essays, total_items
 
 **Scopes Tested:**
+
 - ✅ `ordered()` - Sorts by display_order
 - ✅ `forTemplate(int $templateId)` - Filters by template
 
@@ -134,30 +141,33 @@ php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 
 **File:** `tests/Unit/Models/EvaluationSubCategoryTest.php`
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `evaluation sub category can be created` | Model creation with code, name | ✅ |
-| 2 | `evaluation sub category has correct fillable attributes` | Fillable: category_id, code, name, description, display_order | ✅ |
-| 3 | `evaluation sub category belongs to category` | belongsTo(category) relationship | ✅ |
-| 4 | `evaluation sub category has indicators relationship` | hasMany(indicators) relationship | ✅ |
-| 5 | `ordered scope sorts by display_order` | ordered() scope sorts correctly | ✅ |
-| 6 | `for category scope filters by category id` | forCategory($id) scope filters | ✅ |
-| 7 | `get template returns template through category` | getTemplate() traverses relationships | ✅ |
-| 8 | `can be deleted returns true when no submitted assessments` | Business rule validation | ✅ |
-| 9 | `move to category works within same template` | moveToCategory() validates same template | ✅ |
-| 10 | `move to category throws exception for different template` | Exception thrown for cross-template moves | ✅ |
-| 11 | `soft delete works correctly` | Soft deletes with restore | ✅ |
+| #   | Test Name                                                   | Validates                                                     | Status |
+| --- | ----------------------------------------------------------- | ------------------------------------------------------------- | ------ |
+| 1   | `evaluation sub category can be created`                    | Model creation with code, name                                | ✅     |
+| 2   | `evaluation sub category has correct fillable attributes`   | Fillable: category_id, code, name, description, display_order | ✅     |
+| 3   | `evaluation sub category belongs to category`               | belongsTo(category) relationship                              | ✅     |
+| 4   | `evaluation sub category has indicators relationship`       | hasMany(indicators) relationship                              | ✅     |
+| 5   | `ordered scope sorts by display_order`                      | ordered() scope sorts correctly                               | ✅     |
+| 6   | `for category scope filters by category id`                 | forCategory($id) scope filters                                | ✅     |
+| 7   | `get template returns template through category`            | getTemplate() traverses relationships                         | ✅     |
+| 8   | `can be deleted returns true when no submitted assessments` | Business rule validation                                      | ✅     |
+| 9   | `move to category works within same template`               | moveToCategory() validates same template                      | ✅     |
+| 10  | `move to category throws exception for different template`  | Exception thrown for cross-template moves                     | ✅     |
+| 11  | `soft delete works correctly`                               | Soft deletes with restore                                     | ✅     |
 
 **Relationships Tested:**
+
 - ✅ `belongsTo(EvaluationCategory)` - category
 - ✅ `hasMany(EvaluationIndicator)` - indicators
 
 **Business Methods Tested:**
+
 - ✅ `canBeDeleted()` - Checks indicator usage in assessments
 - ✅ `getTemplate()` - Traverses category→template chain
 - ✅ `moveToCategory(int $newCategoryId)` - Moves with validation
 
 **Scopes Tested:**
+
 - ✅ `ordered()` - Sorts by display_order
 - ✅ `forCategory(int $categoryId)` - Filters by category
 
@@ -167,31 +177,34 @@ php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 
 **File:** `tests/Unit/Models/EssayQuestionTest.php`
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `essay question can be created` | Model creation with question, max_words, is_required | ✅ |
-| 2 | `essay question has correct fillable attributes` | Fillable: category_id, code, question, guidance, max_words, is_required, display_order, is_active | ✅ |
-| 3 | `essay question belongs to category` | belongsTo(category) relationship | ✅ |
-| 4 | `active scope filters only active essays` | active() scope filters is_active=true | ✅ |
-| 5 | `required scope filters only required essays` | required() scope filters is_required=true | ✅ |
-| 6 | `ordered scope sorts by display_order` | ordered() scope sorts correctly | ✅ |
-| 7 | `for category scope filters by category id` | forCategory($id) scope filters | ✅ |
-| 8 | `get template returns template through category` | getTemplate() traverses relationships | ✅ |
-| 9 | `validate word count returns true for valid answer` | validateWordCount() accepts 401 words when max=500 | ✅ |
-| 10 | `validate word count returns false for exceeding answer` | validateWordCount() rejects 601 words when max=500 | ✅ |
-| 11 | `get word count returns correct count` | getWordCount() counts words correctly | ✅ |
-| 12 | `get word count strips html tags` | getWordCount() strips `<p>`, `<strong>`, `<em>` tags | ✅ |
-| 13 | `soft delete works correctly` | Soft deletes with restore | ✅ |
+| #   | Test Name                                                | Validates                                                                                         | Status |
+| --- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------ |
+| 1   | `essay question can be created`                          | Model creation with question, max_words, is_required                                              | ✅     |
+| 2   | `essay question has correct fillable attributes`         | Fillable: category_id, code, question, guidance, max_words, is_required, display_order, is_active | ✅     |
+| 3   | `essay question belongs to category`                     | belongsTo(category) relationship                                                                  | ✅     |
+| 4   | `active scope filters only active essays`                | active() scope filters is_active=true                                                             | ✅     |
+| 5   | `required scope filters only required essays`            | required() scope filters is_required=true                                                         | ✅     |
+| 6   | `ordered scope sorts by display_order`                   | ordered() scope sorts correctly                                                                   | ✅     |
+| 7   | `for category scope filters by category id`              | forCategory($id) scope filters                                                                    | ✅     |
+| 8   | `get template returns template through category`         | getTemplate() traverses relationships                                                             | ✅     |
+| 9   | `validate word count returns true for valid answer`      | validateWordCount() accepts 401 words when max=500                                                | ✅     |
+| 10  | `validate word count returns false for exceeding answer` | validateWordCount() rejects 601 words when max=500                                                | ✅     |
+| 11  | `get word count returns correct count`                   | getWordCount() counts words correctly                                                             | ✅     |
+| 12  | `get word count strips html tags`                        | getWordCount() strips `<p>`, `<strong>`, `<em>` tags                                              | ✅     |
+| 13  | `soft delete works correctly`                            | Soft deletes with restore                                                                         | ✅     |
 
 **Relationships Tested:**
+
 - ✅ `belongsTo(EvaluationCategory)` - category (NOT sub_category per advisor requirement)
 
 **Business Methods Tested:**
+
 - ✅ `validateWordCount(string $answer)` - Validates against max_words with HTML stripping
 - ✅ `getWordCount(string $answer)` - Counts words after HTML tag removal
 - ✅ `getTemplate()` - Traverses category→template chain
 
 **Scopes Tested:**
+
 - ✅ `active()` - Filters is_active=true
 - ✅ `required()` - Filters is_required=true
 - ✅ `ordered()` - Sorts by display_order
@@ -203,30 +216,32 @@ php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 
 **File:** `tests/Unit/Models/EvaluationIndicatorTest.php`
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `evaluation indicator has sub_category_id in fillable` | Fillable includes sub_category_id (NEW v1.1) | ✅ |
-| 2 | `hierarchical indicator has sub category relationship` | belongsTo(subCategory) relationship works | ✅ |
-| 3 | `is hierarchical returns true for v1.1 indicators` | isHierarchical() detects sub_category_id NOT NULL | ✅ |
-| 4 | `is legacy returns false for v1.1 indicators` | isLegacy() returns false for hierarchical | ✅ |
-| 5 | `is hierarchical returns false for v1.0 indicators` | isHierarchical() detects sub_category_id IS NULL | ✅ |
-| 6 | `is legacy returns true for v1.0 indicators` | isLegacy() returns true for legacy | ✅ |
-| 7 | `get template returns template through hierarchy` | getTemplate() traverses subCategory→category→template | ✅ |
-| 8 | `get template returns null for legacy indicators` | getTemplate() returns null when no sub_category_id | ✅ |
-| 9 | `by sub category scope filters correctly` | bySubCategory($id) filters sub_category_id | ✅ |
-| 10 | `by category id scope filters through relationship` | byCategoryId($id) uses whereHas(subCategory) | ✅ |
-| 11 | `active scope filters only active indicators` | active() scope filters is_active=true | ✅ |
-| 12 | `ordered scope sorts by sort_order` | ordered() scope sorts correctly | ✅ |
-| 13 | `calculate score works for boolean type` | calculateScore(true) = weight, (false) = 0 | ✅ |
-| 14 | `calculate score works for scale type` | calculateScore(5) = weight, (3) = 0.6*weight | ✅ |
-| 15 | `legacy get categories method still works` | getCategories() returns array of old VARCHAR categories | ✅ |
+| #   | Test Name                                              | Validates                                               | Status |
+| --- | ------------------------------------------------------ | ------------------------------------------------------- | ------ |
+| 1   | `evaluation indicator has sub_category_id in fillable` | Fillable includes sub_category_id (NEW v1.1)            | ✅     |
+| 2   | `hierarchical indicator has sub category relationship` | belongsTo(subCategory) relationship works               | ✅     |
+| 3   | `is hierarchical returns true for v1.1 indicators`     | isHierarchical() detects sub_category_id NOT NULL       | ✅     |
+| 4   | `is legacy returns false for v1.1 indicators`          | isLegacy() returns false for hierarchical               | ✅     |
+| 5   | `is hierarchical returns false for v1.0 indicators`    | isHierarchical() detects sub_category_id IS NULL        | ✅     |
+| 6   | `is legacy returns true for v1.0 indicators`           | isLegacy() returns true for legacy                      | ✅     |
+| 7   | `get template returns template through hierarchy`      | getTemplate() traverses subCategory→category→template   | ✅     |
+| 8   | `get template returns null for legacy indicators`      | getTemplate() returns null when no sub_category_id      | ✅     |
+| 9   | `by sub category scope filters correctly`              | bySubCategory($id) filters sub_category_id              | ✅     |
+| 10  | `by category id scope filters through relationship`    | byCategoryId($id) uses whereHas(subCategory)            | ✅     |
+| 11  | `active scope filters only active indicators`          | active() scope filters is_active=true                   | ✅     |
+| 12  | `ordered scope sorts by sort_order`                    | ordered() scope sorts correctly                         | ✅     |
+| 13  | `calculate score works for boolean type`               | calculateScore(true) = weight, (false) = 0              | ✅     |
+| 14  | `calculate score works for scale type`                 | calculateScore(5) = weight, (3) = 0.6\*weight           | ✅     |
+| 15  | `legacy get categories method still works`             | getCategories() returns array of old VARCHAR categories | ✅     |
 
 **Relationships Tested:**
+
 - ✅ `belongsTo(EvaluationSubCategory)` - subCategory (NEW v1.1)
 - ✅ `hasOneThrough(EvaluationCategory)` - categoryRelation (NEW v1.1)
 - ✅ `hasMany(AssessmentResponse)` - responses (existing)
 
 **Business Methods Tested:**
+
 - ✅ `isHierarchical()` - Returns true if sub_category_id NOT NULL
 - ✅ `isLegacy()` - Returns true if sub_category_id IS NULL
 - ✅ `getTemplate()` - Traverses subCategory→category→template chain
@@ -234,6 +249,7 @@ php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 - ✅ `getCategories()` - DEPRECATED v1.0 method still works
 
 **Scopes Tested:**
+
 - ✅ `active()` - Filters is_active=true
 - ✅ `byCategory(string $category)` - DEPRECATED v1.0 scope
 - ✅ `bySubCategory(int $subCategoryId)` - NEW v1.1 scope
@@ -241,6 +257,7 @@ php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 - ✅ `ordered()` - Sorts by sort_order
 
 **Backward Compatibility Validated:**
+
 - ✅ Legacy indicators (sub_category_id = NULL) still queryable
 - ✅ Old category/sub_category VARCHAR columns retained
 - ✅ getCategories() method still works for v1.0 data
@@ -253,49 +270,50 @@ php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 
 #### AccreditationTemplate Policy (9 tests)
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `super admin can view any templates` | Super Admin: viewAny = true | ✅ |
-| 2 | `admin kampus cannot view any templates` | Admin Kampus: viewAny = false | ✅ |
-| 3 | `regular user cannot view any templates` | User: viewAny = false | ✅ |
-| 4 | `super admin can create template` | Super Admin: create = true | ✅ |
-| 5 | `admin kampus cannot create template` | Admin Kampus: create = false | ✅ |
-| 6 | `super admin can update template` | Super Admin: update = true | ✅ |
-| 7 | `super admin can delete template with multiple active templates` | Business rule: allows deletion when alternatives exist | ✅ |
-| 8 | `super admin cannot delete only active template of type` | Business rule: prevents deleting last active template | ✅ |
-| 9 | `super admin can clone template` | Super Admin: clone = true | ✅ |
+| #   | Test Name                                                        | Validates                                              | Status |
+| --- | ---------------------------------------------------------------- | ------------------------------------------------------ | ------ |
+| 1   | `super admin can view any templates`                             | Super Admin: viewAny = true                            | ✅     |
+| 2   | `admin kampus cannot view any templates`                         | Admin Kampus: viewAny = false                          | ✅     |
+| 3   | `regular user cannot view any templates`                         | User: viewAny = false                                  | ✅     |
+| 4   | `super admin can create template`                                | Super Admin: create = true                             | ✅     |
+| 5   | `admin kampus cannot create template`                            | Admin Kampus: create = false                           | ✅     |
+| 6   | `super admin can update template`                                | Super Admin: update = true                             | ✅     |
+| 7   | `super admin can delete template with multiple active templates` | Business rule: allows deletion when alternatives exist | ✅     |
+| 8   | `super admin cannot delete only active template of type`         | Business rule: prevents deleting last active template  | ✅     |
+| 9   | `super admin can clone template`                                 | Super Admin: clone = true                              | ✅     |
 
 #### EvaluationCategory Policy (2 tests)
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `super admin can manage categories` | Super Admin: viewAny, create, update, delete, reorder = true | ✅ |
-| 2 | `admin kampus cannot manage categories` | Admin Kampus: all actions = false | ✅ |
+| #   | Test Name                               | Validates                                                    | Status |
+| --- | --------------------------------------- | ------------------------------------------------------------ | ------ |
+| 1   | `super admin can manage categories`     | Super Admin: viewAny, create, update, delete, reorder = true | ✅     |
+| 2   | `admin kampus cannot manage categories` | Admin Kampus: all actions = false                            | ✅     |
 
 #### EvaluationSubCategory Policy (2 tests)
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `super admin can manage sub categories` | Super Admin: viewAny, create, update, delete, move, reorder = true | ✅ |
-| 2 | `regular user cannot manage sub categories` | User: all actions = false | ✅ |
+| #   | Test Name                                   | Validates                                                          | Status |
+| --- | ------------------------------------------- | ------------------------------------------------------------------ | ------ |
+| 1   | `super admin can manage sub categories`     | Super Admin: viewAny, create, update, delete, move, reorder = true | ✅     |
+| 2   | `regular user cannot manage sub categories` | User: all actions = false                                          | ✅     |
 
 #### EssayQuestion Policy (2 tests)
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `super admin can manage essay questions` | Super Admin: viewAny, create, update, delete, toggleActive, reorder = true | ✅ |
-| 2 | `admin kampus cannot manage essay questions` | Admin Kampus: all actions = false | ✅ |
+| #   | Test Name                                    | Validates                                                                  | Status |
+| --- | -------------------------------------------- | -------------------------------------------------------------------------- | ------ |
+| 1   | `super admin can manage essay questions`     | Super Admin: viewAny, create, update, delete, toggleActive, reorder = true | ✅     |
+| 2   | `admin kampus cannot manage essay questions` | Admin Kampus: all actions = false                                          | ✅     |
 
 #### EvaluationIndicator Policy (4 tests)
 
-| # | Test Name | Validates | Status |
-|---|-----------|-----------|--------|
-| 1 | `all users can view indicators` | Super Admin, Admin Kampus, User: viewAny, view = true | ✅ |
-| 2 | `only super admin can manage indicators` | Only Super Admin: create, update, delete = true | ✅ |
-| 3 | `super admin can migrate legacy indicators` | Super Admin: migrate = true for isLegacy() = true | ✅ |
-| 4 | `cannot migrate non-legacy indicators` | migrate = false for isHierarchical() = true | ✅ |
+| #   | Test Name                                   | Validates                                             | Status |
+| --- | ------------------------------------------- | ----------------------------------------------------- | ------ |
+| 1   | `all users can view indicators`             | Super Admin, Admin Kampus, User: viewAny, view = true | ✅     |
+| 2   | `only super admin can manage indicators`    | Only Super Admin: create, update, delete = true       | ✅     |
+| 3   | `super admin can migrate legacy indicators` | Super Admin: migrate = true for isLegacy() = true     | ✅     |
+| 4   | `cannot migrate non-legacy indicators`      | migrate = false for isHierarchical() = true           | ✅     |
 
 **Policy Methods Tested:**
+
 - ✅ `viewAny()` - 5 policies
 - ✅ `view()` - 5 policies
 - ✅ `create()` - 5 policies
@@ -311,33 +329,35 @@ php artisan test tests/Feature/Policies/HierarchyPolicyTest.php
 
 **Authorization Matrix:**
 
-| Action | Super Admin | Admin Kampus | User |
-|--------|-------------|--------------|------|
-| View Indicators | ✅ | ✅ | ✅ |
-| Create/Update/Delete Indicators | ✅ | ❌ | ❌ |
-| View Templates/Categories/Essays | ✅ | ❌ | ❌ |
-| Create/Update/Delete Templates | ✅ | ❌ | ❌ |
-| Clone Templates | ✅ | ❌ | ❌ |
-| Reorder Categories | ✅ | ❌ | ❌ |
-| Move SubCategories | ✅ | ❌ | ❌ |
-| Migrate Legacy Indicators | ✅ | ❌ | ❌ |
+| Action                           | Super Admin | Admin Kampus | User |
+| -------------------------------- | ----------- | ------------ | ---- |
+| View Indicators                  | ✅          | ✅           | ✅   |
+| Create/Update/Delete Indicators  | ✅          | ❌           | ❌   |
+| View Templates/Categories/Essays | ✅          | ❌           | ❌   |
+| Create/Update/Delete Templates   | ✅          | ❌           | ❌   |
+| Clone Templates                  | ✅          | ❌           | ❌   |
+| Reorder Categories               | ✅          | ❌           | ❌   |
+| Move SubCategories               | ✅          | ❌           | ❌   |
+| Migrate Legacy Indicators        | ✅          | ❌           | ❌   |
 
 ---
 
 ## 🔍 Test Environment
 
 ### Database Configuration
+
 - **Test Driver:** SQLite `:memory:` (in-memory database)
 - **Migration Strategy:** `RefreshDatabase` trait (fresh migrations per test)
 - **Seeding:** Per-test setup in `beforeEach()` hooks
 - **Isolation:** Full database reset between tests
 
 ### Test Framework
+
 - **Framework:** Pest PHP 3.x
 - **Base Class:** `Tests\TestCase`
 - **Traits Used:**
-  - `Illuminate\Foundation\Testing\RefreshDatabase`
-  - `Tests\TestCase` (for Feature tests via Pest.php)
+    - `Illuminate\Foundation\Testing\RefreshDatabase`
+    - `Tests\TestCase` (for Feature tests via Pest.php)
 
 ### Test Execution Commands
 
@@ -382,11 +402,11 @@ Total Tests: 81
 
 ### Coverage by Category
 
-| Category | Lines of Code | Tests | Test/Code Ratio |
-|----------|---------------|-------|-----------------|
-| **Models** | ~850 lines | 62 tests | 1:13.7 |
-| **Policies** | ~500 lines | 19 tests | 1:26.3 |
-| **TOTAL** | ~1,350 lines | 81 tests | 1:16.7 |
+| Category     | Lines of Code | Tests    | Test/Code Ratio |
+| ------------ | ------------- | -------- | --------------- |
+| **Models**   | ~850 lines    | 62 tests | 1:13.7          |
+| **Policies** | ~500 lines    | 19 tests | 1:26.3          |
+| **TOTAL**    | ~1,350 lines  | 81 tests | 1:16.7          |
 
 ### Assertion Coverage
 
@@ -403,15 +423,17 @@ Total Assertions: 188
 ## 🐛 Issues Resolved During Testing
 
 ### Issue #1: 3-Level Relationship Limitation
+
 **Problem:** Test `accreditation template has indicators through relationship` failed - no indicators retrieved (expected 1, got 0)
 
 **Root Cause:** Laravel's `hasManyThrough` only supports 2-level relationships (A→B→C), but indicators require 3 levels (Template→Category→SubCategory→Indicator)
 
 **Solution:** Implemented custom query method + accessor pattern:
+
 ```php
 // Query method (for where/exists queries in business logic)
 public function indicators() {
-    return EvaluationIndicator::whereHas('subCategory.category', fn($q) => 
+    return EvaluationIndicator::whereHas('subCategory.category', fn($q) =>
         $q->where('template_id', $this->id)
     )->orderBy('sort_order');
 }
@@ -426,14 +448,17 @@ public function getIndicatorsAttribute() {
 ```
 
 **Usage:**
+
 - Property access: `$template->indicators` → cached collection
 - Query method: `$template->indicators()->where(...)->exists()` → for complex queries
 
-**Files:** 
+**Files:**
+
 - [app/Models/AccreditationTemplate.php](app/Models/AccreditationTemplate.php#L103-L128)
 - [tests/Unit/Models/AccreditationTemplateTest.php](tests/Unit/Models/AccreditationTemplateTest.php#L74-L99)
 
 ### Issue #2: Floating Point Precision
+
 **Problem:** Test failed with `Failed asserting that 1.7999999999999998 is identical to 1.8`
 
 **Root Cause:** PHP float arithmetic precision in `calculateScore()` method
@@ -443,6 +468,7 @@ public function getIndicatorsAttribute() {
 **File:** `tests/Unit/Models/EvaluationIndicatorTest.php:150`
 
 ### Issue #3: Pest PHP TestCase Conflict
+
 **Problem:** `Error: Test case Tests\TestCase can not be used`
 
 **Root Cause:** Duplicate `uses(TestCase::class)` in Feature test when already defined in `Pest.php`
@@ -452,6 +478,7 @@ public function getIndicatorsAttribute() {
 **File:** `tests/Feature/Policies/HierarchyPolicyTest.php`
 
 ### Issue #4: Missing display_name in Role Creation
+
 **Problem:** `SQLSTATE[HY000]: General error: 1364 Field 'display_name' doesn't have a default value`
 
 **Root Cause:** Policy tests created Role without `display_name` field (required in database schema)
@@ -517,6 +544,7 @@ Slow Tests (> 1s): 2 tests (2.6%)
 ## 📋 Test Maintenance Checklist
 
 ### When Adding New Models
+
 - [ ] Create corresponding model test file in `tests/Unit/Models/`
 - [ ] Test all fillable attributes
 - [ ] Test all relationships (belongsTo, hasMany, etc.)
@@ -526,6 +554,7 @@ Slow Tests (> 1s): 2 tests (2.6%)
 - [ ] Add model to policy test if authorization needed
 
 ### When Adding New Policies
+
 - [ ] Create policy tests in `tests/Feature/Policies/`
 - [ ] Test all CRUD methods (viewAny, view, create, update, delete)
 - [ ] Test for all 3 roles (Super Admin, Admin Kampus, User)
@@ -534,6 +563,7 @@ Slow Tests (> 1s): 2 tests (2.6%)
 - [ ] Register policy in `AppServiceProvider`
 
 ### When Modifying Existing Models
+
 - [ ] Update existing tests if behavior changes
 - [ ] Add new tests for new methods
 - [ ] Verify backward compatibility tests still pass
@@ -562,15 +592,15 @@ Slow Tests (> 1s): 2 tests (2.6%)
 
 ## 📊 Test Success Criteria
 
-| Criteria | Target | Actual | Status |
-|----------|--------|--------|--------|
-| **Pass Rate** | 100% | 100% (81/81) | ✅ ACHIEVED |
-| **Coverage** | All public methods | All 48 public methods | ✅ ACHIEVED |
-| **Execution Time** | < 15 seconds | 9.12 seconds | ✅ ACHIEVED |
-| **Relationship Tests** | All relationships | 21 relationships | ✅ ACHIEVED |
-| **Policy Tests** | All roles × all actions | 44 permission checks | ✅ ACHIEVED |
-| **Business Logic** | All helper methods | 15 methods | ✅ ACHIEVED |
-| **Backward Compatibility** | v1.0 indicators work | Legacy tests pass | ✅ ACHIEVED |
+| Criteria                   | Target                  | Actual                | Status      |
+| -------------------------- | ----------------------- | --------------------- | ----------- |
+| **Pass Rate**              | 100%                    | 100% (81/81)          | ✅ ACHIEVED |
+| **Coverage**               | All public methods      | All 48 public methods | ✅ ACHIEVED |
+| **Execution Time**         | < 15 seconds            | 9.12 seconds          | ✅ ACHIEVED |
+| **Relationship Tests**     | All relationships       | 21 relationships      | ✅ ACHIEVED |
+| **Policy Tests**           | All roles × all actions | 44 permission checks  | ✅ ACHIEVED |
+| **Business Logic**         | All helper methods      | 15 methods            | ✅ ACHIEVED |
+| **Backward Compatibility** | v1.0 indicators work    | Legacy tests pass     | ✅ ACHIEVED |
 
 ---
 
@@ -579,6 +609,7 @@ Slow Tests (> 1s): 2 tests (2.6%)
 ### GitHub Actions Integration
 
 Tests are configured to run automatically on:
+
 - ✅ Pull Requests to `main` branch
 - ✅ Push to `development` branch
 - ✅ Manual workflow dispatch
@@ -586,6 +617,7 @@ Tests are configured to run automatically on:
 **Workflow File:** `.github/workflows/tests.yml`
 
 **Steps:**
+
 1. Setup PHP 8.2
 2. Install Composer dependencies
 3. Run Laravel Pint (code style)
@@ -611,6 +643,7 @@ Step 3 implementation achieved **100% test coverage** with all 81 tests passing.
 With Step 3 complete and fully tested, the project is ready to proceed to:
 
 **Step 4: Seed Default Data & Migration Script**
+
 - Create `AccreditationTemplateSeeder` (2 default templates)
 - Create `DataMigrationSeeder` (migrate 12 v1.0 indicators to v1.1 hierarchy)
 - Create `EssayQuestionSeeder` (6 sample essays)
@@ -623,9 +656,10 @@ With Step 3 complete and fully tested, the project is ready to proceed to:
 **Documentation Owner:** Development Team  
 **Last Updated:** January 17, 2026  
 **Test Framework Version:** Pest PHP 3.x  
-**Laravel Version:** 11.x  
+**Laravel Version:** 11.x
 
 For questions or issues with tests:
+
 1. Check this document first
 2. Review test files for examples
 3. Consult Laravel Testing documentation

@@ -11,10 +11,10 @@
 
 Fitur **Sync Artikel OAI-PMH** di dashboard Admin Kampus mendispatch job ke Laravel Queue. Cara queue tersebut diproses bergantung pada jenis server yang digunakan:
 
-| Metode | Platform | Teknik |
-|---|---|---|
+| Metode                   | Platform                 | Teknik                                 |
+| ------------------------ | ------------------------ | -------------------------------------- |
 | **A — Cron-Based Queue** | Hostinger Shared Hosting | CPanel Cron Jobs + `--stop-when-empty` |
-| **B — Supervisor** | VPS / Dedicated Server | `supervisord` persistent process |
+| **B — Supervisor**       | VPS / Dedicated Server   | `supervisord` persistent process       |
 
 Shared Hosting **tidak mendukung persistent process** (seperti `queue:work` tanpa flag atau Horizon), sehingga pendekatan Cron-Based digunakan: cron menjalankan `queue:work --stop-when-empty` setiap menit, memproses semua job yang ada, lalu berhenti sendiri.
 
@@ -25,12 +25,14 @@ Shared Hosting **tidak mendukung persistent process** (seperti `queue:work` tanp
 ## Prasyarat
 
 **Semua platform:**
+
 - PHP 8.2+ tersedia di server
 - Laravel sudah ter-deploy dan `.env` terkonfigurasi
 - Database queue aktif: `QUEUE_CONNECTION=database`
 - Tabel `jobs` sudah ada (via `php artisan migrate`)
 
 **Khusus Metode B (VPS/Dedicated):**
+
 - Linux server (Ubuntu/Debian/CentOS)
 - Akses `sudo` untuk install Supervisor
 
@@ -61,6 +63,7 @@ Hostinger menggunakan interface Cron Job yang **otomatis menangani PHP path**. D
 **Yang perlu Anda isi: Hanya bagian setelah `/home/u[ID_ANDA]/`**
 
 Contoh:
+
 - Jangan isi: `/usr/bin/php /home/u347029080/public_html/jurnal_mu/artisan queue:work ...`
 - **Isi saja**: `public_html/jurnal_mu/artisan queue:work ...`
 
@@ -73,29 +76,31 @@ Contoh:
 3. Mode: Pilih **PHP** (default)
 4. **Opsi umum (opsional)**: Pilih `Once per minute` (atau isi manual di bawah)
 5. **Perintah untuk dijalankan**, isi:
-   ```
-   public_html/jurnal_mu/artisan queue:work database --queue=harvesting --stop-when-empty --tries=3 --max-time=55
-   ```
-   > **TIDAK perlu** `cd`, **TIDAK perlu** `/usr/bin/php`, **TIDAK perlu** `>> /dev/null`
-   > Hostinger sudah handle itu otomatis
+
+    ```
+    public_html/jurnal_mu/artisan queue:work database --queue=harvesting --stop-when-empty --tries=3 --max-time=55
+    ```
+
+    > **TIDAK perlu** `cd`, **TIDAK perlu** `/usr/bin/php`, **TIDAK perlu** `>> /dev/null`
+    > Hostinger sudah handle itu otomatis
 
 6. **Schedule (jika tidak pakai preset)**:
-   - Menit: `*` (setiap menit)
-   - Jam: `*` (setiap jam)
-   - Hari: `*` (setiap tanggal)
-   - Bulan: `*` (setiap bulan)
-   - Hari Kerja (weekDay): `*` (setiap hari)
+    - Menit: `*` (setiap menit)
+    - Jam: `*` (setiap jam)
+    - Hari: `*` (setiap tanggal)
+    - Bulan: `*` (setiap bulan)
+    - Hari Kerja (weekDay): `*` (setiap hari)
 
 7. Klik **Buat Cron Job Baru** (atau **Create**)
 
 **Penjelasan flag penting:**
 
-| Flag | Keterangan |
-|---|---|
-| `--stop-when-empty` | Worker berhenti sendiri jika queue kosong — **kunci utama** metode cron-based |
-| `--queue=harvesting` | Proses hanya job di queue `harvesting` |
-| `--tries=3` | Retry maksimal 3 kali jika job gagal |
-| `--max-time=55` | Batas 55 detik — cron berikutnya berjalan di detik 60, jadi 55 detik cukup safe |
+| Flag                 | Keterangan                                                                      |
+| -------------------- | ------------------------------------------------------------------------------- |
+| `--stop-when-empty`  | Worker berhenti sendiri jika queue kosong — **kunci utama** metode cron-based   |
+| `--queue=harvesting` | Proses hanya job di queue `harvesting`                                          |
+| `--tries=3`          | Retry maksimal 3 kali jika job gagal                                            |
+| `--max-time=55`      | Batas 55 detik — cron berikutnya berjalan di detik 60, jadi 55 detik cukup safe |
 
 > **Mengapa 55 detik bukan 60?** Cron berjalan setiap 60 detik. Dengan `--max-time=55`, worker pasti selesai 5 detik sebelum cron berikutnya berjalan — mencegah dua worker overlap.
 
@@ -107,9 +112,9 @@ Tambah cron job kedua untuk scheduler (agar harvest otomatis harian berjalan):
 2. Mode: **PHP**
 3. **Opsi umum**: Pilih `Once per minute`
 4. **Perintah untuk dijalankan**, isi:
-   ```
-   public_html/jurnal_mu/artisan schedule:run
-   ```
+    ```
+    public_html/jurnal_mu/artisan schedule:run
+    ```
 5. Schedule: Setiap menit (seperti Langkah 2)
 6. Klik **Buat Cron Job Baru**
 
@@ -119,13 +124,13 @@ Tambah cron job kedua untuk scheduler (agar harvest otomatis harian berjalan):
 2. Buka detail jurnal yang punya `oai_pmh_url`
 3. Klik tombol **Sync Artikel**
 4. Verifikasi job masuk queue (via phpMyAdmin di CPanel):
-   ```sql
-   SELECT id, queue, available_at FROM jobs WHERE queue = 'harvesting';
-   ```
+    ```sql
+    SELECT id, queue, available_at FROM jobs WHERE queue = 'harvesting';
+    ```
 5. Tunggu maksimal 1 menit, refresh halaman — status harvest harus terupdate
 6. Cek log via CPanel → File Manager:
-   - Navigate ke `storage/logs/`
-   - Buka `laravel.log` untuk melihat output job
+    - Navigate ke `storage/logs/`
+    - Buka `laravel.log` untuk melihat output job
 
 ### Langkah 5: Prosedur Setelah Deploy Baru
 
@@ -161,10 +166,10 @@ supervisord --version
 
 Ubah placeholder berikut sesuai server Anda:
 
-| Placeholder | Nilai |
-|---|---|
-| `{PROJECT_PATH}` | `/var/www/jurnal_mu` |
-| `{APP_USER}` | `www-data` (atau user web server Anda) |
+| Placeholder      | Nilai                                  |
+| ---------------- | -------------------------------------- |
+| `{PROJECT_PATH}` | `/var/www/jurnal_mu`                   |
+| `{APP_USER}`     | `www-data` (atau user web server Anda) |
 
 #### Langkah 2: Buat File Konfigurasi
 
@@ -193,16 +198,16 @@ stopwaitsecs=180
 
 **Penjelasan parameter penting:**
 
-| Parameter | Nilai | Keterangan |
-|---|---|---|
-| `command` | `queue:work database --queue=harvesting` | Proses hanya job di queue bernama `harvesting` |
-| `autostart` | `true` | Otomatis start saat Supervisor dimulai |
-| `autorestart` | `true` | Restart otomatis jika proses crash |
-| `user` | `www-data` | Jalankan sebagai user web server |
-| `numprocs` | `1` | Cukup 1 worker untuk harvesting |
-| `--sleep=3` | 3 detik | Jeda sebelum poll ulang jika queue kosong |
-| `--max-time=3600` | 1 jam | Worker restart sendiri setiap 1 jam (mencegah memory leak) |
-| `stopwaitsecs` | 180 | Tunggu 3 menit agar job yang sedang berjalan selesai sebelum kill |
+| Parameter         | Nilai                                    | Keterangan                                                        |
+| ----------------- | ---------------------------------------- | ----------------------------------------------------------------- |
+| `command`         | `queue:work database --queue=harvesting` | Proses hanya job di queue bernama `harvesting`                    |
+| `autostart`       | `true`                                   | Otomatis start saat Supervisor dimulai                            |
+| `autorestart`     | `true`                                   | Restart otomatis jika proses crash                                |
+| `user`            | `www-data`                               | Jalankan sebagai user web server                                  |
+| `numprocs`        | `1`                                      | Cukup 1 worker untuk harvesting                                   |
+| `--sleep=3`       | 3 detik                                  | Jeda sebelum poll ulang jika queue kosong                         |
+| `--max-time=3600` | 1 jam                                    | Worker restart sendiri setiap 1 jam (mencegah memory leak)        |
+| `stopwaitsecs`    | 180                                      | Tunggu 3 menit agar job yang sedang berjalan selesai sebelum kill |
 
 ---
 
@@ -223,6 +228,7 @@ sudo supervisorctl status
 ```
 
 Output yang diharapkan:
+
 ```
 jurnal_mu-harvesting:jurnal_mu-harvesting_00   RUNNING   pid 12345, uptime 0:00:10
 ```
@@ -236,6 +242,7 @@ sudo crontab -e -u www-data
 ```
 
 Tambahkan baris berikut:
+
 ```cron
 * * * * * cd /var/www/jurnal_mu && php artisan schedule:run >> /dev/null 2>&1
 ```
@@ -282,9 +289,9 @@ sudo crontab -l -u www-data
 2. Buka detail jurnal yang punya `oai_pmh_url`
 3. Klik tombol **Sync Artikel**
 4. Verifikasi job masuk queue:
-   ```sql
-   SELECT id, queue, available_at FROM jobs WHERE queue = 'harvesting';
-   ```
+    ```sql
+    SELECT id, queue, available_at FROM jobs WHERE queue = 'harvesting';
+    ```
 5. Tunggu beberapa detik, refresh halaman
 6. Status harvest terakhir harus terupdate
 
@@ -318,14 +325,14 @@ sudo supervisorctl restart jurnal_mu-harvesting:*
 
 ### Hostinger Shared Hosting (Metode A) — via CPanel
 
-| Aksi | Cara |
-|---|---|
-| Cek cron job aktif | CPanel → Cron Jobs → lihat daftar |
-| Edit command cron | CPanel → Cron Jobs → edit |
-| Pause queue sementara | CPanel → Cron Jobs → hapus cron job queue worker |
-| Cek job di antrian | phpMyAdmin → tabel `jobs` |
-| Cek failed jobs | phpMyAdmin → tabel `failed_jobs` |
-| Cek log | CPanel → File Manager → `storage/logs/laravel.log` |
+| Aksi                  | Cara                                               |
+| --------------------- | -------------------------------------------------- |
+| Cek cron job aktif    | CPanel → Cron Jobs → lihat daftar                  |
+| Edit command cron     | CPanel → Cron Jobs → edit                          |
+| Pause queue sementara | CPanel → Cron Jobs → hapus cron job queue worker   |
+| Cek job di antrian    | phpMyAdmin → tabel `jobs`                          |
+| Cek failed jobs       | phpMyAdmin → tabel `failed_jobs`                   |
+| Cek log               | CPanel → File Manager → `storage/logs/laravel.log` |
 
 ```bash
 # Jika ada akses SSH — retry failed jobs
@@ -382,17 +389,17 @@ Selain itu, Horizon mengharuskan **Redis** sebagai queue driver (`QUEUE_CONNECTI
 1. Cek apakah cron job aktif: CPanel → Cron Jobs → pastikan ada dua entry (queue worker + scheduler)
 2. Cek `available_at` job di phpMyAdmin — pastikan waktunya sudah lewat
 3. Cek apakah PHP path benar:
-   ```bash
-   # Via SSH (jika tersedia)
-   which php
-   /usr/local/bin/php -v
-   ```
+    ```bash
+    # Via SSH (jika tersedia)
+    which php
+    /usr/local/bin/php -v
+    ```
 4. Cek log error di `storage/logs/laravel.log` via CPanel File Manager
 5. Test manual via SSH:
-   ```bash
-   cd /home/username/public_html/jurnal_mu
-   /usr/local/bin/php artisan queue:work database --queue=harvesting --stop-when-empty --tries=3
-   ```
+    ```bash
+    cd /home/username/public_html/jurnal_mu
+    /usr/local/bin/php artisan queue:work database --queue=harvesting --stop-when-empty --tries=3
+    ```
 
 ### Worker tidak mau start (Metode B — Supervisor)
 
@@ -421,6 +428,7 @@ php artisan queue:retry all
 ### Worker terus restart/looping (Metode B)
 
 Biasanya karena error di kode atau config. Cek log:
+
 ```bash
 tail -50 /var/www/jurnal_mu/storage/logs/worker-harvesting.log
 tail -50 /var/www/jurnal_mu/storage/logs/laravel.log
@@ -441,24 +449,25 @@ LIMIT 10;
 
 ## Perbedaan Staging vs Production
 
-| | Staging (XAMPP Windows) | Production Hostinger Shared | Production VPS/Dedicated |
-|---|---|---|---|
-| **Queue Driver** | `database` | `database` | `database` |
-| **Metode Worker** | Manual `php artisan queue:work` | Cron + `--stop-when-empty` | Supervisor (persistent) |
-| **Latensi Proses Job** | Instan | Max 1 menit | ~0 detik |
-| **Auto-restart** | ❌ Tidak | N/A (stateless) | ✅ Ya (Supervisor) |
-| **Bisa Pakai Horizon?** | ⚠️ Butuh Redis | ❌ Tidak (no Redis, no persistent) | ✅ Ya (butuh Redis) |
-| **Scheduled Harvest** | Windows Task Scheduler | Cron via CPanel | Cron → Laravel Scheduler |
-| **Admin perlu SSH?** | ❌ Tidak | ❌ Tidak | ❌ Tidak |
-| **Setup oleh** | Developer | CPanel user (sekali saja) | Sysadmin/DevOps (sekali saja) |
-| **Log access** | Local files | CPanel File Manager | SSH |
-| **Log path** | `storage/logs/laravel.log` | `storage/logs/laravel.log` | `storage/logs/worker-harvesting.log` |
+|                         | Staging (XAMPP Windows)         | Production Hostinger Shared        | Production VPS/Dedicated             |
+| ----------------------- | ------------------------------- | ---------------------------------- | ------------------------------------ |
+| **Queue Driver**        | `database`                      | `database`                         | `database`                           |
+| **Metode Worker**       | Manual `php artisan queue:work` | Cron + `--stop-when-empty`         | Supervisor (persistent)              |
+| **Latensi Proses Job**  | Instan                          | Max 1 menit                        | ~0 detik                             |
+| **Auto-restart**        | ❌ Tidak                        | N/A (stateless)                    | ✅ Ya (Supervisor)                   |
+| **Bisa Pakai Horizon?** | ⚠️ Butuh Redis                  | ❌ Tidak (no Redis, no persistent) | ✅ Ya (butuh Redis)                  |
+| **Scheduled Harvest**   | Windows Task Scheduler          | Cron via CPanel                    | Cron → Laravel Scheduler             |
+| **Admin perlu SSH?**    | ❌ Tidak                        | ❌ Tidak                           | ❌ Tidak                             |
+| **Setup oleh**          | Developer                       | CPanel user (sekali saja)          | Sysadmin/DevOps (sekali saja)        |
+| **Log access**          | Local files                     | CPanel File Manager                | SSH                                  |
+| **Log path**            | `storage/logs/laravel.log`      | `storage/logs/laravel.log`         | `storage/logs/worker-harvesting.log` |
 
 ---
 
 ## Quick Start untuk Hostinger Shared Hosting
 
 **Checklist Setup (Metode A — Cron-Based Queue):**
+
 - [ ] Sudah deploy Laravel ke `/home/u[ID]/public_html/jurnal_mu`
 - [ ] Database sudah migrate: `php artisan migrate`
 - [ ] `.env` terkonfigurasi dengan `QUEUE_CONNECTION=database`
@@ -472,12 +481,13 @@ LIMIT 10;
 
 **Ringkasan: Dua cron job yang harus dibuat di Hostinger:**
 
-| # | Mode | Perintah | Schedule |
-|---|---|---|---|
-| **1** | PHP | `public_html/jurnal_mu/artisan queue:work database --queue=harvesting --stop-when-empty --tries=3 --max-time=55` | Every minute |
-| **2** | PHP | `public_html/jurnal_mu/artisan schedule:run` | Every minute |
+| #     | Mode | Perintah                                                                                                         | Schedule     |
+| ----- | ---- | ---------------------------------------------------------------------------------------------------------------- | ------------ |
+| **1** | PHP  | `public_html/jurnal_mu/artisan queue:work database --queue=harvesting --stop-when-empty --tries=3 --max-time=55` | Every minute |
+| **2** | PHP  | `public_html/jurnal_mu/artisan schedule:run`                                                                     | Every minute |
 
 > **Full command yang dijalankan Hostinger di belakang layar:**
+
 ```bash
 # Cron Job 1
 /usr/bin/php /home/u[ID]/public_html/jurnal_mu/artisan queue:work database --queue=harvesting --stop-when-empty --tries=3 --max-time=55
@@ -485,6 +495,7 @@ LIMIT 10;
 # Cron Job 2
 /usr/bin/php /home/u[ID]/public_html/jurnal_mu/artisan schedule:run
 ```
+
 > Namun di UI Hostinger, Anda hanya isi bagian **setelah** `/home/u[ID]/`
 
 ## Referensi

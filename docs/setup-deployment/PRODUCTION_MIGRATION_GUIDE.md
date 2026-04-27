@@ -3,6 +3,7 @@
 ## Checklist Sebelum Migrate di Production
 
 ### 1. Backup Database
+
 ```bash
 # Full backup
 mysqldump -u root -p jurnal_mu > backups/backup_$(date +%Y%m%d_%H%M%S).sql
@@ -12,6 +13,7 @@ mysqldump -u root -p jurnal_mu | gzip > backups/backup_$(date +%Y%m%d_%H%M%S).sq
 ```
 
 ### 2. Test di Staging/Local
+
 ```bash
 # Pastikan migration berjalan lancar di environment staging
 php artisan migrate --pretend  # Lihat SQL yang akan dijalankan
@@ -19,11 +21,13 @@ php artisan migrate
 ```
 
 ### 3. Cek Status Migration
+
 ```bash
 php artisan migrate:status
 ```
 
 ### 4. Jalankan Migration di Production
+
 ```bash
 # Maintenance mode (optional tapi disarankan)
 php artisan down --message="Database update in progress"
@@ -42,18 +46,20 @@ php artisan up
 **Penyebab:** Tabel sudah ada di database tapi belum tercatat di tabel `migrations`.
 
 **Solusi 1 - Manual Insert:**
+
 ```sql
 -- Login ke MySQL
 mysql -u root -p jurnal_mu
 
 -- Insert migration record
-INSERT INTO migrations (migration, batch) 
+INSERT INTO migrations (migration, batch)
 VALUES ('NAMA_FILE_MIGRATION', (SELECT IFNULL(MAX(batch), 0) + 1 FROM migrations m));
 
 exit;
 ```
 
 **Solusi 2 - Skip Migration Tertentu:**
+
 ```bash
 # Jika tabel sudah sesuai, tandai sebagai sudah dijalankan
 php artisan migrate:status  # Catat nomor batch terakhir
@@ -154,6 +160,7 @@ pause
 ```
 
 Jalankan sebelum setiap migration:
+
 ```batch
 backup-db.bat
 ```

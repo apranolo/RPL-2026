@@ -12,12 +12,7 @@ export default defineConfig({
             provider: 'v8',
             reporter: ['text', 'json', 'html', 'lcov'],
             include: ['resources/js/**/*.{ts,tsx}'],
-            exclude: [
-                'resources/js/test-utils/**',
-                'resources/js/**/*.test.{ts,tsx}',
-                'resources/js/**/__tests__/**',
-                'resources/js/types/**',
-            ],
+            exclude: ['resources/js/test-utils/**', 'resources/js/**/*.test.{ts,tsx}', 'resources/js/**/__tests__/**', 'resources/js/types/**'],
             thresholds: {
                 lines: 70,
                 functions: 70,

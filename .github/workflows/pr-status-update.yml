@@ -2,7 +2,7 @@ name: PR Status Update
 
 on:
   workflow_run:
-    workflows: ["PR Quality Checks"]
+    workflows: ['PR Quality Checks']
     types:
       - completed
 
@@ -22,22 +22,22 @@ jobs:
             const workflowRun = context.payload.workflow_run;
             const conclusion = workflowRun.conclusion;
             const runUrl = workflowRun.html_url;
-            
+
             // Get associated PRs
             const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
               owner: context.repo.owner,
               repo: context.repo.repo,
               commit_sha: workflowRun.head_sha
             });
-            
+
             if (prs.length === 0) return;
-            
+
             const prNumber = prs[0].number;
-            
+
             let emoji = '✅';
             let status = 'passed';
             let message = 'All quality checks have passed! Your code looks great! 🎉';
-            
+
             if (conclusion === 'failure') {
               emoji = '❌';
               status = 'failed';
@@ -51,28 +51,28 @@ jobs:
               status = 'skipped';
               message = 'Quality checks were skipped.';
             }
-            
+
             const comment = `## ${emoji} Quality Checks ${status.toUpperCase()}
-            
+
             ${message}
-            
+
             [View workflow run details](${runUrl})
-            
+
             ---
             *Automated checks completed at ${new Date().toUTCString()}*`;
-            
+
             // Check if we already commented
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber
             });
-            
+
             const botComments = comments.filter(c => 
               c.user.type === 'Bot' && 
               c.body.includes('Quality Checks')
             );
-            
+
             if (botComments.length > 0) {
               // Update the last bot comment
               await github.rest.issues.updateComment({

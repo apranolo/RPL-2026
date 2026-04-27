@@ -16,26 +16,26 @@ Use partial reloads to refresh only specific props without reloading the entire 
 import { router } from '@inertiajs/react';
 
 export default function Dashboard({ stats, notifications, recentActivity }) {
-  const refreshAll = () => {
-    // This reloads ALL props, even unchanged ones
-    router.reload();
-  };
+    const refreshAll = () => {
+        // This reloads ALL props, even unchanged ones
+        router.reload();
+    };
 
-  return (
-    <div>
-      <button onClick={refreshAll}>Refresh Notifications</button>
-      <NotificationList notifications={notifications} />
-      <StatsGrid stats={stats} />
-      <ActivityFeed activities={recentActivity} />
-    </div>
-  );
+    return (
+        <div>
+            <button onClick={refreshAll}>Refresh Notifications</button>
+            <NotificationList notifications={notifications} />
+            <StatsGrid stats={stats} />
+            <ActivityFeed activities={recentActivity} />
+        </div>
+    );
 }
 
 // Anti-pattern: Making separate API calls
 const refreshNotifications = async () => {
-  const response = await fetch('/api/notifications');
-  const data = await response.json();
-  setNotifications(data); // Mixing Inertia with manual state
+    const response = await fetch('/api/notifications');
+    const data = await response.json();
+    setNotifications(data); // Mixing Inertia with manual state
 };
 ```
 
@@ -47,64 +47,52 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface DashboardProps {
-  stats: Stat[];
-  notifications: Notification[];
-  recentActivity: Activity[];
+    stats: Stat[];
+    notifications: Notification[];
+    recentActivity: Activity[];
 }
 
-export default function Dashboard({
-  stats,
-  notifications,
-  recentActivity
-}: DashboardProps) {
-  const [isRefreshing, setIsRefreshing] = useState(false);
+export default function Dashboard({ stats, notifications, recentActivity }: DashboardProps) {
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Reload only notifications
-  const refreshNotifications = () => {
-    router.reload({
-      only: ['notifications'],
-      onStart: () => setIsRefreshing(true),
-      onFinish: () => setIsRefreshing(false),
-    });
-  };
+    // Reload only notifications
+    const refreshNotifications = () => {
+        router.reload({
+            only: ['notifications'],
+            onStart: () => setIsRefreshing(true),
+            onFinish: () => setIsRefreshing(false),
+        });
+    };
 
-  // Reload multiple specific props
-  const refreshDashboardData = () => {
-    router.reload({
-      only: ['stats', 'recentActivity'],
-      preserveScroll: true,
-    });
-  };
+    // Reload multiple specific props
+    const refreshDashboardData = () => {
+        router.reload({
+            only: ['stats', 'recentActivity'],
+            preserveScroll: true,
+        });
+    };
 
-  // Reload everything except heavy data
-  const refreshWithoutActivity = () => {
-    router.reload({
-      except: ['recentActivity'],
-    });
-  };
+    // Reload everything except heavy data
+    const refreshWithoutActivity = () => {
+        router.reload({
+            except: ['recentActivity'],
+        });
+    };
 
-  return (
-    <div>
-      <div className="flex gap-4">
-        <button
-          onClick={refreshNotifications}
-          disabled={isRefreshing}
-        >
-          {isRefreshing ? 'Refreshing...' : 'Refresh Notifications'}
-        </button>
-        <button onClick={refreshDashboardData}>
-          Refresh Stats
-        </button>
-      </div>
+    return (
+        <div>
+            <div className="flex gap-4">
+                <button onClick={refreshNotifications} disabled={isRefreshing}>
+                    {isRefreshing ? 'Refreshing...' : 'Refresh Notifications'}
+                </button>
+                <button onClick={refreshDashboardData}>Refresh Stats</button>
+            </div>
 
-      <NotificationList
-        notifications={notifications}
-        isLoading={isRefreshing}
-      />
-      <StatsGrid stats={stats} />
-      <ActivityFeed activities={recentActivity} />
-    </div>
-  );
+            <NotificationList notifications={notifications} isLoading={isRefreshing} />
+            <StatsGrid stats={stats} />
+            <ActivityFeed activities={recentActivity} />
+        </div>
+    );
 }
 
 // Laravel Controller with lazy props for optimization
@@ -126,15 +114,15 @@ public function index()
 import { useEffect } from 'react';
 
 function NotificationBell({ count }: { count: number }) {
-  useEffect(() => {
-    const interval = setInterval(() => {
-      router.reload({ only: ['notificationCount'] });
-    }, 30000); // Refresh every 30 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.reload({ only: ['notificationCount'] });
+        }, 30000); // Refresh every 30 seconds
 
-    return () => clearInterval(interval);
-  }, []);
+        return () => clearInterval(interval);
+    }, []);
 
-  return <span className="badge">{count}</span>;
+    return <span className="badge">{count}</span>;
 }
 ```
 

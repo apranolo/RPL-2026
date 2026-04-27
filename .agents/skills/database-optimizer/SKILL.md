@@ -3,14 +3,14 @@ name: database-optimizer
 description: Optimizes database queries and improves performance across PostgreSQL and MySQL systems. Use when investigating slow queries, analyzing execution plans, or optimizing database performance. Invoke for index design, query rewrites, configuration tuning, partitioning strategies, lock contention resolution.
 license: MIT
 metadata:
-  author: https://github.com/Jeffallan
-  version: "1.1.1"
-  domain: infrastructure
-  triggers: database optimization, slow query, query performance, database tuning, index optimization, execution plan, EXPLAIN ANALYZE, database performance, PostgreSQL optimization, MySQL optimization
-  role: specialist
-  scope: optimization
-  output-format: analysis-and-code
-  related-skills: devops-engineer, postgres-pro, graphql-architect
+    author: https://github.com/Jeffallan
+    version: '1.1.1'
+    domain: infrastructure
+    triggers: database optimization, slow query, query performance, database tuning, index optimization, execution plan, EXPLAIN ANALYZE, database performance, PostgreSQL optimization, MySQL optimization
+    role: specialist
+    scope: optimization
+    output-format: analysis-and-code
+    related-skills: devops-engineer, postgres-pro, graphql-architect
 ---
 
 # Database Optimizer
@@ -40,17 +40,18 @@ Senior database optimizer with expertise in performance tuning, query optimizati
 
 Load detailed guidance based on context:
 
-| Topic | Reference | Load When |
-|-------|-----------|-----------|
-| Query Optimization | `references/query-optimization.md` | Analyzing slow queries, execution plans |
-| Index Strategies | `references/index-strategies.md` | Designing indexes, covering indexes |
-| PostgreSQL Tuning | `references/postgresql-tuning.md` | PostgreSQL-specific optimizations |
-| MySQL Tuning | `references/mysql-tuning.md` | MySQL-specific optimizations |
-| Monitoring & Analysis | `references/monitoring-analysis.md` | Performance metrics, diagnostics |
+| Topic                 | Reference                           | Load When                               |
+| --------------------- | ----------------------------------- | --------------------------------------- |
+| Query Optimization    | `references/query-optimization.md`  | Analyzing slow queries, execution plans |
+| Index Strategies      | `references/index-strategies.md`    | Designing indexes, covering indexes     |
+| PostgreSQL Tuning     | `references/postgresql-tuning.md`   | PostgreSQL-specific optimizations       |
+| MySQL Tuning          | `references/mysql-tuning.md`        | MySQL-specific optimizations            |
+| Monitoring & Analysis | `references/monitoring-analysis.md` | Performance metrics, diagnostics        |
 
 ## Common Operations & Examples
 
 ### Identify Top Slow Queries (PostgreSQL)
+
 ```sql
 -- Requires pg_stat_statements extension
 SELECT query,
@@ -65,6 +66,7 @@ LIMIT  20;
 ```
 
 ### Capture an Execution Plan
+
 ```sql
 -- Use BUFFERS to expose cache hit vs. disk read ratio
 EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
@@ -77,15 +79,16 @@ WHERE  o.status = 'pending'
 
 ### Reading EXPLAIN Output — Key Patterns to Find
 
-| Pattern | Symptom | Typical Remedy |
-|---------|---------|----------------|
-| `Seq Scan` on large table | High row estimate, no filter selectivity | Add B-tree index on filter column |
-| `Nested Loop` with large outer set | Exponential row growth in inner loop | Consider Hash Join; index inner join key |
-| `cost=... rows=1` but actual rows=50000 | Stale statistics | Run `ANALYZE <table>;` |
-| `Buffers: hit=10 read=90000` | Low buffer cache hit rate | Increase `shared_buffers`; add covering index |
-| `Sort Method: external merge` | Sort spilling to disk | Increase `work_mem` for the session |
+| Pattern                                 | Symptom                                  | Typical Remedy                                |
+| --------------------------------------- | ---------------------------------------- | --------------------------------------------- |
+| `Seq Scan` on large table               | High row estimate, no filter selectivity | Add B-tree index on filter column             |
+| `Nested Loop` with large outer set      | Exponential row growth in inner loop     | Consider Hash Join; index inner join key      |
+| `cost=... rows=1` but actual rows=50000 | Stale statistics                         | Run `ANALYZE <table>;`                        |
+| `Buffers: hit=10 read=90000`            | Low buffer cache hit rate                | Increase `shared_buffers`; add covering index |
+| `Sort Method: external merge`           | Sort spilling to disk                    | Increase `work_mem` for the session           |
 
 ### Create a Covering Index
+
 ```sql
 -- Covers the filter AND the projected columns, eliminating a heap fetch
 CREATE INDEX CONCURRENTLY idx_orders_status_created_covering
@@ -94,6 +97,7 @@ CREATE INDEX CONCURRENTLY idx_orders_status_created_covering
 ```
 
 ### Validate Improvement
+
 ```sql
 -- Before optimization: save plan & timing
 EXPLAIN (ANALYZE, BUFFERS) <query>;   -- note "Execution Time: X ms"
@@ -108,6 +112,7 @@ WHERE  relname = 'orders';
 ```
 
 ### MySQL: Find Slow Queries
+
 ```sql
 -- Inspect slow query log candidates
 SELECT * FROM performance_schema.events_statements_summary_by_digest
@@ -122,6 +127,7 @@ SELECT * FROM orders WHERE status = 'pending' AND created_at > NOW() - INTERVAL 
 ## Constraints
 
 ### MUST DO
+
 - Capture `EXPLAIN (ANALYZE, BUFFERS)` output **before** optimizing — this is the baseline
 - Measure performance before and after every change
 - Create indexes with `CONCURRENTLY` (PostgreSQL) to avoid table locks
@@ -130,6 +136,7 @@ SELECT * FROM orders WHERE status = 'pending' AND created_at > NOW() - INTERVAL 
 - Run `ANALYZE` after bulk data changes to refresh statistics
 
 ### MUST NOT DO
+
 - Apply optimizations without a measured baseline
 - Create redundant or unused indexes
 - Make multiple changes simultaneously (impossible to attribute impact)
@@ -139,6 +146,7 @@ SELECT * FROM orders WHERE status = 'pending' AND created_at > NOW() - INTERVAL 
 ## Output Templates
 
 When optimizing database performance, provide:
+
 1. Performance analysis with baseline metrics (query time, cost, buffer hit ratio)
 2. Identified bottlenecks and root causes (with EXPLAIN evidence)
 3. Optimization strategy with specific changes

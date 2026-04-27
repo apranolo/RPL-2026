@@ -32,6 +32,7 @@ if ($article) {
 ```
 
 **Masalah:** Jika job harvest dijalankan ulang sementara job sebelumnya belum sepenuhnya selesai (misal: uniqueness lock `ShouldBeUnique` sudah expire setelah 600 detik tapi job masih berjalan), dua job bisa:
+
 1. Keduanya menjalankan `SELECT` → keduanya menemukan `null`
 2. Keduanya mencoba `INSERT` dengan `oai_identifier` yang sama
 3. MySQL melempar **unique constraint violation**
@@ -106,6 +107,7 @@ try {
 ```
 
 **Strategi defense-in-depth:**
+
 - Layer 1: `updateOrCreate` (atomik, mencegah race condition)
 - Layer 2: Catch `UniqueConstraintViolationException` → plain `update()` sebagai last resort
 - Layer 3: Re-throw hanya jika benar-benar tidak bisa ditangani
@@ -194,11 +196,7 @@ Menambahkan tombol **Force Sync** dengan dialog konfirmasi:
 ```tsx
 const handleForceSync = () => {
     setForceSyncing(true);
-    router.post(
-        route('admin-kampus.journals.harvest', journal.id),
-        { force: 1 },
-        { onFinish: () => setForceSyncing(false) },
-    );
+    router.post(route('admin-kampus.journals.harvest', journal.id), { force: 1 }, { onFinish: () => setForceSyncing(false) });
 };
 ```
 
@@ -243,13 +241,13 @@ OAIPMHHarvester::harvest()
 
 ## Kapan Menggunakan Force Sync
 
-| Kondisi | Tindakan |
-|---|---|
-| Sync biasa sebelumnya error / gagal | Coba **Sync Artikel** (normal) terlebih dahulu |
-| Normal sync sukses tapi artikel tetap duplikat | Gunakan **Force Sync** |
-| Server OAI ganti format URL/identifier | Gunakan **Force Sync** |
-| Terdapat artikel dengan volume/no yang salah | Gunakan **Force Sync** |
-| Artikel tidak muncul meski sudah ada di OAI | Gunakan **Force Sync** |
+| Kondisi                                        | Tindakan                                       |
+| ---------------------------------------------- | ---------------------------------------------- |
+| Sync biasa sebelumnya error / gagal            | Coba **Sync Artikel** (normal) terlebih dahulu |
+| Normal sync sukses tapi artikel tetap duplikat | Gunakan **Force Sync**                         |
+| Server OAI ganti format URL/identifier         | Gunakan **Force Sync**                         |
+| Terdapat artikel dengan volume/no yang salah   | Gunakan **Force Sync**                         |
+| Artikel tidak muncul meski sudah ada di OAI    | Gunakan **Force Sync**                         |
 
 > **Peringatan:** Force Sync akan menghapus semua artikel yang sudah tersimpan untuk jurnal tersebut sebelum mengimport ulang. Proses tidak dapat dibatalkan.
 
@@ -257,12 +255,12 @@ OAIPMHHarvester::harvest()
 
 ## File yang Dimodifikasi
 
-| File | Jenis Perubahan |
-|---|---|
-| `app/Services/OAIPMHHarvester.php` | Fix race condition, guard empty identifier, DOI fallback, parameter `clearExisting` |
-| `app/Jobs/HarvestJournalArticlesJob.php` | Tambah parameter `clearExisting`, teruskan ke harvester |
-| `app/Http/Controllers/AdminKampus/JournalController.php` | Baca `force` dari request, dispatch dengan `clearExisting` |
-| `resources/js/pages/AdminKampus/Journals/Show.tsx` | Tambah tombol Force Sync + AlertDialog konfirmasi |
+| File                                                     | Jenis Perubahan                                                                     |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `app/Services/OAIPMHHarvester.php`                       | Fix race condition, guard empty identifier, DOI fallback, parameter `clearExisting` |
+| `app/Jobs/HarvestJournalArticlesJob.php`                 | Tambah parameter `clearExisting`, teruskan ke harvester                             |
+| `app/Http/Controllers/AdminKampus/JournalController.php` | Baca `force` dari request, dispatch dengan `clearExisting`                          |
+| `resources/js/pages/AdminKampus/Journals/Show.tsx`       | Tambah tombol Force Sync + AlertDialog konfirmasi                                   |
 
 ---
 
@@ -276,4 +274,4 @@ OAIPMHHarvester::harvest()
 
 ---
 
-*Terkait: [OAI_PMH_HARVEST_QUEUE.md](OAI_PMH_HARVEST_QUEUE.md) | [OAI_PMH_IMPLEMENTATION.md](OAI_PMH_IMPLEMENTATION.md)*
+_Terkait: [OAI_PMH_HARVEST_QUEUE.md](OAI_PMH_HARVEST_QUEUE.md) | [OAI_PMH_IMPLEMENTATION.md](OAI_PMH_IMPLEMENTATION.md)_

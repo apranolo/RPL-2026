@@ -25,7 +25,7 @@ import { useForm } from '@inertiajs/react';
 
 // Full working example with TypeScript
 export default function Example() {
-  // Implementation
+    // Implementation
 }
 ```
 

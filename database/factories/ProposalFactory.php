@@ -1,8 +1,8 @@
 <?php
 
 namespace Database\Factories;
-use App\Models\ResearchSchema;
 
+use App\Models\ResearchSchema;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

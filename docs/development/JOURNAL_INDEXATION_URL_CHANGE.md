@@ -11,6 +11,7 @@
 Field **"Indexed Date"** (`indexed_at`, bertipe `date`) pada bagian Indexations di form jurnal diganti dengan field **"URL"** (`url`, bertipe URL opsional). Perubahan ini dilakukan bersamaan dengan perbaikan bug journal creation pada tanggal yang sama.
 
 **Alasan perubahan:**
+
 - URL indexation (link halaman profil jurnal di Scopus, DOAJ, dll.) lebih berguna untuk verifikasi dan navigasi cepat dibandingkan tanggal terindeks.
 - Tanggal terindeks sulit diisi dengan akurat oleh pengelola jurnal dan tidak digunakan di fitur lain.
 
@@ -51,11 +52,13 @@ Tidak ada perubahan skema DB untuk fitur ini. Kolom `indexations` tetap `json`. 
 ```
 
 Pesan validasi yang ditambahkan:
+
 ```php
 'indexations.*.url.url' => 'Format URL indeksasi tidak valid.',
 ```
 
 `prepareForValidation()` — transform frontend array → DB dict:
+
 ```php
 // BEFORE
 $transformed[$item['platform']] = ['indexed_at' => $item['indexed_at'] ?? null];
@@ -75,21 +78,24 @@ Perubahan identik dengan `StoreJournalRequest`.
 ### Form Create & Edit (User dan Admin Kampus)
 
 Empat file diperbarui dengan perubahan identik:
+
 - `resources/js/pages/User/Journals/Create.tsx`
 - `resources/js/pages/User/Journals/Edit.tsx`
 - `resources/js/pages/AdminKampus/Journals/Create.tsx`
 - `resources/js/pages/AdminKampus/Journals/Edit.tsx`
 
 **Type definition:**
+
 ```tsx
 // BEFORE
-indexations: [] as Array<{ platform: string; indexed_at: string }>
+indexations: [] as Array<{ platform: string; indexed_at: string }>;
 
 // AFTER
-indexations: [] as Array<{ platform: string; url: string }>
+indexations: [] as Array<{ platform: string; url: string }>;
 ```
 
 **Saat checkbox dicentang:**
+
 ```tsx
 // BEFORE
 { platform: option.value, indexed_at: '' }
@@ -99,6 +105,7 @@ indexations: [] as Array<{ platform: string; url: string }>
 ```
 
 **Input field:**
+
 ```tsx
 // BEFORE
 <Label>Indexed Date</Label>
@@ -120,25 +127,29 @@ indexations: [] as Array<{ platform: string; url: string }>
 ```
 
 **Edit form — transform data lama:**
+
 ```tsx
 // BEFORE
 const existingIndexations = journal.indexations
     ? Object.entries(journal.indexations).map(([platform, data]) => ({
-        platform,
-        indexed_at: data.indexed_at || '',
-    })) : [];
+          platform,
+          indexed_at: data.indexed_at || '',
+      }))
+    : [];
 
 // AFTER
 const existingIndexations = journal.indexations
     ? Object.entries(journal.indexations).map(([platform, data]) => ({
-        platform,
-        url: data.url || '',
-    })) : [];
+          platform,
+          url: data.url || '',
+      }))
+    : [];
 ```
 
 ### `resources/js/pages/User/Journals/Show.tsx`
 
 Type interface Journal diupdate:
+
 ```tsx
 // BEFORE
 indexations: Record<string, { indexed_at: string }> | null;
@@ -148,6 +159,7 @@ indexations: Record<string, { url: string }> | null;
 ```
 
 Prop ke `IndexationBadge` diupdate:
+
 ```tsx
 // BEFORE
 <IndexationBadge platform={platform} indexed_date={data.indexed_at} />
@@ -172,13 +184,15 @@ interface IndexationBadgeProps {
 ```
 
 Jika `url` ada, badge menampilkan link "Lihat halaman":
+
 ```tsx
-{url && (
-    <a href={url} target="_blank" rel="noopener noreferrer"
-       className="text-xs text-blue-500 hover:underline truncate max-w-[160px]">
-        Lihat halaman
-    </a>
-)}
+{
+    url && (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="max-w-[160px] truncate text-xs text-blue-500 hover:underline">
+            Lihat halaman
+        </a>
+    );
+}
 ```
 
 ---
@@ -186,12 +200,14 @@ Jika `url` ada, badge menampilkan link "Lihat halaman":
 ## UI/UX — Tampilan Form
 
 **Sebelum:**
+
 ```
 ☑ Scopus
    Indexed Date: [    date picker    ]
 ```
 
 **Sesudah:**
+
 ```
 ☑ Scopus
    URL (opsional): [https://example.com/journal/scopus]

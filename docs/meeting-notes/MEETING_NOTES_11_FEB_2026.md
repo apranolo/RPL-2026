@@ -1,4 +1,5 @@
 # Meeting Notes - Bimbingan Jurnal MU
+
 **Tanggal**: 11 Februari 2026  
 **Status**: Pre-Launch Final Review & System Refinement  
 **Recording**: [View Recording](https://fathom.video/share/A7xn1sFUPwYfmYQy-nJyrd11KRSmy-4R)
@@ -12,6 +13,7 @@ Pertemuan darurat (impromptu) untuk **FINALISASI SISTEM** menjelang presentasi p
 **Key Decision**: Sistem harus diprioritaskan untuk **data collection** dengan form yang sederhana dan workflow approval yang jelas.
 
 **Critical Changes**:
+
 - Merge Accreditation Grade & Sinta Rank menjadi satu field
 - OAI URL menjadi **MANDATORY** untuk harvesting
 - CSV import hanya untuk data generic, field kompleks diisi manual
@@ -24,25 +26,30 @@ Pertemuan darurat (impromptu) untuk **FINALISASI SISTEM** menjelang presentasi p
 ### Launch Readiness - Final 24 Hours
 
 #### What Must Be Done (Priority Order)
+
 **1. Journal Form Simplification** 🔴 **CRITICAL**
+
 - Merge duplicate accreditation fields
 - Add mandatory OAI URL field
 - Add character limits to prevent UI clutter
 - Add new indexing options (EBSCO, ProQuest)
 
 **2. LPPM Dashboard Enhancement** 🔴 **CRITICAL**
+
 - Remove confusing columns (Score, All Participants)
 - Add Approve/Reject actions with reason
 - Implement journal reassignment feature
 - Disable Delete button for approved journals
 
 **3. CSV Import Strategy** 🟡 **IMPORTANT**
+
 - Simplify import to generic fields only
 - Allow empty Scientific Field and Indexing
 - Map imported journals to LPPM user initially
 - Enable LPPM to reassign to editors post-import
 
 **4. Public Homepage Cleanup** 🟢 **NICE TO HAVE**
+
 - Hide Sinta distribution chart temporarily
 - Link Browse button to View All Journals
 - Fix layout spacing issues
@@ -54,276 +61,281 @@ Pertemuan darurat (impromptu) untuk **FINALISASI SISTEM** menjelang presentasi p
 ### 1. **Journal Data Entry Form (Editor & LPPM View)**
 
 #### Problem Statement
+
 Form terlalu kompleks dan membingungkan, terutama di bagian akreditasi dan indeksasi. Ada duplikasi field (Accreditation Grade vs Sinta Rank) yang membuat user bingung.
 
 #### Solutions Implemented
 
 - [x] **Merge Accreditation Fields** ✅ **CRITICAL** — DONE
-  - **Before**: Accreditation Grade (dropdown) + Sinta Rank (separate field)
-  - **After**: Single "Accreditation" dropdown with options: Sinta 1, Sinta 2, Sinta 3, Sinta 4, Sinta 5, Sinta 6, Non-Sinta
-  - **Rationale**: Sinta Rank IS the accreditation in Indonesian context
-  - **Implementation**:
-    - ✅ Migration: Remove `accreditation_grade` field, keep `sinta_rank` enum
-    - ✅ Form: Replace two dropdowns with single "Accreditation" field
-    - ✅ Values: `sinta_1`, `sinta_2`, `sinta_3`, `sinta_4`, `sinta_5`, `sinta_6`, `non_sinta`
+    - **Before**: Accreditation Grade (dropdown) + Sinta Rank (separate field)
+    - **After**: Single "Accreditation" dropdown with options: Sinta 1, Sinta 2, Sinta 3, Sinta 4, Sinta 5, Sinta 6, Non-Sinta
+    - **Rationale**: Sinta Rank IS the accreditation in Indonesian context
+    - **Implementation**:
+        - ✅ Migration: Remove `accreditation_grade` field, keep `sinta_rank` enum
+        - ✅ Form: Replace two dropdowns with single "Accreditation" field
+        - ✅ Values: `sinta_1`, `sinta_2`, `sinta_3`, `sinta_4`, `sinta_5`, `sinta_6`, `non_sinta`
 
 - [x] **Sinta Accreditation Period** ✅ **CRITICAL** — DONE
-  - **New Fields**: 
-    - `accreditation_start_year` (INTEGER) - Tahun mulai berlaku Sinta
-    - `accreditation_end_year` (INTEGER) - Tahun berakhir berlaku Sinta
-  - **Conditional Display**: Only show when Sinta 1-6 is selected
-  - **Example**: "Sinta 2: 2024 - 2029"
-  - **Replaces**: `sinta_indexed_date` (confusing date field)
-  - **Implementation**:
-    - ✅ Migration: Add `accreditation_start_year`, `accreditation_end_year` INTEGER fields
-    - ✅ Form: Conditional fields appear after selecting Sinta 1-6
-    - ✅ Validation: End year must be >= Start year
-    - ✅ Frontend: Conditional rendering in journal form (Create.tsx & Edit.tsx)
+    - **New Fields**:
+        - `accreditation_start_year` (INTEGER) - Tahun mulai berlaku Sinta
+        - `accreditation_end_year` (INTEGER) - Tahun berakhir berlaku Sinta
+    - **Conditional Display**: Only show when Sinta 1-6 is selected
+    - **Example**: "Sinta 2: 2024 - 2029"
+    - **Replaces**: `sinta_indexed_date` (confusing date field)
+    - **Implementation**:
+        - ✅ Migration: Add `accreditation_start_year`, `accreditation_end_year` INTEGER fields
+        - ✅ Form: Conditional fields appear after selecting Sinta 1-6
+        - ✅ Validation: End year must be >= Start year
+        - ✅ Frontend: Conditional rendering in journal form (Create.tsx & Edit.tsx)
 
 - [x] **SK (Surat Keputusan) Fields - Optional** ✅ **NICE TO HAVE** — DONE
-  - **New Fields**:
-    - `accreditation_sk_number` (VARCHAR 100, NULLABLE)
-    - `accreditation_sk_date` (DATE, NULLABLE)
-  - **Purpose**: Store official accreditation decree information
-  - **Display**: Only if Sinta 1-6 is selected
-  - **Implementation**:
-    - ✅ Migration: Add nullable SK fields
-    - ✅ Form: Optional text input for SK number and date picker in Create.tsx & Edit.tsx
+    - **New Fields**:
+        - `accreditation_sk_number` (VARCHAR 100, NULLABLE)
+        - `accreditation_sk_date` (DATE, NULLABLE)
+    - **Purpose**: Store official accreditation decree information
+    - **Display**: Only if Sinta 1-6 is selected
+    - **Implementation**:
+        - ✅ Migration: Add nullable SK fields
+        - ✅ Form: Optional text input for SK number and date picker in Create.tsx & Edit.tsx
 
 - [x] **Mandatory OAI-PMH URL** ✅ **CRITICAL**
-  - **Field**: `oai_endpoint` - Change from NULLABLE to **REQUIRED**
-  - **Purpose**: Enable article metadata harvesting
-  - **Validation**: Must be valid URL format
-  - **Label**: "OAI-PMH URL" or "OAI URL"
-  - **Implementation**:
-    - ✅ Migration: Change `oai_endpoint` to NOT NULL (with default for existing data)
-    - ✅ Form: Mark as required field with validation
-    - ✅ CSV Import: Rename column from "OJS URL" to "OAI URL"
+    - **Field**: `oai_endpoint` - Change from NULLABLE to **REQUIRED**
+    - **Purpose**: Enable article metadata harvesting
+    - **Validation**: Must be valid URL format
+    - **Label**: "OAI-PMH URL" or "OAI URL"
+    - **Implementation**:
+        - ✅ Migration: Change `oai_endpoint` to NOT NULL (with default for existing data)
+        - ✅ Form: Mark as required field with validation
+        - ✅ CSV Import: Rename column from "OJS URL" to "OAI URL"
 
 - [x] **Mandatory ISSN Online** ✅ **CRITICAL**
-  - **Field**: `e_issn` - Change from NULLABLE to **REQUIRED**
-  - **ISSN Print**: Remains optional (`issn` field stays NULLABLE)
-  - **Rationale**: Modern journals are primarily online
-  - **Implementation**:
-    - ✅ Migration: Change `e_issn` to NOT NULL
-    - ✅ Form: Mark ISSN Online as required, ISSN Print as optional
+    - **Field**: `e_issn` - Change from NULLABLE to **REQUIRED**
+    - **ISSN Print**: Remains optional (`issn` field stays NULLABLE)
+    - **Rationale**: Modern journals are primarily online
+    - **Implementation**:
+        - ✅ Migration: Change `e_issn` to NOT NULL
+        - ✅ Form: Mark ISSN Online as required, ISSN Print as optional
 
 - [x] **Enhanced Indexing Options** ✅ **IMPORTANT**
-  - **Current**: Scopus, DOAJ, Copernicus, Google Scholar, Garuda, Ristek Dikti, Dimension, BASE
-  - **Add**: 
-    - EBSCO
-    - ProQuest
-  - **Label**: Change "Indeksasi" → "Indexing"
-  - **Implementation**:
-    - ✅ Add EBSCO and ProQuest to `indexations` table
-    - ✅ Update journal form dropdown
-    - ✅ Change label to "Indexing" in frontend
+    - **Current**: Scopus, DOAJ, Copernicus, Google Scholar, Garuda, Ristek Dikti, Dimension, BASE
+    - **Add**:
+        - EBSCO
+        - ProQuest
+    - **Label**: Change "Indeksasi" → "Indexing"
+    - **Implementation**:
+        - ✅ Add EBSCO and ProQuest to `indexations` table
+        - ✅ Update journal form dropdown
+        - ✅ Change label to "Indexing" in frontend
 
 - [x] **Character Limits for Text Fields** ✅ **IMPORTANT** — DONE
-  - **About Journal**: Limit to 1000 characters (~150-200 words)
-  - **Scope and Focus**: Limit to 1000 characters
-  - **Purpose**: Prevent UI clutter on public journal detail page
-  - **Display**: Show character counter in form
-  - **Implementation**:
-    - ✅ Backend: Add validation rules in JournalRequest
-    - ✅ Frontend: Character counter with live update in Create.tsx & Edit.tsx (maxLength={1000})
+    - **About Journal**: Limit to 1000 characters (~150-200 words)
+    - **Scope and Focus**: Limit to 1000 characters
+    - **Purpose**: Prevent UI clutter on public journal detail page
+    - **Display**: Show character counter in form
+    - **Implementation**:
+        - ✅ Backend: Add validation rules in JournalRequest
+        - ✅ Frontend: Character counter with live update in Create.tsx & Edit.tsx (maxLength={1000})
 
 - [ ] **Cover Image Upload** ⏳ **FUTURE ENHANCEMENT** — PARTIAL (migration only)
-  - **New Field**: `cover_image` (VARCHAR 255, NULLABLE)
-  - **Purpose**: Display journal cover in public view
-  - **File Type**: JPG, PNG (max 2MB)
-  - **Implementation**:
-    - ✅ Migration: Add `cover_image` field (done in simplify_accreditation_fields migration)
-    - ⏳ Form: File upload component — NOT YET IMPLEMENTED
-    - ⏳ Storage: Store in `storage/app/public/journal-covers/` — NOT YET IMPLEMENTED
+    - **New Field**: `cover_image` (VARCHAR 255, NULLABLE)
+    - **Purpose**: Display journal cover in public view
+    - **File Type**: JPG, PNG (max 2MB)
+    - **Implementation**:
+        - ✅ Migration: Add `cover_image` field (done in simplify_accreditation_fields migration)
+        - ⏳ Form: File upload component — NOT YET IMPLEMENTED
+        - ⏳ Storage: Store in `storage/app/public/journal-covers/` — NOT YET IMPLEMENTED
 
 - [ ] **Scientific Field - Multi-Select (DEFERRED)** ⚠️ **FUTURE**
-  - **Current**: Single select dropdown
-  - **Desired**: Multi-select (max 3 fields)
-  - **Reason for Deferral**: Major revision needed, timeline too tight
-  - **Interim Solution**: Keep single select, allow empty field in CSV import
-  - **Future Data Source**: Use Scopus subject list
-  - **Implementation**: DEFERRED to post-launch iteration
+    - **Current**: Single select dropdown
+    - **Desired**: Multi-select (max 3 fields)
+    - **Reason for Deferral**: Major revision needed, timeline too tight
+    - **Interim Solution**: Keep single select, allow empty field in CSV import
+    - **Future Data Source**: Use Scopus subject list
+    - **Implementation**: DEFERRED to post-launch iteration
 
 ---
 
 ### 2. **LPPM Dashboard - Streamlined Journal Management**
 
 #### Problem Statement
+
 LPPM dashboard menampilkan kolom yang membingungkan (Score, All Participants) yang sebenarnya bagian dari pembinaan/assessment, bukan journal management.
 
 #### Solutions Implemented
 
 - [x] **Simplified Journal List Table** ✅ **CRITICAL** — DONE
-  - **Remove Columns**:
-    - ❌ `score` - Assessment score (moved to Pembinaan module)
-    - ❌ `all_periods` - Assessment periods (moved to Pembinaan)
-    - ❌ `all_participants` - Assessment participants (moved to Pembinaan)
-  - **Add Columns**:
-    - ✅ `indexing` - Display badges for Scopus, DOAJ, etc.
-    - ✅ `approval_status` - Pending/Approved/Rejected with color coding
-  - **Keep Columns**:
-    - Title
-    - Publisher
-    - ISSN
-    - Sinta Rank (renamed from Accreditation)
-    - Scientific Field
-    - Manager (journal manager name)
-  - **Implementation**:
-    - ✅ Remove score-related queries from `JournalController@index()`
-    - ✅ Add indexing relationship eager loading
-    - ✅ Frontend: Table columns updated in `AdminKampus/Journals/Index.tsx`
+    - **Remove Columns**:
+        - ❌ `score` - Assessment score (moved to Pembinaan module)
+        - ❌ `all_periods` - Assessment periods (moved to Pembinaan)
+        - ❌ `all_participants` - Assessment participants (moved to Pembinaan)
+    - **Add Columns**:
+        - ✅ `indexing` - Display badges for Scopus, DOAJ, etc.
+        - ✅ `approval_status` - Pending/Approved/Rejected with color coding
+    - **Keep Columns**:
+        - Title
+        - Publisher
+        - ISSN
+        - Sinta Rank (renamed from Accreditation)
+        - Scientific Field
+        - Manager (journal manager name)
+    - **Implementation**:
+        - ✅ Remove score-related queries from `JournalController@index()`
+        - ✅ Add indexing relationship eager loading
+        - ✅ Frontend: Table columns updated in `AdminKampus/Journals/Index.tsx`
 
 - [x] **Enhanced Action Buttons** ✅ **CRITICAL** — DONE
-  - **New Actions**:
-    - 👁️ **View** - View journal details
-    - ✏️ **Edit** - Edit journal data (always available)
-    - ✅ **Approve** - Approve pending journal
-    - ❌ **Reject** - Reject with reason (min 10 chars, max 1000)
-    - 🗑️ **Delete** - Remove journal (conditional)
-  - **Delete Button Logic**:
-    - ✅ **Show Delete**: For pending & rejected journals
-    - ❌ **Hide Delete**: For approved journals
-    - **Rationale**: Prevent accidental deletion of published data
-  - **Implementation**:
-    - ✅ Backend: Policy checks in `JournalPolicy@delete()`
-    - ✅ Frontend: DropdownMenu with conditional rendering in action column
-    - ✅ Dialog: Rejection reason textarea with validation (min 10, max 1000 chars)
+    - **New Actions**:
+        - 👁️ **View** - View journal details
+        - ✏️ **Edit** - Edit journal data (always available)
+        - ✅ **Approve** - Approve pending journal
+        - ❌ **Reject** - Reject with reason (min 10 chars, max 1000)
+        - 🗑️ **Delete** - Remove journal (conditional)
+    - **Delete Button Logic**:
+        - ✅ **Show Delete**: For pending & rejected journals
+        - ❌ **Hide Delete**: For approved journals
+        - **Rationale**: Prevent accidental deletion of published data
+    - **Implementation**:
+        - ✅ Backend: Policy checks in `JournalPolicy@delete()`
+        - ✅ Frontend: DropdownMenu with conditional rendering in action column
+        - ✅ Dialog: Rejection reason textarea with validation (min 10, max 1000 chars)
 
 - [x] **Add New Journal Button** ✅ **IMPORTANT** — DONE
-  - **Location**: Top of journal list table (next to Import CSV)
-  - **Action**: Navigate to `/user/journals/create`
-  - **Use Case**: LPPM can create journals directly (bypass user submission)
-  - **Implementation**:
-    - ✅ Route already exists
-    - ✅ Frontend: Button added to `AdminKampus/Journals/Index.tsx`
+    - **Location**: Top of journal list table (next to Import CSV)
+    - **Action**: Navigate to `/user/journals/create`
+    - **Use Case**: LPPM can create journals directly (bypass user submission)
+    - **Implementation**:
+        - ✅ Route already exists
+        - ✅ Frontend: Button added to `AdminKampus/Journals/Index.tsx`
 
 - [x] **Journal Reassignment Feature** ✅ **CRITICAL** — DONE
-  - **Use Case**: After CSV import, LPPM needs to reassign journals from themselves to respective editors
-  - **Scenario**: LPPM imports 50 journals → all assigned to LPPM → reassign to 50 different editors
-  - **Location**: Journal list page (via DropdownMenu per row)
-  - **Field**: "Change Manager" dropdown (show users from same university)
-  - **Audit**: Log reassignment in `journal_reassignments` table
-  - **Implementation**:
-    - ✅ Migration: `journal_reassignments` table created (Feb 8)
-    - ✅ Backend: `JournalController@reassign()` method
-    - ✅ Frontend: Reassignment dialog in `AdminKampus/Journals/Index.tsx` (Dialog with user selector)
-    - ✅ Validation: Ensure new manager is from same university
-    - ✅ Backend: `universityUsers` passed to frontend for user selection
+    - **Use Case**: After CSV import, LPPM needs to reassign journals from themselves to respective editors
+    - **Scenario**: LPPM imports 50 journals → all assigned to LPPM → reassign to 50 different editors
+    - **Location**: Journal list page (via DropdownMenu per row)
+    - **Field**: "Change Manager" dropdown (show users from same university)
+    - **Audit**: Log reassignment in `journal_reassignments` table
+    - **Implementation**:
+        - ✅ Migration: `journal_reassignments` table created (Feb 8)
+        - ✅ Backend: `JournalController@reassign()` method
+        - ✅ Frontend: Reassignment dialog in `AdminKampus/Journals/Index.tsx` (Dialog with user selector)
+        - ✅ Validation: Ensure new manager is from same university
+        - ✅ Backend: `universityUsers` passed to frontend for user selection
 
 ---
 
 ### 3. **CSV Import Strategy - Error Prevention**
 
 #### Problem Statement
+
 Importing CSV dengan field yang tidak ada di database (e.g., Scientific Field tidak terdaftar) menyebabkan error. User kesulitan mencocokkan data dengan database.
 
 #### Solution: Generic Import Only
 
 - [x] **Allowed Fields in CSV Import** ✅ **CRITICAL**
-  - ✅ **Import These**:
-    - `title` (required)
-    - `publisher` (required)
-    - `issn` (optional)
-    - `e_issn` (required)
-    - `url` (required)
-    - `oai_url` (required) - **RENAMED** from "OJS URL"
-    - `email` (optional)
-    - `phone` (optional)
-    - `about` (optional, max 1000 chars)
-    - `scope` (optional, max 1000 chars)
-    - `first_published_year` (optional)
-  - ❌ **Leave Empty (Fill Manually Post-Import)**:
-    - `scientific_field_id` - Must be selected from dropdown
-    - `indexing` - Must be selected from dropdown
-    - `accreditation` (Sinta Rank) - Must be selected from dropdown
-    - `accreditation_start_year` / `accreditation_end_year` - Must be entered manually
+    - ✅ **Import These**:
+        - `title` (required)
+        - `publisher` (required)
+        - `issn` (optional)
+        - `e_issn` (required)
+        - `url` (required)
+        - `oai_url` (required) - **RENAMED** from "OJS URL"
+        - `email` (optional)
+        - `phone` (optional)
+        - `about` (optional, max 1000 chars)
+        - `scope` (optional, max 1000 chars)
+        - `first_published_year` (optional)
+    - ❌ **Leave Empty (Fill Manually Post-Import)**:
+        - `scientific_field_id` - Must be selected from dropdown
+        - `indexing` - Must be selected from dropdown
+        - `accreditation` (Sinta Rank) - Must be selected from dropdown
+        - `accreditation_start_year` / `accreditation_end_year` - Must be entered manually
 
 - [x] **Sinta Rank in CSV** ✅ **IMPORTANT**
-  - **Allowed Values**: 1, 2, 3, 4, 5, 6, or EMPTY
-  - **Validation**: If provided, must be integer 1-6
-  - **Maps To**: `accreditation` enum field
-  - **Empty Handling**: Sets to `non_sinta` by default
-  - **Implementation**:
-    - ✅ Update CSV template
-    - ✅ Backend: `JournalImport` class validation
+    - **Allowed Values**: 1, 2, 3, 4, 5, 6, or EMPTY
+    - **Validation**: If provided, must be integer 1-6
+    - **Maps To**: `accreditation` enum field
+    - **Empty Handling**: Sets to `non_sinta` by default
+    - **Implementation**:
+        - ✅ Update CSV template
+        - ✅ Backend: `JournalImport` class validation
 
 - [x] **Auto-Assign to LPPM** ✅ **CRITICAL**
-  - **Current Behavior**: CSV requires selecting a user (editor)
-  - **New Behavior**: Auto-assign all imported journals to **LPPM user** who performs import
-  - **Rationale**: LPPM can then redistribute journals to correct editors one-by-one
-  - **Implementation**:
-    - ✅ Set `user_id` to `auth()->id()` (LPPM's user ID)
-    - ✅ Set `approval_status` to `pending_approval`
-    - ✅ LPPM can then reassign using reassignment feature
+    - **Current Behavior**: CSV requires selecting a user (editor)
+    - **New Behavior**: Auto-assign all imported journals to **LPPM user** who performs import
+    - **Rationale**: LPPM can then redistribute journals to correct editors one-by-one
+    - **Implementation**:
+        - ✅ Set `user_id` to `auth()->id()` (LPPM's user ID)
+        - ✅ Set `approval_status` to `pending_approval`
+        - ✅ LPPM can then reassign using reassignment feature
 
 - [x] **Updated CSV Template** ✅ **IMPORTANT**
-  - **Columns**:
-    ```csv
-    title,publisher,issn,e_issn,url,oai_url,email,phone,about,scope,first_published_year,sinta_rank
-    ```
-  - **Column Renames**:
-    - `OJS URL` → `oai_url`
-    - `Accreditation Grade` → REMOVED
-    - `Sinta Rank` → `sinta_rank` (simplified to 1-6 or empty)
-    - `Sinta Indexed Date` → REMOVED
-    - `Expired Date` → REMOVED
-  - **Implementation**:
-    - ✅ Update template file in `storage/app/templates/journal_import_template.csv`
-    - ✅ Update `JournalImport` class mapping
-    - ✅ Update download template route
+    - **Columns**:
+        ```csv
+        title,publisher,issn,e_issn,url,oai_url,email,phone,about,scope,first_published_year,sinta_rank
+        ```
+    - **Column Renames**:
+        - `OJS URL` → `oai_url`
+        - `Accreditation Grade` → REMOVED
+        - `Sinta Rank` → `sinta_rank` (simplified to 1-6 or empty)
+        - `Sinta Indexed Date` → REMOVED
+        - `Expired Date` → REMOVED
+    - **Implementation**:
+        - ✅ Update template file in `storage/app/templates/journal_import_template.csv`
+        - ✅ Update `JournalImport` class mapping
+        - ✅ Update download template route
 
 ---
 
 ### 4. **Dikti Dashboard - User Approval Workflow**
 
 #### Context
+
 Dikti Super Admin perlu approve LPPM registrations. Meeting membahas workflow approval dan rejection.
 
 - [x] **LPPM Approval Page** ✅ **IMPLEMENTED (Feb 10)**
-  - Route: `GET /admin/users/pending-lppm`
-  - Displays: Pending LPPM registrations
-  - Actions:
-    - **Approve**: Assign "Admin Kampus" role, set `is_active=true`
-    - **Reject**: Requires reason (10-500 chars), sets `rejection_reason`
-  - **Implementation**: Already completed in previous iteration
+    - Route: `GET /admin/users/pending-lppm`
+    - Displays: Pending LPPM registrations
+    - Actions:
+        - **Approve**: Assign "Admin Kampus" role, set `is_active=true`
+        - **Reject**: Requires reason (10-500 chars), sets `rejection_reason`
+    - **Implementation**: Already completed in previous iteration
 
 - [ ] **Revert to Pending** ⏳ **NEW REQUIREMENT** — NOT YET IMPLEMENTED
-  - **Use Case**: Dikti accidentally rejects an LPPM, wants to undo
-  - **Action**: Change status from `rejected` back to `pending`
-  - **Button**: "Revert to Pending" appears for rejected users
-  - **Implementation**:
-    - ⏳ Route: `POST /admin/users/{user}/revert-to-pending` — NOT YET CREATED
-    - ⏳ Controller: `Admin\LppmApprovalController@revertToPending()` — NOT YET CREATED
-    - ⏳ Frontend: Add button in rejected user card — NOT YET IMPLEMENTED
+    - **Use Case**: Dikti accidentally rejects an LPPM, wants to undo
+    - **Action**: Change status from `rejected` back to `pending`
+    - **Button**: "Revert to Pending" appears for rejected users
+    - **Implementation**:
+        - ⏳ Route: `POST /admin/users/{user}/revert-to-pending` — NOT YET CREATED
+        - ⏳ Controller: `Admin\LppmApprovalController@revertToPending()` — NOT YET CREATED
+        - ⏳ Frontend: Add button in rejected user card — NOT YET IMPLEMENTED
 
 ---
 
 ### 5. **Public Homepage - UI Cleanup**
 
 #### Problem Statement
+
 Homepage terlalu cluttered, ada elemen yang belum siap untuk production.
 
 - [x] **Hide Sinta Distribution Chart** ✅ **IMPORTANT** — DONE
-  - **Current**: Displays Sinta rank distribution (Sinta 1: 5, Sinta 2: 11, etc.)
-  - **Issue**: Chart layout not finalized, data might be confusing for first launch
-  - **Action**: Temporarily hide the chart section
-  - **Future**: Re-enable after finalizing design
-  - **Implementation**:
-    - ✅ Frontend: Sinta chart section commented out in `resources/js/pages/welcome.tsx`
+    - **Current**: Displays Sinta rank distribution (Sinta 1: 5, Sinta 2: 11, etc.)
+    - **Issue**: Chart layout not finalized, data might be confusing for first launch
+    - **Action**: Temporarily hide the chart section
+    - **Future**: Re-enable after finalizing design
+    - **Implementation**:
+        - ✅ Frontend: Sinta chart section commented out in `resources/js/pages/welcome.tsx`
 
 - [x] **Fix Browse Button Link** ✅ **IMPORTANT** — DONE
-  - **Current**: "Browse" button links to `/browse/universities`
-  - **Status**: Already correctly implemented — verified working
-  - **Implementation**:
-    - ✅ Route already exists (implemented Feb 11)
-    - ✅ Frontend: `<Link>` href already set to `route('browse.universities')` in homepage
+    - **Current**: "Browse" button links to `/browse/universities`
+    - **Status**: Already correctly implemented — verified working
+    - **Implementation**:
+        - ✅ Route already exists (implemented Feb 11)
+        - ✅ Frontend: `<Link>` href already set to `route('browse.universities')` in homepage
 
 - [x] **Layout Spacing Fix** ✅ **NICE TO HAVE** — DONE
-  - **Issue**: Some sections are too close to bottom, causing cramped appearance
-  - **Action**: Add proper spacing between sections
-  - **Implementation**:
-    - ✅ Frontend: Adjusted margin/padding in homepage sections (py-16 → py-20)
+    - **Issue**: Some sections are too close to bottom, causing cramped appearance
+    - **Action**: Add proper spacing between sections
+    - **Implementation**:
+        - ✅ Frontend: Adjusted margin/padding in homepage sections (py-16 → py-20)
 
 ---
 
@@ -332,20 +344,20 @@ Homepage terlalu cluttered, ada elemen yang belum siap untuk production.
 #### Enhancement: Display Journal Description
 
 - [x] **Show About & Scope** ✅ **IMPLEMENTED** — DONE
-  - **Location**: Above article search section
-  - **Fields Displayed**:
-    - About Journal (max 1000 chars)
-    - Scope and Focus (max 1000 chars)
-  - **Layout**: Two columns on desktop, stacked on mobile
-  - **Character Limit Rationale**: Prevent excessive scrolling
-  - **Implementation**:
-    - ✅ Backend: Already returns data in `PublicJournalController@show()`
-    - ✅ Frontend: Description section displayed in journal detail page
+    - **Location**: Above article search section
+    - **Fields Displayed**:
+        - About Journal (max 1000 chars)
+        - Scope and Focus (max 1000 chars)
+    - **Layout**: Two columns on desktop, stacked on mobile
+    - **Character Limit Rationale**: Prevent excessive scrolling
+    - **Implementation**:
+        - ✅ Backend: Already returns data in `PublicJournalController@show()`
+        - ✅ Frontend: Description section displayed in journal detail page
 
 - [x] **Cover Image Display** ✅ **FUTURE**
-  - **Location**: Top of journal detail page (hero section)
-  - **Fallback**: Default placeholder if no cover uploaded
-  - **Implementation**: Depends on cover upload feature (deferred)
+    - **Location**: Top of journal detail page (hero section)
+    - **Fallback**: Default placeholder if no cover uploaded
+    - **Implementation**: Depends on cover upload feature (deferred)
 
 ---
 
@@ -379,13 +391,14 @@ ADD COLUMN cover_image VARCHAR(255) NULLABLE AFTER about;
 ### Controller Changes
 
 #### JournalController (AdminKampus & User)
+
 ```php
 // Remove assessment-related queries
 public function index()
 {
     $journals = Journal::with(['user', 'scientificField', 'indexations'])
         ->where('university_id', auth()->user()->university_id)
-        ->select(['id', 'title', 'publisher', 'issn', 'e_issn', 'sinta_rank', 
+        ->select(['id', 'title', 'publisher', 'issn', 'e_issn', 'sinta_rank',
                   'approval_status', 'user_id', 'scientific_field_id'])
         // Remove: ->withCount('assessments'), ->with('latestAssessment')
         ->paginate(10);
@@ -413,18 +426,18 @@ public function store(Request $request)
 public function reassign(Request $request, Journal $journal)
 {
     $this->authorize('reassign', $journal);
-    
+
     $validated = $request->validate([
         'new_user_id' => 'required|exists:users,id',
         'reason' => 'nullable|string|max:500',
     ]);
-    
+
     // Ensure new user is from same university
     $newUser = User::findOrFail($validated['new_user_id']);
     if ($newUser->university_id !== auth()->user()->university_id) {
         return back()->withErrors(['error' => 'User must be from same university']);
     }
-    
+
     // Log reassignment
     JournalReassignment::create([
         'journal_id' => $journal->id,
@@ -433,15 +446,16 @@ public function reassign(Request $request, Journal $journal)
         'reassigned_by' => auth()->id(),
         'reason' => $validated['reason'],
     ]);
-    
+
     // Update journal
     $journal->update(['user_id' => $validated['new_user_id']]);
-    
+
     return back()->with('success', 'Journal successfully reassigned');
 }
 ```
 
 #### JournalImport (Laravel Excel Import)
+
 ```php
 public function model(array $row)
 {
@@ -478,20 +492,21 @@ private function mapSintaRank($value)
 ```
 
 #### LppmApprovalController (Dikti Admin)
+
 ```php
 public function revertToPending(User $user)
 {
     $this->authorize('approve', $user); // Same policy
-    
+
     if ($user->approval_status !== 'rejected') {
         return back()->withErrors(['error' => 'Only rejected users can be reverted']);
     }
-    
+
     $user->update([
         'approval_status' => 'pending',
         'rejection_reason' => null,
     ]);
-    
+
     return back()->with('success', 'User status reverted to pending');
 }
 ```
@@ -499,6 +514,7 @@ public function revertToPending(User $user)
 ### Policy Updates
 
 #### JournalPolicy
+
 ```php
 public function delete(User $user, Journal $journal): bool
 {
@@ -506,12 +522,12 @@ public function delete(User $user, Journal $journal): bool
     if ($journal->approval_status === 'approved') {
         return $user->isSuperAdmin(); // Only Dikti can delete approved
     }
-    
+
     // LPPM can delete pending/rejected journals from their university
     if ($user->isAdminKampus()) {
         return $user->university_id === $journal->university_id;
     }
-    
+
     // User can delete their own pending/rejected journals
     return $user->id === $journal->user_id;
 }
@@ -519,7 +535,7 @@ public function delete(User $user, Journal $journal): bool
 public function reassign(User $user, Journal $journal): bool
 {
     // Only LPPM from same university
-    return $user->isAdminKampus() 
+    return $user->isAdminKampus()
         && $user->university_id === $journal->university_id;
 }
 ```
@@ -529,6 +545,7 @@ public function reassign(User $user, Journal $journal): bool
 ## 🎨 Frontend Implementation Summary
 
 ### Journal Form Component
+
 ```typescript
 // resources/js/pages/AdminKampus/Journals/Form.tsx (used by Create & Edit)
 
@@ -556,43 +573,43 @@ export default function JournalForm({ journal, users }: Props) {
     accreditation_start_year: journal?.accreditation_start_year ?? null,
     accreditation_end_year: journal?.accreditation_end_year ?? null,
   });
-  
+
   const showSintaFields = data.sinta_rank !== 'non_sinta';
-  
+
   return (
     <form onSubmit={handleSubmit}>
       {/* Basic Fields */}
-      <Input 
-        label="Title" 
-        value={data.title} 
+      <Input
+        label="Title"
+        value={data.title}
         onChange={e => setData('title', e.target.value)}
-        required 
+        required
       />
-      
+
       {/* ISSN Fields */}
-      <Input 
-        label="ISSN Online" 
-        value={data.e_issn} 
+      <Input
+        label="ISSN Online"
+        value={data.e_issn}
         onChange={e => setData('e_issn', e.target.value)}
-        required 
+        required
         error={errors.e_issn}
       />
-      <Input 
-        label="ISSN Print (Optional)" 
-        value={data.issn} 
+      <Input
+        label="ISSN Print (Optional)"
+        value={data.issn}
         onChange={e => setData('issn', e.target.value)}
       />
-      
+
       {/* OAI URL - MANDATORY */}
-      <Input 
-        label="OAI-PMH URL" 
-        value={data.oai_endpoint} 
+      <Input
+        label="OAI-PMH URL"
+        value={data.oai_endpoint}
         onChange={e => setData('oai_endpoint', e.target.value)}
         required
         type="url"
         error={errors.oai_endpoint}
       />
-      
+
       {/* Accreditation - MERGED FIELD */}
       <Select
         label="Accreditation"
@@ -608,7 +625,7 @@ export default function JournalForm({ journal, users }: Props) {
         <option value="sinta_6">Sinta 6</option>
         <option value="non_sinta">Non-Sinta</option>
       </Select>
-      
+
       {/* Conditional Sinta Fields */}
       {showSintaFields && (
         <>
@@ -630,7 +647,7 @@ export default function JournalForm({ journal, users }: Props) {
               onChange={e => setData('accreditation_end_year', parseInt(e.target.value))}
             />
           </div>
-          
+
           <Input
             label="SK Number (Optional)"
             value={data.accreditation_sk_number ?? ''}
@@ -644,7 +661,7 @@ export default function JournalForm({ journal, users }: Props) {
           />
         </>
       )}
-      
+
       {/* About Journal - CHARACTER COUNTER */}
       <Textarea
         label="About Journal"
@@ -653,7 +670,7 @@ export default function JournalForm({ journal, users }: Props) {
         maxLength={1000}
         helperText={`${data.about.length}/1000 characters`}
       />
-      
+
       {/* Scope - CHARACTER COUNTER */}
       <Textarea
         label="Scope and Focus"
@@ -662,7 +679,7 @@ export default function JournalForm({ journal, users }: Props) {
         maxLength={1000}
         helperText={`${data.scope.length}/1000 characters`}
       />
-      
+
       {/* Indexing - UPDATED OPTIONS */}
       <MultiSelect
         label="Indexing"
@@ -678,7 +695,7 @@ export default function JournalForm({ journal, users }: Props) {
           // ...
         ]}
       />
-      
+
       {/* Submit */}
       <Button type="submit" disabled={processing}>
         {journal ? 'Update Journal' : 'Create Journal'}
@@ -689,13 +706,14 @@ export default function JournalForm({ journal, users }: Props) {
 ```
 
 ### LPPM Journal List
+
 ```typescript
 // resources/js/pages/AdminKampus/Journals/Index.tsx
 
 export default function JournalsIndex({ journals, users }: Props) {
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [showReassignDialog, setShowReassignDialog] = useState(false);
-  
+
   return (
     <AppLayout title="Manage Journals">
       <div className="flex justify-between mb-4">
@@ -704,7 +722,7 @@ export default function JournalsIndex({ journals, users }: Props) {
           Add New Journal
         </Button>
       </div>
-      
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -743,7 +761,7 @@ export default function JournalsIndex({ journals, users }: Props) {
                   <DropdownMenuItem onClick={() => router.visit(route('admin-kampus.journals.edit', journal.id))}>
                     ✏️ Edit
                   </DropdownMenuItem>
-                  
+
                   {journal.approval_status === 'pending_approval' && (
                     <>
                       <DropdownMenuItem onClick={() => handleApprove(journal.id)}>
@@ -754,17 +772,17 @@ export default function JournalsIndex({ journals, users }: Props) {
                       </DropdownMenuItem>
                     </>
                   )}
-                  
+
                   {/* DELETE: Only for pending/rejected */}
                   {journal.approval_status !== 'approved' && (
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => handleDelete(journal.id)}
                       className="text-red-600"
                     >
                       🗑️ Delete
                     </DropdownMenuItem>
                   )}
-                  
+
                   {/* REASSIGN */}
                   <DropdownMenuItem onClick={() => {
                     setSelectedJournal(journal);
@@ -778,7 +796,7 @@ export default function JournalsIndex({ journals, users }: Props) {
           ))}
         </TableBody>
       </Table>
-      
+
       {/* Reassignment Dialog */}
       <ReassignJournalDialog
         open={showReassignDialog}
@@ -792,6 +810,7 @@ export default function JournalsIndex({ journals, users }: Props) {
 ```
 
 ### Reassignment Dialog Component
+
 ```typescript
 // resources/js/components/ReassignJournalDialog.tsx
 
@@ -807,11 +826,11 @@ export default function ReassignJournalDialog({ open, journal, users, onClose }:
     new_user_id: '',
     reason: '',
   });
-  
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!journal) return;
-    
+
     post(route('admin-kampus.journals.reassign', journal.id), {
       onSuccess: () => {
         reset();
@@ -819,7 +838,7 @@ export default function ReassignJournalDialog({ open, journal, users, onClose }:
       },
     });
   };
-  
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
@@ -829,7 +848,7 @@ export default function ReassignJournalDialog({ open, journal, users, onClose }:
             Transfer "{journal?.title}" to another manager in your university.
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <Select
             label="New Manager"
@@ -845,7 +864,7 @@ export default function ReassignJournalDialog({ open, journal, users, onClose }:
               </option>
             ))}
           </Select>
-          
+
           <Textarea
             label="Reason (Optional)"
             value={data.reason}
@@ -853,7 +872,7 @@ export default function ReassignJournalDialog({ open, journal, users, onClose }:
             placeholder="Why are you reassigning this journal?"
             maxLength={500}
           />
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={onClose} type="button">
               Cancel
@@ -876,18 +895,21 @@ export default function ReassignJournalDialog({ open, journal, users, onClose }:
 ### 🔴 **CRITICAL - Must Complete by 7:00 AM Check-in** (Feb 12, 2026)
 
 #### Tonight (Feb 11 - Evening Work)
+
 - [x] Database migrations (accreditation fields, OAI/E-ISSN mandatory) ✅
 - [x] Update JournalController (remove assessment queries) ✅
 - [x] Update JournalImport (CSV strategy changes) ✅
 - [x] Update journal form validation (character limits) ✅
 
 #### Early Morning (Feb 12 - Before 7 AM)
+
 - [x] Frontend: Journal form with merged accreditation field ✅
 - [x] Frontend: LPPM journal list (remove columns, add actions) ✅
 - [x] Frontend: Reassignment dialog ✅
 - [x] Frontend: Homepage cleanup (hide Sinta chart, fix Browse link) ✅
 
 #### Morning Check-in (7:00 AM - Feb 12)
+
 - [ ] Test complete journal submission flow ⏳
 - [ ] Test LPPM approval workflow ⏳
 - [ ] Test CSV import with new template ⏳
@@ -895,6 +917,7 @@ export default function ReassignJournalDialog({ open, journal, users, onClose }:
 - [ ] Bug fixes from testing ⏳
 
 #### Final Prep (7 AM - 1 PM)
+
 - [ ] Create tutorial slides ⏳
 - [ ] Prepare demo data ⏳
 - [ ] Final deployment to production ⏳
@@ -917,6 +940,7 @@ These can be deferred to post-launch if time runs out:
 ## 🎯 Success Criteria for Presentation
 
 ### Functional Requirements
+
 - [x] ✅ Journal form is simplified and clear (merged accreditation)
 - [x] ✅ OAI URL is mandatory for all journals
 - [x] ✅ LPPM can approve/reject journals with reason
@@ -926,17 +950,20 @@ These can be deferred to post-launch if time runs out:
 - [x] ✅ Homepage is clean (Sinta chart hidden, Browse works)
 
 ### Data Requirements
+
 - [x] ✅ Updated CSV template available for download
 - [ ] ⏳ Sample journals with proper accreditation data
 - [ ] ⏳ Demo LPPM user with assigned journals
 
 ### User Experience
+
 - [x] ✅ Form is intuitive (no confusing duplicate fields)
 - [x] ✅ Workflow is clear (User → LPPM → Approved)
 - [x] ✅ Error messages are helpful (especially for CSV import)
 - [x] ✅ Actions are logical (can't delete approved journals)
 
 ### Documentation
+
 - [ ] ⏳ Tutorial slides with screenshots
 - [ ] ⏳ CSV import guide with field descriptions
 - [ ] ⏳ LPPM workflow diagram
@@ -945,35 +972,36 @@ These can be deferred to post-launch if time runs out:
 
 ## 🔒 Authorization Matrix (Updated)
 
-| Feature | User | LPPM | Dikti |
-|---------|------|------|-------|
-| Submit Journal | ✅ | ✅ | ❌ |
-| Edit Own Journal | ✅ | ❌ | ❌ |
-| Edit Any Journal (same uni) | ❌ | ✅ | ❌ |
-| Approve Journal | ❌ | ✅ | ❌ |
-| Reject Journal | ❌ | ✅ | ❌ |
+| Feature                         | User     | LPPM          | Dikti    |
+| ------------------------------- | -------- | ------------- | -------- |
+| Submit Journal                  | ✅       | ✅            | ❌       |
+| Edit Own Journal                | ✅       | ❌            | ❌       |
+| Edit Any Journal (same uni)     | ❌       | ✅            | ❌       |
+| Approve Journal                 | ❌       | ✅            | ❌       |
+| Reject Journal                  | ❌       | ✅            | ❌       |
 | Delete Pending/Rejected Journal | ✅ (own) | ✅ (same uni) | ✅ (all) |
-| Delete Approved Journal | ❌ | ❌ | ✅ |
-| Reassign Journal Manager | ❌ | ✅ | ❌ |
-| CSV Import | ❌ | ✅ | ✅ |
-| Create Journal Directly | ❌ | ✅ | ✅ |
+| Delete Approved Journal         | ❌       | ❌            | ✅       |
+| Reassign Journal Manager        | ❌       | ✅            | ❌       |
+| CSV Import                      | ❌       | ✅            | ✅       |
+| Create Journal Directly         | ❌       | ✅            | ✅       |
 
 ---
 
 ## 📝 Policy Clarifications
 
 ### JournalPolicy
+
 ```php
 public function update(User $user, Journal $journal): bool
 {
     // User can edit their own journals (any status)
     if ($user->id === $journal->user_id) return true;
-    
+
     // LPPM can edit journals in their university
     if ($user->isAdminKampus()) {
         return $user->university_id === $journal->university_id;
     }
-    
+
     // Dikti can edit any journal
     return $user->isSuperAdmin();
 }
@@ -984,14 +1012,14 @@ public function delete(User $user, Journal $journal): bool
     if ($journal->approval_status === 'approved') {
         return $user->isSuperAdmin();
     }
-    
+
     // Pending/Rejected journals: User, LPPM, or Dikti can delete
     if ($user->id === $journal->user_id) return true; // Own journal
-    
+
     if ($user->isAdminKampus()) {
         return $user->university_id === $journal->university_id;
     }
-    
+
     return $user->isSuperAdmin();
 }
 ```
@@ -1001,30 +1029,35 @@ public function delete(User $user, Journal $journal): bool
 ## 🚨 Critical Decisions & Rationale
 
 ### 1. Why Merge Accreditation Fields?
+
 **Problem**: Users confused by separate "Accreditation Grade" and "Sinta Rank" fields.  
 **Root Cause**: In Indonesian context, Sinta Rank IS the accreditation.  
 **Solution**: Single dropdown "Accreditation" with Sinta 1-6 and Non-Sinta.  
 **Impact**: Reduces form complexity, eliminates duplicate data entry.
 
 ### 2. Why Auto-Assign CSV Import to LPPM?
+
 **Problem**: CSV import requires selecting a user for each journal → tedious for bulk import.  
 **Root Cause**: LPPM doesn't know which editor manages which journal before import.  
 **Solution**: Import all journals to LPPM, then redistribute using reassignment feature.  
 **Impact**: Enables bulk import, LPPM can organize data after import.
 
 ### 3. Why Leave Scientific Field Empty in CSV Import?
+
 **Problem**: CSV import fails if Scientific Field doesn't match database values.  
 **Root Cause**: Field uses dropdown values, CSV may have free-text entries.  
 **Solution**: Import generic data only, leave complex fields empty → fill manually post-import.  
 **Impact**: Prevents import errors, ensures data consistency.
 
 ### 4. Why Hide Delete for Approved Journals?
+
 **Problem**: Risk of accidental deletion of published journal data.  
 **Root Cause**: No confirmation dialog, easy to mis-click.  
 **Solution**: Hide Delete button for approved journals (only Dikti can delete).  
 **Impact**: Prevents data loss, maintains data integrity.
 
 ### 5. Why Mandatory OAI URL?
+
 **Problem**: Without OAI, article metadata cannot be harvested.  
 **Root Cause**: Future feature requires OAI endpoint for article search.  
 **Solution**: Make OAI URL required field now to ensure future functionality.  
@@ -1035,16 +1068,19 @@ public function delete(User $user, Journal $journal): bool
 ## 📚 Related Documents
 
 ### Previous Meetings
+
 - [MEETING_NOTES_08_FEB_2026.md](MEETING_NOTES_08_FEB_2026.md) - Pre-launch preparation, approval workflow
 - [MEETING_NOTES_02_FEB_2026.md](MEETING_NOTES_02_FEB_2026.md) - Assessment flow (deferred)
 - [MEETING_NOTES_30_JAN_2026.md](MEETING_NOTES_30_JAN_2026.md) - Dashboard statistics
 
 ### Technical Documentation
+
 - [ERD Database.md](ERD Database.md) - Database schema (needs update for accreditation fields)
 - [BROWSE_UNIVERSITIES_IMPLEMENTATION.md](BROWSE_UNIVERSITIES_IMPLEMENTATION.md) - Public browse feature
 - [LPPM_APPROVAL_IMPLEMENTATION_SUMMARY.md](LPPM_APPROVAL_IMPLEMENTATION_SUMMARY.md) - Approval workflow
 
 ### Implementation Guides
+
 - [JOURNAL_FORM_REFACTOR.md] - To be created (journal form changes)
 - [CSV_IMPORT_STRATEGY.md] - To be created (import strategy)
 
@@ -1079,12 +1115,14 @@ public function delete(User $user, Journal $journal): bool
 ---
 
 ### Design Philosophy
+
 - **Simplicity Over Features**: Launch with simple, clear forms rather than complex multi-select fields
 - **Post-Import Refinement**: Import generic data, refine complex fields manually
 - **Progressive Enhancement**: Start basic, add features incrementally post-launch
 - **Error Prevention**: Prevent errors (empty fields) rather than fixing errors (validation failures)
 
 ### Risk Mitigation
+
 - **Time Constraint**: Only 12 hours until presentation → focus on critical changes only
 - **User Confusion**: Simplified forms reduce training time needed
 - **Data Quality**: Manual entry of complex fields ensures data consistency
@@ -1095,6 +1133,7 @@ public function delete(User $user, Journal $journal): bool
 ## ✅ Action Items Summary
 
 ### Akyas (Developer)
+
 - [x] Migrate database (accreditation fields, OAI/E-ISSN mandatory) ⏳ TONIGHT
 - [x] Update backend controllers (journal CRUD, import, reassignment) ⏳ TONIGHT
 - [x] Update frontend journal form (merged accreditation, character counters) ⏳ EARLY AM
@@ -1106,6 +1145,7 @@ public function delete(User $user, Journal $journal): bool
 - [ ] Be on standby during presentation ⏳ 1 PM PRESENTATION
 
 ### ADTRAINING (Andri)
+
 - [x] Transfer overtime payment to Akyas ✅ (mentioned at start)
 - [x] Prepare demo script ⏳ MORNING
 - [x] Test system before presentation ⏳ 7 AM CHECK-IN
@@ -1116,14 +1156,17 @@ public function delete(User $user, Journal $journal): bool
 ## 🕐 Timeline
 
 ### 11 Feb Evening (Today - Meeting End ~10 PM)
+
 - Development starts immediately
 - Focus: Backend migrations and controllers
 
 ### 12 Feb Early Morning (12 AM - 7 AM)
+
 - Frontend implementation
 - Testing in local environment
 
 ### 12 Feb Morning (7 AM - 1 PM)
+
 - **7:00 AM**: Check-in meeting with Akyas
 - Bug fixes from testing
 - Tutorial slide creation
@@ -1131,6 +1174,7 @@ public function delete(User $user, Journal $journal): bool
 - Final smoke testing
 
 ### 12 Feb Afternoon (1 PM)
+
 - **PRESENTATION TIME** 🎯
 - Akyas on standby for technical issues
 - Live demo with sample data

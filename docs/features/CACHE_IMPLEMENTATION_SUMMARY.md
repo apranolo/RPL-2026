@@ -12,25 +12,27 @@ Successfully implemented Laravel caching for dashboard statistics to optimize pe
 ### Components Modified
 
 1. **[DashboardController.php](../app/Http/Controllers/DashboardController.php)**
-   - Added `Cache` facade import
-   - Implemented `calculateJournalStatisticsForRole()` with caching logic
-   - Added `clearStatisticsCache()` static method for cache invalidation
+    - Added `Cache` facade import
+    - Implemented `calculateJournalStatisticsForRole()` with caching logic
+    - Added `clearStatisticsCache()` static method for cache invalidation
 
 2. **[Journal.php Model](../app/Models/Journal.php)**
-   - Added `boot()` method with Eloquent event listeners
-   - Automatic cache invalidation on create, update, delete, and restore
+    - Added `boot()` method with Eloquent event listeners
+    - Automatic cache invalidation on create, update, delete, and restore
 
 ---
 
 ## 🚀 Performance Improvements
 
 ### Before Caching
+
 - Dashboard loads all journals from database on every request
 - Executes complex aggregation queries (indexation counts, SINTA grouping, field distribution)
 - **Time**: ~500-2000ms for large datasets (1000+ journals)
 - **Database Queries**: 50+ queries per page load
 
 ### After Caching
+
 - First request: Calculates and caches results for 1 hour
 - Subsequent requests: Serves from cache instantly
 - **Time**: ~10-50ms (95-99% reduction)
@@ -41,6 +43,7 @@ Successfully implemented Laravel caching for dashboard statistics to optimize pe
 ## 🔑 Cache Strategy
 
 ### Cache Keys Structure
+
 ```php
 // Super Admin - System-wide data
 'dashboard_statistics_super_admin'
@@ -53,12 +56,15 @@ Successfully implemented Laravel caching for dashboard statistics to optimize pe
 ```
 
 ### Cache Duration
+
 - **TTL**: 3600 seconds (1 hour)
 - Automatically invalidated when data changes
 - Balance between freshness and performance
 
 ### Invalidation Triggers
+
 Cache is automatically cleared when:
+
 - ✅ Journal created
 - ✅ Journal updated
 - ✅ Journal deleted (soft delete)
@@ -72,17 +78,20 @@ Cache is automatically cleared when:
 All tests passed successfully:
 
 ### Test 1: Basic Cache Operations
+
 ```
 ✓ Cache PUT and GET working
 ✓ Cache FORGET working
 ```
 
 ### Test 2: Cache::remember (Used in Dashboard)
+
 ```
 ✓ Cache::remember correctly cached (callback called once)
 ```
 
 ### Test 3: Dashboard Statistics Cache Keys
+
 ```
 ✓ Super Admin cache key working
 ✓ University cache key working
@@ -90,11 +99,13 @@ All tests passed successfully:
 ```
 
 ### Test 4: Cache Invalidation
+
 ```
 ✓ clearStatisticsCache correctly invalidated all affected caches
 ```
 
 ### Test 5: Journal Model Events
+
 ```
 ✓ Journal::created event correctly triggered cache invalidation
 ✓ Journal::updated event correctly triggered cache invalidation
@@ -106,6 +117,7 @@ All tests passed successfully:
 ## 📁 Cache Configuration
 
 ### Current Setup
+
 - **Driver**: `file` (default)
 - **Location**: `storage/framework/cache/data/`
 - **Store**: `Illuminate\Cache\Repository`
@@ -115,6 +127,7 @@ All tests passed successfully:
 For production environments with high traffic, consider upgrading to:
 
 #### Option 1: Redis (Recommended)
+
 ```env
 CACHE_DRIVER=redis
 REDIS_HOST=127.0.0.1
@@ -123,12 +136,14 @@ REDIS_PORT=6379
 ```
 
 **Benefits**:
+
 - In-memory caching (extremely fast)
 - Supports cache tagging for better invalidation
 - Scales horizontally
 - Perfect for load-balanced setups
 
 #### Option 2: Memcached
+
 ```env
 CACHE_DRIVER=memcached
 MEMCACHED_HOST=127.0.0.1
@@ -136,16 +151,19 @@ MEMCACHED_PORT=11211
 ```
 
 **Benefits**:
+
 - Fast in-memory storage
 - Lower memory footprint than Redis
 - Simpler setup
 
 #### Option 3: Database Cache Table (Current)
+
 ```env
 CACHE_DRIVER=database
 ```
 
 **Benefits**:
+
 - No additional services needed
 - Persistent across server restarts
 - Works in XAMPP environment
@@ -268,6 +286,7 @@ protected static function boot()
 ## 📝 Usage Examples
 
 ### Scenario 1: Super Admin Views Dashboard
+
 ```
 1. First visit: Calculates statistics, caches for 1 hour
    - Query time: 1500ms
@@ -279,6 +298,7 @@ protected static function boot()
 ```
 
 ### Scenario 2: Admin Kampus Manages Journals
+
 ```
 1. Views dashboard: Statistics cached per university
    - Cache key: 'dashboard_statistics_university_1'
@@ -291,6 +311,7 @@ protected static function boot()
 ```
 
 ### Scenario 3: User Manages Personal Journals
+
 ```
 1. Views dashboard: Personal statistics cached
    - Cache key: 'dashboard_statistics_user_123'
@@ -327,6 +348,7 @@ php test_journal_cache.php
 ### Monitor Cache Performance
 
 Add to `.env` for production monitoring:
+
 ```env
 # Enable query logging
 DB_LOG_QUERIES=true

@@ -1,6 +1,7 @@
 # Public Page MVP Plan - Jurnal_Mu
 
 ## Overview
+
 Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu, sebuah platform manajemen dan penilaian jurnal akademik untuk Perguruan Tinggi Muhammadiyah (PTM) di Indonesia. Public page ini akan menjadi pintu gerbang informasi untuk pengunjung umum, peneliti, dan stakeholder yang ingin mengeksplorasi jurnal-jurnal yang terdaftar dalam sistem.
 
 **Referensi Utama**: [MAJU UAD](https://maju.uad.ac.id/) - Management and Assessment of UAD Journals  
@@ -11,15 +12,16 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 ## Implementation Status Summary
 
 ### ✅ COMPLETED (Ready for Production)
+
 - **Landing Page / Homepage** - 75% complete (missing: University section)
 - **Journal Listing Page** - 95% complete (missing: empty state messages)
 - **Journal Detail Page** - 100% complete (backend + frontend fully implemented)
 - **OAI-PMH Article Harvesting** - 100% complete (NEW - Feb 6, 2026)
-  - Article model with full Dublin Core metadata
-  - OAI-PMH Harvester service class
-  - Artisan command for manual/scheduled harvesting
-  - Articles display on journal detail page
-  - Logging and error handling
+    - Article model with full Dublin Core metadata
+    - OAI-PMH Harvester service class
+    - Artisan command for manual/scheduled harvesting
+    - Articles display on journal detail page
+    - Logging and error handling
 - **Backend Controller** - 100% complete (PublicJournalController with index + show)
 - **Statistics & Featured Journals** - 100% complete
 - **Public Routing** - 100% complete
@@ -27,10 +29,12 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 - **Breadcrumbs Navigation** - 100% complete (inline in detail page)
 
 ### ⚠️ IN PROGRESS / NEEDS COMPLETION
+
 - **SEO & Performance** - 30% complete (meta tags added, needs structured data, sitemap)
 - **Mobile Responsiveness** - 80% complete (responsive layout implemented)
 
 ### ❌ NOT STARTED
+
 - **About Page** - 0% complete
 - **Contact Page** - 0% complete
 - **Breadcrumbs Component** - 0% complete
@@ -39,6 +43,7 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 - **University Section on Homepage** - 0% complete
 
 ### 📊 Overall Progress
+
 **Features Implemented: 10/13 (77%)**  
 **Backend Ready: 10/13 (77%)**  
 **Phase 3 Complete: Journal Detail Page ✅**  
@@ -50,12 +55,14 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 ## 1. Tujuan Public Page
 
 ### 1.1 Target Pengguna
+
 - **Peneliti & Akademisi**: Mencari jurnal untuk publikasi atau referensi
 - **Pembaca Umum**: Mengakses informasi jurnal akademik PTM
 - **Stakeholder Institusi**: Universitas, Kemenristekdikti, LLDIKTI
 - **Calon Penulis**: Mengetahui persyaratan dan akreditasi jurnal
 
 ### 1.2 Value Proposition
+
 - **Transparansi**: Menampilkan akreditasi dan metadata jurnal secara terbuka
 - **Aksesibilitas**: Memudahkan pencarian jurnal PTM di satu platform terpadu
 - **Kredibilitas**: Menampilkan data akurat dari database terpusat
@@ -69,44 +76,46 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 **Status**: ✅ **IMPLEMENTED** - Di `welcome.tsx` dengan route `/` (home)
 
 #### Komponen Utama:
+
 1. **Hero Section**
-   - ✅ Judul: "Jurnal_Mu - Platform Manajemen Jurnal PTM"
-   - ✅ Tagline: "Sistem Terpadu Manajemen dan Penilaian Jurnal Ilmiah Perguruan Tinggi Muhammadiyah"
-   - ✅ Search Bar (prominent position)
-   - ✅ CTA Button: "Jelajahi Jurnal", "Login", "Register"
-   - ✅ Beautiful gradient background dengan pattern overlay
+    - ✅ Judul: "Jurnal_Mu - Platform Manajemen Jurnal PTM"
+    - ✅ Tagline: "Sistem Terpadu Manajemen dan Penilaian Jurnal Ilmiah Perguruan Tinggi Muhammadiyah"
+    - ✅ Search Bar (prominent position)
+    - ✅ CTA Button: "Jelajahi Jurnal", "Login", "Register"
+    - ✅ Beautiful gradient background dengan pattern overlay
 
 2. **Statistics Section** (inspirasi dari MAJU UAD)
-   - ✅ Total jurnal terdaftar (totalJournals prop)
-   - ✅ Breakdown by SINTA rank (sintaStats: 1-6)
-   - ✅ SINTA rank cards yang clickable (filter ke /journals)
-   - ✅ Total universitas tergabung (totalUniversities prop)
+    - ✅ Total jurnal terdaftar (totalJournals prop)
+    - ✅ Breakdown by SINTA rank (sintaStats: 1-6)
+    - ✅ SINTA rank cards yang clickable (filter ke /journals)
+    - ✅ Total universitas tergabung (totalUniversities prop)
 
 3. **Featured Journals Section**
-   - ✅ Grid layout (responsive 1-4 kolom)
-   - ✅ Tampilkan jurnal unggulan (SINTA 1-2)
-   - ✅ Card jurnal berisi:
-     - ✅ Cover image jurnal
-     - ✅ Nama jurnal (title)
-     - ✅ ISSN & E-ISSN
-     - ✅ SINTA badge (sinta_rank_label)
-     - ✅ Universitas pemilik
-     - ✅ Indexation labels (Scopus, DOAJ, dll)
-     - ✅ Button "More Details" → ke `/journals/{id}`
+    - ✅ Grid layout (responsive 1-4 kolom)
+    - ✅ Tampilkan jurnal unggulan (SINTA 1-2)
+    - ✅ Card jurnal berisi:
+        - ✅ Cover image jurnal
+        - ✅ Nama jurnal (title)
+        - ✅ ISSN & E-ISSN
+        - ✅ SINTA badge (sinta_rank_label)
+        - ✅ Universitas pemilik
+        - ✅ Indexation labels (Scopus, DOAJ, dll)
+        - ✅ Button "More Details" → ke `/journals/{id}`
 
 4. **University Section**
-   - ⚠️ List universitas PTM yang bergabung - **NOT YET**
-   - ⚠️ Jumlah jurnal per universitas - **NOT YET**
-   - ⚠️ Link ke halaman jurnal universitas - **NOT YET**
+    - ⚠️ List universitas PTM yang bergabung - **NOT YET**
+    - ⚠️ Jumlah jurnal per universitas - **NOT YET**
+    - ⚠️ Link ke halaman jurnal universitas - **NOT YET**
 
 5. **Navbar**
-   - ✅ Logo & Brand name (JurnalMu)
-   - ✅ Navigation menu (Beranda, Jurnal, etc.)
-   - ✅ Search functionality
-   - ✅ Login/Register buttons
-   - ✅ Dashboard link (jika sudah login)
+    - ✅ Logo & Brand name (JurnalMu)
+    - ✅ Navigation menu (Beranda, Jurnal, etc.)
+    - ✅ Search functionality
+    - ✅ Login/Register buttons
+    - ✅ Dashboard link (jika sudah login)
 
 #### Referensi Design:
+
 - ✅ **MAJU UAD**: Layout card grid, filter by SINTA, pagination
 - ✅ **Taylor & Francis**: Clean, professional, focus on search
 
@@ -119,39 +128,41 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 #### URL: `/journals`
 
 #### Features:
+
 1. **Filter & Search**
-   - ✅ Search by: Nama jurnal (title), ISSN, E-ISSN
-   - ✅ Filter by:
-     - ✅ Universitas (university_id)
-     - ✅ Bidang keilmuan (scientific_field_id)
-     - ✅ SINTA rank (1-6)
-     - ✅ Akreditasi DIKTI (accreditation_grade)
-     - ✅ Indexation platform (Scopus, DOAJ, dll)
-     - ✅ Status (Aktif/Tidak Aktif - hanya active yang ditampilkan)
-   - ✅ Sort by: Nama (A-Z default)
+    - ✅ Search by: Nama jurnal (title), ISSN, E-ISSN
+    - ✅ Filter by:
+        - ✅ Universitas (university_id)
+        - ✅ Bidang keilmuan (scientific_field_id)
+        - ✅ SINTA rank (1-6)
+        - ✅ Akreditasi DIKTI (accreditation_grade)
+        - ✅ Indexation platform (Scopus, DOAJ, dll)
+        - ✅ Status (Aktif/Tidak Aktif - hanya active yang ditampilkan)
+    - ✅ Sort by: Nama (A-Z default)
 
 2. **Journal Grid**
-   - ✅ Responsive grid (1-4 kolom tergantung screen size)
-   - ✅ Pagination (12 jurnal per halaman)
-   - ✅ Card layout dengan:
-     - ✅ Thumbnail/cover image
-     - ✅ Nama Jurnal (title)
-     - ✅ ISSN & E-ISSN
-     - ✅ SINTA badge
-     - ✅ Universitas
-     - ✅ Scientific field
-     - ✅ [More Details] button → ke `/journals/{id}`
+    - ✅ Responsive grid (1-4 kolom tergantung screen size)
+    - ✅ Pagination (12 jurnal per halaman)
+    - ✅ Card layout dengan:
+        - ✅ Thumbnail/cover image
+        - ✅ Nama Jurnal (title)
+        - ✅ ISSN & E-ISSN
+        - ✅ SINTA badge
+        - ✅ Universitas
+        - ✅ Scientific field
+        - ✅ [More Details] button → ke `/journals/{id}`
 
 3. **Empty State**
-   - ⚠️ Pesan jika tidak ada hasil - **NOT YET**
-   - ⚠️ Saran untuk mengubah filter - **NOT YET**
+    - ⚠️ Pesan jika tidak ada hasil - **NOT YET**
+    - ⚠️ Saran untuk mengubah filter - **NOT YET**
 
 4. **Breadcrumbs & Navigation**
-   - ✅ Navbar dengan search
-   - ✅ Pagination links (prev/next)
-   - ⚠️ Breadcrumbs (Home > Journals) - **NOT YET**
+    - ✅ Navbar dengan search
+    - ✅ Pagination links (prev/next)
+    - ⚠️ Breadcrumbs (Home > Journals) - **NOT YET**
 
 #### Technical:
+
 - ✅ Menggunakan `PublicJournalController@index`
 - ✅ Join dengan `universities` dan `scientific_fields`
 - ✅ Implementasi dengan Laravel pagination + Inertia.js
@@ -167,62 +178,66 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 #### URL: `/journals/{id}`
 
 #### Backend (✅ COMPLETE):
+
 - ✅ `PublicJournalController@show()` method implemented
 - ✅ All metadata fields: title, ISSN, publisher, frequency, editor_in_chief, email, sinta_rank, accreditation details
 - ✅ Enhanced with: cover_image_url, about, scope, indexation_labels, dikti_accreditation_label, sinta_score, accreditation_expiry_status
 
 #### Frontend (✅ COMPLETE):
+
 ✅ Created: `resources/js/pages/Journals/Show.tsx`
 
 #### Sections (✅ Implemented):
+
 1. **Header Section** ✅
-   - ✅ Cover image jurnal with gradient fallback
-   - ✅ Nama jurnal (H1 - title)
-   - ✅ ISSN (Print & Online)
-   - ✅ Akreditasi badges (SINTA, DIKTI, Indexation)
-   - ✅ University affiliation
-   - ✅ Back to Journals button
+    - ✅ Cover image jurnal with gradient fallback
+    - ✅ Nama jurnal (H1 - title)
+    - ✅ ISSN (Print & Online)
+    - ✅ Akreditasi badges (SINTA, DIKTI, Indexation)
+    - ✅ University affiliation
+    - ✅ Back to Journals button
 
 2. **Metadata Section** (2-column responsive layout) ✅
-   
-   **Implemented Fields:**
-   - ✅ ISSN (Print) with icon
-   - ✅ E-ISSN (Online) with icon
-   - ✅ Publisher with icon
-   - ✅ Institution (University) with icon
-   - ✅ Scientific Field with icon
-   - ✅ Publication Frequency with icon
-   - ✅ First Published Year with icon
-   - ✅ Editor in Chief with icon
-   - ✅ Contact Email (mailto link) with icon
+
+    **Implemented Fields:**
+    - ✅ ISSN (Print) with icon
+    - ✅ E-ISSN (Online) with icon
+    - ✅ Publisher with icon
+    - ✅ Institution (University) with icon
+    - ✅ Scientific Field with icon
+    - ✅ Publication Frequency with icon
+    - ✅ First Published Year with icon
+    - ✅ Editor in Chief with icon
+    - ✅ Contact Email (mailto link) with icon
 
 3. **About & Scope Sections** ✅
-   - ✅ About This Journal (conditional rendering)
-   - ✅ Scope & Focus (conditional rendering)
-   - ✅ Prose styling for readability
+    - ✅ About This Journal (conditional rendering)
+    - ✅ Scope & Focus (conditional rendering)
+    - ✅ Prose styling for readability
 
 4. **Indexing & Accreditation** ✅
-   - ✅ All indexation badges displayed
-   - ✅ DIKTI accreditation card in sidebar
-   - ✅ Expiry date display
-   - ✅ Link to SINTA search
+    - ✅ All indexation badges displayed
+    - ✅ DIKTI accreditation card in sidebar
+    - ✅ Expiry date display
+    - ✅ Link to SINTA search
 
 5. **Sidebar Quick Access** ✅
-   - ✅ Visit Journal Website button
-   - ✅ View on SINTA button
-   - ✅ Accreditation info card
-   - ✅ SINTA metrics card (score + ranking)
-   - ✅ Sticky positioning
+    - ✅ Visit Journal Website button
+    - ✅ View on SINTA button
+    - ✅ Accreditation info card
+    - ✅ SINTA metrics card (score + ranking)
+    - ✅ Sticky positioning
 
 6. **Breadcrumbs Navigation** ✅
-   - ✅ Home > Journals > {Journal Name}
-   - ✅ Clickable links with icons
+    - ✅ Home > Journals > {Journal Name}
+    - ✅ Clickable links with icons
 
 7. **Footer** ✅
-   - ✅ Copyright notice
-   - ✅ Consistent with site design
+    - ✅ Copyright notice
+    - ✅ Consistent with site design
 
 #### Data Source:
+
 - ✅ `journals` table (all fields via PublicJournalController@show)
 - ✅ `universities` table (eager loaded relationship)
 - ✅ `scientific_fields` table (eager loaded relationship)
@@ -239,27 +254,29 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 #### URL: `/about`
 
 #### Content:
+
 1. **What is Jurnal_Mu**
-   - Penjelasan platform
-   - Visi & Misi
-   - Tujuan sistem
+    - Penjelasan platform
+    - Visi & Misi
+    - Tujuan sistem
 
 2. **For PTM Institutions**
-   - Manfaat untuk universitas
-   - Cara bergabung
-   - Kontak admin
+    - Manfaat untuk universitas
+    - Cara bergabung
+    - Kontak admin
 
 3. **Statistics**
-   - Total universitas tergabung
-   - Total jurnal terdaftar
-   - Growth over time (chart/infographic)
+    - Total universitas tergabung
+    - Total jurnal terdaftar
+    - Growth over time (chart/infographic)
 
 4. **Features Overview**
-   - Self-assessment system
-   - Multi-level management
-   - Transparent reporting
+    - Self-assessment system
+    - Multi-level management
+    - Transparent reporting
 
 #### Referensi:
+
 - MAJU UAD "About" section (simple, to the point)
 
 ---
@@ -271,25 +288,27 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 #### URL: `/contact`
 
 #### Content:
+
 1. **Contact Information**
-   - Email: support@jurnal_mu.id (example)
-   - Phone: xxx-xxx-xxxx
-   - Address: LLDIKTI or central office
+    - Email: support@jurnal_mu.id (example)
+    - Phone: xxx-xxx-xxxx
+    - Address: LLDIKTI or central office
 
 2. **Contact Form** (optional for MVP)
-   - Name
-   - Email
-   - Subject
-   - Message
-   - Submit button
+    - Name
+    - Email
+    - Subject
+    - Message
+    - Submit button
 
 3. **External Links**
-   - Link ke LLDIKTI
-   - Link ke Kemenristekdikti
-   - Link ke ARJUNA
-   - Link ke SINTA
+    - Link ke LLDIKTI
+    - Link ke Kemenristekdikti
+    - Link ke ARJUNA
+    - Link ke SINTA
 
 #### Referensi:
+
 - MAJU UAD contact section
 
 ---
@@ -297,12 +316,14 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 ## 3. Desain & UI/UX
 
 ### 3.1 Design Principles
+
 1. **Clean & Professional**: Seperti Taylor & Francis, fokus pada konten
 2. **Easy Navigation**: Menu jelas, breadcrumbs, sticky header
 3. **Mobile-First**: Responsive design untuk semua device
 4. **Fast Loading**: Optimasi gambar, lazy loading
 
 ### 3.2 Color Scheme
+
 - **Primary**: Hijau (PTM identity) - `#2E7D32`
 - **Secondary**: Emas/Gold - `#FFA000`
 - **Accent**: Biru (trust & professional) - `#1976D2`
@@ -310,6 +331,7 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 - **Text**: Dark Gray - `#333333`
 
 ### 3.3 Layout Components (using shadcn/ui)
+
 - **Header**: Sticky navigation with logo, menu, search, login
 - **Footer**: Multi-column (About, Links, Contact, Social)
 - **Cards**: Journal cards with hover effects
@@ -318,20 +340,22 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 - **Forms**: Search, filter, contact form
 
 ### 3.4 Typography
+
 - **Headings**: Inter/Poppins (bold, clean)
 - **Body**: Open Sans/Roboto (readable)
-- **Sizes**: 
-  - H1: 2.5rem
-  - H2: 2rem
-  - H3: 1.5rem
-  - Body: 1rem
-  - Small: 0.875rem
+- **Sizes**:
+    - H1: 2.5rem
+    - H2: 2rem
+    - H3: 1.5rem
+    - Body: 1rem
+    - Small: 0.875rem
 
 ---
 
 ## 4. Navigasi & Struktur
 
 ### 4.1 Main Navigation (Header)
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ [Logo] Jurnal_Mu    Beranda  Jurnal  Tentang  Kontak   │
@@ -340,6 +364,7 @@ Dokumen ini menjelaskan MVP (Minimum Viable Product) untuk public page Jurnal_Mu
 ```
 
 Menu Items:
+
 - **Beranda**: `/` (Homepage)
 - **Jurnal**: `/journals` (Listing page)
 - **Tentang**: `/about` (About page)
@@ -347,22 +372,27 @@ Menu Items:
 - **Login**: `/login` (untuk admin/user)
 
 ### 4.2 Footer Navigation
+
 **Column 1: Tentang Kami**
+
 - Tentang Jurnal_Mu
 - Visi & Misi
 - Tim Kami
 
 **Column 2: Jurnal**
+
 - Semua Jurnal
 - Jurnal by SINTA
 - Universitas Anggota
 
 **Column 3: Informasi**
+
 - FAQ
 - Panduan
 - Kebijakan Privasi
 
 **Column 4: Kontak & External Links**
+
 - Email & Phone
 - SINTA
 - ARJUNA
@@ -561,12 +591,14 @@ resources/js/components/Public/
 ### 6.1 Database Schema (existing tables yang digunakan)
 
 **Primary Tables:**
+
 - `journals` - Data jurnal utama
 - `universities` - Data universitas
 - `scientific_fields` - Bidang keilmuan
 - `journal_indexations` - Indexing status (Scopus, DOAJ, dll)
 
 **Additional Fields Needed in `journals` table:**
+
 ```sql
 ALTER TABLE journals ADD COLUMN IF NOT EXISTS:
 - is_public BOOLEAN DEFAULT true
@@ -613,51 +645,54 @@ public function incrementViewCount()
 ## 7. SEO & Performance
 
 ### 7.1 SEO Optimization
+
 1. **Meta Tags** (per page)
-   - Title: "Nama Jurnal | Jurnal_Mu PTM"
-   - Description: Deskripsi singkat jurnal
-   - Keywords: Bidang keilmuan, SINTA, PTM
-   - Open Graph tags (untuk social media)
+    - Title: "Nama Jurnal | Jurnal_Mu PTM"
+    - Description: Deskripsi singkat jurnal
+    - Keywords: Bidang keilmuan, SINTA, PTM
+    - Open Graph tags (untuk social media)
 
 2. **Structured Data** (Schema.org)
-   - ScholarlyArticle
-   - Organization
-   - BreadcrumbList
+    - ScholarlyArticle
+    - Organization
+    - BreadcrumbList
 
 3. **Sitemap.xml**
-   - Generate otomatis untuk semua public pages
-   - Submit ke Google Search Console
+    - Generate otomatis untuk semua public pages
+    - Submit ke Google Search Console
 
 4. **Robots.txt**
-   - Allow public pages
-   - Disallow admin pages
+    - Allow public pages
+    - Disallow admin pages
 
 ### 7.2 Performance Optimization
+
 1. **Image Optimization**
-   - Lazy loading untuk journal covers
-   - WebP format dengan fallback
-   - Responsive images
+    - Lazy loading untuk journal covers
+    - WebP format dengan fallback
+    - Responsive images
 
 2. **Caching**
-   - Cache statistics (1 jam)
-   - Cache journal list (15 menit)
-   - Browser caching untuk assets
+    - Cache statistics (1 jam)
+    - Cache journal list (15 menit)
+    - Browser caching untuk assets
 
 3. **Database**
-   - Index pada: `status`, `university_id`, `sinta_rank`
-   - Eager loading relationships
-   - Pagination untuk large datasets
+    - Index pada: `status`, `university_id`, `sinta_rank`
+    - Eager loading relationships
+    - Pagination untuk large datasets
 
 4. **Frontend**
-   - Code splitting (Vite)
-   - Minify CSS/JS
-   - CDN untuk assets (optional)
+    - Code splitting (Vite)
+    - Minify CSS/JS
+    - CDN untuk assets (optional)
 
 ---
 
 ## 8. Accessibility & Usability
 
 ### 8.1 Accessibility (WCAG 2.1 Level AA)
+
 - [ ] Semantic HTML5 elements
 - [ ] Alt text untuk semua images
 - [ ] Keyboard navigation support
@@ -667,6 +702,7 @@ public function incrementViewCount()
 - [ ] Skip to content link
 
 ### 8.2 Mobile Responsiveness
+
 - [ ] Touch-friendly buttons (min 44x44px)
 - [ ] Responsive images
 - [ ] Mobile menu (hamburger)
@@ -674,6 +710,7 @@ public function incrementViewCount()
 - [ ] Fast loading pada mobile network
 
 ### 8.3 Browser Support
+
 - Chrome (latest 2 versions)
 - Firefox (latest 2 versions)
 - Safari (latest 2 versions)
@@ -684,11 +721,13 @@ public function incrementViewCount()
 ## 9. Development Phases
 
 ### Phase 1: Foundation (Week 1-2) ⭐⭐⭐
+
 **Goal**: Setup dasar public pages
 
 **Status**: ✅ **COMPLETED**
 
 **Tasks**:
+
 - ✅ Create `PublicController` (named `PublicJournalController`)
 - ✅ Setup public routes (home, /journals, /journals/{id})
 - ✅ Create `PublicLayout` component (integrated dalam navbar)
@@ -701,11 +740,13 @@ public function incrementViewCount()
 ---
 
 ### Phase 2: Journal Listing (Week 2-3) ⭐⭐⭐
+
 **Goal**: Implementasi halaman listing dengan filter
 
 **Status**: ✅ **COMPLETED**
 
 **Tasks**:
+
 - ✅ Create `Journals/Index.tsx` page
 - ✅ Implement search functionality (by title, ISSN)
 - ✅ Implement filters (university, SINTA, scientific field, indexation, accreditation)
@@ -719,11 +760,13 @@ public function incrementViewCount()
 ---
 
 ### Phase 3: Journal Detail (Week 3-4) ⭐⭐⭐
+
 **Goal**: Halaman detail jurnal lengkap
 
 **Status**: ✅ **COMPLETED**
 
 **Tasks**:
+
 - ✅ Create `PublicJournalController@show()` method - DONE
 - ✅ Enhanced controller with all metadata fields (cover_image_url, about, scope, indexation_labels, etc)
 - ✅ Extended TypeScript Journal interface with comprehensive types
@@ -743,11 +786,13 @@ public function incrementViewCount()
 ---
 
 ### Phase 4: Statistics & Featured Journals (Week 4) ⭐⭐
+
 **Goal**: Dynamic homepage dengan data real
 
 **Status**: ✅ **COMPLETED**
 
 **Tasks**:
+
 - ✅ Implement statistics calculation (sintaStats by rank 1-6)
 - ✅ Create `StatsWidget` component (SINTA rank cards)
 - ✅ Display featured journals on homepage (SINTA 1-2)
@@ -759,11 +804,13 @@ public function incrementViewCount()
 ---
 
 ### Phase 5: About & Contact Pages (Week 5) ⭐⭐
+
 **Goal**: Informational pages
 
 **Status**: ❌ **NOT STARTED**
 
 **Tasks**:
+
 - [ ] Create About page dengan content
 - [ ] Create Contact page dengan form
 - [ ] Implement contact form submission
@@ -775,11 +822,13 @@ public function incrementViewCount()
 ---
 
 ### Phase 6: Polish & Optimization (Week 6) ⭐
+
 **Goal**: SEO, performance, accessibility
 
 **Status**: ⚠️ **IN PROGRESS** (partial)
 
 **Tasks**:
+
 - ⚠️ Add meta tags (title, description, OG) - **PARTIAL** (head tags exist)
 - [ ] Implement structured data (JSON-LD)
 - [ ] Generate sitemap.xml
@@ -796,6 +845,7 @@ public function incrementViewCount()
 ## 10. Metrics & Success Criteria
 
 ### 10.1 User Metrics
+
 - **Page Views**: Track per page
 - **Search Usage**: % of users using search
 - **Filter Usage**: Most used filters
@@ -804,15 +854,17 @@ public function incrementViewCount()
 - **Time on Site**: > 2 minutes average
 
 ### 10.2 Technical Metrics
+
 - **Page Load Time**: < 3 seconds
-- **Lighthouse Score**: 
-  - Performance: > 90
-  - Accessibility: > 95
-  - Best Practices: > 90
-  - SEO: > 95
+- **Lighthouse Score**:
+    - Performance: > 90
+    - Accessibility: > 95
+    - Best Practices: > 90
+    - SEO: > 95
 - **Mobile Score**: > 85
 
 ### 10.3 Content Metrics
+
 - **Total Journals**: Track growth
 - **Journal Coverage**: % of PTM journals included
 - **Data Completeness**: % journals dengan metadata lengkap
@@ -822,6 +874,7 @@ public function incrementViewCount()
 ## 11. Future Enhancements (Post-MVP)
 
 ### 11.1 Advanced Search
+
 - [ ] Full-text search (Meilisearch/Algolia)
 - [ ] Advanced filters (language, indexing, year range)
 - [ ] Search suggestions/autocomplete
@@ -829,6 +882,7 @@ public function incrementViewCount()
 - [x] **Article-level search** - IMPLEMENTED via OAI-PMH (title, abstract, authors, keywords)
 
 ### 11.2 Analytics Dashboard
+
 - [ ] Public statistics page
 - [ ] Trends & charts (jurnal growth over time)
 - [ ] Top journals by views
@@ -836,12 +890,14 @@ public function incrementViewCount()
 - [x] **Article statistics by year** - IMPLEMENTED (articlesByYear in controller)
 
 ### 11.3 Personalization
+
 - [ ] Bookmark/favorite journals (requires login)
 - [ ] Email alerts untuk jurnal baru
 - [ ] Recommended journals based on interest
 - [x] **Article metadata display** - IMPLEMENTED (authors, DOI, volume/issue)
 
 ### 11.4 Integration
+
 - [x] **Link to actual journal articles** - IMPLEMENTED via OAI-PMH harvesting
 - [x] **OAI-PMH Integration** - IMPLEMENTED (article harvesting with Dublin Core metadata)
 - [ ] Integration dengan SINTA API
@@ -849,6 +905,7 @@ public function incrementViewCount()
 - [ ] RSS feed untuk updates
 
 ### 11.5 Multi-language
+
 - [ ] Bahasa Indonesia (default)
 - [ ] English version
 - [ ] Language switcher
@@ -859,14 +916,15 @@ public function incrementViewCount()
 
 ### 12.1 Risks
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Data tidak lengkap dari universitas | High | High | Provide default values, validation rules |
-| Slow query performance dengan banyak data | Medium | Medium | Implement caching, database indexing |
-| Journal covers tidak tersedia | Low | Medium | Use default placeholder image |
-| SINTA data tidak akurat | High | Medium | Sync mechanism, manual verification |
+| Risk                                      | Impact | Probability | Mitigation                               |
+| ----------------------------------------- | ------ | ----------- | ---------------------------------------- |
+| Data tidak lengkap dari universitas       | High   | High        | Provide default values, validation rules |
+| Slow query performance dengan banyak data | Medium | Medium      | Implement caching, database indexing     |
+| Journal covers tidak tersedia             | Low    | Medium      | Use default placeholder image            |
+| SINTA data tidak akurat                   | High   | Medium      | Sync mechanism, manual verification      |
 
 ### 12.2 Dependencies
+
 - **External**: SINTA database (untuk referensi akreditasi)
 - **Internal**: Admin & User roles untuk input data jurnal
 - **Technical**: Hosting dengan good uptime (>99%)
@@ -876,17 +934,20 @@ public function incrementViewCount()
 ## 13. Resources Required
 
 ### 13.1 Development Team
+
 - **Backend Developer**: 1 person (Laravel, PHP)
 - **Frontend Developer**: 1 person (React, TypeScript, Inertia)
 - **UI/UX Designer**: 0.5 person (design assets, mockups)
 - **QA Tester**: 0.5 person (testing, bug reports)
 
 ### 13.2 Timeline
+
 - **Total Duration**: 6 weeks
 - **Sprint Length**: 1 week
 - **Critical Path**: Phase 1 → Phase 2 → Phase 3
 
 ### 13.3 Budget Estimate (Optional)
+
 - Development: 6 weeks × team cost
 - Design: Assets & mockups
 - Hosting: PHP/MySQL hosting
@@ -906,6 +967,7 @@ Public page Jurnal_Mu MVP akan memberikan **transparansi dan aksesibilitas** inf
 5. ✅ **Scalable** untuk pertumbuhan jurnal di masa depan
 
 **Next Steps**:
+
 1. Review & approval plan ini oleh stakeholder
 2. Setup development environment (backend + frontend)
 3. Start Phase 1: Foundation
@@ -916,12 +978,14 @@ Public page Jurnal_Mu MVP akan memberikan **transparansi dan aksesibilitas** inf
 ## Appendix
 
 ### A. Wireframes (to be created)
+
 - Homepage wireframe
 - Journal listing wireframe
 - Journal detail wireframe
 - Mobile responsive layout
 
 ### B. Design Assets Checklist
+
 - [ ] Logo Jurnal_Mu
 - [ ] Placeholder journal cover image
 - [ ] SINTA badge icons (1-6)
@@ -930,6 +994,7 @@ Public page Jurnal_Mu MVP akan memberikan **transparansi dan aksesibilitas** inf
 - [ ] Hero section images
 
 ### C. Content Writing Checklist
+
 - [ ] About page text
 - [ ] Homepage tagline & descriptions
 - [ ] Contact information
@@ -938,6 +1003,7 @@ Public page Jurnal_Mu MVP akan memberikan **transparansi dan aksesibilitas** inf
 - [ ] Empty state messages
 
 ### D. Reference Links
+
 - MAJU UAD: https://maju.uad.ac.id/
 - Taylor & Francis: https://www.tandfonline.com/
 - SINTA: https://sinta.ristekbrin.go.id/
@@ -957,83 +1023,84 @@ Public page Jurnal_Mu MVP akan memberikan **transparansi dan aksesibilitas** inf
 
 ### Features Checklist
 
-| # | Feature | Status | Location | Notes |
-|---|---------|--------|----------|-------|
-| 1 | Landing Page / Homepage | ✅ 75% | `welcome.tsx` | Missing: University section |
-| 2 | Hero Section | ✅ Complete | `welcome.tsx` line 48+ | Full gradient, search bar, CTA |
-| 3 | Statistics Section | ✅ Complete | `welcome.tsx` line 108+ | SINTA 1-6 breakdown, clickable |
-| 4 | Featured Journals | ✅ Complete | `welcome.tsx` line 140+ | SINTA 1-2, card grid |
-| 5 | Navbar / Header | ✅ Complete | `welcome.tsx` line 47+ | Logo, nav, login/register |
-| 6 | Journal Listing Page | ✅ 95% | `Journals/Index.tsx` | Missing: empty state messages |
-| 7 | Search Functionality | ✅ Complete | `PublicJournalController@index` | By title, ISSN, E-ISSN |
-| 8 | Filter by University | ✅ Complete | `PublicJournalController@index` | Filter dropdown |
-| 9 | Filter by SINTA Rank | ✅ Complete | `PublicJournalController@index` | SINTA 1-6 |
-| 10 | Filter by Scientific Field | ✅ Complete | `PublicJournalController@index` | Scientific field dropdown |
-| 11 | Filter by Indexation | ✅ Complete | `PublicJournalController@index` | Scopus, DOAJ, etc |
-| 12 | Filter by Accreditation | ✅ Complete | `PublicJournalController@index` | DIKTI accreditation grades |
-| 13 | Pagination | ✅ Complete | `PublicJournalController@index` | 12 items per page |
-| 14 | Journal Card Component | ✅ Complete | `journal-card.tsx` | Reusable card component |
-| 15 | Journal Detail Page | ✅ Complete | `Journals/Show.tsx` | Backend + Frontend implemented |
-| 16 | Journal Metadata Display | ✅ Complete | `Journals/Show.tsx` | All fields with icons displayed |
-| 17 | Indexing Badges | ✅ Complete | `Journals/Show.tsx` | All indexation badges shown |
-| 18 | External Links | ✅ Complete | `Journals/Show.tsx` | Website + SINTA links working |
-| 19 | About Page | ❌ Not Started | N/A | Need to create `/about` |
-| 20 | Contact Page | ❌ Not Started | N/A | Need to create `/contact` |
-| 21 | Contact Form | ❌ Not Started | N/A | Form submission logic |
-| 22 | Breadcrumbs | ✅ Complete | `Journals/Show.tsx` | Home > Journals > Detail |
-| 23 | View Counter | ❌ Not Started | N/A | Track journal views |
-| 24 | University Section (Home) | ❌ Not Started | `welcome.tsx` | List PTM with journal counts |
-| 25 | Empty State Messages | ❌ Not Started | `Journals/Index.tsx` | No results message |
-| 26 | SEO Meta Tags | ⚠️ Partial | Multiple files | Head tags in place, need more |
-| 27 | Structured Data (JSON-LD) | ❌ Not Started | N/A | Schema.org markup |
-| 28 | Sitemap.xml | ❌ Not Started | N/A | Auto-generated route sitemap |
-| 29 | Mobile Responsive | ✅ 70% | All tsx files | Responsive layout, needs testing |
-| 30 | Image Optimization | ⚠️ Partial | cover_image_url | Using URL, no lazy load yet |
+| #   | Feature                    | Status         | Location                        | Notes                            |
+| --- | -------------------------- | -------------- | ------------------------------- | -------------------------------- |
+| 1   | Landing Page / Homepage    | ✅ 75%         | `welcome.tsx`                   | Missing: University section      |
+| 2   | Hero Section               | ✅ Complete    | `welcome.tsx` line 48+          | Full gradient, search bar, CTA   |
+| 3   | Statistics Section         | ✅ Complete    | `welcome.tsx` line 108+         | SINTA 1-6 breakdown, clickable   |
+| 4   | Featured Journals          | ✅ Complete    | `welcome.tsx` line 140+         | SINTA 1-2, card grid             |
+| 5   | Navbar / Header            | ✅ Complete    | `welcome.tsx` line 47+          | Logo, nav, login/register        |
+| 6   | Journal Listing Page       | ✅ 95%         | `Journals/Index.tsx`            | Missing: empty state messages    |
+| 7   | Search Functionality       | ✅ Complete    | `PublicJournalController@index` | By title, ISSN, E-ISSN           |
+| 8   | Filter by University       | ✅ Complete    | `PublicJournalController@index` | Filter dropdown                  |
+| 9   | Filter by SINTA Rank       | ✅ Complete    | `PublicJournalController@index` | SINTA 1-6                        |
+| 10  | Filter by Scientific Field | ✅ Complete    | `PublicJournalController@index` | Scientific field dropdown        |
+| 11  | Filter by Indexation       | ✅ Complete    | `PublicJournalController@index` | Scopus, DOAJ, etc                |
+| 12  | Filter by Accreditation    | ✅ Complete    | `PublicJournalController@index` | DIKTI accreditation grades       |
+| 13  | Pagination                 | ✅ Complete    | `PublicJournalController@index` | 12 items per page                |
+| 14  | Journal Card Component     | ✅ Complete    | `journal-card.tsx`              | Reusable card component          |
+| 15  | Journal Detail Page        | ✅ Complete    | `Journals/Show.tsx`             | Backend + Frontend implemented   |
+| 16  | Journal Metadata Display   | ✅ Complete    | `Journals/Show.tsx`             | All fields with icons displayed  |
+| 17  | Indexing Badges            | ✅ Complete    | `Journals/Show.tsx`             | All indexation badges shown      |
+| 18  | External Links             | ✅ Complete    | `Journals/Show.tsx`             | Website + SINTA links working    |
+| 19  | About Page                 | ❌ Not Started | N/A                             | Need to create `/about`          |
+| 20  | Contact Page               | ❌ Not Started | N/A                             | Need to create `/contact`        |
+| 21  | Contact Form               | ❌ Not Started | N/A                             | Form submission logic            |
+| 22  | Breadcrumbs                | ✅ Complete    | `Journals/Show.tsx`             | Home > Journals > Detail         |
+| 23  | View Counter               | ❌ Not Started | N/A                             | Track journal views              |
+| 24  | University Section (Home)  | ❌ Not Started | `welcome.tsx`                   | List PTM with journal counts     |
+| 25  | Empty State Messages       | ❌ Not Started | `Journals/Index.tsx`            | No results message               |
+| 26  | SEO Meta Tags              | ⚠️ Partial     | Multiple files                  | Head tags in place, need more    |
+| 27  | Structured Data (JSON-LD)  | ❌ Not Started | N/A                             | Schema.org markup                |
+| 28  | Sitemap.xml                | ❌ Not Started | N/A                             | Auto-generated route sitemap     |
+| 29  | Mobile Responsive          | ✅ 70%         | All tsx files                   | Responsive layout, needs testing |
+| 30  | Image Optimization         | ⚠️ Partial     | cover_image_url                 | Using URL, no lazy load yet      |
 
 ### Code Structure Checklist
 
-| Component | Status | File Path | Verified |
-|-----------|--------|-----------|----------|
-| PublicJournalController | ✅ | `app/Http/Controllers/PublicJournalController.php` | ✅ |
-| Welcome Page | ✅ | `resources/js/pages/welcome.tsx` | ✅ |
-| Journals Index Page | ✅ | `resources/js/pages/Journals/Index.tsx` | ✅ |
-| Journals Show Page | ✅ | `resources/js/pages/Journals/Show.tsx` | ✅ CREATED & VERIFIED |
-| Journal Card Component | ✅ | `resources/js/components/journal-card.tsx` | ✅ |
-| Badge Components | ✅ | `resources/js/components/badges/` | ✅ |
-| Public Routes | ✅ | `routes/web.php` lines 38-93 | ✅ |
-| Journal Model Scopes | ✅ | `app/Models/Journal.php` | ✅ |
+| Component               | Status | File Path                                          | Verified              |
+| ----------------------- | ------ | -------------------------------------------------- | --------------------- |
+| PublicJournalController | ✅     | `app/Http/Controllers/PublicJournalController.php` | ✅                    |
+| Welcome Page            | ✅     | `resources/js/pages/welcome.tsx`                   | ✅                    |
+| Journals Index Page     | ✅     | `resources/js/pages/Journals/Index.tsx`            | ✅                    |
+| Journals Show Page      | ✅     | `resources/js/pages/Journals/Show.tsx`             | ✅ CREATED & VERIFIED |
+| Journal Card Component  | ✅     | `resources/js/components/journal-card.tsx`         | ✅                    |
+| Badge Components        | ✅     | `resources/js/components/badges/`                  | ✅                    |
+| Public Routes           | ✅     | `routes/web.php` lines 38-93                       | ✅                    |
+| Journal Model Scopes    | ✅     | `app/Models/Journal.php`                           | ✅                    |
 
 ### Database Requirements Checklist
 
-| Field | Status | Table | Notes |
-|-------|--------|-------|-------|
-| is_active | ✅ | journals | Filters active journals |
-| sinta_rank | ✅ | journals | 1-6 or null |
-| title | ✅ | journals | Journal name |
-| issn | ✅ | journals | Print ISSN |
-| e_issn | ✅ | journals | Electronic ISSN |
-| publisher | ✅ | journals | Publisher info |
-| url | ✅ | journals | Journal website |
-| cover_image_url | ✅ | journals | Journal cover |
-| scientific_field_id | ✅ | journals | Foreign key |
-| university_id | ✅ | journals | Foreign key |
-| indexed_in | ✅ | journals | JSON (Scopus, DOAJ, etc) |
-| accreditation_grade | ✅ | journals | DIKTI grade |
-| accreditation_status | ✅ | journals | Active/Expired |
-| sinta_score | ✅ | journals | Numerical score |
-| frequency | ✅ | journals | Publication frequency |
-| first_published_year | ✅ | journals | Year established |
-| editor_in_chief | ✅ | journals | Editor name |
-| email | ✅ | journals | Contact email |
-| is_public | ⚠️ | journals | Suggested to add (currently using is_active) |
-| view_count | ❌ | journals | **Need to add** for analytics |
-| featured | ❌ | journals | **Need to add** for homepage control |
-| description | ❌ | journals | **Need to add** for journal about section |
-| scope | ❌ | journals | **Need to add** for journal scope info |
-| doi_prefix | ❌ | journals | **Suggested** if needed |
-| oai_pmh_url | ❌ | journals | **Suggested** if needed |
+| Field                | Status | Table    | Notes                                        |
+| -------------------- | ------ | -------- | -------------------------------------------- |
+| is_active            | ✅     | journals | Filters active journals                      |
+| sinta_rank           | ✅     | journals | 1-6 or null                                  |
+| title                | ✅     | journals | Journal name                                 |
+| issn                 | ✅     | journals | Print ISSN                                   |
+| e_issn               | ✅     | journals | Electronic ISSN                              |
+| publisher            | ✅     | journals | Publisher info                               |
+| url                  | ✅     | journals | Journal website                              |
+| cover_image_url      | ✅     | journals | Journal cover                                |
+| scientific_field_id  | ✅     | journals | Foreign key                                  |
+| university_id        | ✅     | journals | Foreign key                                  |
+| indexed_in           | ✅     | journals | JSON (Scopus, DOAJ, etc)                     |
+| accreditation_grade  | ✅     | journals | DIKTI grade                                  |
+| accreditation_status | ✅     | journals | Active/Expired                               |
+| sinta_score          | ✅     | journals | Numerical score                              |
+| frequency            | ✅     | journals | Publication frequency                        |
+| first_published_year | ✅     | journals | Year established                             |
+| editor_in_chief      | ✅     | journals | Editor name                                  |
+| email                | ✅     | journals | Contact email                                |
+| is_public            | ⚠️     | journals | Suggested to add (currently using is_active) |
+| view_count           | ❌     | journals | **Need to add** for analytics                |
+| featured             | ❌     | journals | **Need to add** for homepage control         |
+| description          | ❌     | journals | **Need to add** for journal about section    |
+| scope                | ❌     | journals | **Need to add** for journal scope info       |
+| doi_prefix           | ❌     | journals | **Suggested** if needed                      |
+| oai_pmh_url          | ❌     | journals | **Suggested** if needed                      |
 
 **Database Migration Needed:**
+
 ```sql
 -- Add these columns to journals table
 ALTER TABLE journals ADD COLUMN view_count INT DEFAULT 0 AFTER cover_image_url;
@@ -1045,23 +1112,27 @@ ALTER TABLE journals ADD COLUMN scope TEXT AFTER description;
 ### Next Immediate Actions
 
 **✅ COMPLETED:**
+
 1. ✅ **Journal Detail Page** (`resources/js/pages/Journals/Show.tsx`) - DONE
 2. ✅ Breadcrumbs navigation - DONE (inline implementation)
 3. ✅ Enhanced backend controller with all metadata
 4. ✅ Extended TypeScript types
 
 **Priority 1 (This Week):**
+
 1. [ ] Add empty state message component for journal listing
 2. [ ] Add University section to homepage
 3. [ ] Implement view counter on journal detail page (optional)
 
 **Priority 2 (Next Week):**
+
 1. [ ] Create About page with content
 2. [ ] Create Contact page with form
 3. [ ] Implement contact form submission
 4. [ ] Add JSON-LD structured data
 
 **Priority 3 (Polish Phase):**
+
 1. [ ] SEO meta tags per page
 2. [ ] Generate sitemap.xml
 3. [ ] Image lazy loading & optimization
@@ -1073,6 +1144,7 @@ ALTER TABLE journals ADD COLUMN scope TEXT AFTER description;
 ## Quick Reference: What Already Exists vs What's Needed
 
 ### ✅ Already Working:
+
 - Homepage with featured journals and SINTA stats
 - Journal listing with search & multiple filters
 - **Journal Detail Page** - FULLY FUNCTIONAL (backend + frontend)
@@ -1085,6 +1157,7 @@ ALTER TABLE journals ADD COLUMN scope TEXT AFTER description;
 - Badge components (SINTA, Accreditation, Indexation)
 
 ### ❌ Completely Missing:
+
 - About page (route, controller, TSX)
 - Contact page (route, controller, TSX)
 - Breadcrumbs component

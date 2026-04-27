@@ -1,4 +1,5 @@
 # Daily Health Check Report
+
 **Tanggal:** 19 Februari 2026  
 **Waktu Pelaksanaan:** 09:00 WIB (Morning Health Check)  
 **Server:** sg-nme-web423 — `journalmu.org`  
@@ -10,14 +11,14 @@
 
 ## Ringkasan Eksekutif
 
-| # | Pemeriksaan | Status | Prioritas |
-|---|-------------|--------|-----------|
-| 1 | Error Log (Laravel) | ❌ GAGAL | P2 — High |
-| 2 | Failed Jobs Queue | ❌ GAGAL | P2 — High |
-| 3 | Disk Space | ⚠️ PERINGATAN | P1 — Critical |
-| 4 | Database Connectivity | ✅ OK | — |
-| 5 | Queue Worker | ❌ GAGAL | P2 — High |
-| 6 | Backup Terbaru | ⚠️ TIDAK DITEMUKAN | P3 — Medium |
+| #   | Pemeriksaan           | Status             | Prioritas     |
+| --- | --------------------- | ------------------ | ------------- |
+| 1   | Error Log (Laravel)   | ❌ GAGAL           | P2 — High     |
+| 2   | Failed Jobs Queue     | ❌ GAGAL           | P2 — High     |
+| 3   | Disk Space            | ⚠️ PERINGATAN      | P1 — Critical |
+| 4   | Database Connectivity | ✅ OK              | —             |
+| 5   | Queue Worker          | ❌ GAGAL           | P2 — High     |
+| 6   | Backup Terbaru        | ⚠️ TIDAK DITEMUKAN | P3 — Medium   |
 
 > **Kesimpulan:** Terdapat **3 isu kritis/high** yang memerlukan penanganan segera. Dua isu (TypeError & missing table) telah diselesaikan pada hari yang sama. Satu isu (Disk Space 92%) memerlukan tindak lanjut operasional segera.
 
@@ -44,6 +45,7 @@ Koneksi database berjalan normal. Namun tercatat **4.487 slow queries** sejak se
 **User ID Terdampak:** userId = 3
 
 **Raw Error:**
+
 ```
 [2026-02-11 17:20:31] local.ERROR: App\Models\Journal::scopeForUniversity():
 Argument #2 ($universityId) must be of type int, null given,
@@ -62,6 +64,7 @@ Pengguna dengan role Admin Kampus yang `university_id`-nya `null` mengalami hala
 ### ❌ Pemeriksaan 2: Failed Jobs Queue — GAGAL
 
 **Raw Error:**
+
 ```
 Illuminate\Database\QueryException
 SQLSTATE[42S02]: Base table or view not found:
@@ -70,6 +73,7 @@ SQLSTATE[42S02]: Base table or view not found:
 
 **Analisis Root Cause:**  
 Tabel `failed_jobs` tidak pernah dibuat di database production. Migration untuk tabel ini terlewat saat proses deployment awal. Akibatnya:
+
 - Perintah `php artisan queue:failed` tidak bisa dijalankan
 - Queue driver tidak bisa menyimpan job yang gagal
 - Monitoring antrian tidak dapat dilakukan
@@ -125,12 +129,12 @@ Direktori backup tidak ditemukan di lokasi default. Perlu dikonfirmasi apakah ba
 
 1. Investigasi kode di `app/Models/Journal.php:258` — ditemukan scope sudah menggunakan `?int` (nullable), namun error tetap muncul dari production versi lama.
 2. Ditemukan dua model lain yang **belum** menggunakan nullable type hint:
-   - `app/Models/User.php` — `scopeForUniversity($query, int $universityId)`
-   - `app/Models/PembinaanRegistration.php` — `scopeForUniversity($query, int $universityId)`
+    - `app/Models/User.php` — `scopeForUniversity($query, int $universityId)`
+    - `app/Models/PembinaanRegistration.php` — `scopeForUniversity($query, int $universityId)`
 3. Ditemukan 3 controller yang memanggil scope ini tanpa validasi null sebelumnya:
-   - `app/Http/Controllers/AdminKampus/JournalController.php`
-   - `app/Http/Controllers/AdminKampus/UserController.php`
-   - `app/Http/Controllers/AdminKampus/PembinaanController.php`
+    - `app/Http/Controllers/AdminKampus/JournalController.php`
+    - `app/Http/Controllers/AdminKampus/UserController.php`
+    - `app/Http/Controllers/AdminKampus/PembinaanController.php`
 4. Diterapkan dua lapis perbaikan: **nullable type hint** pada model + **abort_if guard** pada controller.
 
 ---
@@ -154,6 +158,7 @@ Direktori backup tidak ditemukan di lokasi default. Perlu dikonfirmasi apakah ba
 **Status:** Belum dilakukan (membutuhkan akses server production)
 
 **Langkah yang harus diambil:**
+
 ```bash
 # 1. Identifikasi folder terbesar
 du -sh /home/u347029080/domains/journalmu.org/public_html/* | sort -rh | head -10
@@ -177,6 +182,7 @@ df -h
 **Status:** Belum dilakukan
 
 **Langkah yang harus diambil:**
+
 ```bash
 # Opsi A: Manual (sementara)
 cd /home/u347029080/domains/journalmu.org/public_html
@@ -203,14 +209,14 @@ Konfirmasi ke Server Admin apakah backup sudah dikonfigurasi di lokasi lain, ata
 
 ## File yang Diubah
 
-| File | Jenis Perubahan | Terkait Tindakan |
-|------|-----------------|-----------------|
-| `app/Models/User.php` | Edit — nullable type hint pada `scopeForUniversity` | Tindakan 1 |
-| `app/Models/PembinaanRegistration.php` | Edit — nullable type hint + empty result guard pada `scopeForUniversity` | Tindakan 1 |
-| `app/Http/Controllers/AdminKampus/JournalController.php` | Edit — tambah `abort_if` guard null `university_id` | Tindakan 1 |
-| `app/Http/Controllers/AdminKampus/UserController.php` | Edit — tambah `abort_if` guard null `university_id` | Tindakan 1 |
-| `app/Http/Controllers/AdminKampus/PembinaanController.php` | Edit — tambah `abort_if` guard null `university_id` | Tindakan 1 |
-| `database/migrations/2026_02_19_000001_create_failed_jobs_table.php` | Baru — migration tabel `failed_jobs` | Tindakan 2 |
+| File                                                                 | Jenis Perubahan                                                          | Terkait Tindakan |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------- |
+| `app/Models/User.php`                                                | Edit — nullable type hint pada `scopeForUniversity`                      | Tindakan 1       |
+| `app/Models/PembinaanRegistration.php`                               | Edit — nullable type hint + empty result guard pada `scopeForUniversity` | Tindakan 1       |
+| `app/Http/Controllers/AdminKampus/JournalController.php`             | Edit — tambah `abort_if` guard null `university_id`                      | Tindakan 1       |
+| `app/Http/Controllers/AdminKampus/UserController.php`                | Edit — tambah `abort_if` guard null `university_id`                      | Tindakan 1       |
+| `app/Http/Controllers/AdminKampus/PembinaanController.php`           | Edit — tambah `abort_if` guard null `university_id`                      | Tindakan 1       |
+| `database/migrations/2026_02_19_000001_create_failed_jobs_table.php` | Baru — migration tabel `failed_jobs`                                     | Tindakan 2       |
 
 ---
 
@@ -235,8 +241,9 @@ public function scopeForUniversity($query, ?int $universityId)
 }
 ```
 
-> **Catatan perbedaan antar model:**  
-> - `User` & `Journal`: null → return `$query` (tidak difilter) — aman karena Policy masih memproteksi.  
+> **Catatan perbedaan antar model:**
+>
+> - `User` & `Journal`: null → return `$query` (tidak difilter) — aman karena Policy masih memproteksi.
 > - `PembinaanRegistration`: null → return `$query->whereRaw('1 = 0')` (hasil kosong) — lebih aman untuk data sensitif registrasi.
 
 ### `app/Http/Controllers/AdminKampus/*Controller.php`
@@ -251,6 +258,7 @@ abort_if(
 ```
 
 Perbaikan dua lapis ini memastikan:
+
 1. Model tidak crash dengan `TypeError` jika null lolos ke scope.
 2. Controller menolak request lebih awal dengan HTTP 403 yang informatif.
 
@@ -272,14 +280,14 @@ Schema::create('failed_jobs', function (Blueprint $table) {
 
 ## Item Tindak Lanjut
 
-| Item | PIC | Deadline | Status |
-|------|-----|----------|--------|
-| Deploy fix ke production (5 file + migrate) | Developer | 19 Feb 2026 | Menunggu deploy |
-| Bersihkan disk space hingga < 80% | Server Admin | 19 Feb 2026 (hari ini) | Pending |
-| Restart / setup Supervisor queue worker | Server Admin | 19 Feb 2026 (hari ini) | Pending |
-| Investigasi slow queries (4.487 queries) | Developer | Weekly Maintenance | Terjadwal |
-| Konfirmasi / setup lokasi backup | Server Admin | 26 Feb 2026 | Pending |
-| Verifikasi ulang seluruh health checks | Operations | Setelah deploy | Pending |
+| Item                                        | PIC          | Deadline               | Status          |
+| ------------------------------------------- | ------------ | ---------------------- | --------------- |
+| Deploy fix ke production (5 file + migrate) | Developer    | 19 Feb 2026            | Menunggu deploy |
+| Bersihkan disk space hingga < 80%           | Server Admin | 19 Feb 2026 (hari ini) | Pending         |
+| Restart / setup Supervisor queue worker     | Server Admin | 19 Feb 2026 (hari ini) | Pending         |
+| Investigasi slow queries (4.487 queries)    | Developer    | Weekly Maintenance     | Terjadwal       |
+| Konfirmasi / setup lokasi backup            | Server Admin | 26 Feb 2026            | Pending         |
+| Verifikasi ulang seluruh health checks      | Operations   | Setelah deploy         | Pending         |
 
 ---
 
@@ -288,11 +296,11 @@ Schema::create('failed_jobs', function (Blueprint $table) {
 - Error `Journal::scopeForUniversity` tercatat pada **2026-02-11** (8 hari yang lalu) namun baru terdeteksi pada health check hari ini. Perlu pertimbangkan monitoring aktif (Sentry / Bugsnag) agar error terdeteksi real-time.
 - **4.487 slow queries** pada MariaDB perlu dianalisis pada sesi Weekly Maintenance untuk menghindari degradasi performa.
 - Setelah deploy ke production, wajib menjalankan:
-  ```bash
-  php artisan migrate
-  php artisan config:cache
-  php artisan queue:failed  # verifikasi tabel sudah bisa diakses
-  ```
+    ```bash
+    php artisan migrate
+    php artisan config:cache
+    php artisan queue:failed  # verifikasi tabel sudah bisa diakses
+    ```
 
 ---
 

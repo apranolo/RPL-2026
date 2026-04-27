@@ -1,14 +1,17 @@
 # User Profile Management Feature
 
 ## Overview
+
 Complete profile management system for User (Pengelola Jurnal) role with avatar upload, enhanced profile fields, and consolidated settings interface.
 
 ## Implementation Date
+
 February 14, 2026
 
 ## Features Implemented
 
 ### ✅ 1. Avatar Upload & Management
+
 - **Upload**: Support for JPG, PNG images up to 2MB
 - **Preview**: Real-time preview before upload
 - **Delete**: Remove uploaded avatars (OAuth avatars protected)
@@ -16,6 +19,7 @@ February 14, 2026
 - **Storage**: `/storage/app/public/avatars/avatar_{user_id}_{timestamp}.{ext}`
 
 ### ✅ 2. Enhanced Profile Fields
+
 - **Name** - Full name (required)
 - **Email** - Email address with verification flow (required)
 - **Phone** - Contact number (optional, max 20 chars)
@@ -23,6 +27,7 @@ February 14, 2026
 - **Scientific Field** - Research area dropdown (optional, foreign key)
 
 ### ✅ 3. User/Profil Redirect
+
 - `/user/profil` now redirects to `/settings/profile`
 - Consolidated profile management in settings area
 - Maintains consistent user experience
@@ -32,6 +37,7 @@ February 14, 2026
 ### Backend
 
 #### 1. **ProfileUpdateRequest.php** - Enhanced Validation
+
 **Location**: `app/Http/Requests/Settings/ProfileUpdateRequest.php`
 
 ```php
@@ -48,9 +54,11 @@ public function rules(): array
 ```
 
 #### 2. **ProfileController.php** - Avatar Methods & Props
+
 **Location**: `app/Http/Controllers/Settings/ProfileController.php`
 
 **Changes**:
+
 - Added `ScientificField` import
 - Added `Storage` and `Str` facades
 - Enhanced `edit()` method to pass `scientificFields` prop
@@ -58,6 +66,7 @@ public function rules(): array
 - Added `deleteAvatar()` method for avatar removal
 
 **Key Methods**:
+
 ```php
 // Pass scientific fields to frontend
 public function edit(Request $request): Response
@@ -100,6 +109,7 @@ public function uploadAvatar(Request $request): RedirectResponse
 ```
 
 #### 3. **settings.php** - Avatar Routes
+
 **Location**: `routes/settings.php`
 
 ```php
@@ -108,6 +118,7 @@ Route::delete('settings/profile/avatar', [ProfileController::class, 'deleteAvata
 ```
 
 #### 4. **ProfilController.php** - Redirect to Settings
+
 **Location**: `app/Http/Controllers/User/ProfilController.php`
 
 ```php
@@ -120,9 +131,11 @@ public function index(): RedirectResponse
 ### Frontend
 
 #### 5. **profile.tsx** - Enhanced UI
+
 **Location**: `resources/js/pages/settings/profile.tsx`
 
 **Features**:
+
 - **Avatar Section**: Upload, preview, delete with visual feedback
 - **Profile Form**: Name, email, phone, position, scientific field
 - **Validation**: Client-side file type/size validation
@@ -130,17 +143,18 @@ public function index(): RedirectResponse
 - **Responsive Design**: Card-based layout with proper spacing
 
 **Key Components**:
+
 ```tsx
 // Avatar display with fallback
-{avatarPreview || auth.user.avatar_url ? (
-    <img src={avatarPreview || auth.user.avatar_url} className="h-24 w-24 rounded-full" />
-) : (
-    <div className="flex h-24 w-24 items-center justify-center rounded-full bg-blue-100">
-        <span className="text-3xl font-bold">
-            {auth.user.initials || auth.user.name.charAt(0).toUpperCase()}
-        </span>
-    </div>
-)}
+{
+    avatarPreview || auth.user.avatar_url ? (
+        <img src={avatarPreview || auth.user.avatar_url} className="h-24 w-24 rounded-full" />
+    ) : (
+        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-blue-100">
+            <span className="text-3xl font-bold">{auth.user.initials || auth.user.name.charAt(0).toUpperCase()}</span>
+        </div>
+    );
+}
 
 // Scientific field dropdown
 <Select value={data.scientific_field_id} onValueChange={(value) => setData('scientific_field_id', value)}>
@@ -151,13 +165,15 @@ public function index(): RedirectResponse
             </SelectItem>
         ))}
     </SelectContent>
-</Select>
+</Select>;
 ```
 
 #### 6. **index.d.ts** - TypeScript Types
+
 **Location**: `resources/js/types/index.d.ts`
 
 **Updated User Interface**:
+
 ```typescript
 export interface User {
     id: number;
@@ -169,24 +185,25 @@ export interface User {
     university_id?: number;
     avatar_url?: string;
     avatar?: string;
-    phone?: string;              // NEW
-    position?: string;           // NEW
+    phone?: string; // NEW
+    position?: string; // NEW
     is_reviewer?: boolean;
     scientific_field?: ScientificField;
     scientific_field_id?: number; // NEW
-    initials?: string;            // NEW
+    initials?: string; // NEW
 }
 
 export interface ScientificField {
     id: number;
     name: string;
-    code: string;               // NEW
+    code: string; // NEW
 }
 ```
 
 ## User Flow
 
 ### 1. Updating Profile Information
+
 1. Navigate to `/settings/profile` or `/user/profil` (both work)
 2. Edit name, email, phone, position, or scientific field
 3. Click "Save Changes"
@@ -194,6 +211,7 @@ export interface ScientificField {
 5. Email verification required if email changed
 
 ### 2. Uploading Avatar
+
 1. Click "Change Avatar" button
 2. Select JPG/PNG image (max 2MB)
 3. Preview appears with "Upload" and "Cancel" buttons
@@ -201,6 +219,7 @@ export interface ScientificField {
 5. Avatar updates immediately with toast notification
 
 ### 3. Removing Avatar
+
 1. Click "Remove" button (only visible for uploaded avatars)
 2. Confirm deletion
 3. Avatar reverts to initials fallback
@@ -209,20 +228,23 @@ export interface ScientificField {
 ## Validation Rules
 
 ### Backend Validation (ProfileUpdateRequest)
-| Field | Rules |
-|-------|-------|
-| name | required, string, max:255 |
-| email | required, email, unique (ignore self), lowercase, max:255 |
-| phone | nullable, string, max:20 |
-| position | nullable, string, max:100 |
-| scientific_field_id | nullable, exists in scientific_fields table |
+
+| Field               | Rules                                                     |
+| ------------------- | --------------------------------------------------------- |
+| name                | required, string, max:255                                 |
+| email               | required, email, unique (ignore self), lowercase, max:255 |
+| phone               | nullable, string, max:20                                  |
+| position            | nullable, string, max:100                                 |
+| scientific_field_id | nullable, exists in scientific_fields table               |
 
 ### Avatar Upload Validation
-| Field | Rules |
-|-------|-------|
+
+| Field  | Rules                                              |
+| ------ | -------------------------------------------------- |
 | avatar | required, image, mimes:jpeg,png,jpg, max:2048 (KB) |
 
 ### Frontend Validation
+
 - **File Type**: Only JPEG, PNG, JPG allowed
 - **File Size**: Maximum 2MB
 - **Toast Errors**: User-friendly error messages for validation failures
@@ -230,6 +252,7 @@ export interface ScientificField {
 ## Database Schema
 
 No database changes required. Uses existing `users` table fields:
+
 - `avatar_url` - VARCHAR(500) - Stores `/storage/avatars/...` or OAuth URL
 - `phone` - VARCHAR(20) - Contact number
 - `position` - VARCHAR(100) - Job title
@@ -238,6 +261,7 @@ No database changes required. Uses existing `users` table fields:
 ## Authorization
 
 Uses existing `UserPolicy::update()` method:
+
 - ✅ Users can update their own profile (self-update)
 - ✅ Super Admin can update any user
 - ✅ Admin Kampus can update users in their university
@@ -245,6 +269,7 @@ Uses existing `UserPolicy::update()` method:
 ## Storage Configuration
 
 ### Directory Structure
+
 ```
 storage/
   app/
@@ -255,6 +280,7 @@ storage/
 ```
 
 ### Public Access
+
 - Symbolic link: `public/storage -> storage/app/public`
 - Avatar URL: `/storage/avatars/avatar_{user_id}_{timestamp}.{ext}`
 - Command: `php artisan storage:link` (already executed)
@@ -262,40 +288,42 @@ storage/
 ## Testing Checklist
 
 ### ✅ Manual Testing
+
 1. **Profile Update**
-   - [ ] Update name
-   - [ ] Update email (verify email verification flow)
-   - [ ] Update phone
-   - [ ] Update position
-   - [ ] Update scientific field
-   - [ ] Verify all fields save correctly
+    - [ ] Update name
+    - [ ] Update email (verify email verification flow)
+    - [ ] Update phone
+    - [ ] Update position
+    - [ ] Update scientific field
+    - [ ] Verify all fields save correctly
 
 2. **Avatar Upload**
-   - [ ] Upload valid JPEG/PNG (under 2MB)
-   - [ ] Test file type validation (try .gif, .bmp)
-   - [ ] Test file size validation (try >2MB)
-   - [ ] Verify preview before upload
-   - [ ] Verify avatar displays after upload
-   - [ ] Test cancel preview functionality
+    - [ ] Upload valid JPEG/PNG (under 2MB)
+    - [ ] Test file type validation (try .gif, .bmp)
+    - [ ] Test file size validation (try >2MB)
+    - [ ] Verify preview before upload
+    - [ ] Verify avatar displays after upload
+    - [ ] Test cancel preview functionality
 
 3. **Avatar Delete**
-   - [ ] Delete uploaded avatar
-   - [ ] Verify initials fallback appears
-   - [ ] Verify OAuth avatar cannot be deleted
-   - [ ] Check old file is removed from storage
+    - [ ] Delete uploaded avatar
+    - [ ] Verify initials fallback appears
+    - [ ] Verify OAuth avatar cannot be deleted
+    - [ ] Check old file is removed from storage
 
 4. **User/Profil Redirect**
-   - [ ] Navigate to `/user/profil`
-   - [ ] Verify redirects to `/settings/profile`
-   - [ ] Verify breadcrumbs update correctly
+    - [ ] Navigate to `/user/profil`
+    - [ ] Verify redirects to `/settings/profile`
+    - [ ] Verify breadcrumbs update correctly
 
 5. **Edge Cases**
-   - [ ] Upload avatar without changing profile fields
-   - [ ] Change profile fields without touching avatar
-   - [ ] Test with user who has no scientific field set
-   - [ ] Test with user who has OAuth avatar (Google login)
+    - [ ] Upload avatar without changing profile fields
+    - [ ] Change profile fields without touching avatar
+    - [ ] Test with user who has no scientific field set
+    - [ ] Test with user who has OAuth avatar (Google login)
 
 ### ✅ Automated Testing
+
 ```bash
 # Run type checking
 npm run types
@@ -317,6 +345,7 @@ php artisan test --filter Profile
 ## Future Enhancements
 
 ### Potential Improvements
+
 1. **Avatar Cropping**: Add image cropper before upload
 2. **Avatar Compression**: Automatically optimize uploaded images
 3. **Activity Log**: Show recent profile changes
@@ -328,6 +357,7 @@ php artisan test --filter Profile
 ## Security Considerations
 
 ✅ **Implemented**:
+
 - File type validation (MIME type check)
 - File size limit (2MB)
 - Authorization via UserPolicy
@@ -336,6 +366,7 @@ php artisan test --filter Profile
 - SQL injection protection (Eloquent ORM)
 
 ⚠️ **Recommendations**:
+
 - Consider implementing rate limiting for avatar uploads
 - Add virus scanning for uploaded files (production)
 - Implement Content Security Policy headers
@@ -346,18 +377,22 @@ php artisan test --filter Profile
 ### Common Issues
 
 **Issue**: Avatar upload fails with 500 error
+
 - **Solution**: Check storage permissions: `chmod -R 775 storage/app/public`
 - **Solution**: Verify symbolic link: `php artisan storage:link`
 
 **Issue**: Avatar not displaying after upload
+
 - **Solution**: Clear browser cache
 - **Solution**: Check `APP_URL` in `.env` matches actual URL
 
 **Issue**: Scientific field dropdown empty
+
 - **Solution**: Verify `scientific_fields` table has active records
 - **Solution**: Run seeder: `php artisan db:seed --class=ScientificFieldSeeder`
 
 **Issue**: Profile update fails validation
+
 - **Solution**: Check browser console for error details
 - **Solution**: Verify all required fields are filled
 
@@ -371,6 +406,7 @@ php artisan test --filter Profile
 ## Changelog
 
 ### v1.0.0 - February 14, 2026
+
 - ✅ Initial implementation of profile management
 - ✅ Avatar upload/delete functionality
 - ✅ Enhanced profile fields (phone, position, scientific field)

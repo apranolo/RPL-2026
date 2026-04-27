@@ -7,6 +7,7 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 **FOKUS: User (Pengelola Jurnal) → Admin Kampus → Super Admin (Linear Flow)**
 
 **Alasan:**
+
 - ✅ **Value Chain Lengkap**: Dari input data sampai monitoring
 - ✅ **Demonstrable**: Bisa demo flow lengkap ke stakeholder
 - ✅ **Scalable**: Fitur lain bisa ditambah bertahap
@@ -19,9 +20,11 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ### **TIER 1: MUST HAVE (Core Value) - 60% Effort**
 
 #### 1️⃣ **Authentication & SSO (Semua Role)**
-**User Story:** *"Sebagai user, saya ingin login dengan akun Google agar tidak perlu ingat password baru"*
+
+**User Story:** _"Sebagai user, saya ingin login dengan akun Google agar tidak perlu ingat password baru"_
 
 **Scope:**
+
 - Login/Register dengan email + password
 - Login dengan Google SSO (pakai Laravel Socialite)
 - Logout
@@ -32,38 +35,40 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ---
 
 #### 2️⃣ **Role-Based Dashboard (Semua Role)**
-**User Story:** *"Sebagai [role], saya ingin melihat ringkasan data yang relevan dengan tugas saya"*
+
+**User Story:** _"Sebagai [role], saya ingin melihat ringkasan data yang relevan dengan tugas saya"_
 
 **Scope:**
+
 - **Super Admin Dashboard:**
-  - Total PTM terdaftar
-  - Total jurnal di sistem
-  - Grafik sederhana (line chart: pertumbuhan jurnal per bulan)
-  
+    - Total PTM terdaftar
+    - Total jurnal di sistem
+    - Grafik sederhana (line chart: pertumbuhan jurnal per bulan)
 - **Admin Kampus Dashboard:**
-  - Total jurnal di kampusnya
-  - Total pengelola jurnal (user) di kampusnya
-  - Status self-assessment jurnal
-  
+    - Total jurnal di kampusnya
+    - Total pengelola jurnal (user) di kampusnya
+    - Status self-assessment jurnal
 - **User Dashboard:**
-  - List jurnal yang saya kelola (max 3-5 jurnal)
-  - Status self-assessment per jurnal
-  - Skor self-assessment (jika sudah submit)
+    - List jurnal yang saya kelola (max 3-5 jurnal)
+    - Status self-assessment per jurnal
+    - Skor self-assessment (jika sudah submit)
 
 **Why Critical:** Ini "home base" setiap role. Harus ada sejak awal.
 
 ---
 
 #### 3️⃣ **Manajemen Master Data PTM (Super Admin Only)**
-**User Story:** *"Sebagai Super Admin, saya ingin mengelola daftar PTM agar sistem tahu kampus mana saja yang terdaftar"*
+
+**User Story:** _"Sebagai Super Admin, saya ingin mengelola daftar PTM agar sistem tahu kampus mana saja yang terdaftar"_
 
 **Scope:**
+
 - CRUD PTM (Create, Read, Update, Delete)
 - Data minimal:
-  - Nama PTM
-  - Kode PTM
-  - Alamat
-  - Logo (optional untuk MVP)
+    - Nama PTM
+    - Kode PTM
+    - Alamat
+    - Logo (optional untuk MVP)
 - List PTM dengan search & pagination
 
 **Why Critical:** Foundational data. Tanpa ini, tidak ada struktur organisasi.
@@ -71,30 +76,34 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ---
 
 #### 4️⃣ **Manajemen Admin Kampus (Super Admin Only)**
-**User Story:** *"Sebagai Super Admin, saya ingin menambahkan Admin Kampus agar setiap PTM punya PIC"*
+
+**User Story:** _"Sebagai Super Admin, saya ingin menambahkan Admin Kampus agar setiap PTM punya PIC"_
 
 **Scope:**
+
 - CRUD Admin Kampus
 - Assign Admin ke PTM tertentu
 - Data minimal:
-  - Nama
-  - Email
-  - PTM assignment
-  - Status (aktif/nonaktif)
+    - Nama
+    - Email
+    - PTM assignment
+    - Status (aktif/nonaktif)
 
 **Why Critical:** Struktur hierarki. Super Admin → Admin Kampus → User.
 
 ---
 
 #### 5️⃣ **Manajemen Pengelola Jurnal/User (Admin Kampus Only)**
-**User Story:** *"Sebagai Admin Kampus, saya ingin menambahkan pengelola jurnal di kampus saya"*
+
+**User Story:** _"Sebagai Admin Kampus, saya ingin menambahkan pengelola jurnal di kampus saya"_
 
 **Scope:**
+
 - CRUD User (pengelola jurnal) **hanya untuk kampusnya sendiri**
 - Data minimal:
-  - Nama
-  - Email
-  - Jabatan (dosen/staf)
+    - Nama
+    - Email
+    - Jabatan (dosen/staf)
 - **Policy:** Admin Kampus hanya bisa CRUD user dari kampusnya
 
 **Why Critical:** Admin Kampus harus bisa onboard user sendiri.
@@ -104,17 +113,19 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ### **TIER 2: SHOULD HAVE (Core Functionality) - 30% Effort**
 
 #### 6️⃣ **Input Data Jurnal (User Only)**
-**User Story:** *"Sebagai User, saya ingin menginput data jurnal yang saya kelola"*
+
+**User Story:** _"Sebagai User, saya ingin menginput data jurnal yang saya kelola"_
 
 **Scope:**
+
 - Form tambah jurnal dengan field:
-  - Nama jurnal
-  - ISSN
-  - URL jurnal
-  - Bidang ilmu (dropdown dari master data)
-  - Peringkat SINTA (jika ada)
-  - E-ISSN
-  - Frekuensi terbit
+    - Nama jurnal
+    - ISSN
+    - URL jurnal
+    - Bidang ilmu (dropdown dari master data)
+    - Peringkat SINTA (jika ada)
+    - E-ISSN
+    - Frekuensi terbit
 - Edit & Delete jurnal milik sendiri
 - **Policy:** User hanya bisa edit jurnal yang dia kelola
 
@@ -123,20 +134,20 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ---
 
 #### 7️⃣ **Self-Assessment Sederhana (User Only)**
-**User Story:** *"Sebagai User, saya ingin mengisi self-assessment jurnal saya"*
+
+**User Story:** _"Sebagai User, saya ingin mengisi self-assessment jurnal saya"_
 
 **Scope (SIMPLIFIED untuk MVP):**
+
 - Borang versi MINI (3-5 kategori utama saja):
-  1. **Kelengkapan Administrasi** (4 indikator)
-  2. **Kualitas Konten** (4 indikator)
-  3. **Proses Editorial** (4 indikator)
-  
+    1. **Kelengkapan Administrasi** (4 indikator)
+    2. **Kualitas Konten** (4 indikator)
+    3. **Proses Editorial** (4 indikator)
 - Setiap indikator:
-  - Pertanyaan
-  - Pilihan: Ya/Tidak atau Skala 1-5
-  - Upload 1 file bukti (PDF/JPG) - optional
-  - Komentar/catatan - optional
-  
+    - Pertanyaan
+    - Pilihan: Ya/Tidak atau Skala 1-5
+    - Upload 1 file bukti (PDF/JPG) - optional
+    - Komentar/catatan - optional
 - Auto-calculate skor total
 - Status: Draft / Submitted
 
@@ -147,22 +158,24 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ---
 
 #### 8️⃣ **View List Jurnal (Admin Kampus & Super Admin)**
-**User Story:** *"Sebagai Admin, saya ingin melihat semua jurnal yang sudah terdaftar"*
+
+**User Story:** _"Sebagai Admin, saya ingin melihat semua jurnal yang sudah terdaftar"_
 
 **Scope:**
+
 - **Admin Kampus:** Lihat jurnal dari kampusnya saja
 - **Super Admin:** Lihat semua jurnal dari semua PTM
 - Tabel dengan kolom:
-  - Nama jurnal
-  - ISSN
-  - PTM
-  - Pengelola
-  - Status self-assessment
-  - Skor (jika sudah submit)
+    - Nama jurnal
+    - ISSN
+    - PTM
+    - Pengelola
+    - Status self-assessment
+    - Skor (jika sudah submit)
 - Filter:
-  - By PTM (untuk Super Admin)
-  - By status (Draft/Submitted)
-  - Search by nama jurnal
+    - By PTM (untuk Super Admin)
+    - By status (Draft/Submitted)
+    - Search by nama jurnal
 - Pagination
 
 **Why Critical:** Admin harus bisa monitoring. Ini fitur "read-only" yang essential.
@@ -170,14 +183,16 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ---
 
 #### 9️⃣ **View Detail Jurnal & Assessment (Admin Kampus & Super Admin)**
-**User Story:** *"Sebagai Admin, saya ingin melihat detail jurnal dan hasil self-assessment"*
+
+**User Story:** _"Sebagai Admin, saya ingin melihat detail jurnal dan hasil self-assessment"_
 
 **Scope:**
+
 - Halaman detail dengan:
-  - Info jurnal lengkap
-  - Hasil self-assessment (read-only)
-  - Skor per kategori
-  - File bukti yang diupload (bisa download)
+    - Info jurnal lengkap
+    - Hasil self-assessment (read-only)
+    - Skor per kategori
+    - File bukti yang diupload (bisa download)
 - **Tidak ada fitur edit** untuk Admin (read-only)
 
 **Why Critical:** Admin perlu lihat hasil assessment untuk decision making.
@@ -187,22 +202,22 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ### **TIER 3: NICE TO HAVE (Polish) - 10% Effort**
 
 #### 🔟 **Landing Page Public (No Auth Required)**
-**User Story:** *"Sebagai pengunjung, saya ingin tahu apa itu AJM dan melihat statistik jurnal PTM"*
+
+**User Story:** _"Sebagai pengunjung, saya ingin tahu apa itu AJM dan melihat statistik jurnal PTM"_
 
 **Scope (SUPER SIMPLE):**
+
 - Hero section:
-  - Judul: "Asistensi Jurnal Muhammadiyah"
-  - Tagline: "Platform manajemen jurnal ilmiah PTM se-Indonesia"
-  - CTA button: "Login" (redirect ke /login)
-  
+    - Judul: "Asistensi Jurnal Muhammadiyah"
+    - Tagline: "Platform manajemen jurnal ilmiah PTM se-Indonesia"
+    - CTA button: "Login" (redirect ke /login)
 - Section statistik (ambil dari API):
-  - Total PTM
-  - Total Jurnal
-  - Total Jurnal Terakreditasi (jika ada)
-  
+    - Total PTM
+    - Total Jurnal
+    - Total Jurnal Terakreditasi (jika ada)
 - Footer:
-  - Copyright
-  - Link: About, Contact
+    - Copyright
+    - Link: About, Contact
 
 **Why Nice to Have:** Ini "etalase", bukan core functionality. Bisa pakai template sederhana.
 
@@ -210,13 +225,13 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 
 ## 📊 Comparison: Balanced vs Focused Approach
 
-| Aspek | ❌ Balanced (All Roles) | ✅ Focused (One Flow) |
-|-------|------------------------|----------------------|
-| **Timeline** | 6+ bulan | 3-4 bulan |
-| **Risk** | High (banyak fitur setengah jadi) | Low (sedikit tapi complete) |
-| **Demo-able** | Susah (fitur terpencar) | Mudah (flow lengkap) |
-| **User Adoption** | Lambat (semua setengah2) | Cepat (core flow ready) |
-| **Bug Density** | Tinggi | Rendah |
+| Aspek             | ❌ Balanced (All Roles)           | ✅ Focused (One Flow)       |
+| ----------------- | --------------------------------- | --------------------------- |
+| **Timeline**      | 6+ bulan                          | 3-4 bulan                   |
+| **Risk**          | High (banyak fitur setengah jadi) | Low (sedikit tapi complete) |
+| **Demo-able**     | Susah (fitur terpencar)           | Mudah (flow lengkap)        |
+| **User Adoption** | Lambat (semua setengah2)          | Cepat (core flow ready)     |
+| **Bug Density**   | Tinggi                            | Rendah                      |
 
 ---
 
@@ -237,6 +252,7 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ```
 
 **Fitur yang TIDAK masuk MVP v1.0 (bisa v1.1+):**
+
 - ❌ Modul Pembinaan (request, assign reviewer, feedback)
 - ❌ Manajemen Reviewer
 - ❌ Support/Ticketing System
@@ -252,27 +268,33 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 ## 🏗️ MVP Development Priority
 
 ### **Phase 1: Foundation (Week 1-3)**
+
 1. Auth & SSO ✅
 2. Role-based routing ✅
 3. Dashboard skeleton (semua role) ✅
 
 ### **Phase 2: Admin Setup (Week 4-5)**
+
 4. Master PTM (Super Admin) ✅
 5. Master Admin Kampus (Super Admin) ✅
 6. Master User (Admin Kampus) ✅
 
 ### **Phase 3: Core User Flow (Week 6-9)**
+
 7. Input Jurnal (User) ✅
 8. Self-Assessment Mini (User) ✅
 
 ### **Phase 4: Monitoring (Week 10-11)**
+
 9. View List Jurnal (Admin) ✅
 10. View Detail Assessment (Admin) ✅
 
 ### **Phase 5: Public Face (Week 12)**
+
 11. Landing Page ✅
 
 ### **Phase 6: Testing & Launch (Week 13-14)**
+
 - Testing end-to-end
 - Bug fixes
 - Deployment
@@ -284,13 +306,15 @@ Untuk solo developer dengan waktu terbatas, saya merekomendasikan:
 Sebelum mulai coding, **wajib validasi** ke stakeholder:
 
 **Pertanyaan untuk Stakeholder:**
-1. *"Untuk MVP, kami fokus ke flow: Super Admin setup kampus → Admin Kampus setup user → User input jurnal & self-assessment → Admin monitor. Apakah ini cukup untuk launch awal?"*
 
-2. *"Modul pembinaan (assign reviewer, feedback) akan masuk di v1.1 setelah MVP stabil. Apakah ini acceptable?"*
+1. _"Untuk MVP, kami fokus ke flow: Super Admin setup kampus → Admin Kampus setup user → User input jurnal & self-assessment → Admin monitor. Apakah ini cukup untuk launch awal?"_
 
-3. *"Self-assessment di MVP akan disederhanakan jadi 12 indikator dulu (bukan 50+). Nanti bisa ditambah. Apakah OK?"*
+2. _"Modul pembinaan (assign reviewer, feedback) akan masuk di v1.1 setelah MVP stabil. Apakah ini acceptable?"_
+
+3. _"Self-assessment di MVP akan disederhanakan jadi 12 indikator dulu (bukan 50+). Nanti bisa ditambah. Apakah OK?"_
 
 **Red Flag jika jawaban mereka:**
+
 - 🚩 "Semua fitur harus ada di v1.0" → Negosiasi ulang atau minta tambah resource
 - 🚩 "Modul pembinaan harus ada di awal" → Mungkin perlu re-prioritize (buang fitur lain)
 
@@ -306,6 +330,7 @@ Sebelum mulai coding, **wajib validasi** ke stakeholder:
 ✅ **Sisanya iterasi di v1.1, v1.2, dst**
 
 **Timeline Realistis untuk Solo Developer:**
+
 - **MVP v1.0:** 12-14 minggu (3-3.5 bulan)
 - **MVP v1.1** (+ Pembinaan): 4 minggu lagi
 - **MVP v1.2** (+ Support & Resources): 3 minggu lagi

@@ -16,22 +16,22 @@ Assign layouts to pages using the static layout property pattern to enable persi
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Dashboard({ auth }) {
-  return (
-    <AuthenticatedLayout user={auth.user}>
-      <div className="py-12">
-        <h1>Dashboard</h1>
-      </div>
-    </AuthenticatedLayout>
-  );
+    return (
+        <AuthenticatedLayout user={auth.user}>
+            <div className="py-12">
+                <h1>Dashboard</h1>
+            </div>
+        </AuthenticatedLayout>
+    );
 }
 
 // Anti-pattern: Using a wrapper component
 function DashboardWithLayout(props) {
-  return (
-    <AuthenticatedLayout>
-      <Dashboard {...props} />
-    </AuthenticatedLayout>
-  );
+    return (
+        <AuthenticatedLayout>
+            <Dashboard {...props} />
+        </AuthenticatedLayout>
+    );
 }
 
 export default DashboardWithLayout;
@@ -46,43 +46,41 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
 
 export default function Dashboard({ auth }: PageProps) {
-  return (
-    <>
-      <Head title="Dashboard" />
-      <div className="py-12">
-        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <h1>Welcome, {auth.user.name}</h1>
-        </div>
-      </div>
-    </>
-  );
+    return (
+        <>
+            <Head title="Dashboard" />
+            <div className="py-12">
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    <h1>Welcome, {auth.user.name}</h1>
+                </div>
+            </div>
+        </>
+    );
 }
 
-Dashboard.layout = (page: React.ReactNode) => (
-  <AuthenticatedLayout children={page} />
-);
+Dashboard.layout = (page: React.ReactNode) => <AuthenticatedLayout children={page} />;
 
 // For TypeScript, extend the function type
 // resources/js/types/index.d.ts
 import { ReactNode } from 'react';
 
 declare module '@inertiajs/react' {
-  interface PageComponent<P = {}> {
-    (props: P): ReactNode;
-    layout?: (page: ReactNode) => ReactNode;
-  }
+    interface PageComponent<P = {}> {
+        (props: P): ReactNode;
+        layout?: (page: ReactNode) => ReactNode;
+    }
 }
 
 // Alternative: Typed page component
 import { PageComponent } from '@/types';
 
 const Dashboard: PageComponent<PageProps> = ({ auth }) => {
-  return (
-    <>
-      <Head title="Dashboard" />
-      <div>Dashboard content</div>
-    </>
-  );
+    return (
+        <>
+            <Head title="Dashboard" />
+            <div>Dashboard content</div>
+        </>
+    );
 };
 
 Dashboard.layout = (page) => <AuthenticatedLayout children={page} />;

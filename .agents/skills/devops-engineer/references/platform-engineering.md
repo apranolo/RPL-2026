@@ -14,23 +14,23 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: postgres-database
+    name: postgres-database
 spec:
-  compositeTypeRef:
-    apiVersion: platform.example.com/v1alpha1
-    kind: Database
-  resources:
-    - name: rds-instance
-      base:
-        apiVersion: rds.aws.crossplane.io/v1alpha1
-        kind: DBInstance
-        spec:
-          forProvider:
-            dbInstanceClass: db.t3.micro
-            engine: postgres
-            engineVersion: "15"
-            masterUsername: admin
-            allocatedStorage: 20
+    compositeTypeRef:
+        apiVersion: platform.example.com/v1alpha1
+        kind: Database
+    resources:
+        - name: rds-instance
+          base:
+              apiVersion: rds.aws.crossplane.io/v1alpha1
+              kind: DBInstance
+              spec:
+                  forProvider:
+                      dbInstanceClass: db.t3.micro
+                      engine: postgres
+                      engineVersion: '15'
+                      masterUsername: admin
+                      allocatedStorage: 20
 ```
 
 ## Terraform Self-Service Module
@@ -68,35 +68,35 @@ output "service_url" {
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: microservice-template
-  title: Microservice Golden Path
+    name: microservice-template
+    title: Microservice Golden Path
 spec:
-  owner: platform-team
-  type: service
-  parameters:
-    - title: Service Info
-      properties:
-        name:
-          type: string
-        owner:
-          type: string
-          ui:field: OwnerPicker
-        language:
-          type: string
-          enum: [go, python, nodejs, java]
-  steps:
-    - id: fetch
-      action: fetch:template
-      input:
-        url: ./skeleton
-        values:
-          name: ${{ parameters.name }}
-    - id: publish
-      action: publish:github
-      input:
-        repoUrl: github.com?owner=org&repo=${{ parameters.name }}
-    - id: register
-      action: catalog:register
+    owner: platform-team
+    type: service
+    parameters:
+        - title: Service Info
+          properties:
+              name:
+                  type: string
+              owner:
+                  type: string
+                  ui:field: OwnerPicker
+              language:
+                  type: string
+                  enum: [go, python, nodejs, java]
+    steps:
+        - id: fetch
+          action: fetch:template
+          input:
+              url: ./skeleton
+              values:
+                  name: ${{ parameters.name }}
+        - id: publish
+          action: publish:github
+          input:
+              repoUrl: github.com?owner=org&repo=${{ parameters.name }}
+        - id: register
+          action: catalog:register
 ```
 
 ## Service Catalog Info
@@ -106,21 +106,21 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: payment-service
-  annotations:
-    github.com/project-slug: org/payment-service
-    pagerduty.com/integration-key: abc123
-    grafana/dashboard-selector: service=payment
+    name: payment-service
+    annotations:
+        github.com/project-slug: org/payment-service
+        pagerduty.com/integration-key: abc123
+        grafana/dashboard-selector: service=payment
 spec:
-  type: service
-  lifecycle: production
-  owner: payments-team
-  system: checkout
-  dependsOn:
-    - resource:default/payment-db
-    - component:default/auth-service
-  providesApis:
-    - payment-api
+    type: service
+    lifecycle: production
+    owner: payments-team
+    system: checkout
+    dependsOn:
+        - resource:default/payment-db
+        - component:default/auth-service
+    providesApis:
+        - payment-api
 ```
 
 ## Golden Path Scaffolding
@@ -190,24 +190,24 @@ gitops/
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: payment-service
+    name: payment-service
 spec:
-  project: default
-  source:
-    repoURL: https://github.com/org/gitops
-    path: apps/production/payment-service
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: production
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        maxDuration: 3m
+    project: default
+    source:
+        repoURL: https://github.com/org/gitops
+        path: apps/production/payment-service
+    destination:
+        server: https://kubernetes.default.svc
+        namespace: production
+    syncPolicy:
+        automated:
+            prune: true
+            selfHeal: true
+        retry:
+            limit: 5
+            backoff:
+                duration: 5s
+                maxDuration: 3m
 ```
 
 ## Platform Metrics
@@ -215,26 +215,26 @@ spec:
 ```yaml
 # prometheus/platform-metrics.yaml
 groups:
-  - name: platform
-    rules:
-      # Self-service adoption rate
-      - record: platform:self_service:rate
-        expr: |
-          sum(rate(platform_provision_automated[1h]))
-          /
-          sum(rate(platform_provision_total[1h]))
+    - name: platform
+      rules:
+          # Self-service adoption rate
+          - record: platform:self_service:rate
+            expr: |
+                sum(rate(platform_provision_automated[1h]))
+                /
+                sum(rate(platform_provision_total[1h]))
 
-      # Provisioning time P95
-      - record: platform:provision:p95
-        expr: |
-          histogram_quantile(0.95,
-            rate(platform_provision_duration_bucket[5m]))
+          # Provisioning time P95
+          - record: platform:provision:p95
+            expr: |
+                histogram_quantile(0.95,
+                  rate(platform_provision_duration_bucket[5m]))
 
-      # Golden path adoption
-      - record: platform:golden_path:adoption
-        expr: |
-          count(service{template="golden-path"})
-          / count(service)
+          # Golden path adoption
+          - record: platform:golden_path:adoption
+            expr: |
+                count(service{template="golden-path"})
+                / count(service)
 ```
 
 ## Custom Backstage Plugin
@@ -270,18 +270,18 @@ export const PlatformMetrics = () => {
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cost-allocation
+    name: cost-allocation
 data:
-  allocation.json: |
-    {
-      "defaultLabels": {
-        "team": "team",
-        "service": "app",
-        "environment": "env"
-      },
-      "shareNamespaces": ["kube-system"],
-      "shareCost": "weighted"
-    }
+    allocation.json: |
+        {
+          "defaultLabels": {
+            "team": "team",
+            "service": "app",
+            "environment": "env"
+          },
+          "shareNamespaces": ["kube-system"],
+          "shareCost": "weighted"
+        }
 ```
 
 ## Platform APIs
@@ -326,28 +326,28 @@ async def service_status(name: str):
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: team-quota
-  namespace: team-payments
+    name: team-quota
+    namespace: team-payments
 spec:
-  hard:
-    requests.cpu: "20"
-    requests.memory: 40Gi
-    persistentvolumeclaims: "10"
-    services.loadbalancers: "2"
+    hard:
+        requests.cpu: '20'
+        requests.memory: 40Gi
+        persistentvolumeclaims: '10'
+        services.loadbalancers: '2'
 ---
 # RBAC: Namespace admin
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: team-admin
-  namespace: team-payments
+    name: team-admin
+    namespace: team-payments
 roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: namespace-admin
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: namespace-admin
 subjects:
-  - kind: Group
-    name: team-payments
+    - kind: Group
+      name: team-payments
 ```
 
 ## Adoption Strategy
@@ -357,20 +357,20 @@ subjects:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: platform-goals
+    name: platform-goals
 data:
-  goals.yaml: |
-    q1_2024:
-      self_service_rate: 90%
-      avg_provision_time: 5min
-      developer_satisfaction: 4.5/5
-      golden_path_adoption: 80%
+    goals.yaml: |
+        q1_2024:
+          self_service_rate: 90%
+          avg_provision_time: 5min
+          developer_satisfaction: 4.5/5
+          golden_path_adoption: 80%
 
-    tracking:
-      weekly_provisioning: true
-      team_feedback: true
-      support_tickets: true
-      training_completion: true
+        tracking:
+          weekly_provisioning: true
+          team_feedback: true
+          support_tickets: true
+          training_completion: true
 ```
 
 ## CLI Tool Example

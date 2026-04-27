@@ -39,7 +39,7 @@ $assessment = \App\Models\JournalAssessment::with('journal')->first();
 
 ```php
 // Create university
-Gate::forUser($superAdmin)->allows('create', \App\Models\University::class); 
+Gate::forUser($superAdmin)->allows('create', \App\Models\University::class);
 // Expected: true
 
 // View all universities
@@ -491,12 +491,14 @@ php artisan test tests/Unit/Policies/JournalAssessmentPolicyTest.php
 ## ✅ Policy Testing Checklist
 
 ### UniversityPolicy:
+
 - [x] Super Admin can CRUD all universities
 - [x] Admin Kampus can only view their university
 - [x] User can only view their university
 - [x] Cannot delete university with journals
 
 ### UserPolicy:
+
 - [x] Super Admin can CRUD all users
 - [x] Admin Kampus can CRUD users in their university
 - [x] Admin Kampus can only assign 'User' role
@@ -504,12 +506,14 @@ php artisan test tests/Unit/Policies/JournalAssessmentPolicyTest.php
 - [x] Cannot delete yourself
 
 ### JournalPolicy:
+
 - [x] Super Admin can CRUD all journals
 - [x] Admin Kampus can CRUD journals in their university
 - [x] User can CRUD their own journals
 - [x] Cannot delete journal with submitted assessment
 
 ### JournalAssessmentPolicy:
+
 - [x] User can create assessment for their journals
 - [x] User can edit draft assessments
 - [x] User cannot edit submitted assessments

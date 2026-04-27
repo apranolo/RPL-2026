@@ -9,6 +9,7 @@
 ## 📋 Overview
 
 Successfully implemented two major enhancements:
+
 1. **Filter Dropdown Upgrades** - Replaced standard Select components with searchable UniversityFilterCombobox in admin pages
 2. **Browse by University** - New public page for discovering journals grouped by university
 
@@ -19,11 +20,13 @@ Successfully implemented two major enhancements:
 ### 1. Filter Dropdown Upgrades
 
 **Files Modified** (3 files):
+
 - ✅ [Admin/Users/Index.tsx](../resources/js/pages/Admin/Users/Index.tsx) - Super Admin user management
 - ✅ [Admin/AdminKampus/Index.tsx](../resources/js/pages/Admin/AdminKampus/Index.tsx) - Super Admin LPPM management
 - ✅ [Journals/Index.tsx](../resources/js/pages/Journals/Index.tsx) - Public journal browsing
 
 **Changes**:
+
 - Added `UniversityFilterCombobox` import
 - Replaced `<Select>` with `<UniversityFilterCombobox>` for university filtering
 - Props preserved: `value`, `onValueChange`, `placeholder`, `className`
@@ -40,6 +43,7 @@ Successfully implemented two major enhancements:
 **New Method**: `browseUniversities()`
 
 **Features**:
+
 ```php
 /**
  * Browse journals grouped by universities.
@@ -56,28 +60,32 @@ Successfully implemented two major enhancements:
 ```
 
 **Query Logic**:
+
 1. **University Stats** (cached):
-   ```php
-   University::where('is_active', true)
-       ->withCount(['journals' => fn($q) => $q->approved()->active()])
-       ->having('journals_count', '>', 0)
-       ->orderBy('name')
-   ```
+
+    ```php
+    University::where('is_active', true)
+        ->withCount(['journals' => fn($q) => $q->approved()->active()])
+        ->having('journals_count', '>', 0)
+        ->orderBy('name')
+    ```
 
 2. **Selected University Journals** (paginated):
-   ```php
-   Journal::where('university_id', $request->university_id)
-       ->where('is_active', true)
-       ->where('approval_status', 'approved')
-       ->paginate(12)
-   ```
+    ```php
+    Journal::where('university_id', $request->university_id)
+        ->where('is_active', true)
+        ->where('approval_status', 'approved')
+        ->paginate(12)
+    ```
 
 **Cache Strategy**:
+
 - Key: `browse.universities.stats`
 - TTL: 3600 seconds (1 hour)
 - Invalidated on journal approval/rejection
 
 **Route Added**: [web.php](../routes/web.php)
+
 ```php
 Route::get('/browse/universities', [PublicJournalController::class, 'browseUniversities'])
     ->name('browse.universities');
@@ -94,19 +102,20 @@ Route::get('/browse/universities', [PublicJournalController::class, 'browseUnive
 #### **Two Views**:
 
 1. **University Grid View** (default):
-   - Cards displaying all universities with journal counts
-   - Click card to expand and view journals
-   - Uses `Building2` icon from Lucide
-   - Shows: name, code (badge), journal count
+    - Cards displaying all universities with journal counts
+    - Click card to expand and view journals
+    - Uses `Building2` icon from Lucide
+    - Shows: name, code (badge), journal count
 
 2. **Selected University View** (filtered):
-   - University header with name, code, total journals
-   - "Back to All" button
-   - Journal cards grid (3 columns on desktop)
-   - Pagination with "View More" functionality
-   - Uses existing `<JournalCard />` component
+    - University header with name, code, total journals
+    - "Back to All" button
+    - Journal cards grid (3 columns on desktop)
+    - Pagination with "View More" functionality
+    - Uses existing `<JournalCard />` component
 
 #### **Key Features**:
+
 - **Filter Dropdown**: `<UniversityFilterCombobox>` for quick jump
 - **URL Pattern**: `/browse/universities?university_id=5` (consistent with existing filters)
 - **Responsive Design**: Grid adapts to screen size (1-4 columns)
@@ -114,12 +123,13 @@ Route::get('/browse/universities', [PublicJournalController::class, 'browseUnive
 - **Empty State**: Shows message when no journals available
 
 #### **Props Interface**:
+
 ```typescript
 interface Props {
-    universityStats: UniversityStat[];      // All universities with counts
-    selectedUniversity: SelectedUniversity | null;  // If filtered
-    journals: PaginatedJournals | null;     // Journals for selected university
-    filters: { university_id?: string };    // Current filter state
+    universityStats: UniversityStat[]; // All universities with counts
+    selectedUniversity: SelectedUniversity | null; // If filtered
+    journals: PaginatedJournals | null; // Journals for selected university
+    filters: { university_id?: string }; // Current filter state
 }
 ```
 
@@ -130,15 +140,16 @@ interface Props {
 **File Modified**: [JournalApprovalController.php](../app/Http/Controllers/AdminKampus/JournalApprovalController.php)
 
 **Changes**:
+
 - Added `use Illuminate\Support\Facades\Cache;` import
 - Invalidate cache in `approve()` method:
-  ```php
-  Cache::forget('browse.universities.stats');
-  ```
+    ```php
+    Cache::forget('browse.universities.stats');
+    ```
 - Invalidate cache in `reject()` method:
-  ```php
-  Cache::forget('browse.universities.stats');
-  ```
+    ```php
+    Cache::forget('browse.universities.stats');
+    ```
 
 **Reason**: When LPPM approves/rejects journals, university statistics change. Cache must be cleared to reflect updated counts.
 
@@ -147,10 +158,12 @@ interface Props {
 ## 🎯 User Experience
 
 ### **Admin Users** (Super Admin filtering):
+
 - **Before**: Scrolling through 172 universities in dropdown
 - **After**: Type to search universities (e.g., "Yogyakarta" → instant filter)
 
 ### **Public Users** (Browse by University):
+
 1. Visit `/browse/universities`
 2. See grid of all universities with journal counts
 3. **Option A**: Click university card → view all journals
@@ -162,12 +175,14 @@ interface Props {
 ## 📊 Performance Optimizations
 
 ### **Backend**:
+
 - ✅ 1-hour cache for university statistics (reduces DB load)
 - ✅ Eager loading relationships (`with()`) to prevent N+1 queries
 - ✅ Pagination (12 journals per page) for large result sets
 - ✅ Cache invalidation on approval/rejection (data consistency)
 
 ### **Frontend**:
+
 - ✅ Reused existing `<JournalCard>` component (DRY principle)
 - ✅ `preserveState: true` for smooth navigation
 - ✅ `preserveScroll: true` for pagination (no jump to top)
@@ -178,11 +193,13 @@ interface Props {
 ## 🔗 Integration Points
 
 ### **Navigation**:
+
 - Link from [welcome.tsx](../resources/js/pages/welcome.tsx) → "Browse by University"
 - Breadcrumb: Home → Browse Universities
 - Return button: Back to welcome page
 
 ### **Existing Components Reused**:
+
 - ✅ `<JournalCard />` - Journal display component
 - ✅ `<UniversityFilterCombobox />` - Searchable university dropdown
 - ✅ `<Card>`, `<Badge>`, `<Button>` - shadcn/ui components
@@ -193,12 +210,14 @@ interface Props {
 ## 🧪 Testing Checklist
 
 ### **Filter Dropdown Upgrades**:
+
 - [ ] Test search in Admin/Users/Index.tsx (type "Yogya" → filters to UAD, UMY)
 - [ ] Test search in Admin/AdminKampus/Index.tsx (172 universities searchable)
 - [ ] Test search in public Journals/Index.tsx (all universities visible)
 - [ ] Verify "All Universities" option still works (clears filter)
 
 ### **Browse by University**:
+
 - [ ] Visit `/browse/universities` → see university grid
 - [ ] Click university card → view expands to show journals
 - [ ] Use filter dropdown → jump to specific university
@@ -208,6 +227,7 @@ interface Props {
 - [ ] Verify cache → first load slower, second load faster (cached)
 
 ### **Cache Invalidation**:
+
 - [ ] Note journal count for a university
 - [ ] Approve/reject a journal for that university
 - [ ] Visit `/browse/universities` → count updated (cache cleared)
@@ -217,11 +237,13 @@ interface Props {
 ## 📈 Impact Metrics
 
 ### **Before Implementation**:
+
 - ❌ No public university browsing feature
 - ❌ Difficult to filter 172 universities in dropdowns
 - ❌ No way to discover journals by university
 
 ### **After Implementation**:
+
 - ✅ **3 admin pages** upgraded with searchable filters
 - ✅ **1 new public page** for university browsing
 - ✅ **172 universities** easily searchable
@@ -233,6 +255,7 @@ interface Props {
 ## 🚀 Next Steps (Optional Enhancements)
 
 ### **Future Improvements** (Not in MVP):
+
 1. **Add to Welcome Page**: Link to "Browse by University" in hero section
 2. **University Details**: Click university → dedicated university page with stats
 3. **Sort Options**: Sort universities by journal count, name, etc.

@@ -3,10 +3,12 @@ Sempurna! Mari kita buat **ERD Database** yang solid untuk 10 fitur MVP Anda. Sa
 ## 🗄️ ERD Database - Platform AJM (Updated for v1.1)
 
 **Version History:**
+
 - **v1.0 (Q1 2026):** Base MVP schema - Authentication, RBAC, Journals, Self-Assessment
 - **v1.1 (Q2 2026):** Added Pembinaan/Coaching tables, Reviewer management
 
 ### **Database Design Principles:**
+
 - ✅ **Normalized** (3NF - Third Normal Form)
 - ✅ **Laravel Conventions** (snake_case, timestamps, soft deletes)
 - ✅ **Scalable** (siap untuk fitur v1.1+)
@@ -17,6 +19,7 @@ Sempurna! Mari kita buat **ERD Database** yang solid untuk 10 fitur MVP Anda. Sa
 ## 📋 Table Structure Overview
 
 ### **v1.0 Tables (Base MVP)**
+
 ```
 ┌─────────────────┐
 │     users       │ (Semua role: Super Admin, Admin Kampus, User)
@@ -59,6 +62,7 @@ Sempurna! Mari kita buat **ERD Database** yang solid untuk 10 fitur MVP Anda. Sa
 ```
 
 ### **v1.1 New Tables (Pembinaan/Coaching Module)**
+
 ```
 ┌───────────────────┐
 │     journals      │ (from v1.0)
@@ -86,49 +90,50 @@ Sempurna! Mari kita buat **ERD Database** yang solid untuk 10 fitur MVP Anda. Sa
 ## 📝 Detailed Table Schemas
 
 ### **1. `users` Table**
+
 > Menyimpan semua user (Super Admin, Admin Kampus, User/Pengelola Jurnal)
 
 ```sql
 CREATE TABLE users (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Basic Info
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     email_verified_at TIMESTAMP NULL,
     password VARCHAR(255) NULL, -- Nullable untuk SSO-only users
-    
+
     -- SSO Fields
     google_id VARCHAR(255) NULL UNIQUE,
     microsoft_id VARCHAR(255) NULL UNIQUE,
     avatar_url VARCHAR(500) NULL,
-    
+
     -- Profile
     phone VARCHAR(20) NULL,
     position VARCHAR(100) NULL COMMENT 'Jabatan: Dosen, Staf, dll',
-    
+
     -- Role & Organization
     role_id BIGINT UNSIGNED NOT NULL,
     university_id BIGINT UNSIGNED NULL COMMENT 'Null untuk Super Admin',
-    
+
     -- Status
     is_active BOOLEAN DEFAULT TRUE,
     last_login_at TIMESTAMP NULL,
-    
+
     -- Remember Token
     remember_token VARCHAR(100) NULL,
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    
+
     -- Indexes
     INDEX idx_role_id (role_id),
     INDEX idx_university_id (university_id),
     INDEX idx_email (email),
     INDEX idx_google_id (google_id),
-    
+
     -- Foreign Keys
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE RESTRICT,
     FOREIGN KEY (university_id) REFERENCES universities(id) ON DELETE SET NULL
@@ -136,6 +141,7 @@ CREATE TABLE users (
 ```
 
 **Penjelasan:**
+
 - `role_id`: Foreign key ke tabel `roles`
 - `university_id`: NULL untuk Super Admin, wajib isi untuk Admin Kampus & User
 - `google_id` / `microsoft_id`: Untuk SSO
@@ -144,16 +150,17 @@ CREATE TABLE users (
 ---
 
 ### **2. `roles` Table**
+
 > Menyimpan role: Super Admin, Admin Kampus, User
 
 ```sql
 CREATE TABLE roles (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     name VARCHAR(50) NOT NULL UNIQUE COMMENT 'super_admin, admin_kampus, user',
     display_name VARCHAR(100) NOT NULL COMMENT 'Super Admin, Admin Kampus, Pengelola Jurnal',
     description TEXT NULL,
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -161,6 +168,7 @@ CREATE TABLE roles (
 ```
 
 **Seed Data:**
+
 ```sql
 INSERT INTO roles (name, display_name, description) VALUES
 ('super_admin', 'Super Admin', 'Akses penuh ke semua data PTM'),
@@ -171,17 +179,18 @@ INSERT INTO roles (name, display_name, description) VALUES
 ---
 
 ### **3. `universities` Table**
+
 > Menyimpan data Perguruan Tinggi Muhammadiyah (PTM)
 
 ```sql
 CREATE TABLE universities (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Basic Info
     code VARCHAR(20) NOT NULL UNIQUE COMMENT 'Kode PTM unik, e.g., UAD, UMY',
     name VARCHAR(255) NOT NULL COMMENT 'Nama lengkap PTM',
     short_name VARCHAR(100) NULL COMMENT 'Nama singkat',
-    
+
     -- Contact
     address TEXT NULL,
     city VARCHAR(100) NULL,
@@ -190,18 +199,18 @@ CREATE TABLE universities (
     phone VARCHAR(20) NULL,
     email VARCHAR(255) NULL,
     website VARCHAR(255) NULL,
-    
+
     -- Branding
     logo_url VARCHAR(500) NULL COMMENT 'URL logo PTM',
-    
+
     -- Status
     is_active BOOLEAN DEFAULT TRUE,
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    
+
     -- Indexes
     INDEX idx_code (code),
     INDEX idx_name (name)
@@ -211,36 +220,38 @@ CREATE TABLE universities (
 ---
 
 ### **4. `scientific_fields` Table**
+
 > Menyimpan bidang ilmu (master data)
 
 ```sql
 CREATE TABLE scientific_fields (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     code VARCHAR(20) NOT NULL UNIQUE COMMENT 'Kode bidang ilmu, e.g., COMP, MED',
     name VARCHAR(255) NOT NULL COMMENT 'Nama bidang ilmu',
     description TEXT NULL,
-    
+
     -- Hierarchy (optional untuk grouping)
     parent_id BIGINT UNSIGNED NULL COMMENT 'Untuk sub-bidang ilmu',
-    
+
     -- Status
     is_active BOOLEAN DEFAULT TRUE,
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     -- Indexes
     INDEX idx_code (code),
     INDEX idx_parent_id (parent_id),
-    
+
     -- Foreign Keys
     FOREIGN KEY (parent_id) REFERENCES scientific_fields(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Seed Data Example:**
+
 ```sql
 INSERT INTO scientific_fields (code, name) VALUES
 ('COMP', 'Ilmu Komputer'),
@@ -254,54 +265,55 @@ INSERT INTO scientific_fields (code, name) VALUES
 ---
 
 ### **5. `journals` Table**
+
 > Menyimpan data jurnal yang dikelola oleh User
 
 ```sql
 CREATE TABLE journals (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Ownership
     university_id BIGINT UNSIGNED NOT NULL,
     user_id BIGINT UNSIGNED NOT NULL COMMENT 'Pengelola jurnal (User)',
-    
+
     -- Basic Info
     title VARCHAR(255) NOT NULL COMMENT 'Nama jurnal',
     issn VARCHAR(20) NULL COMMENT 'ISSN cetak',
     e_issn VARCHAR(20) NULL COMMENT 'ISSN elektronik',
-    
+
     -- Publication Details
     url VARCHAR(500) NULL COMMENT 'URL jurnal',
     publisher VARCHAR(255) NULL COMMENT 'Penerbit',
     frequency VARCHAR(50) NULL COMMENT 'Frekuensi terbit: Bulanan, Triwulan, dll',
     first_published_year YEAR NULL COMMENT 'Tahun terbit pertama',
-    
+
     -- Classification
     scientific_field_id BIGINT UNSIGNED NULL,
-    
+
     -- Indexing & Accreditation
     sinta_rank TINYINT NULL COMMENT '1-6, atau NULL jika belum terindeks',
     accreditation_status VARCHAR(50) NULL COMMENT 'Terakreditasi/Belum',
     accreditation_grade VARCHAR(10) NULL COMMENT 'S1, S2, S3, S4',
-    
+
     -- Contact
     editor_in_chief VARCHAR(255) NULL,
     email VARCHAR(255) NULL,
-    
+
     -- Status
     is_active BOOLEAN DEFAULT TRUE,
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    
+
     -- Indexes
     INDEX idx_university_id (university_id),
     INDEX idx_user_id (user_id),
     INDEX idx_scientific_field_id (scientific_field_id),
     INDEX idx_sinta_rank (sinta_rank),
     INDEX idx_title (title),
-    
+
     -- Foreign Keys
     FOREIGN KEY (university_id) REFERENCES universities(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -312,39 +324,40 @@ CREATE TABLE journals (
 ---
 
 ### **6. `evaluation_indicators` Table**
+
 > Menyimpan borang indikator self-assessment (master template)
 
 ```sql
 CREATE TABLE evaluation_indicators (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Hierarchy: Category > Sub-Category > Indicator
     category VARCHAR(100) NOT NULL COMMENT 'Kategori utama, e.g., Kelengkapan Administrasi',
     sub_category VARCHAR(100) NULL COMMENT 'Sub-kategori (optional)',
-    
+
     -- Indicator Details
     code VARCHAR(20) NOT NULL UNIQUE COMMENT 'Kode indikator, e.g., ADM-01',
     question TEXT NOT NULL COMMENT 'Pertanyaan indikator',
     description TEXT NULL COMMENT 'Penjelasan detail',
-    
+
     -- Scoring
     weight DECIMAL(5,2) DEFAULT 1.00 COMMENT 'Bobot penilaian',
-    answer_type ENUM('boolean', 'scale', 'text') DEFAULT 'boolean' 
+    answer_type ENUM('boolean', 'scale', 'text') DEFAULT 'boolean'
         COMMENT 'boolean: Ya/Tidak, scale: 1-5, text: input bebas',
-    
+
     -- Attachment
     requires_attachment BOOLEAN DEFAULT FALSE COMMENT 'Wajib upload bukti?',
-    
+
     -- Ordering
     sort_order INT DEFAULT 0,
-    
+
     -- Status
     is_active BOOLEAN DEFAULT TRUE,
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     -- Indexes
     INDEX idx_category (category),
     INDEX idx_code (code),
@@ -353,6 +366,7 @@ CREATE TABLE evaluation_indicators (
 ```
 
 **Seed Data Example (12 indikator untuk MVP):**
+
 ```sql
 -- Kategori 1: Kelengkapan Administrasi (4 indikator)
 INSERT INTO evaluation_indicators (code, category, question, answer_type, weight, sort_order) VALUES
@@ -379,46 +393,47 @@ INSERT INTO evaluation_indicators (code, category, question, answer_type, weight
 ---
 
 ### **7. `journal_assessments` Table**
+
 > Menyimpan header/summary dari setiap self-assessment yang dilakukan User
 
 ```sql
 CREATE TABLE journal_assessments (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Ownership
     journal_id BIGINT UNSIGNED NOT NULL,
     user_id BIGINT UNSIGNED NOT NULL COMMENT 'User yang mengisi assessment',
-    
+
     -- Assessment Info
     assessment_date DATE NOT NULL DEFAULT CURRENT_DATE,
     period VARCHAR(20) NULL COMMENT 'Periode assessment, e.g., 2025-Q1',
-    
+
     -- Status
     status ENUM('draft', 'submitted', 'reviewed') DEFAULT 'draft',
     submitted_at TIMESTAMP NULL,
     reviewed_at TIMESTAMP NULL,
     reviewed_by BIGINT UNSIGNED NULL COMMENT 'Admin yang review (untuk v1.1+)',
-    
+
     -- Scoring
     total_score DECIMAL(5,2) DEFAULT 0.00 COMMENT 'Total skor (auto-calculated)',
     max_score DECIMAL(5,2) DEFAULT 0.00 COMMENT 'Skor maksimal',
     percentage DECIMAL(5,2) DEFAULT 0.00 COMMENT 'Persentase (total/max * 100)',
-    
+
     -- Notes
     notes TEXT NULL COMMENT 'Catatan dari User',
     admin_notes TEXT NULL COMMENT 'Catatan dari Admin (untuk v1.1+)',
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    
+
     -- Indexes
     INDEX idx_journal_id (journal_id),
     INDEX idx_user_id (user_id),
     INDEX idx_status (status),
     INDEX idx_assessment_date (assessment_date),
-    
+
     -- Foreign Keys
     FOREIGN KEY (journal_id) REFERENCES journals(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -429,53 +444,55 @@ CREATE TABLE journal_assessments (
 ---
 
 ### **8. `assessment_responses` Table**
+
 > Menyimpan jawaban per indikator dalam sebuah assessment
 
 ```sql
 CREATE TABLE assessment_responses (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Relationships
     journal_assessment_id BIGINT UNSIGNED NOT NULL,
     evaluation_indicator_id BIGINT UNSIGNED NOT NULL,
-    
+
     -- Response
     answer_boolean BOOLEAN NULL COMMENT 'Untuk answer_type: boolean',
     answer_scale TINYINT NULL COMMENT 'Untuk answer_type: scale (1-5)',
     answer_text TEXT NULL COMMENT 'Untuk answer_type: text',
-    
+
     -- Scoring
     score DECIMAL(5,2) DEFAULT 0.00 COMMENT 'Skor untuk jawaban ini',
-    
+
     -- Notes
     notes TEXT NULL COMMENT 'Catatan tambahan dari User',
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     -- Indexes
     INDEX idx_journal_assessment_id (journal_assessment_id),
     INDEX idx_evaluation_indicator_id (evaluation_indicator_id),
-    
+
     -- Foreign Keys
     FOREIGN KEY (journal_assessment_id) REFERENCES journal_assessments(id) ON DELETE CASCADE,
     FOREIGN KEY (evaluation_indicator_id) REFERENCES evaluation_indicators(id) ON DELETE CASCADE,
-    
+
     -- Unique Constraint (satu indikator hanya dijawab 1x per assessment)
     UNIQUE KEY unique_assessment_indicator (journal_assessment_id, evaluation_indicator_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Scoring Logic Example:**
+
 ```
 - answer_type = 'boolean':
   - TRUE = bobot penuh (sesuai evaluation_indicators.weight)
   - FALSE = 0
-  
+
 - answer_type = 'scale' (1-5):
   - score = (answer_scale / 5) * weight
-  
+
 - answer_type = 'text':
   - score = 0 (tidak dihitung otomatis, butuh review manual)
 ```
@@ -483,34 +500,35 @@ CREATE TABLE assessment_responses (
 ---
 
 ### **9. `assessment_attachments` Table**
+
 > Menyimpan file bukti yang diupload untuk setiap jawaban assessment
 
 ```sql
 CREATE TABLE assessment_attachments (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Relationships
     assessment_response_id BIGINT UNSIGNED NOT NULL,
-    
+
     -- File Info
     original_filename VARCHAR(255) NOT NULL,
     stored_filename VARCHAR(255) NOT NULL COMMENT 'Nama file di storage',
     file_path VARCHAR(500) NOT NULL COMMENT 'Path di storage',
     file_size INT UNSIGNED NOT NULL COMMENT 'Ukuran file dalam bytes',
     mime_type VARCHAR(100) NOT NULL COMMENT 'e.g., application/pdf, image/jpeg',
-    
+
     -- Uploader
     uploaded_by BIGINT UNSIGNED NOT NULL,
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    
+
     -- Indexes
     INDEX idx_assessment_response_id (assessment_response_id),
     INDEX idx_uploaded_by (uploaded_by),
-    
+
     -- Foreign Keys
     FOREIGN KEY (assessment_response_id) REFERENCES assessment_responses(id) ON DELETE CASCADE,
     FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE CASCADE
@@ -518,6 +536,7 @@ CREATE TABLE assessment_attachments (
 ```
 
 **Storage Strategy:**
+
 - Gunakan Laravel Storage Facade
 - Path structure: `assessments/{journal_id}/{assessment_id}/{indicator_code}/{filename}`
 - Max file size: 5MB (bisa diatur di validation)
@@ -543,6 +562,7 @@ scientific_fields (1) ─────── (M) journals
 ```
 
 **Cardinality:**
+
 - **1 User** → **M Journals** (User bisa kelola banyak jurnal)
 - **1 Journal** → **M Journal Assessments** (Jurnal bisa di-assess berkali-kali)
 - **1 Journal Assessment** → **M Assessment Responses** (12 indikator = 12 responses)
@@ -651,19 +671,23 @@ erDiagram
 ## 🎯 Key Design Decisions
 
 ### 1. **Why Separate `assessment_responses` and `assessment_attachments`?**
+
 - ✅ Flexibility: 1 response bisa punya multiple files
 - ✅ Easier file management
 - ✅ Query performance (tidak bloat tabel responses)
 
 ### 2. **Why `total_score` in `journal_assessments`?**
+
 - ✅ Denormalisasi untuk performance (tidak perlu SUM setiap query)
 - ✅ Update via Laravel Observer/Event saat responses diubah
 
 ### 3. **Why ENUM for `status` and `answer_type`?**
+
 - ✅ Data integrity (hanya nilai valid yang bisa masuk)
 - ✅ Lebih efisien storage daripada VARCHAR
 
 ### 4. **Why Soft Deletes (`deleted_at`)?**
+
 - ✅ Audit trail (data tidak hilang permanen)
 - ✅ Bisa restore jika salah hapus
 - ✅ Laravel convention
@@ -684,35 +708,36 @@ Setelah ERD ini, kita bisa generate:
 ## 🆕 V1.1 NEW TABLES (Pembinaan/Coaching Module)
 
 ### **10. `coaching_requests` Table**
+
 > Menyimpan permintaan pembinaan/coaching dari User untuk jurnal mereka
 
 ```sql
 CREATE TABLE coaching_requests (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Relationships
     journal_id BIGINT UNSIGNED NOT NULL,
     user_id BIGINT UNSIGNED NOT NULL COMMENT 'Requester (User yang minta pembinaan)',
     university_id BIGINT UNSIGNED NOT NULL COMMENT 'For scoping by Admin Kampus',
-    
+
     -- Request Details
     request_type ENUM('akreditasi', 'indeksasi', 'editorial', 'technical') NOT NULL
         COMMENT 'Jenis bantuan yang diminta',
     priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
     description TEXT NOT NULL COMMENT 'Penjelasan kebutuhan pembinaan',
     attachment_path VARCHAR(500) NULL COMMENT 'File pendukung (optional)',
-    
+
     -- Status Tracking
     status ENUM('pending', 'assigned', 'in_progress', 'completed', 'rejected') DEFAULT 'pending',
     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP NULL,
     rejected_reason TEXT NULL COMMENT 'Alasan jika ditolak',
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    
+
     -- Indexes
     INDEX idx_journal_id (journal_id),
     INDEX idx_user_id (user_id),
@@ -720,7 +745,7 @@ CREATE TABLE coaching_requests (
     INDEX idx_status (status),
     INDEX idx_priority (priority),
     INDEX idx_requested_at (requested_at),
-    
+
     -- Foreign Keys
     FOREIGN KEY (journal_id) REFERENCES journals(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -729,6 +754,7 @@ CREATE TABLE coaching_requests (
 ```
 
 **Business Rules:**
+
 - User can only request coaching for journals with **reviewed assessments** (status='reviewed')
 - One journal can have multiple coaching requests over time
 - Requests can be edited/deleted only if status='pending'
@@ -736,41 +762,43 @@ CREATE TABLE coaching_requests (
 ---
 
 ### **11. `coaching_assignments` Table**
+
 > Menyimpan assignment reviewer ke coaching request oleh Admin Kampus
 
 ```sql
 CREATE TABLE coaching_assignments (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Relationships
     coaching_request_id BIGINT UNSIGNED NOT NULL,
     reviewer_id BIGINT UNSIGNED NOT NULL COMMENT 'User yang ditugaskan sebagai reviewer',
     assigned_by BIGINT UNSIGNED NOT NULL COMMENT 'Admin Kampus yang assign',
-    
+
     -- Assignment Details
     notes_to_reviewer TEXT NULL COMMENT 'Catatan dari admin untuk reviewer',
     assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     -- Indexes
     INDEX idx_coaching_request_id (coaching_request_id),
     INDEX idx_reviewer_id (reviewer_id),
     INDEX idx_assigned_by (assigned_by),
-    
+
     -- Foreign Keys
     FOREIGN KEY (coaching_request_id) REFERENCES coaching_requests(id) ON DELETE CASCADE,
     FOREIGN KEY (reviewer_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (assigned_by) REFERENCES users(id) ON DELETE CASCADE,
-    
+
     -- Business Rule: 1 coaching request = 1 active assignment (can be reassigned)
     UNIQUE KEY unique_coaching_request (coaching_request_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Business Rules:**
+
 - One coaching request can only have ONE active assignment at a time
 - Admin can reassign (delete old assignment, create new one)
 - When assigned, coaching_requests.status changes to 'assigned'
@@ -778,44 +806,46 @@ CREATE TABLE coaching_assignments (
 ---
 
 ### **12. `coaching_feedback` Table**
+
 > Menyimpan feedback dari reviewer untuk coaching request
 
 ```sql
 CREATE TABLE coaching_feedback (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
+
     -- Relationships
     coaching_request_id BIGINT UNSIGNED NOT NULL,
     reviewer_id BIGINT UNSIGNED NOT NULL COMMENT 'User yang memberikan feedback',
-    
+
     -- Feedback Content
     feedback_text TEXT NOT NULL COMMENT 'Detailed feedback from reviewer',
-    rating TINYINT NULL CHECK (rating BETWEEN 1 AND 5) 
+    rating TINYINT NULL CHECK (rating BETWEEN 1 AND 5)
         COMMENT 'Overall journal quality rating (1-5)',
     areas_covered JSON NULL COMMENT 'Checklist: ["administrative", "content", "editorial", "technical"]',
     attachment_path VARCHAR(500) NULL COMMENT 'File dari reviewer (template, marked-up docs)',
-    
+
     -- Status
     is_final BOOLEAN DEFAULT FALSE COMMENT 'Jika true, feedback sudah final dan coaching complete',
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     -- Indexes
     INDEX idx_coaching_request_id (coaching_request_id),
     INDEX idx_reviewer_id (reviewer_id),
-    
+
     -- Foreign Keys
     FOREIGN KEY (coaching_request_id) REFERENCES coaching_requests(id) ON DELETE CASCADE,
     FOREIGN KEY (reviewer_id) REFERENCES users(id) ON DELETE CASCADE,
-    
+
     -- Business Rule: 1 coaching request = 1 feedback (can be updated before marked final)
     UNIQUE KEY unique_coaching_feedback (coaching_request_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Business Rules:**
+
 - Reviewer can save draft feedback (is_final=false) and update multiple times
 - When is_final=true, coaching_requests.status changes to 'completed'
 - Once marked final, feedback can still be updated but original is preserved (via updated_at)
@@ -827,7 +857,7 @@ CREATE TABLE coaching_feedback (
 #### **`users` Table - Add Reviewer Fields**
 
 ```sql
-ALTER TABLE users 
+ALTER TABLE users
 ADD COLUMN is_reviewer BOOLEAN DEFAULT FALSE COMMENT 'User can act as reviewer for coaching',
 ADD COLUMN reviewer_expertise JSON NULL COMMENT 'Array of scientific_field_id for expertise matching',
 ADD COLUMN reviewer_bio TEXT NULL COMMENT 'Qualifications and experience',
@@ -838,6 +868,7 @@ CREATE INDEX idx_is_reviewer ON users(is_reviewer);
 ```
 
 **Usage:**
+
 - Admin Kampus can promote users to reviewers by setting `is_reviewer = true`
 - `reviewer_expertise` stores scientific field IDs: `[1, 3, 5]` for matching with journals
 - When assigning coaching, system can suggest reviewers with matching expertise
@@ -847,13 +878,14 @@ CREATE INDEX idx_is_reviewer ON users(is_reviewer);
 #### **`evaluation_indicators` Table - Add Admin Tracking (Optional)**
 
 ```sql
-ALTER TABLE evaluation_indicators 
+ALTER TABLE evaluation_indicators
 ADD COLUMN help_text TEXT NULL COMMENT 'Tooltip guidance for indicator',
 ADD COLUMN last_modified_by BIGINT UNSIGNED NULL COMMENT 'Admin who last edited',
 ADD FOREIGN KEY (last_modified_by) REFERENCES users(id) ON DELETE SET NULL;
 ```
 
 **Usage:**
+
 - Track who modified indicators for audit trail
 - Help text shown as tooltip in assessment form
 
@@ -884,6 +916,7 @@ coaching_feedback (1) ───────────────────�
 ```
 
 **New Cardinality:**
+
 - **1 Journal** → **M Coaching Requests** (dapat request coaching berkali-kali)
 - **1 Coaching Request** → **1 Coaching Assignment** (1 request = 1 reviewer)
 - **1 Coaching Request** → **1 Coaching Feedback** (1 request = 1 feedback)
@@ -969,6 +1002,7 @@ erDiagram
 ## 🎯 V1.1 Data Flow Examples
 
 ### **Flow 1: Request Coaching**
+
 ```
 1. User (Budi) submits assessment → status='submitted'
 2. Admin Kampus (Siti) reviews → status='reviewed'
@@ -988,6 +1022,7 @@ erDiagram
 ```
 
 ### **Flow 2: Assign Reviewer**
+
 ```
 1. Admin Kampus (Siti) views coaching requests (filter: status='pending')
 2. Clicks on Budi's request
@@ -1010,6 +1045,7 @@ erDiagram
 ```
 
 ### **Flow 3: Provide Feedback**
+
 ```
 1. Reviewer (Dr. Ahmad) logs in
 2. Views "My Assigned Coaching Requests" (filter: status='assigned')
@@ -1048,6 +1084,7 @@ erDiagram
 ```
 
 ### **Rollback Safety**
+
 All v1.1 migrations should have `down()` methods:
 
 ```php
@@ -1060,6 +1097,7 @@ public function down()
 ```
 
 For `ALTER` migrations:
+
 ```php
 public function down()
 {
@@ -1075,7 +1113,9 @@ public function down()
 ## 📝 Notes for Developers
 
 ### **V1.0 Tables (Already Implemented)**
+
 All v1.0 tables exist in production. Do NOT modify:
+
 - ✅ `roles`
 - ✅ `users` (will be altered in v1.1)
 - ✅ `universities`
@@ -1087,11 +1127,13 @@ All v1.0 tables exist in production. Do NOT modify:
 - ✅ `assessment_attachments`
 
 ### **V1.1 New Tables (To Be Created)**
+
 - 🆕 `coaching_requests`
 - 🆕 `coaching_assignments`
 - 🆕 `coaching_feedback`
 
 ### **V1.1 Alterations (Add Columns)**
+
 - 🔧 `users` - Add reviewer fields
 - 🔧 `evaluation_indicators` - Add help_text, last_modified_by (optional)
 
@@ -1123,6 +1165,7 @@ All v1.0 tables exist in production. Do NOT modify:
 **Status:** Ready for Migration Development
 
 Apakah Anda ingin saya:
+
 - ✅ **Generate Laravel Migration files** (untuk v1.1 tables)?
 - ✅ **Generate Laravel Model files** (CoachingRequest, CoachingAssignment, CoachingFeedback)?
 - ✅ **Generate Seeder files** (untuk reviewer test data)?

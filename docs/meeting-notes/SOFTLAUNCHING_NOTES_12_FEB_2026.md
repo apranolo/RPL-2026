@@ -25,45 +25,53 @@ Pertemuan soft launching JurnalMu, portal baru untuk jurnal akademik PTMA (Pergu
 ## Action Items
 
 ### 1. Share Platform Guides + Slides
+
 **PIC:** Andri Pranolo & Lukman Hakim  
 **Target:** Share di grup WhatsApp JurnalMu  
 **Timeline:** Segera setelah meeting  
 [Watch: 18:49](https://fathom.video/share/r2gyT2ssyQbMyfEPM1aQF33JqQJRPpVf?timestamp=1129.9999)
 
 **Detail:**
+
 - Panduan untuk LPPM Admin
 - Panduan untuk Editor Jurnal
 - Slide presentasi soft launching
 
 ### 2. Define LPPM Approval Workflow
+
 **PIC:** Andri Pranolo & Majelis Dikti  
 **Target:** LPPM mendaftar dan approve editor + jurnal  
 **Timeline:** Segera setelah workflow didefinisikan  
 [Watch: 45:15](https://fathom.video/share/r2gyT2ssyQbMyfEPM1aQF33JqQJRPpVf?timestamp=2715.9999)
 
 **Workflow:**
+
 - LPPM registrasi akun → Approved by Majelis
 - Editor registrasi akun → Approved by LPPM
 - Editor registrasi jurnal → Approved by LPPM
 
 ### 3. Enable Email Notifications
+
 **PIC:** Tim Developer (UAD)  
 **Target:** Aktifkan notifikasi email untuk approval/actions  
 **Timeline:** Segera  
 [Watch: 46:02](https://fathom.video/share/r2gyT2ssyQbMyfEPM1aQF33JqQJRPpVf?timestamp=2762.9999)
 
 **Detail:**
+
 - Email notifikasi saat akun di-approve
 - Email notifikasi saat jurnal di-approve
 - Email notifikasi untuk actions lainnya
 
 ### 4. Create JurnalMu WhatsApp Group
+
 **PIC:** Lukman Hakim  
 **Target:** Undang peserta meeting + Kepala LPPM  
 **Timeline:** Segera setelah meeting  
 [Watch: 52:49](https://fathom.video/share/r2gyT2ssyQbMyfEPM1aQF33JqQJRPpVf?timestamp=3169.9999)
 
 **Detail:**
+
 - Grup koordinasi sementara
 - Peserta: LPPM dari 21 PTMA unggul + editor jurnal
 - Forum untuk diskusi dan koordinasi lanjutan
@@ -73,6 +81,7 @@ Pertemuan soft launching JurnalMu, portal baru untuk jurnal akademik PTMA (Pergu
 ## Meeting Purpose
 
 Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
+
 - Direktori terpusat untuk semua jurnal PTMA
 - Sistem discovery untuk artikel
 - Tools assessment untuk akreditasi dan indeksasi
@@ -85,6 +94,7 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### 1. The Challenge: Fragmented Journal Landscape
 
 **Masalah:**
+
 - Jurnal PTMA tersebar di berbagai universitas
 - Sulit untuk discovery dan kolaborasi
 - Fragmentasi menghambat peningkatan kualitas
@@ -97,6 +107,7 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 **Website:** [jurnalmu.org](https://jurnalmu.org)
 
 **Fungsi Utama:**
+
 - **Directory**: Daftar jurnal dengan status akreditasi (Sinta) dan indeksasi (Scopus, WoS)
 - **Discovery**: Mesin pencari artikel (on progress)
 - **Guidance**: Tools assessment online untuk akreditasi dan indeksasi (on progress)
@@ -105,12 +116,15 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### 3. Implementation: Roles & Workflow
 
 #### Role: LPPM Admin
+
 **Responsibilities:**
+
 - **Gatekeeper**: Approve semua registrasi user dan jurnal baru
 - **Oversight**: Mengelola user universitas dan reassign journal manager
 - **Dashboard**: Menyediakan statistik universitas (jumlah jurnal Sinta 1/2, dll)
 
 **Dashboard Features:**
+
 - Total jurnal per Sinta level
 - Total jurnal per bidang ilmu
 - Total user yang dikelola
@@ -118,12 +132,15 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 - Jurnal per indeksasi (Scopus, Doaj, dll)
 
 #### Role: Journal Editor
+
 **Responsibilities:**
+
 - **Registration**: Editor registrasi akun dan jurnal sendiri
 - **Approval**: Memerlukan approval LPPM untuk akun dan jurnal
 - **Data Security**: Data jurnal yang sudah di-approve bersifat permanen, hanya bisa dihapus oleh admin Majelis
 
 **Workflow Editor:**
+
 1. Registrasi akun → Menunggu approval LPPM
 2. Login setelah approved
 3. Registrasi jurnal → Menunggu approval LPPM
@@ -132,13 +149,16 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### 4. Tata Kelola Jurnal: Recognition Pathway
 
 #### Local Recognition (Akreditasi)
+
 **Sistem Akreditasi Nasional:**
+
 - Jurnal Lokal
 - Jurnal Nasional
 - Sinta 1-6
 - Penilaian melalui borang akreditasi
 
 **Aspek Penilaian:**
+
 - Kelengkapan penerbit
 - Manajemen jurnal
 - Substansi artikel
@@ -147,12 +167,15 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 - Penyebarluasan
 
 #### Global Recognition (Indexing)
+
 **Major Indexers:**
+
 - **Scopus** → SJR (Scimago Journal Rank), CiteScore
 - **Web of Science** → Impact Factor
 - **Other Indexers**: ProQuest, EBSCO, Dimensions, dll
 
 **Pentingnya Indeksasi:**
+
 - Visibilitas global
 - Citasi tracking
 - Academic reputation
@@ -173,21 +196,25 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 **Roadmap Pengembangan:**
 
 #### Community Forums
+
 - Forum khusus untuk editor
 - Forum untuk reviewer
 - Kolaborasi antar pengelola jurnal
 
 #### Reviewer Database
+
 - Shared pool reviewer berkomitmen
 - Meningkatkan kualitas artikel
 - Mempercepat turnaround time review
 
 #### Article Exchange Feature
+
 - Editor dapat menawarkan artikel internal ke jurnal lain
 - Meningkatkan publikasi cross-university
 - Membantu distribusi artikel berkualitas
 
 #### AI-Powered Analysis
+
 - Identifikasi pola citasi
 - Rekomendasi strategi peningkatan impact
 - Analisis performa jurnal
@@ -199,9 +226,11 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### Feedback dari Bu Yessi Jusman (UMY)
 
 **Pertanyaan:**
+
 > "Apakah di portal akan ada layanan atau button untuk masing-masing PTM dapat melakukan tukar-menukar artikel atau kolaborasi?"
 
 **Jawaban:**
+
 - Belum menjadi prioritas di fase awal
 - Akan dikembangkan di fase berikutnya
 - Sementara bisa dilakukan melalui forum editor yang akan dibuat
@@ -210,11 +239,13 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### Feedback dari Pak Jun Harbi (UM Palembang)
 
 **Saran-saran:**
+
 1. **Forum Reviewer**: Selain forum editor, perlu juga database reviewer yang berkomitmen
 2. **AI Integration**: Konsensus AI untuk merangkum artikel yang disitasi secara terstruktur
 3. **Regular Meetings**: Pertemuan rutin untuk sharing antar pengelola jurnal
 
 **Tanggapan:**
+
 - Saran dicatat dan akan diakomodasi
 - Database reviewer: Di risetmu sudah ada ~300 reviewer, bisa diperluas
 - Sistem assessment jurnal sudah dikembangkan (mirip asesor akreditasi)
@@ -224,29 +255,33 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ## Technical Implementation
 
 ### Portal Access
+
 **URL:** [journalmu.org](https://journalmu.org)
 
 ### Registration Flow
 
 #### LPPM Admin Registration
+
 1. Akses portal → Register
 2. Isi data:
-   - Nama lengkap
-   - Email aktif
-   - Pilih universitas
-   - **Role: Admin LPPM** ✓
-   - Nomor HP
-   - Jabatan (misal: Kepala Bidang Publikasi Ilmiah)
-   - Password & konfirmasi
+    - Nama lengkap
+    - Email aktif
+    - Pilih universitas
+    - **Role: Admin LPPM** ✓
+    - Nomor HP
+    - Jabatan (misal: Kepala Bidang Publikasi Ilmiah)
+    - Password & konfirmasi
 3. Klik "Daftar"
 4. **Menunggu approval dari Majelis**
 5. Setelah approved → Login
 
-**Catatan:** 
+**Catatan:**
+
 - LPPM bisa memiliki lebih dari 1 admin (misal: 3 staff untuk universitas dengan banyak jurnal)
 - Admin LPPM tidak terbatas satu orang
 
 #### Journal Editor Registration
+
 1. Akses portal → Register
 2. Isi data (sama seperti LPPM, tapi pilih role "Editor")
 3. Klik "Daftar"
@@ -257,6 +292,7 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### LPPM Dashboard Features
 
 **Statistik Universitas:**
+
 - Total pengguna
 - Jumlah jurnal yang dikelola
 - Breakdown jurnal per Sinta level
@@ -264,11 +300,13 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 - Jurnal terindeks (Scopus, Doaj, dll)
 
 **Notifikasi Tugas:**
+
 - Pending user approvals
 - Pending journal approvals
 - Update requests
 
 **Manajemen:**
+
 - Approve/reject user baru
 - Approve/reject jurnal baru
 - Reassign journal manager
@@ -278,6 +316,7 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### Journal Registration
 
 **Data yang Diisi Editor:**
+
 - Nama jurnal
 - ISSN
 - E-ISSN
@@ -289,6 +328,7 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 - Link jurnal
 
 **Approval Process:**
+
 1. Editor isi data jurnal
 2. Submit untuk approval
 3. LPPM review data
@@ -296,6 +336,7 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 5. Jika approved → Jurnal muncul di portal
 
 **Data Security:**
+
 - Data jurnal yang sudah di-approve **tidak bisa dihapus** oleh editor atau LPPM
 - Hanya admin Majelis yang bisa menghapus
 - Untuk keamanan dan integritas data
@@ -303,6 +344,7 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### Import Feature
 
 **Bulk Import (untuk LPPM):**
+
 - Upload Excel dengan data jurnal
 - Namun tetap harus assign pengelola satu per satu
 - **Rekomendasi**: Biarkan editor yang registrasi sendiri untuk partisipasi aktif
@@ -310,12 +352,14 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### Pembinaan Features (On Progress)
 
 **Assessment Tools:**
+
 - **Akreditasi**: Assessment dinamis untuk persiapan akreditasi
 - **Indeksasi**: Assessment untuk persiapan Scopus/WoS
 - Catatan & rekomendasi perbaikan
 - Tracking progress
 
 **Support System:**
+
 - Forum diskusi antar editor
 - Komunikasi terkait sistem
 - Resources & dokumentasi
@@ -325,11 +369,13 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ## System Architecture
 
 ### Data Harvesting
+
 **Protocol:** OAI-PMH (Open Archives Initiative Protocol for Metadata Harvesting)
 
 **Target:** Jurnal berbasis OJS (Open Journal System)
 
 **Data yang Diharvest:**
+
 - Judul artikel
 - Abstract
 - Link PDF
@@ -340,21 +386,25 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### Future Development
 
 **Stage 1 (Current - Soft Launch):**
+
 - Display jurnal PTMA dari 21 universitas unggul
 - Basic registration & approval workflow
 - Dashboard untuk LPPM
 
 **Stage 2:**
+
 - Article discovery/search engine
 - Harvesting metadata artikel
 - Assessment tools untuk akreditasi
 
 **Stage 3:**
+
 - Assessment tools untuk indeksasi
 - Forum editor & reviewer
 - Support system
 
 **Stage 4:**
+
 - Article exchange feature
 - Reviewer database
 - AI-powered analysis
@@ -364,13 +414,16 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ## Participants
 
 ### From Majelis Dikti Litbang
+
 - **Dr. Amika Wardana** - Pimpinan Majelis Dikti Litbang (Bidang 3)
 - **Lukman Hakim** - Koordinator
 
 ### From UAD (Developer Team)
+
 - **Andri Pranolo** - Lead Developer & Presenter
 
 ### From PTMA Unggul
+
 - **Bu Yessi Jusman** - UMY
 - **Pak Jun Harbi** - UM Palembang
 - **Bu Sulis** - UNISA
@@ -383,25 +436,25 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ### Immediate Actions (Week 1)
 
 1. **Majelis Dikti:**
-   - [ ] Buat grup WhatsApp koordinasi
-   - [ ] Share panduan LPPM & Editor
-   - [ ] Share slide presentasi
-   - [ ] Define mekanisme approval workflow
-   - [ ] Aktifkan email notifications
+    - [ ] Buat grup WhatsApp koordinasi
+    - [ ] Share panduan LPPM & Editor
+    - [ ] Share slide presentasi
+    - [ ] Define mekanisme approval workflow
+    - [ ] Aktifkan email notifications
 
 2. **LPPM (21 PTMA Unggul):**
-   - [ ] Registrasi akun admin LPPM di jurnalmu.org
-   - [ ] Tunggu approval dari Majelis
-   - [ ] Sosialisasi ke editor jurnal di kampus masing-masing
-   - [ ] Approve akun editor yang registrasi
-   - [ ] Approve jurnal yang didaftarkan editor
+    - [ ] Registrasi akun admin LPPM di jurnalmu.org
+    - [ ] Tunggu approval dari Majelis
+    - [ ] Sosialisasi ke editor jurnal di kampus masing-masing
+    - [ ] Approve akun editor yang registrasi
+    - [ ] Approve jurnal yang didaftarkan editor
 
 3. **Journal Editors:**
-   - [ ] Registrasi akun di jurnalmu.org
-   - [ ] Tunggu approval dari LPPM
-   - [ ] Registrasi jurnal yang dikelola
-   - [ ] Tunggu approval LPPM untuk jurnal
-   - [ ] Update data jurnal secara berkala
+    - [ ] Registrasi akun di jurnalmu.org
+    - [ ] Tunggu approval dari LPPM
+    - [ ] Registrasi jurnal yang dikelola
+    - [ ] Tunggu approval LPPM untuk jurnal
+    - [ ] Update data jurnal secara berkala
 
 ### Short-term Goals (Month 1-3)
 
@@ -441,6 +494,7 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ## Quotes & Key Messages
 
 ### From Dr. Amika Wardana
+
 > "Ini database yang kita coba bersama. Hanya ini dengan sedikit cerata, nanti mohon masukannya sambil diskusi ini. Semoga tidak memberatkan karena nambahin kerjaan."
 
 > "Kita hadapannya ke depan adalah kita punya data bersama, sehingga mana jurnal yang bisa diangkat, bisa didorong, dan semuanya maju bareng-bareng."
@@ -448,6 +502,7 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 > "Risetmu itu dulu juga bertahun-tahun, jadi sekarang sudah jalan. Kita harapkannya tidak hanya berhenti, riset, tapi sampai publikasi dululah, sebelum kemudian ke yang lain."
 
 ### From Andri Pranolo
+
 > "Kalau di judulnya ya, berarti rapat itu artinya nanti akan ada timbal balik. Ini soft launching ya, karena belum mungkin nanti launchingnya kalau sudah memang terlihat bisa menyaingi Sinta atau bahkan menyaingi Science Direct."
 
 > "LPPM itu kalau ditanya jurnal kampusnya ada berapa itu kalau belum punya sistem tersendiri, bisa menampilkan data ini ya secara statistik di portal ini."
@@ -463,16 +518,19 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 **Highlights:**
 
 **00:00 - Opening by Dr. Amika Wardana**
+
 - Penjelasan tujuan portal JurnalMu
 - Sebagai pendukung risetmu untuk publikasi
 - Database bersama untuk maju bareng-bareng
 
 **03:10 - Introduction by Lukman Hakim**
+
 - Pengembangan portal untuk 600+ ribu dosen PTMA
 - Target: Meningkatkan reputasi akademik dosen PTMA
 - Kolaborasi dengan 21 PTMA unggul
 
 **05:22 - Presentation by Andri Pranolo**
+
 - [05:22-18:49] Konsep recognition jurnal (lokal vs global)
 - [18:49-30:48] Fitur platform & workflow
 - [30:48-38:00] Q&A Session 1
@@ -492,13 +550,16 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ## Contact & Support
 
 ### Technical Support
+
 **Developer Team:** UAD (Universitas Ahmad Dahlan)
 **Lead:** Andri Pranolo
 
 ### Coordination
+
 **Majelis Dikti Litbang:** Lukman Hakim
 
 ### For Issues
+
 - Via WhatsApp Group (akan dibuat)
 - Via support system di portal (on progress)
 
@@ -507,13 +568,16 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 ## Appendix
 
 ### Panduan Lengkap
+
 1. **Panduan LPPM Admin** - Available in group
 2. **Panduan Editor Jurnal** - Available in group
 
 ### Slide Presentasi
+
 - Available in group after meeting
 
 ### Form Kehadiran
+
 - Link shared in Zoom chat
 - Required untuk invite ke grup WhatsApp
 
@@ -535,4 +599,5 @@ Meluncurkan JurnalMu, portal baru untuk jurnal akademik PTMA yang menyediakan:
 - LPPM diharapkan segera registrasi dan sosialisasi ke editor di kampusnya
 
 **Closing Message:**
+
 > "Semoga kita semua diberikan keberkahan, diberikan kesehatan, dan juga kemampuan untuk menunaikan segala kewajiban yang kita miliki." - Lukman Hakim

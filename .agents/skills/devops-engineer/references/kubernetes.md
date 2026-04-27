@@ -6,84 +6,84 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app
-  labels:
-    app: app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: app
-  template:
-    metadata:
-      labels:
+    name: app
+    labels:
         app: app
-    spec:
-      containers:
-        - name: app
-          image: ghcr.io/org/app:latest
-          ports:
-            - containerPort: 3000
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "100m"
-            limits:
-              memory: "256Mi"
-              cpu: "500m"
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 3000
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: 3000
-            initialDelaySeconds: 5
-            periodSeconds: 5
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: app-secrets
-                  key: database-url
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: app
+    template:
+        metadata:
+            labels:
+                app: app
+        spec:
+            containers:
+                - name: app
+                  image: ghcr.io/org/app:latest
+                  ports:
+                      - containerPort: 3000
+                  resources:
+                      requests:
+                          memory: '128Mi'
+                          cpu: '100m'
+                      limits:
+                          memory: '256Mi'
+                          cpu: '500m'
+                  livenessProbe:
+                      httpGet:
+                          path: /health
+                          port: 3000
+                      initialDelaySeconds: 10
+                      periodSeconds: 10
+                  readinessProbe:
+                      httpGet:
+                          path: /ready
+                          port: 3000
+                      initialDelaySeconds: 5
+                      periodSeconds: 5
+                  env:
+                      - name: DATABASE_URL
+                        valueFrom:
+                            secretKeyRef:
+                                name: app-secrets
+                                key: database-url
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: app
+    name: app
 spec:
-  selector:
-    app: app
-  ports:
-    - port: 80
-      targetPort: 3000
-  type: ClusterIP
+    selector:
+        app: app
+    ports:
+        - port: 80
+          targetPort: 3000
+    type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: app
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    name: app
+    annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
-  ingressClassName: nginx
-  tls:
-    - hosts: [app.example.com]
-      secretName: app-tls
-  rules:
-    - host: app.example.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: app
-                port:
-                  number: 80
+    ingressClassName: nginx
+    tls:
+        - hosts: [app.example.com]
+          secretName: app-tls
+    rules:
+        - host: app.example.com
+          http:
+              paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                        service:
+                            name: app
+                            port:
+                                number: 80
 ```
 
 ## ConfigMap and Secrets
@@ -92,18 +92,18 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: app-config
+    name: app-config
 data:
-  LOG_LEVEL: "info"
-  API_TIMEOUT: "30s"
+    LOG_LEVEL: 'info'
+    API_TIMEOUT: '30s'
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: app-secrets
+    name: app-secrets
 type: Opaque
 stringData:
-  database-url: "postgres://user:pass@host:5432/db"
+    database-url: 'postgres://user:pass@host:5432/db'
 ```
 
 ## Horizontal Pod Autoscaler
@@ -112,34 +112,34 @@ stringData:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: app-hpa
+    name: app-hpa
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: app
-  minReplicas: 2
-  maxReplicas: 10
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70
+    scaleTargetRef:
+        apiVersion: apps/v1
+        kind: Deployment
+        name: app
+    minReplicas: 2
+    maxReplicas: 10
+    metrics:
+        - type: Resource
+          resource:
+              name: cpu
+              target:
+                  type: Utilization
+                  averageUtilization: 70
 ```
 
 ## Quick Reference
 
-| Resource | Purpose |
-|----------|---------|
+| Resource   | Purpose                              |
+| ---------- | ------------------------------------ |
 | Deployment | Manages ReplicaSets, rolling updates |
-| Service | Internal load balancing, DNS |
-| Ingress | External HTTP/HTTPS routing |
-| ConfigMap | Non-sensitive configuration |
-| Secret | Sensitive data (base64 encoded) |
-| HPA | Auto-scaling based on metrics |
-| PVC | Persistent storage claims |
+| Service    | Internal load balancing, DNS         |
+| Ingress    | External HTTP/HTTPS routing          |
+| ConfigMap  | Non-sensitive configuration          |
+| Secret     | Sensitive data (base64 encoded)      |
+| HPA        | Auto-scaling based on metrics        |
+| PVC        | Persistent storage claims            |
 
 ## Common kubectl Commands
 

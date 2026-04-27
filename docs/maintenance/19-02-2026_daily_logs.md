@@ -3,43 +3,42 @@
 #26 /home/u347029080/domains/journalmu.org/public_html/vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php(48): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
 #27 /home/u347029080/domains/journalmu.org/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(208): Illuminate\\View\\Middleware\\ShareErrorsFromSession->handle()
 
-
 [u347029080@sg-nme-web423 public_html]$ php artisan queue:failed
 
-   Illuminate\Database\QueryException
+Illuminate\Database\QueryException
 
-  SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u347029080_jurnal_mu.failed_jobs' doesn't exist (Connection: mysql, SQL: select * from `failed_jobs` order by `id` desc)
+SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u347029080_jurnal_mu.failed_jobs' doesn't exist (Connection: mysql, SQL: select \* from `failed_jobs` order by `id` desc)
 
-  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:824
-    820▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+at vendor/laravel/framework/src/Illuminate/Database/Connection.php:824
+820▕ $this->getName(), $query, $this->prepareBindings($bindings), $e
     821▕                 );
     822▕             }
     823▕
   ➜ 824▕             throw new QueryException(
     825▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
-    826▕             );
-    827▕         }
-    828▕     }
+826▕ );
+827▕ }
+828▕ }
 
       +25 vendor frames
 
-  26  artisan:16
-      Illuminate\Foundation\Application::handleCommand()
-
+26 artisan:16
+Illuminate\Foundation\Application::handleCommand()
 
 [u347029080@sg-nme-web423 public_html]$ df -h
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/sdb4       874G  794G   71G  92% /
-tmpfs           188G   24K  188G   1% /dev/shm
-tmpfs            20G  407M   20G   2% /dev/shm/lsws
-/dev/sda1       3.5T  3.1T  424G  88% /tmp
-tmpfs            76G  4.1G   72G   6% /run/systemd/journal/dev-log.cagefs
-
+Filesystem Size Used Avail Use% Mounted on
+/dev/sdb4 874G 794G 71G 92% /
+tmpfs 188G 24K 188G 1% /dev/shm
+tmpfs 20G 407M 20G 2% /dev/shm/lsws
+/dev/sda1 3.5T 3.1T 424G 88% /tmp
+tmpfs 76G 4.1G 72G 6% /run/systemd/journal/dev-log.cagefs
 
 [u347029080@sg-nme-web423 public_html]$ php artisan tinker
 Psy Shell v0.12.9 (PHP 8.2.29 — cli) by Justin Hileman
+
 > DB::connection()->getPdo();
-= PDO {#6605
+> = PDO {#6605
+
     inTransaction: false,
     attributes: {
       CASE: NATURAL,
@@ -59,16 +58,15 @@ Psy Shell v0.12.9 (PHP 8.2.29 — cli) by Justin Hileman
       STRINGIFY_FETCHES: false,
       DEFAULT_FETCH_MODE: BOTH,
     },
-  }
+
+}
 
 > exit;
 
-   INFO  Goodbye.
-
+INFO Goodbye.
 
 [u347029080@sg-nme-web423 public_html]$ ps aux | grep "queue:work"
-u347029+ 1322741  0.0  0.0 221672  2488 pts/0    S+   05:55   0:00 grep --color=auto queue:work
-
+u347029+ 1322741 0.0 0.0 221672 2488 pts/0 S+ 05:55 0:00 grep --color=auto queue:work
 
 [u347029080@sg-nme-web423 public_html]$ ls -lh storage/app/backups/ | head -5
 ls: cannot access 'storage/app/backups/': No such file or directory

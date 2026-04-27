@@ -17,7 +17,7 @@ class Role extends Model
     public const SUPER_ADMIN = 'Super Admin';
     public const ADMIN_KAMPUS = 'Admin Kampus';
     public const USER = 'User';
-    
+
     // ... rest of the model
 }
 ```
@@ -111,10 +111,12 @@ const isUser = user.role?.name === ROLE_NAMES.USER;
 
 ```tsx
 // Bad - no type safety, typo risk
-if (user.role?.name === 'Super Admin') { }
+if (user.role?.name === 'Super Admin') {
+}
 
 // Bad - will fail silently if name changes
-if (user.role?.name === 'super_admin') { }
+if (user.role?.name === 'super_admin') {
+}
 ```
 
 ### Type Safety
@@ -135,25 +137,29 @@ function checkRole(roleName: RoleName) {
 If you need to change a role name in the future:
 
 1. **Update the database** via migration:
-   ```php
-   DB::table('roles')->where('name', 'Old Name')->update(['name' => 'New Name']);
-   ```
+
+    ```php
+    DB::table('roles')->where('name', 'Old Name')->update(['name' => 'New Name']);
+    ```
 
 2. **Update the constant** in `app/Models/Role.php`:
-   ```php
-   public const ROLE_NAME = 'New Name';
-   ```
+
+    ```php
+    public const ROLE_NAME = 'New Name';
+    ```
 
 3. **Update the frontend constant** in `resources/js/constants/roles.ts`:
-   ```typescript
-   ROLE_NAME: 'New Name',
-   ```
+
+    ```typescript
+    ROLE_NAME: 'New Name',
+    ```
 
 4. **No other code changes needed!** All references use the constants automatically.
 
 ## Files Updated
 
 ### Backend (PHP)
+
 - ✅ `app/Models/Role.php` - Constants defined, helper methods updated
 - ✅ `app/Models/User.php` - Helper methods and scopes updated
 - ✅ `routes/web.php` - Middleware role checks updated
@@ -161,11 +167,14 @@ If you need to change a role name in the future:
 - ✅ `database/seeders/UserSeeder.php` - Seeder updated
 
 ### Frontend (TypeScript/React)
+
 - ✅ `resources/js/constants/roles.ts` - New constants file created
 - ✅ `resources/js/components/app-sidebar.tsx` - Updated to use constants
 
 ### Files NOT Updated (Should be updated when touched)
+
 Test files still use hardcoded strings. Update them as needed when writing new tests or fixing existing ones:
+
 - `tests/Browser/*.php`
 - `tests/Feature/*.php`
 

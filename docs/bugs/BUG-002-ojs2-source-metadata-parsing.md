@@ -40,12 +40,13 @@ Vol. 3, No. 0 (2020)              ← correct: volume=3, issue=0, pages=null
 
 OJS 2 and OJS 3 produce different `dc:source` formats in their OAI-PMH responses:
 
-| OJS Version | `dc:source` example |
-|-------------|---------------------|
-| OJS 3 | `"Journal Name; Vol. 5 No. 1 (2024); pp. 15-24"` |
-| OJS 2 | `"Journal Name; Vol 3 No 0 (2020); pp 2442-6571"` |
+| OJS Version | `dc:source` example                               |
+| ----------- | ------------------------------------------------- |
+| OJS 3       | `"Journal Name; Vol. 5 No. 1 (2024); pp. 15-24"`  |
+| OJS 2       | `"Journal Name; Vol 3 No 0 (2020); pp 2442-6571"` |
 
 Key differences:
+
 1. OJS 2 **omits the dots** after `Vol` and `No` (`"Vol 3 No 0"` vs `"Vol. 3 No. 1"`)
 2. OJS 2 **embeds the journal ISSN** (e.g. `2442-6571`) after `pp` instead of actual page numbers
 
@@ -122,17 +123,17 @@ New test file: [tests/Unit/OAIPMHHarvesterTest.php](../../tests/Unit/OAIPMHHarve
 
 9 test cases covering:
 
-| Test | Asserts |
-|------|---------|
-| OJS 3: `"Vol. X No. Y"` | volume, issue, pages all correct |
-| OJS 3: comma separator | volume, issue, pages all correct |
-| OJS 2: `"Vol X No Y"` (no dots) | volume=3, issue=0 |
-| OJS 2: ISSN not stored as pages | pages=null |
-| OJS 2: real short page range stored | pages=`"1-15"` |
-| ISSN guard: bare `"1234-5678"` | pages=null |
-| ISSN guard: e-ISSN in source | pages=null |
-| Parenthesised year not extracted as issue | issue=null |
-| Parenthesised small number extracted as issue | issue=`"12"` |
+| Test                                          | Asserts                          |
+| --------------------------------------------- | -------------------------------- |
+| OJS 3: `"Vol. X No. Y"`                       | volume, issue, pages all correct |
+| OJS 3: comma separator                        | volume, issue, pages all correct |
+| OJS 2: `"Vol X No Y"` (no dots)               | volume=3, issue=0                |
+| OJS 2: ISSN not stored as pages               | pages=null                       |
+| OJS 2: real short page range stored           | pages=`"1-15"`                   |
+| ISSN guard: bare `"1234-5678"`                | pages=null                       |
+| ISSN guard: e-ISSN in source                  | pages=null                       |
+| Parenthesised year not extracted as issue     | issue=null                       |
+| Parenthesised small number extracted as issue | issue=`"12"`                     |
 
 All 9 tests pass (`php artisan test tests/Unit/OAIPMHHarvesterTest.php`).
 
