@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ResearchOutput;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class OutputController extends Controller
 {
@@ -14,7 +15,7 @@ class OutputController extends Controller
             ->latest()
             ->paginate(10);
 
-        return inertia('Output/Index', [
+        return Inertia::render('Output/Index', [
             'outputs' => $outputs,
         ]);
     }

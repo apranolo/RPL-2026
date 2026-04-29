@@ -510,7 +510,7 @@ Route::middleware(['auth'])->group(function () {
                 ->name('registrations.create-assessment');
         });
 
-        Route::get('outputs', [OutputController::class, 'index'])->name('user.outputs.index');
+        Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
     });
 
     /*
