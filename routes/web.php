@@ -32,6 +32,8 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\ProposalController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -548,6 +550,8 @@ Route::middleware(['auth'])->group(function () {
     // Resources (Placeholder)
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
+
+    Route::resource('proposal', ProposalController::class);
 
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {
