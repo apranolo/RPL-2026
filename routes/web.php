@@ -21,6 +21,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
+use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
@@ -510,6 +511,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('registrations/{registration}/create-assessment', [UserPembinaanController::class, 'createAssessment'])
                 ->name('registrations.create-assessment');
         });
+
+        Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
     });
 
     /*
