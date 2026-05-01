@@ -26,7 +26,9 @@ class OutputController extends Controller
         try {
         
             $outputs = ResearchOutput::findOrFail($id);
-            return response()->json($outputs);
+            return Inertia::render('Output/Edit', [
+                'output' => $outputs
+            ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => 'Output not found'], 404);
@@ -39,7 +41,7 @@ class OutputController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            
+
             $validated = $request->validate([
                 'proposal_id' => 'required',
                 'kategori' => 'required|string|max:255',
@@ -59,10 +61,9 @@ class OutputController extends Controller
 
             ResearchOutput::where('id', $id)->update($output->toArray());
 
-            return response()->json([
-            'message' => 'Output berhasil diupdate', 
-            'data' => $output->fresh()  
-        ]);
+            return Inertia::render('Output/Edit', [
+                'message' => 'Output berhasil diupdate'
+            ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => 'Output not found'], 404);
@@ -78,7 +79,9 @@ class OutputController extends Controller
             $outputs = ResearchOutput::findOrFail($id);
             $outputs->delete();
 
-            return response()->json(['message' => 'Output deleted successfully']);
+            return Inertia::render('Output/Index', [
+                'message' => 'Output deleted successfully'
+            ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => 'Output not found'], 404);
