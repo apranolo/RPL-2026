@@ -145,13 +145,11 @@ export default function Welcome() {
                     <div className="relative z-20 mx-auto -mt-16 max-w-5xl px-4 sm:px-6 lg:px-8">
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
                             {/* Total Journals Stat Card */}
-                            <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl dark:bg-zinc-900 border-l-4 border-l-[#079C4E]">
-                                <div className="absolute -right-4 -top-4 rounded-full bg-emerald-50 p-6 mix-blend-multiply opacity-50 transition-transform group-hover:scale-110 dark:bg-emerald-900/20"></div>
+                            <div className="group relative overflow-hidden rounded-2xl border-l-4 border-l-[#079C4E] bg-white p-6 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl dark:bg-zinc-900">
+                                <div className="absolute -top-4 -right-4 rounded-full bg-emerald-50 p-6 opacity-50 mix-blend-multiply transition-transform group-hover:scale-110 dark:bg-emerald-900/20"></div>
                                 <div className="relative flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                            Total Journals
-                                        </p>
+                                        <p className="text-sm font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">Total Journals</p>
                                         <p className="mt-2 text-4xl font-black text-gray-900 dark:text-white">
                                             {new Intl.NumberFormat('id-ID').format(totalJournals || 0)}
                                         </p>
@@ -163,13 +161,11 @@ export default function Welcome() {
                             </div>
 
                             {/* Total Articles Stat Card */}
-                            <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl dark:bg-zinc-900 border-l-4 border-l-[#1A2A75]">
-                                <div className="absolute -right-4 -top-4 rounded-full bg-blue-50 p-6 mix-blend-multiply opacity-50 transition-transform group-hover:scale-110 dark:bg-blue-900/20"></div>
+                            <div className="group relative overflow-hidden rounded-2xl border-l-4 border-l-[#1A2A75] bg-white p-6 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl dark:bg-zinc-900">
+                                <div className="absolute -top-4 -right-4 rounded-full bg-blue-50 p-6 opacity-50 mix-blend-multiply transition-transform group-hover:scale-110 dark:bg-blue-900/20"></div>
                                 <div className="relative flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                            Total Articles
-                                        </p>
+                                        <p className="text-sm font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">Total Articles</p>
                                         <p className="mt-2 text-4xl font-black text-gray-900 dark:text-white">
                                             {new Intl.NumberFormat('id-ID').format(totalArticles || 0)}
                                         </p>
@@ -181,11 +177,11 @@ export default function Welcome() {
                             </div>
 
                             {/* Total Universities Stat Card */}
-                            <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl dark:bg-zinc-900 border-l-4 border-l-[#FCEE1F]">
-                                <div className="absolute -right-4 -top-4 rounded-full bg-yellow-50 p-6 mix-blend-multiply opacity-50 transition-transform group-hover:scale-110 dark:bg-yellow-900/20"></div>
+                            <div className="group relative overflow-hidden rounded-2xl border-l-4 border-l-[#FCEE1F] bg-white p-6 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl dark:bg-zinc-900">
+                                <div className="absolute -top-4 -right-4 rounded-full bg-yellow-50 p-6 opacity-50 mix-blend-multiply transition-transform group-hover:scale-110 dark:bg-yellow-900/20"></div>
                                 <div className="relative flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                        <p className="text-sm font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                             Total Universities
                                         </p>
                                         <p className="mt-2 text-4xl font-black text-gray-900 dark:text-white">

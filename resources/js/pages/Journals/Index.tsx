@@ -89,15 +89,15 @@ interface Props {
     indexationStats: Record<string, number>;
 }
 
-export default function JournalsIndex({ 
-    journals, 
-    filters, 
-    universities, 
-    scientificFields, 
-    sintaRanks, 
+export default function JournalsIndex({
+    journals,
+    filters,
+    universities,
+    scientificFields,
+    sintaRanks,
     indexationOptions,
     sintaStats,
-    indexationStats
+    indexationStats,
 }: Props) {
     const { auth } = usePage<SharedData>().props;
     const [search, setSearch] = useState(filters.search || '');
@@ -203,7 +203,7 @@ export default function JournalsIndex({
 
                     {/* Indexation & Sinta Cards Grid */}
                     <div className="relative z-20 mx-auto -mt-10 mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                             {/* SINTA Cards (Row 1) */}
                             {[1, 2, 3, 4, 5, 6].map((score) => {
                                 const rankKey = `sinta_${score}`;
@@ -214,14 +214,12 @@ export default function JournalsIndex({
                                     <Link
                                         key={rankKey}
                                         href={route('journals.index', { sinta_rank: rankKey })}
-                                        className="group flex flex-col justify-between overflow-hidden rounded-xl border-b-4 bg-white p-3 sm:p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
+                                        className="group flex flex-col justify-between overflow-hidden rounded-xl border-b-4 bg-white p-3 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl sm:p-4 dark:bg-zinc-800"
                                         style={{ borderColor }}
                                     >
-                                        <div className="mb-1 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase">
-                                            Accredited
-                                        </div>
+                                        <div className="mb-1 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase">Accredited</div>
                                         <div className="flex flex-col">
-                                            <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                                            <span className="text-base leading-tight font-bold text-gray-900 sm:text-lg dark:text-white">
                                                 {rankLabel}
                                             </span>
                                             <div className="mt-2 flex items-center gap-1.5 self-start">
@@ -233,7 +231,7 @@ export default function JournalsIndex({
                                     </Link>
                                 );
                             })}
-                            
+
                             {/* Indexing Cards (Row 2) */}
                             {[
                                 { key: 'scopus', label: 'Scopus', color: '#E9711C' },
@@ -241,23 +239,24 @@ export default function JournalsIndex({
                                 { key: 'doaj', label: 'DOAJ', color: '#019448' },
                                 { key: 'dimensions', label: 'Dimensions', color: '#13589B' },
                                 { key: 'ebsco', label: 'EBSCO', color: '#0054A6' },
-                                { key: 'proquest', label: 'ProQuest', color: '#0D83A6' }
+                                { key: 'proquest', label: 'ProQuest', color: '#0D83A6' },
                             ].map((idx) => (
                                 <Link
                                     key={idx.key}
                                     href={route('journals.index', { indexation: idx.label === 'WOS' ? 'Web of Science' : idx.label })}
-                                    className="group flex flex-col justify-between overflow-hidden rounded-xl border-b-4 bg-white p-3 sm:p-4 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
+                                    className="group flex flex-col justify-between overflow-hidden rounded-xl border-b-4 bg-white p-3 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl sm:p-4 dark:bg-zinc-800"
                                     style={{ borderColor: idx.color }}
                                 >
-                                    <div className="mb-1 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase">
-                                        Indexed In
-                                    </div>
+                                    <div className="mb-1 text-[10px] font-bold tracking-wider text-muted-foreground/80 uppercase">Indexed In</div>
                                     <div className="flex flex-col">
-                                        <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight truncate" title={idx.label}>
+                                        <span
+                                            className="truncate text-base leading-tight font-bold text-gray-900 sm:text-lg dark:text-white"
+                                            title={idx.label}
+                                        >
                                             {idx.label}
                                         </span>
                                         <div className="mt-2 flex items-center gap-1.5 self-start">
-                                            <span 
+                                            <span
                                                 className="inline-flex items-center justify-center rounded px-2 py-0.5 text-xs font-black text-white transition-opacity group-hover:opacity-90"
                                                 style={{ backgroundColor: idx.color }}
                                             >

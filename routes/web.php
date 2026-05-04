@@ -22,6 +22,7 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
@@ -32,8 +33,6 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\ProposalController;
-
 
 /*
 |--------------------------------------------------------------------------

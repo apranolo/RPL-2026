@@ -21,13 +21,15 @@ class OutputController extends Controller
         ]);
     }
 
-    public function edit($id, ResearchOutput $output) 
+    public function edit($id, ResearchOutput $output)
     {
+
         $this->authorize('update', $output);
 
         $data = ResearchOutput::findOrFail($id);
+
         return Inertia::render('Output/Edit', [
-            'output' => $data
+            'output' => $data,
         ]);
     }
 
@@ -43,9 +45,9 @@ class OutputController extends Controller
             'judul' => 'required|string|max:255',
             'file_path' => 'nullable|string|max:255',
             'status' => 'required|string|max:100',
-            'keterangan' => 'nullable|string'
+            'keterangan' => 'nullable|string',
         ]);
-        
+
         $output->update($validated);
 
         return redirect()->route('output.index')->with('message', 'Output updated successfully');
@@ -59,6 +61,4 @@ class OutputController extends Controller
 
         return redirect()->route('output.index')->with('message', 'Output deleted successfully');
     }
-
-
 }

@@ -17,7 +17,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/csrf-cookie', function () {
         return response()->json(['message' => 'CSRF cookie set']);
     });
-    
+
     // Authentication
     Route::prefix('auth')->group(function () {
         // Email/Password Auth
