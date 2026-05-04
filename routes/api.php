@@ -18,10 +18,6 @@ Route::middleware(['web'])->group(function () {
         return response()->json(['message' => 'CSRF cookie set']);
     });
 
-    Route::delete('/outputs/{id}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
-    Route::get('/outputs/{id}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
-    Route::put('/outputs/{id}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
-
     // Authentication
     Route::prefix('auth')->group(function () {
         // Email/Password Auth
