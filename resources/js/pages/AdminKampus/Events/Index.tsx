@@ -9,23 +9,9 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
@@ -72,11 +58,7 @@ export default function EventsIndex({ events, filters, flash }: Props) {
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get(
-            route('admin-kampus.events.index'),
-            { search },
-            { preserveState: true }
-        );
+        router.get(route('admin-kampus.events.index'), { search }, { preserveState: true });
     };
 
     const handleDelete = (agenda: Agenda) => {
@@ -101,7 +83,6 @@ export default function EventsIndex({ events, filters, flash }: Props) {
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                    
                     {/* Header */}
                     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -124,7 +105,7 @@ export default function EventsIndex({ events, filters, flash }: Props) {
                     {/* Filters */}
                     <div className="mb-6 rounded-xl border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
                         <form onSubmit={handleSearch} className="flex gap-4">
-                            <div className="relative flex-1 max-w-md">
+                            <div className="relative max-w-md flex-1">
                                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     type="text"
@@ -153,7 +134,7 @@ export default function EventsIndex({ events, filters, flash }: Props) {
                     </div>
 
                     {/* Desktop Table View */}
-                    <div className="overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm dark:border-sidebar-border hidden md:block">
+                    <div className="hidden overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -175,15 +156,18 @@ export default function EventsIndex({ events, filters, flash }: Props) {
                                 ) : (
                                     events.data.map((event) => (
                                         <TableRow key={event.id}>
-                                            <TableCell className="font-medium">
-                                                {event.title}
-                                            </TableCell>
+                                            <TableCell className="font-medium">{event.title}</TableCell>
                                             <TableCell className="capitalize">{event.type}</TableCell>
                                             <TableCell>{new Date(event.date_start).toLocaleDateString()}</TableCell>
                                             <TableCell className="capitalize">{event.location_type}</TableCell>
                                             <TableCell className="text-center">
                                                 {event.is_active ? (
-                                                    <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">Active</Badge>
+                                                    <Badge
+                                                        variant="default"
+                                                        className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                                                    >
+                                                        Active
+                                                    </Badge>
                                                 ) : (
                                                     <Badge variant="secondary">Draft</Badge>
                                                 )}
@@ -221,17 +205,15 @@ export default function EventsIndex({ events, filters, flash }: Props) {
                     <div className="grid grid-cols-1 gap-4 md:hidden">
                         {events.data.length === 0 ? (
                             <Card>
-                                <CardContent className="py-8 text-center text-muted-foreground">
-                                    No events found.
-                                </CardContent>
+                                <CardContent className="py-8 text-center text-muted-foreground">No events found.</CardContent>
                             </Card>
                         ) : (
                             events.data.map((event) => (
                                 <Card key={event.id}>
-                                    <div className="p-4 space-y-4">
+                                    <div className="space-y-4 p-4">
                                         <div>
-                                            <h3 className="font-semibold text-lg">{event.title}</h3>
-                                            <p className="text-sm text-muted-foreground mt-1 capitalize">
+                                            <h3 className="text-lg font-semibold">{event.title}</h3>
+                                            <p className="mt-1 text-sm text-muted-foreground capitalize">
                                                 {event.type} &bull; {new Date(event.date_start).toLocaleDateString()}
                                             </p>
                                         </div>
@@ -242,7 +224,11 @@ export default function EventsIndex({ events, filters, flash }: Props) {
                                                 <Badge variant="secondary">Draft</Badge>
                                             )}
                                             <div className="flex gap-2">
-                                                <Button size="sm" variant="outline" onClick={() => router.visit(route('admin-kampus.events.edit', event.id))}>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => router.visit(route('admin-kampus.events.edit', event.id))}
+                                                >
                                                     Edit
                                                 </Button>
                                                 <Button size="sm" variant="destructive" onClick={() => handleDelete(event)}>
@@ -275,7 +261,6 @@ export default function EventsIndex({ events, filters, flash }: Props) {
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
-
                 </div>
             </div>
         </AppLayout>
