@@ -87,7 +87,8 @@
         "tailwindcss-animate": "^1.0.7",
         "typescript": "^5.7.2",
         "use-debounce": "^10.1.0",
-        "vite": "^7.3.0"
+        "vite": "^7.3.0",
+        "ziggy-js": "^2.6.2"
     },
     "optionalDependencies": {
         "@rollup/rollup-linux-x64-gnu": "4.9.5",
