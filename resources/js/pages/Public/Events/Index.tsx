@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Pagination } from '@/components/ui/pagination';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PublicLayout from '@/layouts/public-layout';
@@ -300,7 +300,25 @@ export default function Index({ agendas, filters, types = [] }: Props) {
 
                 {agendas.last_page > 1 && (
                     <div className="mt-12 flex justify-center">
-                        <Pagination links={agendas.links} />
+                        <Pagination>
+                            <PaginationContent>
+                                {agendas.links.map((link, index) => (
+                                    <PaginationItem key={index}>
+                                        {link.url ? (
+                                            <Link href={link.url}>
+                                                <PaginationLink isActive={link.active}>
+                                                    {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
+                                                </PaginationLink>
+                                            </Link>
+                                        ) : (
+                                            <PaginationLink className="cursor-not-allowed opacity-50">
+                                                {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
+                                            </PaginationLink>
+                                        )}
+                                    </PaginationItem>
+                                ))}
+                            </PaginationContent>
+                        </Pagination>
                     </div>
                 )}
             </div>

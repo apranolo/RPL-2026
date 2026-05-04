@@ -224,11 +224,15 @@ export default function EventsCreate() {
                             {/* Is Active & Feature toggles */}
                             <div className="flex flex-col gap-4 py-4 md:col-span-2">
                                 <div className="flex items-center space-x-2">
-                                    <Switch id="is_active" checked={data.is_active} onCheckedChange={(val) => setData('is_active', val)} />
+                                    <Switch id="is_active" checked={data.is_active} onCheckedChange={(val) => setData('is_active', val as any)} />
                                     <Label htmlFor="is_active">Active (Visible)</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <Switch id="is_featured" checked={data.is_featured} onCheckedChange={(val) => setData('is_featured', val)} />
+                                    <Switch
+                                        id="is_featured"
+                                        checked={data.is_featured}
+                                        onCheckedChange={(val) => setData('is_featured', val as any)}
+                                    />
                                     <Label htmlFor="is_featured">Featured Event</Label>
                                 </div>
                             </div>
