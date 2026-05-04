@@ -44,7 +44,6 @@ class OutputController extends Controller
 
             $validated = $request->validate([
                 'proposal_id' => 'required',
-                'user_id' => 'required',
                 'kategori' => 'required|string|max:255',
                 'judul' => 'required|string|max:255',
                 'file_path' => 'nullable|string|max:255',
@@ -54,7 +53,6 @@ class OutputController extends Controller
             
             $output = ResearchOutput::findOrFail($id);
             $output->proposal_id = $validated['proposal_id'];
-            $output->user_id = $validated['user_id'];
             $output->kategori = $validated['kategori'];
             $output->judul = $validated['judul'];
             $output->file_path = $validated['file_path'] ?? $output->file_path;
