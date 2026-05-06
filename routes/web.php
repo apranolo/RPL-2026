@@ -22,6 +22,7 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
@@ -32,8 +33,6 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\ProposalController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -513,6 +512,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
+        Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
+        Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
     });
 
     /*
