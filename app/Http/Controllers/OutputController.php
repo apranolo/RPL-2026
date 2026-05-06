@@ -37,8 +37,6 @@ class OutputController extends Controller
         $this->authorize('update', $output);
 
         $validated = $request->validate([
-            'proposal_id' => 'required',
-            'user_id' => 'required',
             'kategori' => 'required|string|max:255',
             'judul' => 'required|string|max:255',
             'file_path' => 'nullable|string|max:255',
@@ -48,7 +46,7 @@ class OutputController extends Controller
 
         $output->update($validated);
 
-        return redirect()->route('outputs.index')->with('message', 'Output updated successfully');
+        return redirect()->route('user.outputs.index')->with('message', 'Output updated successfully');
     }
 
     public function destroy(ResearchOutput $output)
@@ -57,6 +55,6 @@ class OutputController extends Controller
 
         $output->delete();
 
-        return redirect()->route('outputs.index')->with('message', 'Output deleted successfully');
+        return redirect()->route('user.outputs.index')->with('message', 'Output deleted successfully');
     }
 }
