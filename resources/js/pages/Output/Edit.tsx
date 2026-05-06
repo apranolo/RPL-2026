@@ -2,11 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
 import React from 'react';
 import { route } from 'ziggy-js';
 
@@ -57,7 +57,6 @@ export default function Edit({ outputs }: { outputs: Output }) {
         // Submit ke route update
         put(route('user.outputs.update', outputs.id));
     };
-
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -159,7 +158,7 @@ export default function Edit({ outputs }: { outputs: Output }) {
                                     />
                                     {errors.keterangan && <p className="mt-1 text-sm text-red-600">{errors.keterangan}</p>}
                                 </div>
-                                
+
                                 <div className="flex flex-col-reverse items-stretch justify-end gap-4 border-t pt-4 sm:flex-row sm:items-center dark:border-gray-700">
                                     <Link href={route('user.outputs.index')}>
                                         <Button type="button" variant="outline">
@@ -170,7 +169,6 @@ export default function Edit({ outputs }: { outputs: Output }) {
                                         {processing ? 'Saving...' : 'Output'}
                                     </Button>
                                 </div>
-                        
                             </div>
                         </form>
                     </div>
