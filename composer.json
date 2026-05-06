@@ -15,6 +15,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.10.1",
+        "symfony/dom-crawler": "^8.0",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
