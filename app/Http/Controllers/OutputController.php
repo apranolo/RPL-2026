@@ -20,15 +20,13 @@ class OutputController extends Controller
         ]);
     }
 
-    public function edit($id, ResearchOutput $output)
+    public function edit(ResearchOutput $output)
     {
 
         $this->authorize('update', $output);
 
-        $data = ResearchOutput::findOrFail($id);
-
         return Inertia::render('Output/Edit', [
-            'output' => $data,
+            'outputs' => $output,
         ]);
     }
 
@@ -49,7 +47,7 @@ class OutputController extends Controller
 
         $output->update($validated);
 
-        return redirect()->route('output.index')->with('message', 'Output updated successfully');
+        return redirect()->route('outputs.index')->with('message', 'Output updated successfully');
     }
 
     public function destroy(ResearchOutput $output)
@@ -58,6 +56,6 @@ class OutputController extends Controller
 
         $output->delete();
 
-        return redirect()->route('output.index')->with('message', 'Output deleted successfully');
+        return redirect()->route('outputs.index')->with('message', 'Output deleted successfully');
     }
 }
