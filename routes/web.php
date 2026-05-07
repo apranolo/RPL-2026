@@ -538,6 +538,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('{assignment}/attachments/{attachment}', [MainReviewerController::class, 'downloadAttachment'])
                 ->name('attachments.download');
         });
+
+        // Evaluation Routes
+        Route::prefix('evaluations')->name('evaluations.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
+                ->name('index');
+        });
+
     });
 
     /*
