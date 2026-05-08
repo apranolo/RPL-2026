@@ -36,7 +36,9 @@ class ResearchOutputPolicy
      */
     public function update(User $user, ResearchOutput $researchOutput): bool
     {
-        return $user->is_active && ($user->id === $researchOutput->user_id);
+        return $user->is_active 
+        && ($user->id === $researchOutput->user_id) 
+        && ($researchOutput->status === 'draft' || $researchOutput->status === 'rejected');
     }
 
     /**
@@ -44,7 +46,9 @@ class ResearchOutputPolicy
      */
     public function delete(User $user, ResearchOutput $researchOutput): bool
     {
-        return $user->is_active && ($user->id === $researchOutput->user_id);
+        return $user->is_active 
+        && ($user->id === $researchOutput->user_id)
+        && ($researchOutput->status === 'draft');
     }
 
     /**

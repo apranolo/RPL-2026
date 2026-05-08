@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ResearchOutput;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -26,7 +27,7 @@ class OutputController extends Controller
         $this->authorize('update', $output);
 
         return Inertia::render('Output/Edit', [
-            'outputs' => $output,
+            'output' => $output,
         ]);
     }
 

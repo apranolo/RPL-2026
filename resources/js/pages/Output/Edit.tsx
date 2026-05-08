@@ -38,24 +38,24 @@ const statusOptions = [
     { value: 'rejected', label: 'Rejected' },
 ];
 
-export default function Edit({ outputs }: { outputs: Output }) {
+export default function Edit({ output }: { output: Output }) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: route('dashboard') },
         { title: 'Research Outputs', href: route('user.outputs.index') },
     ];
 
     const { data, setData, put, processing, errors } = useForm({
-        kategori: outputs.kategori,
-        judul: outputs.judul,
-        file_path: outputs.file_path,
-        status: outputs.status,
-        keterangan: outputs.keterangan,
+        kategori: output.kategori,
+        judul: output.judul,
+        file_path: output.file_path,
+        status: output.status,
+        keterangan: output.keterangan,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // Submit ke route update
-        put(route('user.outputs.update', outputs.id));
+        put(route('user.outputs.update', output.id));
     };
 
     return (
@@ -166,7 +166,7 @@ export default function Edit({ outputs }: { outputs: Output }) {
                                         </Button>
                                     </Link>
                                     <Button type="submit" disabled={processing}>
-                                        {processing ? 'Saving...' : 'Output'}
+                                        {processing ? 'Saving...' : 'Update'}
                                     </Button>
                                 </div>
                             </div>
