@@ -24,6 +24,8 @@ use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\OutputController;
+use App\Http\Controllers\OutputDocController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
@@ -507,6 +509,21 @@ Route::middleware(['auth'])->group(function () {
             // Create assessment for pembinaan registration
             Route::post('registrations/{registration}/create-assessment', [UserPembinaanController::class, 'createAssessment'])
                 ->name('registrations.create-assessment');
+        });
+
+        // ── Luaran Penelitian: Produk / Prototipe ────────────────────────────
+        Route::prefix('outputs/products')->name('outputs.products.')->group(function () {
+            // Submit new product output
+            Route::post('/', [OutputController::class, 'storeProduct'])
+                ->name('store');
+
+            // Dedicated file upload endpoint (cover image or proof document)
+            Route::post('{product}/upload', [OutputDocController::class, 'upload'])
+                ->name('upload-doc');
+
+            // Delete a specific file (cover or document)
+            Route::delete('{product}/upload', [OutputDocController::class, 'destroy'])
+                ->name('delete-doc');
         });
     });
 
