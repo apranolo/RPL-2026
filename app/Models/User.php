@@ -285,6 +285,18 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is Admin Keuangan
+     */
+    public function isAdminKeuangan(): bool
+    {
+        if ($this->role && $this->role->name === Role::ADMIN_KEUANGAN) {
+            return true;
+        }
+
+        return $this->roles()->where('name', Role::ADMIN_KEUANGAN)->exists();
+    }
+
+    /**
      * Check if user is Pengelola Jurnal (User role)
      */
     public function isUser(): bool
