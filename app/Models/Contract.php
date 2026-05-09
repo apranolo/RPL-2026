@@ -29,11 +29,14 @@ class Contract extends Model
     protected $fillable = [
         'university_id',
         'pembinaan_id',
+        'proposal_id',
         'contract_number',
         'title',
         'description',
         'status',
         'contract_value',
+        'party_1',
+        'party_2',
         'start_date',
         'end_date',
         'signed_at',
@@ -72,6 +75,11 @@ class Contract extends Model
     public function pembinaan(): BelongsTo
     {
         return $this->belongsTo(Pembinaan::class);
+    }
+
+    public function proposal(): BelongsTo
+    {
+        return $this->belongsTo(Proposal::class);
     }
 
     public function fundings(): HasMany
@@ -166,7 +174,7 @@ class Contract extends Model
         });
 
         static::updating(function (Contract $contract) {
-            if (auth()->check()) {
+            if (Auth()->check()) {
                 $contract->updated_by = auth()->id();
             }
         });

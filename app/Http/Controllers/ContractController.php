@@ -66,6 +66,8 @@ class ContractController extends Controller
                     'status_label' => $contract->status_label,
                     'status_color' => $contract->status_color,
                     'contract_value' => $contractValue,
+                    'party_1' => $contract->party_1,
+                    'party_2' => $contract->party_2,
                     'funding_total' => (float) ($contract->funding_total ?? 0),
                     'disbursed_total' => $disbursedTotal,
                     'funding_progress' => $contractValue > 0

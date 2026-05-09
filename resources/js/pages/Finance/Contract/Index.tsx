@@ -47,6 +47,8 @@ interface Contract {
     status_label: string;
     status_color: string;
     contract_value: number;
+    party_1: string | null;
+    party_2: string | null;
     funding_total: number;
     disbursed_total: number;
     funding_progress: number;
@@ -335,6 +337,7 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                 <TableHead>Kontrak</TableHead>
                                 <TableHead>PTMA</TableHead>
                                 <TableHead>Program</TableHead>
+                                <TableHead>Pihak</TableHead>
                                 <TableHead>Periode</TableHead>
                                 <TableHead className="text-right">Nilai</TableHead>
                                 <TableHead>Realisasi</TableHead>
@@ -344,7 +347,7 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                         <TableBody>
                             {contracts.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="py-12 text-center">
+                                    <TableCell colSpan={8} className="py-12 text-center">
                                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                             <FileText className="h-10 w-10 text-muted-foreground/50" />
                                             <p className="font-medium">Belum ada kontrak yang cocok dengan filter.</p>
@@ -375,6 +378,12 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                             ) : (
                                                 <span className="text-muted-foreground">-</span>
                                             )}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="space-y-1 text-sm">
+                                                <p className="font-medium">{contract.party_1 || '-'}</p>
+                                                <p className="text-xs text-muted-foreground">{contract.party_2 || '-'}</p>
+                                            </div>
                                         </TableCell>
                                         <TableCell className="whitespace-nowrap text-sm">{formatPeriod(contract.start_date, contract.end_date)}</TableCell>
                                         <TableCell className="text-right font-medium">{formatCurrency(contract.contract_value)}</TableCell>
@@ -423,6 +432,16 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="text-muted-foreground">PTMA</span>
                                         <span className="text-right font-medium">{contract.university.short_name || contract.university.name}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-3">
+                                        <span className="text-muted-foreground">Pihak 1</span>
+                                        <span className="text-right font-medium">{contract.party_1 || '-'}</span>
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-3">
+                                        <span className="text-muted-foreground">Pihak 2</span>
+                                        <span className="text-right font-medium">{contract.party_2 || '-'}</span>
+
                                     </div>
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="text-muted-foreground">Nilai</span>
