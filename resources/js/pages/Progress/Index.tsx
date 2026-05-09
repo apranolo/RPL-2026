@@ -87,19 +87,27 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
 
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
-        router.get(route('user.progress.index'), {
-            ...filters,
-            status: filters.status || undefined,
-        }, { preserveState: true });
+        router.get(
+            route('user.progress.index'),
+            {
+                ...filters,
+                status: filters.status || undefined,
+            },
+            { preserveState: true },
+        );
     };
 
     const handleFilterChange = (key: keyof Filters, value: string) => {
         const newFilters = { ...filters, [key]: value };
         setFilters(newFilters);
-        router.get(route('user.progress.index'), {
-            ...newFilters,
-            status: newFilters.status || undefined,
-        }, { preserveState: true });
+        router.get(
+            route('user.progress.index'),
+            {
+                ...newFilters,
+                status: newFilters.status || undefined,
+            },
+            { preserveState: true },
+        );
     };
 
     const resetFilters = () => {
@@ -122,14 +130,10 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
 
                 {/* Flash Messages */}
                 {flash?.success && (
-                    <div className="rounded-md bg-green-50 p-4 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                        {flash.success}
-                    </div>
+                    <div className="rounded-md bg-green-50 p-4 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">{flash.success}</div>
                 )}
                 {flash?.error && (
-                    <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
-                        {flash.error}
-                    </div>
+                    <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">{flash.error}</div>
                 )}
 
                 {/* Filters */}
@@ -137,7 +141,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                     <CardContent className="pt-6">
                         <form onSubmit={handleSearch} className="flex flex-col gap-4 sm:flex-row sm:items-center">
                             <div className="relative flex-1">
-                                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     placeholder="Cari laporan..."
                                     value={filters.search}
@@ -145,10 +149,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                     className="pl-10"
                                 />
                             </div>
-                            <Select
-                                value={filters.status}
-                                onValueChange={(value) => handleFilterChange('status', value)}
-                            >
+                            <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
                                 <SelectTrigger className="w-full sm:w-[180px]">
                                     <SelectValue placeholder="Semua Status" />
                                 </SelectTrigger>
@@ -192,8 +193,8 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                     <TableRow>
                                         <TableCell colSpan={8} className="py-10 text-center">
                                             <div className="flex flex-col items-center gap-2">
-                                                <FileText className="text-muted-foreground h-10 w-10" />
-                                                <p className="text-muted-foreground text-sm">Belum ada laporan kemajuan</p>
+                                                <FileText className="h-10 w-10 text-muted-foreground" />
+                                                <p className="text-sm text-muted-foreground">Belum ada laporan kemajuan</p>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -202,13 +203,11 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                         <TableRow key={report.id}>
                                             <TableCell>{(progressReports.current_page - 1) * progressReports.per_page + index + 1}</TableCell>
                                             <TableCell className="font-medium">{report.title}</TableCell>
-                                            <TableCell className="text-muted-foreground text-sm">
-                                                {report.proposal?.title ?? '-'}
-                                            </TableCell>
+                                            <TableCell className="text-sm text-muted-foreground">{report.proposal?.title ?? '-'}</TableCell>
                                             <TableCell>{report.report_period}</TableCell>
                                             <TableCell className="text-center">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <div className="bg-secondary h-2 w-20 overflow-hidden rounded-full">
+                                                    <div className="h-2 w-20 overflow-hidden rounded-full bg-secondary">
                                                         <div
                                                             className="h-full rounded-full bg-green-500"
                                                             style={{ width: `${report.progress_percentage}%` }}
@@ -225,10 +224,10 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                             <TableCell className="text-center">
                                                 {report.evaluations.length > 0 ? (
                                                     <Badge variant="outline">
-                                                        {report.evaluations.filter(e => e.status === 'reviewed').length}/{report.evaluations.length}
+                                                        {report.evaluations.filter((e) => e.status === 'reviewed').length}/{report.evaluations.length}
                                                     </Badge>
                                                 ) : (
-                                                    <span className="text-muted-foreground text-xs">-</span>
+                                                    <span className="text-xs text-muted-foreground">-</span>
                                                 )}
                                             </TableCell>
                                             <TableCell className="text-center">
@@ -249,7 +248,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                 {/* Pagination */}
                 {progressReports.last_page > 1 && (
                     <div className="flex items-center justify-between">
-                        <p className="text-muted-foreground text-sm">
+                        <p className="text-sm text-muted-foreground">
                             Menampilkan {progressReports.from} - {progressReports.to} dari {progressReports.total} laporan
                         </p>
                         <div className="flex gap-2">
