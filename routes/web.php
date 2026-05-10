@@ -515,6 +515,11 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
         Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
+
+        // Proposal
+        Route::prefix('proposal')->name('proposal.')->group(function (){
+
+        });
     });
 
     /*
