@@ -1,10 +1,13 @@
-Sesuai dengan permintaan Anda, pembagian tugas ini difokuskan 100% pada **Pengembangan Fitur (Development)** baik dari sisi *Backend* (Database, Model, Controller) maupun *Frontend* (React Inertia Pages/Components). Tidak ada tugas pengujian (QA/Testing). 
+# Pembagian Tugas Proyek RPL — Kelas B
+## Sistem Penelitian Terintegrasi untuk JurnalMu
 
-Setiap mahasiswa akan mendapatkan sekitar **4 tugas** yang saling berkaitan (misalnya mengerjakan Migration, lalu Model, lalu Controller, hingga View React-nya), sehingga tanggung jawabnya jelas (konsep fitur *end-to-end*). 
+Pembagian tugas ini difokuskan 100% pada **Pengembangan Fitur (Development)**, baik dari sisi *Backend* (Database, Model, Controller, Service) maupun *Frontend* (React Inertia Pages/Components). Setiap mahasiswa mendapatkan tepat **4 tugas** yang membentuk alur *end-to-end* sebuah fitur.
 
-Pembagian ini direpresentasikan sebagai **Tab (Sheet)** yang membagi ke-50 mahasiswa ke dalam 6 Modul Utama sesuai gambar rancangan Google Sheet yang Anda lampirkan.
-
-> **PENTING (PEMBARUAN)**: Penugasan komponen Data Layer (Migration Tabel, Model, dan optional Factory/Seeder) sudah disatukan menjadi 1 task agar tidak terjadi *blocker* dan menjamin kepemilikan struktur data secara utuh. Setiap mahasiswa wajib mengacu pada kesepakatan struktur MVC yang dijelaskan di file `docs/development/Technical_Guide.md` sebelum menyusun Controller dan View.
+> **PENTING**: Sebelum mulai coding, setiap mahasiswa **wajib** membaca file berikut:
+> - `docs/Technical_Guide.md` — Panduan arsitektur MVC & konvensi kode
+> - `docs/Integration_Guide.md` — Panduan integrasi dengan proyek Kelas G
+>
+> Pembuatan komponen Data Layer (Migration, Model, Relasi) **disatukan dalam 1 task** agar kepemilikan struktur data utuh dan tidak terjadi *blocker* antar mahasiswa.
 
 ---
 

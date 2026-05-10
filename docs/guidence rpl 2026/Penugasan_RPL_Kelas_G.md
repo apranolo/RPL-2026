@@ -5,7 +5,7 @@ Pembagian tugas ini difokuskan 100% pada **Pengembangan Fitur (Development)**, b
 
 > **PENTING**: Sebelum mulai coding, setiap mahasiswa **wajib** membaca file berikut:
 > - `docs/Technical_Guide.md` — Panduan arsitektur MVC & konvensi kode
-> - `docs/Integration_Guide_Kelas_G.md` — Panduan integrasi dengan proyek Kelas B
+> - `docs/Integration_Guide.md` — Panduan integrasi dengan proyek Kelas B
 >
 > Pembuatan komponen Data Layer (Migration, Model, Relasi) **disatukan dalam 1 task** agar kepemilikan struktur data utuh dan tidak terjadi *blocker* antar mahasiswa.
 
