@@ -518,7 +518,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function (){
-
+            //
         });
     });
 
