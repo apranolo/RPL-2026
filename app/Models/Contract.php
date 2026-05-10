@@ -174,7 +174,7 @@ class Contract extends Model
         });
 
         static::updating(function (Contract $contract) {
-            if (Auth()->check()) {
+            if (auth()->check()) {
                 $contract->updated_by = auth()->id();
             }
         });
