@@ -552,6 +552,19 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+
+// Production - Issue & Galley (MUHAMMAD RAYHAN PANJI BANURAGA)
+Route::prefix('production')->name('production.')->group(function () {
+    // Issue
+    Route::delete('/issue/{issue}', [App\Http\Controllers\Production\IssueController::class, 'destroy'])->name('issue.destroy');
+    Route::get('/issue/{issue}', [App\Http\Controllers\Production\IssueController::class, 'show'])->name('issue.show');
+    Route::get('/issue/{issue}/edit', [App\Http\Controllers\Production\IssueController::class, 'edit'])->name('issue.edit');
+
+    // Galley
+    Route::get('/galley/{galley}/set-meta', [App\Http\Controllers\Production\GalleyController::class, 'setMeta'])->name('galley.setMeta');
+    Route::patch('/galley/{galley}/update-meta', [App\Http\Controllers\Production\GalleyController::class, 'updateMeta'])->name('galley.updateMeta');
+});
+
 });
 
 require __DIR__.'/settings.php';
