@@ -23,41 +23,36 @@
  */
 
 export function formatIndo(
-  date: Date | string,
-  options?: {
-    withDay?: boolean;
-    withTime?: boolean;   
-  }
+    date: Date | string,
+    options?: {
+        withDay?: boolean;
+        withTime?: boolean;
+    },
 ): string {
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '-';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '-';
 
-  const MONTHS_ID = [
-    'Januari','Februari','Maret','April','Mei','Juni',
-    'Juli','Agustus','September','Oktober','November','Desember',
-  ];
+    const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-  const DAYS_ID = [
-    'Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu',
-  ];
+    const DAYS_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-  const day = d.getDate();
-  const month = MONTHS_ID[d.getMonth()];
-  const year = d.getFullYear();
+    const day = d.getDate();
+    const month = MONTHS_ID[d.getMonth()];
+    const year = d.getFullYear();
 
-  let result = `${day} ${month} ${year}`;
+    let result = `${day} ${month} ${year}`;
 
-  // add day name if enabled
-  if (options?.withDay) {
-    result = `${DAYS_ID[d.getDay()]}, ${result}`;
-  }
+    // add day name if enabled
+    if (options?.withDay) {
+        result = `${DAYS_ID[d.getDay()]}, ${result}`;
+    }
 
-  // add time if enabled
-  if (options?.withTime) {
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    result += `, ${hours}:${minutes}`;
-  }
+    // add time if enabled
+    if (options?.withTime) {
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        result += `, ${hours}:${minutes}`;
+    }
 
-  return result;
+    return result;
 }
