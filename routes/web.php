@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
@@ -552,6 +553,11 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+
+    Route::get(
+        '/editorial/submissions/{submission}/activity-logs',
+        [ActivityLogController::class, 'index']
+    )->name('editorial.activity-logs.index');
 });
 
 require __DIR__.'/settings.php';
