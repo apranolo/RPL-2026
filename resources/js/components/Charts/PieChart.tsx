@@ -208,6 +208,7 @@ export default function PieChart({
                 pie: {
                     donut: donut
                         ? {
+ feature/faculty-performance-analytics
                             size: '65%',
                             background: 'transparent',
                             labels: {
@@ -234,6 +235,34 @@ export default function PieChart({
                                 },
                             },
                         }
+
+                              size: '65%',
+                              background: 'transparent',
+                              labels: {
+                                  show: true,
+                                  name: {
+                                      show: true,
+                                      color: themeColors.text,
+                                      fontWeight: 600,
+                                      fontSize: '13px',
+                                  },
+                                  value: {
+                                      show: true,
+                                      fontSize: '28px',
+                                      fontWeight: 'bold',
+                                      color: isDarkMode ? '#ffffff' : '#0f172a',
+                                  },
+                                  total: {
+                                      show: true,
+                                      label: centerLabel,
+                                      color: themeColors.subtleText,
+                                      fontWeight: 600,
+                                      fontSize: '12px',
+                                      formatter: () => computedTotal.toString(),
+                                  },
+                              },
+                          }
+ development
                         : undefined,
                 },
             },

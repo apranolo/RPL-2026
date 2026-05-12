@@ -8,7 +8,9 @@ use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
+use App\Http\Controllers\Admin\DashboardCtrl;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
 use App\Http\Controllers\AdminKampus\JournalApprovalController;
@@ -21,6 +23,8 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
+use App\Http\Controllers\OutputController;
+use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
@@ -256,6 +260,16 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{pembinaan}/toggle-status', [AdminPembinaanController::class, 'toggleStatus'])
                 ->name('toggle-status');
         });
+
+        // Faculty/University Performance Statistics (JSON endpoint)
+        Route::get('faculty-stats', [DashboardCtrl::class, 'getFacultyStat'])
+            ->name('faculty-stats');
+        Route::get('category-stats', [DashboardCtrl::class, 'getCategoryStat'])
+            ->name('category-stats');
+
+        // Reports (Rekap Keseluruhan)
+        Route::get('reports', [ReportController::class, 'index'])
+            ->name('reports.index');
 
     });
 
@@ -508,6 +522,16 @@ Route::middleware(['auth'])->group(function () {
             Route::post('registrations/{registration}/create-assessment', [UserPembinaanController::class, 'createAssessment'])
                 ->name('registrations.create-assessment');
         });
+
+        Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
+        Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
+        Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
+
+        // Proposal
+        Route::prefix('proposal')->name('proposal.')->group(function (){
+
+        });
     });
 
     /*
@@ -545,6 +569,8 @@ Route::middleware(['auth'])->group(function () {
     // Resources (Placeholder)
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
+
+    Route::resource('proposal', ProposalController::class);
 
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {

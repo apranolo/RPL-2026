@@ -233,10 +233,18 @@ export default function FacultyTable({ data }: FacultyTableProps) {
                                     </td>
                                     <td className="px-4 py-3 text-center">
                                         <span
+ feature/faculty-performance-analytics
                                             className={`inline-flex min-w-[2rem] justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${item.scopus_indexed > 0
                                                     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                                                     : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
                                                 }`}
+
+                                            className={`inline-flex min-w-[2rem] justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                                item.scopus_indexed > 0
+                                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                                                    : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                                            }`}
+ development
                                         >
                                             {item.scopus_indexed}
                                         </span>
@@ -244,10 +252,18 @@ export default function FacultyTable({ data }: FacultyTableProps) {
                                     <td className="px-4 py-3 text-center">
                                         <div className="group relative inline-block">
                                             <span
+ feature/faculty-performance-analytics
                                                 className={`inline-flex min-w-[2rem] cursor-help justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${item.total_sinta > 0
                                                         ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
                                                         : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
                                                     }`}
+
+                                                className={`inline-flex min-w-[2rem] cursor-help justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                                    item.total_sinta > 0
+                                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                                        : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                                                }`}
+ development
                                             >
                                                 {item.total_sinta}
                                             </span>
