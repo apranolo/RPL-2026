@@ -11,7 +11,7 @@ class FundingLogController extends Controller
     {
         $fundings = Funding::query()
             ->with([
-                'logs', // relasi riwayat perubahan
+                'logs',
             ])
             ->latest()
             ->paginate(10);
