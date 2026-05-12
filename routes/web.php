@@ -8,7 +8,9 @@ use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
+use App\Http\Controllers\Admin\DashboardCtrl;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
 use App\Http\Controllers\AdminKampus\JournalApprovalController;
@@ -256,6 +258,16 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{pembinaan}/toggle-status', [AdminPembinaanController::class, 'toggleStatus'])
                 ->name('toggle-status');
         });
+
+        // Faculty/University Performance Statistics (JSON endpoint)
+        Route::get('faculty-stats', [DashboardCtrl::class, 'getFacultyStat'])
+            ->name('faculty-stats');
+        Route::get('category-stats', [DashboardCtrl::class, 'getCategoryStat'])
+            ->name('category-stats');
+
+        // Reports (Rekap Keseluruhan)
+        Route::get('reports', [ReportController::class, 'index'])
+            ->name('reports.index');
 
     });
 
