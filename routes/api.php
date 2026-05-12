@@ -4,12 +4,13 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\TopResearchCtrl;
 /*
 |--------------------------------------------------------------------------
 | Public Routes (No Authentication Required)
 |--------------------------------------------------------------------------
 */
+Route::get('/top-research', [TopResearchCtrl::class, 'getTop']);
 
 // Routes that need session (for Sanctum SPA authentication)
 Route::middleware(['web'])->group(function () {
