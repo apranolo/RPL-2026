@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-use Inertia\Inertia;
+
 use App\Models\Proposal;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ProposalController extends Controller
 {
@@ -43,32 +44,31 @@ class ProposalController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Proposal $proposal)
-        {
-            $this->authorize('update', $proposal);
+    {
+        $this->authorize('update', $proposal);
 
-            return Inertia::render('Proposal/Edit', [
-                'proposal' => $proposal
-            ]);
-        }
-
+        return Inertia::render('Proposal/Edit', [
+            'proposal' => $proposal,
+        ]);
+    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Proposal $proposal)
-        {
-            $this->authorize('update', $proposal);
+    {
+        $this->authorize('update', $proposal);
 
-            $validated = $request->validate([
-                'judul' => 'required|string|max:255',
-                'deskripsi' => 'required|string',
-            ]);
+        $validated = $request->validate([
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'required|string',
+        ]);
 
-            $proposal->update($validated);
+        $proposal->update($validated);
 
-            return redirect()->route('proposal.index')
-                ->with('success', 'Proposal berhasil diupdate');
-        }
+        return redirect()->route('proposal.index')
+            ->with('success', 'Proposal berhasil diupdate');
+    }
 
     /**
      * Remove the specified resource from storage.

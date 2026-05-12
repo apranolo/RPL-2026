@@ -2,12 +2,29 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Proposal extends Model
 {
-     protected $fillable = [
+    //
+    use HasFactory;
+
+    protected $fillable = [
         'judul',
         'deskripsi',
+        'user_id',
+        'research_schema_id',
     ];
+
+    // Relasi ke User (Dosen)
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function researchSchema()
+    {
+        return $this->belongsTo(ResearchSchema::class);
+    }
 }

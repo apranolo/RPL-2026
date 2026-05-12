@@ -1,6 +1,6 @@
-import React from 'react';
-import { useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app/app-sidebar-layout';
+import { useForm } from '@inertiajs/react';
+import React from 'react';
 import { route } from 'ziggy-js';
 
 type Proposal = {
@@ -37,18 +37,14 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
 
     return (
         <AppLayout>
-            <div className="max-w-2xl mx-auto p-6">
-                <div className="bg-white shadow rounded-xl p-6">
-
-                    <h1 className="text-2xl font-bold mb-6">
-                        Edit Proposal
-                    </h1>
+            <div className="mx-auto max-w-2xl p-6">
+                <div className="rounded-xl bg-white p-6 shadow">
+                    <h1 className="mb-6 text-2xl font-bold">Edit Proposal</h1>
 
                     <form onSubmit={submit} className="space-y-6">
-
                         {/* Judul */}
                         <div>
-                            <label htmlFor="judul" className="block text-sm font-medium mb-1">
+                            <label htmlFor="judul" className="mb-1 block text-sm font-medium">
                                 Judul
                             </label>
 
@@ -56,48 +52,32 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
                                 id="judul"
                                 type="text"
                                 value={data.judul}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                    setData('judul', e.target.value)
-                                }
-                                className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
-                                    errors.judul
-                                        ? 'border-red-500 focus:ring-red-500'
-                                        : 'border-gray-300 focus:ring-blue-500'
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('judul', e.target.value)}
+                                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none ${
+                                    errors.judul ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
                                 }`}
                             />
 
-                            {errors.judul && (
-                                <p className="text-sm text-red-500 mt-1">
-                                    {errors.judul}
-                                </p>
-                            )}
+                            {errors.judul && <p className="mt-1 text-sm text-red-500">{errors.judul}</p>}
                         </div>
 
                         {/* Deskripsi */}
                         <div>
-                            <label htmlFor="deskripsi" className="block text-sm font-medium mb-1">
+                            <label htmlFor="deskripsi" className="mb-1 block text-sm font-medium">
                                 Deskripsi
                             </label>
 
                             <textarea
                                 id="deskripsi"
                                 value={data.deskripsi}
-                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                                    setData('deskripsi', e.target.value)
-                                }
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setData('deskripsi', e.target.value)}
                                 rows={4}
-                                className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
-                                    errors.deskripsi
-                                        ? 'border-red-500 focus:ring-red-500'
-                                        : 'border-gray-300 focus:ring-blue-500'
+                                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none ${
+                                    errors.deskripsi ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
                                 }`}
                             />
 
-                            {errors.deskripsi && (
-                                <p className="text-sm text-red-500 mt-1">
-                                    {errors.deskripsi}
-                                </p>
-                            )}
+                            {errors.deskripsi && <p className="mt-1 text-sm text-red-500">{errors.deskripsi}</p>}
                         </div>
 
                         {/* Button */}
@@ -105,12 +85,11 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                                className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
                             >
                                 {processing ? 'Updating...' : 'Update'}
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
