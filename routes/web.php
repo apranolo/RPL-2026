@@ -237,6 +237,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
 
+        // Monev Report
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportCtrl::class, 'index'])
+            ->name('monev.rekap-keseluruhan');
+
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             Route::get('/', [AdminPembinaanController::class, 'index'])
