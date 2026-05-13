@@ -1,5 +1,7 @@
 <?php
 
+<?php
+
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
@@ -9,6 +11,7 @@ use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
+use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
 use App\Http\Controllers\AdminKampus\JournalApprovalController;
@@ -21,7 +24,10 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
+
 use App\Http\Controllers\ContractController;
+use App\Http\Controllers\OutputController;
+use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
@@ -29,6 +35,7 @@ use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
