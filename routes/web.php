@@ -534,6 +534,18 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Editorial Desk Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('editorial')->name('editorial.')->group(function () {
+        Route::prefix('desk')->name('desk.')->group(function () {
+            Route::get('inbox', [\App\Http\Controllers\Editorial\DeskController::class, 'inbox'])
+                ->name('inbox');
+        });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Shared Routes (All Roles)
     |--------------------------------------------------------------------------
     */

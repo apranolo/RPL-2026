@@ -474,3 +474,45 @@ export interface JournalStatistics {
     by_accreditation: AccreditationStatistic[];
     by_scientific_field: ScientificFieldStatistic[];
 }
+
+// Editorial Assignment types
+export interface Submission {
+    id: number;
+    journal_id: number;
+    author_id: number;
+    title: string;
+    abstract?: string;
+    authors_display?: string;
+    file_path?: string;
+    original_filename?: string;
+    status: 'submitted' | 'under_review' | 'revision_required' | 'accepted' | 'rejected' | 'withdrawn';
+    status_label: string;
+    status_color: string;
+    submitted_at?: string;
+    cover_letter?: string;
+    keywords?: string[];
+    journal?: Journal;
+    author?: User;
+    editorial_assignments?: EditorialAssignment[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface EditorialAssignment {
+    id: number;
+    submission_id: number;
+    editor_id: number;
+    assigned_by?: number;
+    assigned_at?: string;
+    status: 'pending' | 'active' | 'completed' | 'declined';
+    status_label: string;
+    status_color: string;
+    decision?: 'accept' | 'reject' | 'revisions_required';
+    decision_at?: string;
+    notes?: string;
+    submission?: Submission;
+    editor?: User;
+    assigner?: User;
+    created_at?: string;
+    updated_at?: string;
+}
