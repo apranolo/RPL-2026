@@ -23,6 +23,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
@@ -479,6 +480,14 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('reorder', [\App\Http\Controllers\User\AssessmentIssueController::class, 'reorder'])
                     ->name('reorder');
             });
+        });
+
+        // Submission Wizard (Step 5: Confirm & Submit)
+        Route::prefix('submission-wizard')->name('submission-wizard.')->group(function () {
+            Route::get('{assessment}/confirm', [SubmissionWizardController::class, 'confirm'])
+                ->name('confirm');
+            Route::post('{assessment}/final-submit', [SubmissionWizardController::class, 'finalSubmit'])
+                ->name('final-submit');
         });
 
         // Pembinaan Registration (v1.1)
