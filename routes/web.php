@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
+use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
 use App\Http\Controllers\AdminKampus\JournalApprovalController;
@@ -128,9 +129,24 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 
-    // Dashboard
+    // Dashboard Umum
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
+
+    // Dashboard Admin
+    Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
+    });
+
+    // Dashboard Dosen
+    Route::middleware(['role:Dosen'])->prefix('dosen')->name('dosen.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'dosenDashboard'])->name('dashboard');
+    });
+
+    // Dashboard Keuangan
+    Route::middleware(['role:Keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'keuanganDashboard'])->name('dashboard');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -138,6 +154,10 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:'.Role::SUPER_ADMIN])->prefix('admin')->name('admin.')->group(function () {
+
+        // Sistem Profil (Ubah Logo/Nama App)
+        Route::get('settings/profile', [SettingsCtrl::class, 'index'])->name('settings.profile');
+        Route::post('settings/profile', [SettingsCtrl::class, 'update'])->name('settings.profile.update');
 
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
@@ -517,7 +537,9 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
 
         // Proposal
-        Route::prefix('proposal')->name('proposal.')->group(function () {});
+        Route::prefix('proposal')->name('proposal.')->group(function (){
+
+        });
     });
 
     /*
@@ -540,6 +562,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('{assignment}/attachments/{attachment}', [MainReviewerController::class, 'downloadAttachment'])
                 ->name('attachments.download');
         });
+
+        // Evaluation Routes
+        Route::prefix('evaluations')->name('evaluations.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
+                ->name('index');
+        });
+
     });
 
     /*
