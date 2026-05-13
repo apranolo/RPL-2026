@@ -77,10 +77,14 @@ class OutputController extends Controller
             'document'    => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
 
-        // Here we would typically save to the database using an Eloquent model.
-        // Example: $product = Product::create($validated);
+        // Simpan ke database — user_id diambil dari sesi login (RBAC).
+        // Aktifkan baris berikut ketika migrasi DB sudah siap:
+        // $product = ResearchOutput::create([
+        //     ...$validated,
+        //     'user_id' => Auth::id(),   // << selalu ikat ke user yang login
+        // ]);
 
-        // Handling file uploads if not handled by OutputDocController
+        // Handling file uploads — path disimpan ke kolom model setelah DB aktif
         if ($request->hasFile('cover_image')) {
             $coverPath = $request->file('cover_image')->store('outputs/products/covers', 'public');
             // $product->update(['cover_image' => $coverPath]);
