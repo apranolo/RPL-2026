@@ -32,9 +32,9 @@ class ReviewerController extends Controller
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'like', "%{$search}%")
-                      ->orWhereHas('researcher', function ($subQ) use ($search) {
-                          $subQ->where('name', 'like', "%{$search}%");
-                      });
+                        ->orWhereHas('researcher', function ($subQ) use ($search) {
+                            $subQ->where('name', 'like', "%{$search}%");
+                        });
                 });
             })
             ->latest()
@@ -63,6 +63,7 @@ class ReviewerController extends Controller
             'proposals' => $proposals,
         ]);
     }
+
     public function index(): Response
     {
         // Only Super Admin can access
