@@ -21,6 +21,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
+use App\Http\Controllers\FundingController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
@@ -546,12 +547,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
 
-    // Profile Management
-    // Route::prefix('profile')->name('profile.')->group(function () {
-    //     Route::get('/', [ProfileController::class, 'edit'])->name('edit');
-    //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
-    //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
-    // });
+    // Finance Routes
+    Route::prefix('finance')->name('finance.')->group(function () {
+        Route::get('funding/create', [FundingController::class, 'create'])->name('funding.create');
+        Route::post('funding', [FundingController::class, 'storeTermin'])->name('funding.store');
+    });
 });
 
 require __DIR__.'/settings.php';
