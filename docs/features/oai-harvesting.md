@@ -2,6 +2,7 @@
 
 **Last updated**: 2026-03-04  
 **Affected files**:
+
 - `app/Services/OAIPMHHarvester.php`
 - `app/Jobs/HarvestJournalArticlesJob.php`
 - `app/Models/Article.php`
@@ -39,20 +40,20 @@ oai_harvesting_logs (log hasil)
 
 ## Field yang Diambil dari OAI-PMH (Dublin Core)
 
-| Elemen DC      | Field DB (`articles`) | Keterangan                                      |
-|----------------|-----------------------|-------------------------------------------------|
-| `dc:title`     | `title`               | Judul artikel (pertama saja)                    |
-| `dc:description` | `abstract`          | Abstrak (pertama saja)                          |
-| `dc:creator`   | `authors` (JSON)      | Semua pengarang disimpan sebagai array JSON      |
-| `dc:subject`   | `keywords` (JSON)     | Semua kata kunci disimpan sebagai array JSON     |
-| `dc:date`      | `publication_date`    | Tanggal publikasi (format YYYY-MM-DD/YYYY-MM/YYYY) |
-| `dc:identifier` (DOI) | `doi`          | Pola `10.xxxx/…`                                |
-| `dc:identifier` (URL) | `article_url`  | URL artikel pertama yang valid                  |
-| `dc:identifier` (.pdf) | `pdf_url`    | URL yang berakhiran `.pdf`                      |
-| `dc:source`    | `volume`, `issue`, `pages` | Diparsing dari string sumber (lihat bawah) |
-| `oai:header/identifier` | `oai_identifier` | ID unik record OAI (kunci upsert)         |
-| `oai:header/datestamp`  | `oai_datestamp`  | Timestamp perubahan record di server OAI  |
-| `oai:header/setSpec`    | `oai_set`        | Set/koleksi OAI                           |
+| Elemen DC               | Field DB (`articles`)      | Keterangan                                         |
+| ----------------------- | -------------------------- | -------------------------------------------------- |
+| `dc:title`              | `title`                    | Judul artikel (pertama saja)                       |
+| `dc:description`        | `abstract`                 | Abstrak (pertama saja)                             |
+| `dc:creator`            | `authors` (JSON)           | Semua pengarang disimpan sebagai array JSON        |
+| `dc:subject`            | `keywords` (JSON)          | Semua kata kunci disimpan sebagai array JSON       |
+| `dc:date`               | `publication_date`         | Tanggal publikasi (format YYYY-MM-DD/YYYY-MM/YYYY) |
+| `dc:identifier` (DOI)   | `doi`                      | Pola `10.xxxx/…`                                   |
+| `dc:identifier` (URL)   | `article_url`              | URL artikel pertama yang valid                     |
+| `dc:identifier` (.pdf)  | `pdf_url`                  | URL yang berakhiran `.pdf`                         |
+| `dc:source`             | `volume`, `issue`, `pages` | Diparsing dari string sumber (lihat bawah)         |
+| `oai:header/identifier` | `oai_identifier`           | ID unik record OAI (kunci upsert)                  |
+| `oai:header/datestamp`  | `oai_datestamp`            | Timestamp perubahan record di server OAI           |
+| `oai:header/setSpec`    | `oai_set`                  | Set/koleksi OAI                                    |
 
 ---
 
@@ -69,7 +70,7 @@ Journal Name; Vol. 4 (2026): January 2026; 10-25
 Logika parsing:
 
 1. **Pola 1** — `Vol. X No. Y` atau `Vol. X, No. Y` → volume = X, issue = Y
-2. **Pola 2** — `X(Y)` → volume = X, issue = Y **hanya jika Y < 1000** (untuk menghindari salah mengambil tahun sebagai nomor issue, contoh: `Vol. 1 (2026)` → volume = 1, issue = *diabaikan*)
+2. **Pola 2** — `X(Y)` → volume = X, issue = Y **hanya jika Y < 1000** (untuk menghindari salah mengambil tahun sebagai nomor issue, contoh: `Vol. 1 (2026)` → volume = 1, issue = _diabaikan_)
 3. **Pola halaman** — `10-20` atau `pp. 10-20` → pages = "10-20"
 
 > **Bug yang diperbaiki (2026-03-04)**: Pola 2 sebelumnya tidak memiliki guard, sehingga source seperti `"Vol. 1 (2026): January 2026"` menghasilkan `issue = 2026`. Kini ditambahkan kondisi `(int) $matches[2] < 1000`.
@@ -83,6 +84,7 @@ OAI-PMH mengembalikan results secara bertahap (biasanya 100 record per halaman).
 > **Bug yang diperbaiki (2026-03-04)**: Sebelumnya harvester hanya melakukan **1 HTTP request** dan berhenti tanpa mengikuti resumption token. Akibatnya hanya batch pertama artikel (±100 record) yang tersimpan. Sekarang harvester melakukan loop hingga tidak ada token lagi (atau mencapai batas aman 500 halaman).
 
 Contoh endpoint JPSD (UAD):
+
 ```
 # Halaman pertama
 GET https://journal.uad.ac.id/index.php/JPSD/oai?verb=ListRecords&metadataPrefix=oai_dc

@@ -22,7 +22,7 @@ export default defineConfig({
             port: 5173,
         },
     },
-    build:{
+    build: {
         outDir: 'build',
         emptyOutDir: true,
         chunkSizeWarningLimit: 1000,

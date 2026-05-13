@@ -14,19 +14,21 @@ Share application configuration through Inertia's middleware to provide consiste
 ```tsx
 // Anti-pattern: Hardcoding configuration values
 export default function Footer() {
-  return (
-    <footer>
-      <p>Contact: support@example.com</p>
-      <p>Version: 1.0.0</p>
-    </footer>
-  );
+    return (
+        <footer>
+            <p>Contact: support@example.com</p>
+            <p>Version: 1.0.0</p>
+        </footer>
+    );
 }
 
 // Anti-pattern: Fetching config separately
 const [config, setConfig] = useState(null);
 
 useEffect(() => {
-  fetch('/api/config').then(res => res.json()).then(setConfig);
+    fetch('/api/config')
+        .then((res) => res.json())
+        .then(setConfig);
 }, []);
 
 // Anti-pattern: Using environment variables directly in React
@@ -76,37 +78,37 @@ class HandleInertiaRequests extends Middleware
 
 // resources/js/types/index.d.ts
 export interface AppConfig {
-  name: string;
-  url: string;
-  locale: string;
-  timezone: string;
-  version: string;
+    name: string;
+    url: string;
+    locale: string;
+    timezone: string;
+    version: string;
 }
 
 export interface SiteConfig {
-  contact_email: string;
-  support_phone: string;
-  social: {
-    twitter?: string;
-    facebook?: string;
-    linkedin?: string;
-  };
+    contact_email: string;
+    support_phone: string;
+    social: {
+        twitter?: string;
+        facebook?: string;
+        linkedin?: string;
+    };
 }
 
 export interface Features {
-  dark_mode: boolean;
-  notifications: boolean;
-  two_factor: boolean;
-  api_access: boolean;
+    dark_mode: boolean;
+    notifications: boolean;
+    two_factor: boolean;
+    api_access: boolean;
 }
 
 export interface PageProps {
-  auth: { user: User | null };
-  flash: FlashMessages;
-  app: AppConfig;
-  config: SiteConfig;
-  features: Features;
-  settings: Record<string, unknown>;
+    auth: { user: User | null };
+    flash: FlashMessages;
+    app: AppConfig;
+    config: SiteConfig;
+    features: Features;
+    settings: Record<string, unknown>;
 }
 
 // resources/js/hooks/useConfig.ts
@@ -114,27 +116,27 @@ import { usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
 
 export function useApp() {
-  const { app } = usePage<PageProps>().props;
-  return app;
+    const { app } = usePage<PageProps>().props;
+    return app;
 }
 
 export function useConfig() {
-  const { config } = usePage<PageProps>().props;
-  return config;
+    const { config } = usePage<PageProps>().props;
+    return config;
 }
 
 export function useFeatures() {
-  const { features } = usePage<PageProps>().props;
+    const { features } = usePage<PageProps>().props;
 
-  return {
-    ...features,
-    isEnabled: (feature: keyof Features) => features[feature] === true,
-  };
+    return {
+        ...features,
+        isEnabled: (feature: keyof Features) => features[feature] === true,
+    };
 }
 
 export function useSettings() {
-  const { settings } = usePage<PageProps>().props;
-  return settings;
+    const { settings } = usePage<PageProps>().props;
+    return settings;
 }
 
 // resources/js/Components/FeatureFlag.tsx
@@ -143,15 +145,15 @@ import { Features } from '@/types';
 import { ReactNode } from 'react';
 
 interface FeatureFlagProps {
-  feature: keyof Features;
-  children: ReactNode;
-  fallback?: ReactNode;
+    feature: keyof Features;
+    children: ReactNode;
+    fallback?: ReactNode;
 }
 
 export default function FeatureFlag({ feature, children, fallback = null }: FeatureFlagProps) {
-  const { isEnabled } = useFeatures();
+    const { isEnabled } = useFeatures();
 
-  return isEnabled(feature) ? <>{children}</> : <>{fallback}</>;
+    return isEnabled(feature) ? <>{children}</> : <>{fallback}</>;
 }
 
 // resources/js/Components/Footer.tsx
@@ -159,53 +161,47 @@ import { useApp, useConfig } from '@/hooks/useConfig';
 import ExternalLink from '@/Components/ExternalLink';
 
 export default function Footer() {
-  const app = useApp();
-  const config = useConfig();
+    const app = useApp();
+    const config = useConfig();
 
-  return (
-    <footer className="bg-gray-800 py-8 text-gray-300">
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="grid grid-cols-3 gap-8">
-          {/* App info */}
-          <div>
-            <h3 className="text-lg font-semibold text-white">{app.name}</h3>
-            <p className="mt-2 text-sm">Version {app.version}</p>
-          </div>
+    return (
+        <footer className="bg-gray-800 py-8 text-gray-300">
+            <div className="mx-auto max-w-7xl px-4">
+                <div className="grid grid-cols-3 gap-8">
+                    {/* App info */}
+                    <div>
+                        <h3 className="text-lg font-semibold text-white">{app.name}</h3>
+                        <p className="mt-2 text-sm">Version {app.version}</p>
+                    </div>
 
-          {/* Contact */}
-          <div>
-            <h3 className="text-lg font-semibold text-white">Contact</h3>
-            <p className="mt-2">
-              <a href={`mailto:${config.contact_email}`} className="hover:text-white">
-                {config.contact_email}
-              </a>
-            </p>
-            <p>
-              <a href={`tel:${config.support_phone}`} className="hover:text-white">
-                {config.support_phone}
-              </a>
-            </p>
-          </div>
+                    {/* Contact */}
+                    <div>
+                        <h3 className="text-lg font-semibold text-white">Contact</h3>
+                        <p className="mt-2">
+                            <a href={`mailto:${config.contact_email}`} className="hover:text-white">
+                                {config.contact_email}
+                            </a>
+                        </p>
+                        <p>
+                            <a href={`tel:${config.support_phone}`} className="hover:text-white">
+                                {config.support_phone}
+                            </a>
+                        </p>
+                    </div>
 
-          {/* Social */}
-          <div>
-            <h3 className="text-lg font-semibold text-white">Follow Us</h3>
-            <div className="mt-2 flex gap-4">
-              {config.social.twitter && (
-                <ExternalLink href={config.social.twitter}>Twitter</ExternalLink>
-              )}
-              {config.social.facebook && (
-                <ExternalLink href={config.social.facebook}>Facebook</ExternalLink>
-              )}
-              {config.social.linkedin && (
-                <ExternalLink href={config.social.linkedin}>LinkedIn</ExternalLink>
-              )}
+                    {/* Social */}
+                    <div>
+                        <h3 className="text-lg font-semibold text-white">Follow Us</h3>
+                        <div className="mt-2 flex gap-4">
+                            {config.social.twitter && <ExternalLink href={config.social.twitter}>Twitter</ExternalLink>}
+                            {config.social.facebook && <ExternalLink href={config.social.facebook}>Facebook</ExternalLink>}
+                            {config.social.linkedin && <ExternalLink href={config.social.linkedin}>LinkedIn</ExternalLink>}
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
+        </footer>
+    );
 }
 
 // resources/js/Pages/Settings/Index.tsx
@@ -213,36 +209,36 @@ import FeatureFlag from '@/Components/FeatureFlag';
 import { useFeatures } from '@/hooks/useConfig';
 
 export default function Settings() {
-  const { dark_mode, two_factor, api_access } = useFeatures();
+    const { dark_mode, two_factor, api_access } = useFeatures();
 
-  return (
-    <div className="space-y-6">
-      <h1>Settings</h1>
+    return (
+        <div className="space-y-6">
+            <h1>Settings</h1>
 
-      {/* Feature flag component */}
-      <FeatureFlag feature="dark_mode">
-        <section>
-          <h2>Appearance</h2>
-          <DarkModeToggle />
-        </section>
-      </FeatureFlag>
+            {/* Feature flag component */}
+            <FeatureFlag feature="dark_mode">
+                <section>
+                    <h2>Appearance</h2>
+                    <DarkModeToggle />
+                </section>
+            </FeatureFlag>
 
-      <FeatureFlag feature="two_factor">
-        <section>
-          <h2>Two-Factor Authentication</h2>
-          <TwoFactorSetup />
-        </section>
-      </FeatureFlag>
+            <FeatureFlag feature="two_factor">
+                <section>
+                    <h2>Two-Factor Authentication</h2>
+                    <TwoFactorSetup />
+                </section>
+            </FeatureFlag>
 
-      {/* Conditional rendering with hook */}
-      {api_access && (
-        <section>
-          <h2>API Access</h2>
-          <ApiTokenManager />
-        </section>
-      )}
-    </div>
-  );
+            {/* Conditional rendering with hook */}
+            {api_access && (
+                <section>
+                    <h2>API Access</h2>
+                    <ApiTokenManager />
+                </section>
+            )}
+        </div>
+    );
 }
 ```
 
