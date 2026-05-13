@@ -25,8 +25,8 @@ class ContractDocController extends Controller
             ]);
 
             $file = $request->file('file');
-            $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
-            
+            $fileName = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
+
             $filePath = $file->storeAs(
                 'contract_documents',
                 $fileName,
