@@ -21,6 +21,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
@@ -530,6 +531,23 @@ Route::middleware(['auth'])->group(function () {
             Route::get('{assignment}/attachments/{attachment}', [MainReviewerController::class, 'downloadAttachment'])
                 ->name('attachments.download');
         });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Finance Routes (Contract Management)
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('finance')->name('finance.')->group(function () {
+        // Contracts
+        Route::get('contracts', [ContractController::class, 'index'])
+            ->name('contracts.index');
+        Route::post('contracts/generate', [ContractController::class, 'generate'])
+            ->name('contracts.generate');
+        Route::get('contracts/{contract}', [ContractController::class, 'show'])
+            ->name('contracts.show');
+        Route::patch('contracts/{contract}/status', [ContractController::class, 'updateStatus'])
+            ->name('contracts.update-status');
     });
 
     /*
