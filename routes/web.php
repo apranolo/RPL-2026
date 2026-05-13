@@ -132,6 +132,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // Finance Reports
+    Route::prefix('finance')->name('finance.')->group(function () {
+        Route::get('reports', [\App\Http\Controllers\FinanceReportController::class, 'index'])
+            ->name('reports.index');
+        Route::get('reports/summary', [\App\Http\Controllers\FinanceReportController::class, 'summary'])
+            ->name('reports.summary');
+        Route::post('reports/filter', [\App\Http\Controllers\FinanceReportController::class, 'filter'])
+            ->name('reports.filter');
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Super Admin Routes
