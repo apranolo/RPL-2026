@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article; // This is your primary "Research Output"
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class PublicOutputController extends Controller
 {
@@ -25,5 +26,36 @@ class PublicOutputController extends Controller
         }
 
         return view('public_output.show', compact('article'));
+    }
+
+    public function search(Request $request)
+    {
+        // 1. Get the search term from the URL (?q=searchterm)
+        $query = $request->input('q');
+
+        // 2. Build the search query
+        $results = Article::query()
+            ->with(['journal']) // Eager load the journal to show its name in the list
+            ->whereHas('journal', function($q) {
+                $q->where('approval_status', 'approved'); // Only show public/approved articles
+            })
+            ->when($query, function ($q, $search) {
+                $q->where(function($inner) use ($search) {
+                    $inner->where('title', 'like', "%{$search}%")
+                          ->orWhere('abstract', 'like', "%{$search}%")
+                          ->orWhereJsonContains('keywords', $search)
+                          ->orWhereJsonContains('authors', $search);
+                });
+            })
+            ->orderBy('publication_date', 'desc')
+            ->paginate(12)
+            ->withQueryString(); // Keeps the search term in the pagination links
+
+        // This tells Inertia to look for a React file at: 
+        // resources/js/pages/PublicOutput/Index.tsx
+        return Inertia::render('PublicOutput/Index', [
+            'articles' => $articles,
+            'filters' => $request->only(['q']),
+        ]);
     }
 }

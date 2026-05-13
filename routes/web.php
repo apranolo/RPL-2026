@@ -556,6 +556,8 @@ Route::middleware(['auth'])->group(function () {
 
     // This creates a URL like: yoursite.com/public/5
     Route::get('/public/{id}', [PublicOutputController::class, 'show'])->name('public.show');
+
+    Route::get('/search', [PublicOutputController::class, 'search'])->name('public.search');
 });
 
 require __DIR__.'/settings.php';
