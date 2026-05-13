@@ -1,14 +1,13 @@
 /**
- * @route GET /finance/reports
- * @features Display financial monitoring table, filter by year and scheme, show summary statistics
+ * @route
+ * @features
  */
-import React from 'react';
-import { Head } from '@inertiajs/react';
+import { FilterBar } from '@/components/FilterBar';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { FilterBar } from '@/components/FilterBar';
 import AppLayout from '@/layouts/app-layout';
+import { Head } from '@inertiajs/react';
 
 interface FinanceData {
     id: number;
@@ -53,7 +52,7 @@ export default function Index({ summary, filters }: Props) {
     };
 
     const getStatusBadge = (statusKey: string, label: string) => {
-        const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+        const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
             draft: 'outline',
             submitted: 'secondary',
             reviewed: 'default',
@@ -69,9 +68,7 @@ export default function Index({ summary, filters }: Props) {
             <div className="space-y-6">
                 <div>
                     <h1 className="text-2xl font-bold">Monitoring Administrasi Keuangan</h1>
-                    <p className="text-muted-foreground">
-                        Laporan keuangan assessment jurnal tahun {summary.year}
-                    </p>
+                    <p className="text-muted-foreground">Laporan keuangan assessment jurnal tahun {summary.year}</p>
                 </div>
 
                 {/* Summary Cards */}
@@ -89,9 +86,7 @@ export default function Index({ summary, filters }: Props) {
                             <CardTitle className="text-sm font-medium">Total Pendapatan</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-green-600">
-                                {formatCurrency(summary.total_revenue)}
-                            </div>
+                            <div className="text-2xl font-bold text-green-600">{formatCurrency(summary.total_revenue)}</div>
                         </CardContent>
                     </Card>
                     <Card>
@@ -99,9 +94,7 @@ export default function Index({ summary, filters }: Props) {
                             <CardTitle className="text-sm font-medium">Total Pengeluaran</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-red-600">
-                                {formatCurrency(summary.total_expenses)}
-                            </div>
+                            <div className="text-2xl font-bold text-red-600">{formatCurrency(summary.total_expenses)}</div>
                         </CardContent>
                     </Card>
                     <Card>
@@ -123,9 +116,7 @@ export default function Index({ summary, filters }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle>Detail Assessment Keuangan</CardTitle>
-                        <CardDescription>
-                            Data assessment jurnal dengan rincian keuangan
-                        </CardDescription>
+                        <CardDescription>Data assessment jurnal dengan rincian keuangan</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -144,21 +135,13 @@ export default function Index({ summary, filters }: Props) {
                             <TableBody>
                                 {summary.data.map((item) => (
                                     <TableRow key={item.id}>
-                                        <TableCell className="font-medium">
-                                            {item.journal_title}
-                                        </TableCell>
+                                        <TableCell className="font-medium">{item.journal_title}</TableCell>
                                         <TableCell>{item.university}</TableCell>
                                         <TableCell>{item.assessor}</TableCell>
-                                        <TableCell>
-                                            {new Date(item.date).toLocaleDateString('id-ID')}
-                                        </TableCell>
+                                        <TableCell>{new Date(item.date).toLocaleDateString('id-ID')}</TableCell>
                                         <TableCell>{getStatusBadge(item.status_key, item.status)}</TableCell>
-                                        <TableCell className="text-right text-green-600">
-                                            {formatCurrency(item.revenue)}
-                                        </TableCell>
-                                        <TableCell className="text-right text-red-600">
-                                            {formatCurrency(item.expenses)}
-                                        </TableCell>
+                                        <TableCell className="text-right text-green-600">{formatCurrency(item.revenue)}</TableCell>
+                                        <TableCell className="text-right text-red-600">{formatCurrency(item.expenses)}</TableCell>
                                         <TableCell className={`text-right ${item.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                             {formatCurrency(item.profit)}
                                         </TableCell>
@@ -168,9 +151,7 @@ export default function Index({ summary, filters }: Props) {
                         </Table>
 
                         {summary.data.length === 0 && (
-                            <div className="text-center py-8 text-muted-foreground">
-                                Tidak ada data assessment untuk tahun {summary.year}
-                            </div>
+                            <div className="py-8 text-center text-muted-foreground">Tidak ada data assessment untuk tahun {summary.year}</div>
                         )}
                     </CardContent>
                 </Card>

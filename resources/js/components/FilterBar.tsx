@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { router } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { router } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 interface FilterBarProps {
     currentYear?: number;
@@ -29,22 +29,30 @@ export function FilterBar({ currentYear, currentScheme }: FilterBarProps) {
     ];
 
     const handleFilter = () => {
-        router.get(route('finance.reports.index'), {
-            year,
-            scheme,
-        }, {
-            preserveState: true,
-            replace: true,
-        });
+        router.get(
+            route('finance.reports.index'),
+            {
+                year,
+                scheme,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
     };
 
     const handleReset = () => {
         setYear(new Date().getFullYear());
         setScheme('all');
-        router.get(route('finance.reports.index'), {}, {
-            preserveState: true,
-            replace: true,
-        });
+        router.get(
+            route('finance.reports.index'),
+            {},
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
     };
 
     return (

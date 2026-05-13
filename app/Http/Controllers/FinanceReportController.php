@@ -8,9 +8,6 @@ use Inertia\Inertia;
 
 class FinanceReportController extends Controller
 {
-    /**
-     * Display finance monitoring page with summary data
-     */
     public function index(Request $request)
     {
         $year = $request->get('year', now()->year);
@@ -27,15 +24,9 @@ class FinanceReportController extends Controller
         ]);
     }
 
-    /**
-     * Get financial summary data
-     */
     public function summary($year = null, $scheme = 'all')
     {
         $year = $year ?? now()->year;
-
-        // Assuming financial data comes from assessments and registrations
-        // We'll create mock data for demonstration - in real app, this would come from actual financial tables
 
         $query = JournalAssessment::with(['journal.university', 'user'])
             ->whereYear('assessment_date', $year)
@@ -71,9 +62,6 @@ class FinanceReportController extends Controller
         ];
     }
 
-    /**
-     * Filter financial data by year and scheme
-     */
     public function filter(Request $request)
     {
         $year = $request->get('year', now()->year);
