@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Journal;
+use App\Services\StatsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,10 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly StatsService $statsService
+    ) {}
+
     /**
      * Show the dashboard page with statistics.
      */
@@ -107,10 +112,53 @@ class DashboardController extends Controller
         // Calculate journal statistics for visualization
         $statistics = $this->calculateJournalStatisticsForRole($user);
 
+        // Calculate proposal (pembinaan) aggregate stats
+        $proposalStats = $this->getProposalStat($user);
+
+        // Route to role-specific dashboard views
+        $roleName = $user->role->name ?? '';
+
+        if ($roleName === 'User') {
+            return Inertia::render('Dashboard/User', [
+                'stats'          => $stats,
+                'proposal_stats' => $proposalStats,
+            ]);
+        }
+
         return Inertia::render('dashboard', [
-            'stats' => $stats,
-            'statistics' => $statistics,
+            'stats'          => $stats,
+            'statistics'     => $statistics,
+            'proposal_stats' => $proposalStats,
         ]);
+    }
+
+    /**
+     * Aggregate proposal (pembinaan registration) stats: Masuk / Lolos / Gagal.
+     *
+     * Scoped automatically by user role:
+     *  - Super Admin   → system-wide totals
+     *  - Admin Kampus  → university-scoped totals
+     *  - User          → personal totals
+     *
+     * @param  \App\Models\User  $user
+     * @return array{total: int, masuk: int, lolos: int, gagal: int, success_rate: float}
+     */
+    public function getProposalStat($user): array
+    {
+        $roleName = $user->role->name ?? '';
+
+        if ($roleName === 'Super Admin') {
+            return $this->statsService->getProposalSummaryAll();
+        }
+
+        if ($roleName === 'Admin Kampus') {
+            return $this->statsService->getProposalSummaryForUniversity(
+                (int) $user->university_id
+            );
+        }
+
+        // Default: regular User (Pengelola Jurnal / Dosen)
+        return $this->statsService->getProposalSummaryForUser((int) $user->id);
     }
 
     /**
