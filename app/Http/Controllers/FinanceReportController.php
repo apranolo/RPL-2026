@@ -62,6 +62,7 @@ class FinanceReportController extends Controller
         ];
     }
 
+    
     public function filter(Request $request)
     {
         $year = $request->get('year', now()->year);
