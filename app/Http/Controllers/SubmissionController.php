@@ -12,17 +12,16 @@ class SubmissionController extends Controller
         $submission = Submission::with([
             'author',
             'statusHistories',
-            'reviewer'
+            'reviewer',
         ])->findOrFail($id);
 
-        // memastikan author hanya bisa melihat submission miliknya
         if ($submission->author_id !== auth()->id()) {
             abort(403);
         }
 
         return Inertia::render('Author/Submissions/Show', [
             'submission' => $submission,
-            'tracking' => $submission->statusHistories
+            'tracking' => $submission->statusHistories,
         ]);
     }
 }
