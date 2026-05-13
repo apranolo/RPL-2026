@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
+use App\Http\Controllers\Admin\EmailTemplateController; 
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
@@ -140,6 +141,13 @@ Route::middleware(['auth'])->group(function () {
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
             ->name('data-master.index');
+
+            // Email Template Management
+Route::get('email-template', [EmailTemplateController::class, 'index'])
+    ->name('email-template.index');
+
+Route::put('email-template/{emailTemplate}', [EmailTemplateController::class, 'update'])
+    ->name('email-template.update');
 
         // Borang Indikator (Using Accreditation Templates System)
         Route::get('borang-indikator', [AccreditationTemplateController::class, 'index'])
