@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Submission;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class SubmissionController extends Controller
 {
-    public function show($id)
+    public function show(Submission $submission): Response
     {
-        $submission = Submission::with([
+        $submission->load([
             'author',
             'statusHistories',
             'reviewer',
-        ])->findOrFail($id);
+        ]);
 
         if ($submission->author_id !== auth()->id()) {
             abort(403);
