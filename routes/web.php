@@ -22,12 +22,11 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\OutputDocController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
-use App\Http\Controllers\OutputController;
-use App\Http\Controllers\OutputDocController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
@@ -513,7 +512,12 @@ Route::middleware(['auth'])->group(function () {
                 ->name('registrations.create-assessment');
         });
 
-<<<<<<< HEAD
+        // ── Luaran Penelitian: CRUD ──────────────────────────────────────────
+        Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::delete('outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
+        Route::get('outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
+        Route::put('outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
+
         // ── Luaran Penelitian: Produk / Prototipe ────────────────────────────
         Route::prefix('outputs/products')->name('outputs.products.')->group(function () {
             // Submit new product output
@@ -528,12 +532,6 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('{product}/upload', [OutputDocController::class, 'destroy'])
                 ->name('delete-doc');
         });
-=======
-        Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
-        Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
-        Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
-        Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
->>>>>>> f56def3bc3c56ec75345167e29d830eef545481b
     });
 
     /*
