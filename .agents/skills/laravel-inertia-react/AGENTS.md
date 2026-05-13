@@ -22,9 +22,11 @@ Apply this skill when:
 ## Skill Categories
 
 ### 1. Page Components (CRITICAL)
+
 **Priority**: CRITICAL | **Rules**: 6
 
 Core patterns for structuring Inertia page components:
+
 - Component structure with TypeScript interfaces
 - Props typing extending PageProps
 - Head management for SEO and meta tags
@@ -35,9 +37,11 @@ Core patterns for structuring Inertia page components:
 **When to reference**: Creating new pages, typing props, managing document head, or optimizing page loads.
 
 ### 2. Forms & Validation (CRITICAL)
+
 **Priority**: CRITICAL | **Rules**: 8
 
 Complete form handling with Inertia's useForm hook:
+
 - Basic useForm setup and methods
 - Displaying Laravel validation errors
 - File uploads with progress tracking
@@ -48,9 +52,11 @@ Complete form handling with Inertia's useForm hook:
 **When to reference**: Building forms, handling validation, file uploads, or managing form state.
 
 ### 3. Navigation (CRITICAL-HIGH)
+
 **Priority**: CRITICAL to HIGH | **Rules**: 5
 
 SPA-like navigation without full page reloads:
+
 - Link component for internal navigation
 - Programmatic navigation with router
 - External links and download handling
@@ -60,9 +66,11 @@ SPA-like navigation without full page reloads:
 **When to reference**: Implementing navigation, links, routing, or programmatic page transitions.
 
 ### 4. Shared Data (CRITICAL-HIGH)
+
 **Priority**: CRITICAL to HIGH | **Rules**: 4
 
 Global props shared across all pages:
+
 - Authentication user data
 - Flash messages from Laravel
 - Ziggy routes for type-safe routing
@@ -71,9 +79,11 @@ Global props shared across all pages:
 **When to reference**: Accessing user data, displaying flash messages, using Laravel routes in JS, or sharing global config.
 
 ### 5. Layouts (CRITICAL)
+
 **Priority**: CRITICAL | **Rules**: 1
 
 Persistent layout implementation:
+
 - Layout property pattern
 - Nested layouts
 - State preservation across navigation
@@ -82,9 +92,11 @@ Persistent layout implementation:
 **When to reference**: Setting up layouts, preventing layout re-renders, or optimizing navigation performance.
 
 ### 6. Advanced Patterns (MEDIUM)
+
 **Priority**: MEDIUM | **Rules**: Covered in other sections
 
 Advanced techniques integrated into other categories:
+
 - Partial reloads (Page Components)
 - Scroll preservation (Page Components)
 - Progress indicators (Forms)
@@ -241,29 +253,32 @@ keywords: [relevant, keywords]
 Explanation
 
 ## Bad Example
+
 (anti-patterns)
 
 ## Good Example
+
 (best practices with TypeScript and Laravel)
 
 ## Why
+
 (benefits and reasoning)
 ```
 
 ## Quick Reference
 
-| Task | Reference Rules |
-|------|----------------|
-| Create page component | page-component-structure, page-props-typing |
-| Add form | form-useform-basic, form-validation-errors |
-| Handle file upload | form-file-uploads, form-progress-indicator |
-| Set up navigation | nav-link-component, nav-programmatic |
-| Display flash messages | shared-flash-messages |
-| Access current user | shared-auth-user |
-| Use Laravel routes | shared-ziggy-routes |
-| Create layout | layout-persistent |
-| Partial reload | page-partial-reloads |
-| Preserve scroll | page-scroll-preservation |
+| Task                   | Reference Rules                             |
+| ---------------------- | ------------------------------------------- |
+| Create page component  | page-component-structure, page-props-typing |
+| Add form               | form-useform-basic, form-validation-errors  |
+| Handle file upload     | form-file-uploads, form-progress-indicator  |
+| Set up navigation      | nav-link-component, nav-programmatic        |
+| Display flash messages | shared-flash-messages                       |
+| Access current user    | shared-auth-user                            |
+| Use Laravel routes     | shared-ziggy-routes                         |
+| Create layout          | layout-persistent                           |
+| Partial reload         | page-partial-reloads                        |
+| Preserve scroll        | page-scroll-preservation                    |
 
 ## Tech Stack Requirements
 
@@ -284,6 +299,7 @@ Explanation
 ## Support
 
 For issues or questions about this skill:
+
 - Review the rule files in the `rules/` directory
 - Check the examples in SKILL.md
 - Refer to official documentation links above

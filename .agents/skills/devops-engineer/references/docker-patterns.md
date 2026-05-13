@@ -53,50 +53,50 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```yaml
 version: '3.8'
 services:
-  app:
-    build:
-      context: .
-      target: builder  # Use dev stage
-    volumes:
-      - .:/app
-      - /app/node_modules
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgres://user:pass@db:5432/app
-    depends_on:
-      db:
-        condition: service_healthy
+    app:
+        build:
+            context: .
+            target: builder # Use dev stage
+        volumes:
+            - .:/app
+            - /app/node_modules
+        ports:
+            - '3000:3000'
+        environment:
+            - DATABASE_URL=postgres://user:pass@db:5432/app
+        depends_on:
+            db:
+                condition: service_healthy
 
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: app
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d app"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    db:
+        image: postgres:16-alpine
+        environment:
+            POSTGRES_USER: user
+            POSTGRES_PASSWORD: pass
+            POSTGRES_DB: app
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U user -d app']
+            interval: 5s
+            timeout: 5s
+            retries: 5
 
 volumes:
-  postgres_data:
+    postgres_data:
 ```
 
 ## Security Best Practices
 
-| Practice | Implementation |
-|----------|----------------|
-| Non-root user | `USER nodejs` or `USER 1001` |
-| Minimal base image | Use `-alpine` or `-slim` variants |
-| No secrets in image | Use runtime env vars or secrets |
-| Pin versions | `FROM node:20.10.0-alpine` not `latest` |
-| Scan images | `docker scout`, `trivy`, `snyk` |
-| Health checks | `HEALTHCHECK` instruction |
-| .dockerignore | Exclude `node_modules`, `.git`, `.env` |
+| Practice            | Implementation                          |
+| ------------------- | --------------------------------------- |
+| Non-root user       | `USER nodejs` or `USER 1001`            |
+| Minimal base image  | Use `-alpine` or `-slim` variants       |
+| No secrets in image | Use runtime env vars or secrets         |
+| Pin versions        | `FROM node:20.10.0-alpine` not `latest` |
+| Scan images         | `docker scout`, `trivy`, `snyk`         |
+| Health checks       | `HEALTHCHECK` instruction               |
+| .dockerignore       | Exclude `node_modules`, `.git`, `.env`  |
 
 ## .dockerignore Template
 

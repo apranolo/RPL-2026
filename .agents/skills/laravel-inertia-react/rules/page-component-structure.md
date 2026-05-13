@@ -14,17 +14,17 @@ Inertia page components should follow a consistent structure with proper TypeScr
 ```tsx
 // Anti-pattern: Unstructured component without typing
 export default function Dashboard(props) {
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>Welcome {props.user.name}</p>
-      <div>
-        {props.stats.map(stat => (
-          <div key={stat.id}>{stat.value}</div>
-        ))}
-      </div>
-    </div>
-  );
+    return (
+        <div>
+            <h1>Dashboard</h1>
+            <p>Welcome {props.user.name}</p>
+            <div>
+                {props.stats.map((stat) => (
+                    <div key={stat.id}>{stat.value}</div>
+                ))}
+            </div>
+        </div>
+    );
 }
 ```
 
@@ -38,40 +38,36 @@ import { PageProps } from '@/types';
 import StatsGrid from '@/Components/StatsGrid';
 
 interface Stat {
-  id: number;
-  label: string;
-  value: number;
-  change: number;
+    id: number;
+    label: string;
+    value: number;
+    change: number;
 }
 
 interface DashboardProps extends PageProps {
-  stats: Stat[];
-  recentActivity: Activity[];
+    stats: Stat[];
+    recentActivity: Activity[];
 }
 
 export default function Dashboard({ auth, stats, recentActivity }: DashboardProps) {
-  return (
-    <>
-      <Head title="Dashboard" />
+    return (
+        <>
+            <Head title="Dashboard" />
 
-      <div className="py-12">
-        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Welcome back, {auth.user.name}
-          </h1>
+            <div className="py-12">
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    <h1 className="text-2xl font-semibold text-gray-900">Welcome back, {auth.user.name}</h1>
 
-          <StatsGrid stats={stats} />
+                    <StatsGrid stats={stats} />
 
-          <RecentActivityList activities={recentActivity} />
-        </div>
-      </div>
-    </>
-  );
+                    <RecentActivityList activities={recentActivity} />
+                </div>
+            </div>
+        </>
+    );
 }
 
-Dashboard.layout = (page: React.ReactNode) => (
-  <AuthenticatedLayout children={page} />
-);
+Dashboard.layout = (page: React.ReactNode) => <AuthenticatedLayout children={page} />;
 ```
 
 ## Why
