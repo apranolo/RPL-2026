@@ -25,6 +25,4 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-/.github/instructions
-/.agents/workflows
-/docs/guidence rpl 2026/specs/TEMPLATE_VIEW_SPEC.md
+.bevel/

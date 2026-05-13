@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
@@ -606,6 +605,9 @@ Route::middleware(['auth'])->group(function () {
         // OAI-PMH Article Harvest
         Route::post('journals/{journal}/harvest', [UserJournalController::class, 'harvest'])
             ->name('journals.harvest');
+        
+        // Publish Issue dari artikel (berdasarkan Volume & Issue)
+        Route::post('journals/{journal}/issues/publish/{volume}/{issue}', [IssueController::class, 'publish'])->name('journals.issues.publish');
 
 
         // =====================================================
