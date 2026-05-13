@@ -278,4 +278,28 @@ class DashboardController extends Controller
             // Users will see fresh data after their cache expires (1 hour)
         }
     }
+
+    /**
+     * Specialized dashboard for Admin role.
+     */
+    public function adminDashboard(Request $request): Response
+    {
+        return $this->index($request);
+    }
+
+    /**
+     * Specialized dashboard for Dosen role.
+     */
+    public function dosenDashboard(Request $request): Response
+    {
+        return $this->index($request);
+    }
+
+    /**
+     * Specialized dashboard for Keuangan role.
+     */
+    public function keuanganDashboard(Request $request): Response
+    {
+        return $this->index($request);
+    }
 }
