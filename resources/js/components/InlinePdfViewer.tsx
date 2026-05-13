@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface Props {
     fileUrl: string;
     title?: string;
@@ -5,8 +7,13 @@ interface Props {
 
 export default function InlinePdfViewer({ fileUrl, title = 'Dokumen Naskah' }: Props) {
     return (
-        <div className="h-[600px] w-full overflow-hidden rounded-md border border-gray-300">
-            <iframe src={fileUrl} title={title} className="h-full w-full" style={{ border: 'none' }} />
+        <div className="w-full h-[600px] border border-gray-300 rounded-md overflow-hidden">
+            <iframe 
+                src={fileUrl} 
+                title={title}
+                className="w-full h-full"
+                style={{ border: 'none' }}
+            />
         </div>
     );
 }
