@@ -512,6 +512,22 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Production Routes (Journal Issue Management)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::USER])->prefix('production')->name('production.')->group(function () {
+
+        // Issue Management
+        Route::prefix('issues')->name('issue.')->group(function () {
+            Route::get('create', [\App\Http\Controllers\Production\IssueController::class, 'create'])
+                ->name('create');
+            Route::post('/', [\App\Http\Controllers\Production\IssueController::class, 'store'])
+                ->name('store');
+        });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Reviewer Routes (v1.1)
     |--------------------------------------------------------------------------
     */
