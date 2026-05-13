@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
+use App\Http\Controllers\Admin\MonevScheduleController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
@@ -32,8 +33,6 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-use App\Http\Controllers\Admin\MonevScheduleController;
-
 Route::prefix('admin')->group(function () {
 
     Route::get('/monev-schedules', [MonevScheduleController::class, 'index']);
@@ -44,8 +43,6 @@ Route::prefix('admin')->group(function () {
 
     Route::delete('/monev-schedules/{id}', [MonevScheduleController::class, 'destroy']);
 });
-
-
 
 /*
 |--------------------------------------------------------------------------

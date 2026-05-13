@@ -26,7 +26,7 @@ return new class extends Migration
             );
 
             if (! empty($columnsToDrop)) {
-                //$table->dropColumn(array_values($columnsToDrop));
+                // $table->dropColumn(array_values($columnsToDrop));
             }
         });
     }

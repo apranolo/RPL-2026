@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\MonevSchedule;
+use Illuminate\Http\Request;
 
 class MonevScheduleController extends Controller
 {
@@ -40,7 +40,7 @@ class MonevScheduleController extends Controller
 
         return response()->json([
             'message' => 'Jadwal monev berhasil dibuat',
-            'data' => $monevSchedule
+            'data' => $monevSchedule,
         ]);
     }
 
@@ -55,7 +55,7 @@ class MonevScheduleController extends Controller
 
         return response()->json([
             'message' => 'Jadwal monev berhasil diupdate',
-            'data' => $monevSchedule
+            'data' => $monevSchedule,
         ]);
     }
 
@@ -69,7 +69,7 @@ class MonevScheduleController extends Controller
         $monevSchedule->delete();
 
         return response()->json([
-            'message' => 'Jadwal monev berhasil dihapus'
+            'message' => 'Jadwal monev berhasil dihapus',
         ]);
     }
 }
