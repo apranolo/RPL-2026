@@ -203,3 +203,5 @@ Model pengembangan  Waterfall, sesuai arahan dosen pengampu.
 ## Penutup
 
 Melalui proyek ini, mahasiswa diharapkan tidak hanya mampu membuat aplikasi, tetapi juga memahami bagaimana sebuah sistem informasi skala besar dirancang untuk mendukung proses bisnis nyata. Sistem Penelitian Terintegrasi menjadi sarana pembelajaran yang relevan untuk melatih kemampuan analisis, desain, implementasi, kolaborasi tim, dan penyelesaian masalah dalam pengembangan perangkat lunak.
+
+## Update Branch RafliGunawan
