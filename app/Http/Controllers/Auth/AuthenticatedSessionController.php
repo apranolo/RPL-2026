@@ -69,6 +69,14 @@ class AuthenticatedSessionController extends Controller
         // Update last login
         $user->update(['last_login_at' => now()]);
 
+        if ($user->hasRole('Admin') || $user->hasRole('Super Admin') || $user->hasRole('Admin Kampus')) {
+            return redirect()->route('admin.dashboard')->with('success', 'Login successful! Welcome back to Jurnal MU.');
+        } elseif ($user->hasRole('Dosen') || $user->hasRole('User') || $user->hasRole('Pengelola Jurnal')) {
+            return redirect()->route('dosen.dashboard')->with('success', 'Login successful! Welcome back to Jurnal MU.');
+        } elseif ($user->hasRole('Keuangan')) {
+            return redirect()->route('keuangan.dashboard')->with('success', 'Login successful! Welcome back to Jurnal MU.');
+        }
+
         return redirect()->route('dashboard')->with('success', 'Login successful! Welcome back to Jurnal MU.');
     }
 
@@ -85,6 +93,14 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
         if ($user) {
             $user->update(['last_login_at' => now()]);
+
+            if ($user->hasRole('Admin') || $user->hasRole('Super Admin') || $user->hasRole('Admin Kampus')) {
+                return redirect()->intended(route('admin.dashboard', absolute: false));
+            } elseif ($user->hasRole('Dosen') || $user->hasRole('User') || $user->hasRole('Pengelola Jurnal')) {
+                return redirect()->intended(route('dosen.dashboard', absolute: false));
+            } elseif ($user->hasRole('Keuangan')) {
+                return redirect()->intended(route('keuangan.dashboard', absolute: false));
+            }
         }
 
         return redirect()->intended(route('dashboard', absolute: false));
