@@ -556,3 +556,18 @@ Route::middleware(['auth'])->group(function () {
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
+
+use App\Http\Controllers\SubmissionController;
+
+/*
+|--------------------------------------------------------------------------
+| Wizard Submission - Step 1 (Start)
+|--------------------------------------------------------------------------
+| Route ini digunakan untuk menampilkan halaman awal wizard submission.
+
+*/
+Route::get('/submission/step-1', [SubmissionController::class, 'step1'])
+    ->name('submission.step1');
+
+
