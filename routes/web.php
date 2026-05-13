@@ -47,6 +47,12 @@ use Illuminate\Support\Facades\Storage;
 | directly from the public/storage symlink before PHP is invoked,
 | so this route is never reached and adds zero overhead.
 */
+
+Route::post(
+    '/reviewer/assignments/{assignment}/catatan',
+    [ReviewerController::class, 'submitCatatan']
+);
+
 Route::get('/storage/{path}', function (string $path) {
     // Basic path hardening: reject traversal, backslashes, and absolute paths
     if (str_contains($path, '..') || str_contains($path, '\\') || str_starts_with($path, '/')) {
@@ -524,7 +530,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('{assignment}', [MainReviewerController::class, 'show'])
                 ->name('show');
             Route::get('{assignment}/review', [MainReviewerController::class, 'reviewForm'])
-                ->name('review-form');
+                ->name('review-form');  
             Route::post('{assignment}/review', [MainReviewerController::class, 'submitReview'])
                 ->name('submit-review');
             Route::get('{assignment}/attachments/{attachment}', [MainReviewerController::class, 'downloadAttachment'])

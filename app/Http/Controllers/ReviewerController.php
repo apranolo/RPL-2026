@@ -14,6 +14,27 @@ class ReviewerController extends Controller
     /**
      * Display reviewer's assignments.
      */
+
+    public function submitCatatan(Request $request, ReviewerAssignment $assignment): RedirectResponse
+{
+    $request->validate([
+        'feedback' => 'required|string|max:2000',
+    ]);
+
+    PembinaanReview::create([
+        'registration_id' => $assignment->registration_id,
+        'reviewer_id' => $request->user()->id,
+        'feedback' => $request->feedback,
+        'reviewed_at' => now(),
+    ]);
+
+    return redirect()->back()->with(
+        'success',
+        'Catatan evaluasi berhasil disimpan'
+    );
+}
+
+
     public function assignments(Request $request): Response
     {
         $user = $request->user();
