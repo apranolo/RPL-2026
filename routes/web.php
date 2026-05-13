@@ -28,6 +28,7 @@ use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\PublicOutputController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -552,6 +553,9 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+
+    // This creates a URL like: yoursite.com/public/5
+    Route::get('/public/{id}', [PublicOutputController::class, 'show'])->name('public.show');
 });
 
 require __DIR__.'/settings.php';
