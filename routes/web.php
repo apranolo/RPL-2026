@@ -32,6 +32,21 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
+use App\Http\Controllers\Admin\MonevScheduleController;
+
+Route::prefix('admin')->group(function () {
+
+    Route::get('/monev-schedules', [MonevScheduleController::class, 'index']);
+
+    Route::post('/monev-schedules', [MonevScheduleController::class, 'store']);
+
+    Route::put('/monev-schedules/{id}', [MonevScheduleController::class, 'update']);
+
+    Route::delete('/monev-schedules/{id}', [MonevScheduleController::class, 'destroy']);
+});
+
+
+
 /*
 |--------------------------------------------------------------------------
 | Public Storage File Serving

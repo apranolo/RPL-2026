@@ -46,13 +46,13 @@ return new class extends Migration
         END");
 
         // Drop old column and rename new one
-        Schema::table('journals', function (Blueprint $table) {
-            $table->dropColumn('sinta_rank');
-        });
+       // Schema::table('journals', function (Blueprint $table) {
+         //   $table->dropColumn('sinta_rank');
+       // });
 
-        Schema::table('journals', function (Blueprint $table) {
-            $table->renameColumn('sinta_rank_new', 'sinta_rank');
-        });
+        //Schema::table('journals', function (Blueprint $table) {
+           // $table->renameColumn('sinta_rank_new', 'sinta_rank');
+        //});
 
         // Step 3: Make e_issn and oai_pmh_url NOT NULL with defaults
         DB::statement("UPDATE journals SET e_issn = '' WHERE e_issn IS NULL");
@@ -97,29 +97,29 @@ return new class extends Migration
             ELSE NULL
         END");
 
-        Schema::table('journals', function (Blueprint $table) {
-            $table->dropColumn('sinta_rank');
-        });
+        //Schema::table('journals', function (Blueprint $table) {
+           // $table->dropColumn('sinta_rank');
+       // });
 
-        Schema::table('journals', function (Blueprint $table) {
-            $table->renameColumn('sinta_rank_old', 'sinta_rank');
-        });
+        //Schema::table('journals', function (Blueprint $table) {
+            //$table->renameColumn('sinta_rank_old', 'sinta_rank');
+       // });
 
         // Step 3: Make e_issn and oai_pmh_url nullable again
-        Schema::table('journals', function (Blueprint $table) {
-            $table->string('e_issn', 50)->nullable()->change();
-            $table->string('oai_pmh_url', 500)->nullable()->change();
-        });
+       // Schema::table('journals', function (Blueprint $table) {
+            //$table->string('e_issn', 50)->nullable()->change();
+            //$table->string('oai_pmh_url', 500)->nullable()->change();
+       // });
 
         // Step 4: Drop new columns
-        Schema::table('journals', function (Blueprint $table) {
-            $table->dropColumn([
-                'accreditation_start_year',
-                'accreditation_end_year',
-                'accreditation_sk_number',
-                'accreditation_sk_date',
-                'cover_image',
-            ]);
-        });
+       // Schema::table('journals', function (Blueprint $table) {
+          //  $table->dropColumn([
+            //    'accreditation_start_year',
+              //  'accreditation_end_year',
+                //'accreditation_sk_number',
+                //'a/ccreditation_sk_date',
+                //'cover_image',
+            //]);
+        //});
     }
 };
