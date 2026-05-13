@@ -149,7 +149,6 @@ class DashboardController extends Controller
      */
     private function calculateJournalStatistics(?int $universityId, ?int $userId): array
     {
-        // Build query based on filters
         $query = Journal::query()->with('scientificField');
 
         if ($universityId !== null) {
@@ -163,8 +162,6 @@ class DashboardController extends Controller
         $journals = $query->get();
         $totalJournals = $journals->count();
 
-        // Calculate totals
-        // Note: "Indexed journals" means Scopus-indexed only (as per meeting notes 02 Feb 2026)
         $indexedJournals = $journals->filter(fn ($j) => isset($j->indexations['Scopus']))->count();
         $sintaJournals = $journals->filter(fn ($j) => $j->sinta_rank !== null && $j->sinta_rank !== 'non_sinta')->count();
         $nonSintaJournals = $totalJournals - $sintaJournals;

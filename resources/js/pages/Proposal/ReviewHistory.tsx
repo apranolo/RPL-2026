@@ -54,7 +54,6 @@ export default function ReviewHistory({ histories }: ReviewHistoryProps) {
             
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 sm:p-6">
                 
-                {/* Header Section (Opsional, sekadar mempermanis) */}
                 <div className="mb-2">
                     <h2 className="text-2xl font-bold tracking-tight">Riwayat Review</h2>
                     <p className="text-sm text-muted-foreground">
@@ -113,16 +112,9 @@ export default function ReviewHistory({ histories }: ReviewHistoryProps) {
                                 </tbody>
                             </table>
                         </div>
-                        
-                        {/* Area untuk Pagination (Jika ada komponen pagination bawaan tim kamu, taruh di sini) */}
-                        {/* 
-                        <div className="border-t border-sidebar-border/70 p-4 dark:border-sidebar-border">
-                            <Pagination links={histories.links} />
-                        </div> 
-                        */}
+
                     </div>
                 ) : (
-                    /* Empty State - Persis dengan gaya Dashboard */
                     <div className="relative min-h-[400px] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-neutral-950">
                         <div className="flex h-full flex-col items-center justify-center p-8 text-center">
                             <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
