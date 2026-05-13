@@ -1,4 +1,4 @@
-<?ph
+<?php
 
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
@@ -35,11 +35,8 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-
-|-----
-
-
----------------------------------------------------------------------
+/*
+|--------------------------------------------------------------------------
 | Public Storage File Serving
 |--------------------------------------------------------------------------
 |
