@@ -2,9 +2,9 @@
 
 namespace App\Rules;
 
+use App\Models\FundingTerm;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
-use App\Models\FundingTerm;
 
 class FundingTermPercentageRule implements ValidationRule
 {

@@ -28,7 +28,7 @@ class FundingService
 
             // Calculate totals
             $totalApproved += $contract->total_approved_funding;
-            
+
             foreach ($contract->fundingTerms as $term) {
                 if ($term->status === 'cair') {
                     $totalDisbursed += $term->nominal;
@@ -41,8 +41,8 @@ class FundingService
             'total_disbursed' => $totalDisbursed,
             'total_remaining' => $totalApproved - $totalDisbursed,
             'active_contracts' => $activeContracts,
-            'disbursement_percentage' => $totalApproved > 0 
-                ? round(($totalDisbursed / $totalApproved) * 100, 2) 
+            'disbursement_percentage' => $totalApproved > 0
+                ? round(($totalDisbursed / $totalApproved) * 100, 2)
                 : 0,
         ];
     }

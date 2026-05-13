@@ -22,7 +22,7 @@ class FundingTest extends TestCase
         parent::setUp();
 
         // Create roles
-        $this->userRole = Role::firstOrCreate(['name' => 'user']);
+        $this->userRole = Role::firstOrCreate(['name' => Role::USER]);
 
         // Create users
         $this->user = User::factory()->create();
@@ -88,6 +88,7 @@ class FundingTest extends TestCase
         $totalFunding = 500_000_000;
         $contract = Contract::factory()
             ->for($this->user, 'researcher')
+            ->active()
             ->create([
                 'total_approved_funding' => $totalFunding,
             ]);
