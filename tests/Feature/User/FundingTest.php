@@ -14,7 +14,9 @@ class FundingTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected User $otherUser;
+
     protected Role $userRole;
 
     public function setUp(): void
@@ -46,11 +48,10 @@ class FundingTest extends TestCase
             ->get(route('user.funding.index'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => 
-            $page
-                ->component('Proposal/FundingInfo')
-                ->has('contracts')
-                ->has('fundingStats')
+        $response->assertInertia(fn ($page) => $page
+            ->component('Proposal/FundingInfo')
+            ->has('contracts')
+            ->has('fundingStats')
         );
     }
 
@@ -72,11 +73,9 @@ class FundingTest extends TestCase
             ->get(route('user.funding.index'));
 
         $response->assertOk();
-        
+
         // Should have 1 contract
-        $response->assertInertia(fn ($page) =>
-            $page->has('contracts.data', 1)
-        );
+        $response->assertInertia(fn ($page) => $page->has('contracts.data', 1));
     }
 
     /**
@@ -116,12 +115,11 @@ class FundingTest extends TestCase
             ->get(route('user.funding.index'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => 
-            $page
-                ->where('fundingStats.total_approved', $totalFunding)
-                ->where('fundingStats.total_disbursed', $totalFunding * 0.5)
-                ->where('fundingStats.total_remaining', $totalFunding * 0.5)
-                ->where('fundingStats.active_contracts', 1)
+        $response->assertInertia(fn ($page) => $page
+            ->where('fundingStats.total_approved', $totalFunding)
+            ->where('fundingStats.total_disbursed', $totalFunding * 0.5)
+            ->where('fundingStats.total_remaining', $totalFunding * 0.5)
+            ->where('fundingStats.active_contracts', 1)
         );
     }
 
@@ -179,10 +177,9 @@ class FundingTest extends TestCase
             ->get(route('user.funding.index'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => 
-            $page
-                ->has('contracts.data', 1)
-                ->has('contracts.data.0.funding_terms', 3)
+        $response->assertInertia(fn ($page) => $page
+            ->has('contracts.data', 1)
+            ->has('contracts.data.0.funding_terms', 3)
         );
     }
 
@@ -196,11 +193,10 @@ class FundingTest extends TestCase
             ->get(route('user.funding.index'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => 
-            $page
-                ->has('contracts.data', 0)
-                ->where('fundingStats.total_approved', 0)
-                ->where('fundingStats.active_contracts', 0)
+        $response->assertInertia(fn ($page) => $page
+            ->has('contracts.data', 0)
+            ->where('fundingStats.total_approved', 0)
+            ->where('fundingStats.active_contracts', 0)
         );
     }
 
@@ -226,9 +222,7 @@ class FundingTest extends TestCase
             ->get(route('user.funding.index'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => 
-            $page->has('contracts.data', 3)
-        );
+        $response->assertInertia(fn ($page) => $page->has('contracts.data', 3));
     }
 
     /**
@@ -256,9 +250,7 @@ class FundingTest extends TestCase
             ->get(route('user.funding.index'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => 
-            $page->has('contracts.data.0.funding_terms', 4)
-        );
+        $response->assertInertia(fn ($page) => $page->has('contracts.data.0.funding_terms', 4));
     }
 
     /**
@@ -298,11 +290,10 @@ class FundingTest extends TestCase
             ->get(route('user.funding.index'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => 
-            $page
-                ->where('contracts.data.0.disbursement_percentage', 40.00)
-                ->where('contracts.data.0.total_disbursed', 400_000_000)
-                ->where('contracts.data.0.remaining_funding', 600_000_000)
+        $response->assertInertia(fn ($page) => $page
+            ->where('contracts.data.0.disbursement_percentage', 40.00)
+            ->where('contracts.data.0.total_disbursed', 400_000_000)
+            ->where('contracts.data.0.remaining_funding', 600_000_000)
         );
     }
 }

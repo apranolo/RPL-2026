@@ -10,20 +10,6 @@ use Inertia\Response;
 
 class UserFundingController extends Controller
 {
-    /**
-     * Display a listing of the user's funding/contracts.
-     *
-     * @description
-     * Menampilkan daftar kontrak dan rincian dana cair untuk dosen/peneliti.
-     * Menampilkan informasi tentang:
-     * - Daftar kontrak yang aktif
-     * - Total dana yang disetujui
-     * - Total dana yang sudah cair
-     * - Sisa dana yang belum cair
-     * - Progres pencairan per termin
-     *
-     * @return Response
-     */
     public function index(Request $request): Response
     {
         $user = $request->user();

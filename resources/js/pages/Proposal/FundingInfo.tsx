@@ -19,6 +19,10 @@
  *
  * @route GET /user/funding
  */
+import { Head, usePage } from '@inertiajs/react';
+import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock, Download, FileText } from 'lucide-react';
+import { useState } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,12 +30,9 @@ import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
 import { formatCurrency } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { Head, usePage } from '@inertiajs/react';
-import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock, Download, FileText } from 'lucide-react';
-import { useState } from 'react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 
 interface FundingTerm {
     id: number;
