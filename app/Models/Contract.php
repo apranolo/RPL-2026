@@ -87,6 +87,11 @@ class Contract extends Model
         return $this->hasMany(Funding::class);
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ContractDocument::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
