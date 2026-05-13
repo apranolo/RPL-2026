@@ -237,6 +237,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
 
+        // Review Schedule Management
+        Route::resource('schedules', ScheduleController::class);
+
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             Route::get('/', [AdminPembinaanController::class, 'index'])
