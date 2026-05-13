@@ -517,9 +517,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
 
         // Proposal
-        Route::prefix('proposal')->name('proposal.')->group(function (){
-
-        });
+        Route::prefix('proposal')->name('proposal.')->group(function () {});
     });
 
     /*
