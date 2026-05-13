@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Revision;
 
 use App\Http\Controllers\Controller;
-use App\Models\Article;
-use Illuminate\Http\JsonResponse; // Sesuaikan dengan nama model revisi/jurnal Anda
 use Illuminate\Http\Request;
+use App\Models\Article;
+use Illuminate\Http\JsonResponse;
 
 class EditorRevisionController extends Controller
 {
@@ -55,7 +55,8 @@ class EditorRevisionController extends Controller
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $revision,
+            'data' => $revision
         ], 200);
     }
+    // Trigger re-check GitHub Actions
 }
