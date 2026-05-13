@@ -9,15 +9,9 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
@@ -87,7 +81,6 @@ export default function EventsEdit({ agenda }: Props) {
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="mx-auto w-full max-w-4xl overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                    
                     <div className="mb-6 flex items-center justify-between">
                         <div>
                             <Link
@@ -103,10 +96,11 @@ export default function EventsEdit({ agenda }: Props) {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            
                             {/* Title */}
-                            <div className="md:col-span-2 space-y-2">
-                                <Label htmlFor="title">Event Title <span className="text-red-500">*</span></Label>
+                            <div className="space-y-2 md:col-span-2">
+                                <Label htmlFor="title">
+                                    Event Title <span className="text-red-500">*</span>
+                                </Label>
                                 <Input
                                     id="title"
                                     value={data.title}
@@ -118,7 +112,9 @@ export default function EventsEdit({ agenda }: Props) {
 
                             {/* Type */}
                             <div className="space-y-2">
-                                <Label htmlFor="type">Event Type <span className="text-red-500">*</span></Label>
+                                <Label htmlFor="type">
+                                    Event Type <span className="text-red-500">*</span>
+                                </Label>
                                 <Select value={data.type} onValueChange={(val) => setData('type', val)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select type" />
@@ -136,7 +132,9 @@ export default function EventsEdit({ agenda }: Props) {
 
                             {/* Location Type */}
                             <div className="space-y-2">
-                                <Label htmlFor="location_type">Location Type <span className="text-red-500">*</span></Label>
+                                <Label htmlFor="location_type">
+                                    Location Type <span className="text-red-500">*</span>
+                                </Label>
                                 <Select value={data.location_type} onValueChange={(val) => setData('location_type', val)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select location type" />
@@ -152,45 +150,27 @@ export default function EventsEdit({ agenda }: Props) {
 
                             {/* Date Start/End */}
                             <div className="space-y-2">
-                                <Label htmlFor="date_start">Start Date <span className="text-red-500">*</span></Label>
-                                <Input
-                                    id="date_start"
-                                    type="date"
-                                    value={data.date_start}
-                                    onChange={(e) => setData('date_start', e.target.value)}
-                                />
+                                <Label htmlFor="date_start">
+                                    Start Date <span className="text-red-500">*</span>
+                                </Label>
+                                <Input id="date_start" type="date" value={data.date_start} onChange={(e) => setData('date_start', e.target.value)} />
                                 {errors.date_start && <p className="text-sm text-red-500">{errors.date_start}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="date_end">End Date</Label>
-                                <Input
-                                    id="date_end"
-                                    type="date"
-                                    value={data.date_end}
-                                    onChange={(e) => setData('date_end', e.target.value)}
-                                />
+                                <Input id="date_end" type="date" value={data.date_end} onChange={(e) => setData('date_end', e.target.value)} />
                                 {errors.date_end && <p className="text-sm text-red-500">{errors.date_end}</p>}
                             </div>
 
                             {/* Time Start/End */}
                             <div className="space-y-2">
                                 <Label htmlFor="time_start">Start Time</Label>
-                                <Input
-                                    id="time_start"
-                                    type="time"
-                                    value={data.time_start}
-                                    onChange={(e) => setData('time_start', e.target.value)}
-                                />
+                                <Input id="time_start" type="time" value={data.time_start} onChange={(e) => setData('time_start', e.target.value)} />
                                 {errors.time_start && <p className="text-sm text-red-500">{errors.time_start}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="time_end">End Time</Label>
-                                <Input
-                                    id="time_end"
-                                    type="time"
-                                    value={data.time_end}
-                                    onChange={(e) => setData('time_end', e.target.value)}
-                                />
+                                <Input id="time_end" type="time" value={data.time_end} onChange={(e) => setData('time_end', e.target.value)} />
                                 {errors.time_end && <p className="text-sm text-red-500">{errors.time_end}</p>}
                             </div>
 
@@ -280,22 +260,14 @@ export default function EventsEdit({ agenda }: Props) {
                                 {errors.contact_person_phone && <p className="text-sm text-red-500">{errors.contact_person_phone}</p>}
                             </div>
 
-                             {/* Is Active & Feature toggles */}
-                             <div className="flex flex-col gap-4 py-4 md:col-span-2">
+                            {/* Is Active & Feature toggles */}
+                            <div className="flex flex-col gap-4 py-4 md:col-span-2">
                                 <div className="flex items-center space-x-2">
-                                    <Switch
-                                        id="is_active"
-                                        checked={data.is_active}
-                                        onCheckedChange={(val) => setData('is_active', val)}
-                                    />
+                                    <Switch id="is_active" checked={data.is_active} onCheckedChange={(val) => setData('is_active', val)} />
                                     <Label htmlFor="is_active">Active (Visible)</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <Switch
-                                        id="is_featured"
-                                        checked={data.is_featured}
-                                        onCheckedChange={(val) => setData('is_featured', val)}
-                                    />
+                                    <Switch id="is_featured" checked={data.is_featured} onCheckedChange={(val) => setData('is_featured', val)} />
                                     <Label htmlFor="is_featured">Featured Event</Label>
                                 </div>
                             </div>
@@ -316,7 +288,9 @@ export default function EventsEdit({ agenda }: Props) {
 
                         <div className="flex justify-end gap-2">
                             <Link href={route('admin-kampus.events.index')} className="mr-2">
-                                <Button variant="outline" type="button">Cancel</Button>
+                                <Button variant="outline" type="button">
+                                    Cancel
+                                </Button>
                             </Link>
                             <Button type="submit" disabled={processing}>
                                 <Save className="mr-2 h-4 w-4" />
