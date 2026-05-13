@@ -31,6 +31,9 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Admin\MonevScheduleCtrl;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -553,6 +556,16 @@ Route::middleware(['auth'])->group(function () {
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
 });
+
+Route::post(
+    '/admin/monev-schedules',
+    [MonevScheduleCtrl::class, 'store']
+);
+
+Route::get(
+    '/admin/monev-schedules/pending',
+    [MonevScheduleCtrl::class, 'pending']
+);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
