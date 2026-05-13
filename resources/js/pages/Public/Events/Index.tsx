@@ -1,8 +1,14 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Pagination } from '@/components/ui/pagination';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Pagination as PaginationNav,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+} from '@/components/ui/pagination';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PublicLayout from '@/layouts/public-layout';
@@ -10,6 +16,40 @@ import { PaginatedData } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { CalendarDays, Clock, MapPin, Search } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
+
+type PaginationLinkItem = {
+    url: string | null;
+    label: string;
+    active: boolean;
+};
+
+const Pagination = ({ links }: { links: PaginationLinkItem[] }) => (
+    <PaginationNav>
+        <PaginationContent>
+            {links.map((link, index) => {
+                const isEllipsis = link.label.trim() === '...' || (!link.url && /\.\.\./.test(link.label));
+                const isDisabled = !link.url;
+                const href = link.url || undefined;
+
+                return (
+                    <PaginationItem key={index}>
+                        {isEllipsis ? (
+                            <PaginationEllipsis />
+                        ) : (
+                            <PaginationLink
+                                href={href}
+                                isActive={link.active}
+                                className={isDisabled ? 'pointer-events-none opacity-50' : undefined}
+                                aria-disabled={isDisabled}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                            />
+                        )}
+                    </PaginationItem>
+                );
+            })}
+        </PaginationContent>
+    </PaginationNav>
+);
 
 interface AgendaItem {
     id: number;
