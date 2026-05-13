@@ -532,11 +532,11 @@ Route::middleware(['auth'])->group(function () {
                 ->name('registrations.create-assessment');
         });
 
-        // ── Luaran Penelitian: CRUD ──────────────────────────────────────────
+    // ── Luaran Penelitian: CRUD ──────────────────────────────────────────
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
-        Route::delete('outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
         Route::get('outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
+        Route::delete('outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
 
         // ── Luaran Penelitian: Produk / Prototipe ────────────────────────────
         Route::prefix('outputs/products')->name('outputs.products.')->group(function () {
@@ -552,7 +552,6 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('{product}/upload', [OutputDocController::class, 'destroy'])
                 ->name('delete-doc');
         });
-
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function (){
             //
