@@ -1,10 +1,7 @@
- *
- * @route GET /user/copyediting/{submission}/panel
- */
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { AlertCircle, CheckCircle, Clock, Download, FileText, MessageSquare, Upload, XCircle } from 'lucide-react';
 import { useRef, useState } from 'react';
 
@@ -29,11 +26,11 @@ interface Props {
 }
 
 const statusConfig = {
-    pending:          { label: 'Menunggu', color: 'bg-gray-100 text-gray-700', icon: Clock },
-    copyediting:      { label: 'Sedang Diedit', color: 'bg-blue-100 text-blue-700', icon: FileText },
+    pending: { label: 'Menunggu', color: 'bg-gray-100 text-gray-700', icon: Clock },
+    copyediting: { label: 'Sedang Diedit', color: 'bg-blue-100 text-blue-700', icon: FileText },
     waiting_approval: { label: 'Menunggu Persetujuan Author', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
-    approved:         { label: 'Disetujui', color: 'bg-green-100 text-green-700', icon: CheckCircle },
-    rejected:         { label: 'Ditolak', color: 'bg-red-100 text-red-700', icon: XCircle },
+    approved: { label: 'Disetujui', color: 'bg-green-100 text-green-700', icon: CheckCircle },
+    rejected: { label: 'Ditolak', color: 'bg-red-100 text-red-700', icon: XCircle },
 };
 
 export default function CopyeditingPanel({ submission }: Props) {
@@ -41,7 +38,7 @@ export default function CopyeditingPanel({ submission }: Props) {
     const [dragOver, setDragOver] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        copyedited_file:  null as File | null,
+        copyedited_file: null as File | null,
         copyeditor_notes: submission.copyeditor_notes ?? '',
     });
 
@@ -82,15 +79,12 @@ export default function CopyeditingPanel({ submission }: Props) {
 
             <div className="py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
                     {/* Header */}
                     <div className="mb-6 flex items-start justify-between">
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Panel Copyeditor</h1>
                             {submission.article && (
-                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-2xl">
-                                    {submission.article.title}
-                                </p>
+                                <p className="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">{submission.article.title}</p>
                             )}
                         </div>
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium ${status.color}`}>
@@ -104,7 +98,6 @@ export default function CopyeditingPanel({ submission }: Props) {
 
                     {/* Tiga Kolom Utama */}
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-
                         {/* ===== KOLOM 1: File Original ===== */}
                         <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                             <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-700">
@@ -121,9 +114,7 @@ export default function CopyeditingPanel({ submission }: Props) {
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900">
                                             <FileText className="h-5 w-5 shrink-0 text-gray-400" />
-                                            <span className="truncate text-sm text-gray-700 dark:text-gray-300">
-                                                {submission.original_file_name}
-                                            </span>
+                                            <span className="truncate text-sm text-gray-700 dark:text-gray-300">{submission.original_file_name}</span>
                                         </div>
                                         <a
                                             href={submission.original_file_url}
@@ -181,8 +172,11 @@ export default function CopyeditingPanel({ submission }: Props) {
                                         </a>
                                         {submission.copyedited_at && (
                                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                Diupload: {new Date(submission.copyedited_at).toLocaleDateString('id-ID', {
-                                                    day: 'numeric', month: 'long', year: 'numeric',
+                                                Diupload:{' '}
+                                                {new Date(submission.copyedited_at).toLocaleDateString('id-ID', {
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric',
                                                 })}
                                             </p>
                                         )}
@@ -199,17 +193,23 @@ export default function CopyeditingPanel({ submission }: Props) {
                                                     ? 'border-green-400 bg-green-50 dark:bg-green-900/20'
                                                     : 'border-gray-300 hover:border-green-400 dark:border-gray-600'
                                             }`}
-                                            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                                            onDragOver={(e) => {
+                                                e.preventDefault();
+                                                setDragOver(true);
+                                            }}
                                             onDragLeave={() => setDragOver(false)}
                                             onDrop={handleDrop}
                                             onClick={() => fileInputRef.current?.click()}
                                         >
                                             <Upload className="mx-auto h-6 w-6 text-gray-400" />
                                             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                                {data.copyedited_file
-                                                    ? <span className="font-medium text-green-600">{data.copyedited_file.name}</span>
-                                                    : <><span className="font-medium text-green-600">Pilih file</span> atau drag & drop</>
-                                                }
+                                                {data.copyedited_file ? (
+                                                    <span className="font-medium text-green-600">{data.copyedited_file.name}</span>
+                                                ) : (
+                                                    <>
+                                                        <span className="font-medium text-green-600">Pilih file</span> atau drag & drop
+                                                    </>
+                                                )}
                                             </p>
                                             <p className="text-xs text-gray-400">PDF, DOC, DOCX • Maks 10MB</p>
                                             <input
@@ -220,9 +220,7 @@ export default function CopyeditingPanel({ submission }: Props) {
                                                 onChange={handleFileChange}
                                             />
                                         </div>
-                                        {errors.copyedited_file && (
-                                            <p className="text-xs text-red-500">{errors.copyedited_file}</p>
-                                        )}
+                                        {errors.copyedited_file && <p className="text-xs text-red-500">{errors.copyedited_file}</p>}
                                         <Button
                                             type="submit"
                                             disabled={processing || !data.copyedited_file}
@@ -239,7 +237,8 @@ export default function CopyeditingPanel({ submission }: Props) {
                                     <div className="mt-3 flex items-center gap-2 rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
                                         <CheckCircle className="h-4 w-4 text-green-600" />
                                         <p className="text-sm text-green-700 dark:text-green-400">
-                                            Disetujui Author pada {submission.author_approved_at
+                                            Disetujui Author pada{' '}
+                                            {submission.author_approved_at
                                                 ? new Date(submission.author_approved_at).toLocaleDateString('id-ID')
                                                 : '-'}
                                         </p>
@@ -259,10 +258,10 @@ export default function CopyeditingPanel({ submission }: Props) {
                                 </div>
                                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Komunikasi & feedback</p>
                             </div>
-                            <div className="p-5 space-y-4">
+                            <div className="space-y-4 p-5">
                                 {/* Catatan Copyeditor */}
                                 <div>
-                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                    <label className="mb-1.5 block text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                         Catatan Copyeditor
                                     </label>
                                     {canUpload ? (
@@ -271,7 +270,7 @@ export default function CopyeditingPanel({ submission }: Props) {
                                             onChange={(e) => setData('copyeditor_notes', e.target.value)}
                                             rows={5}
                                             placeholder="Tuliskan catatan untuk Author mengenai perubahan yang dilakukan..."
-                                            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-purple-400 focus:outline-none focus:ring-1 focus:ring-purple-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300"
+                                            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300"
                                         />
                                     ) : (
                                         <div className="min-h-[80px] rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
@@ -283,19 +282,22 @@ export default function CopyeditingPanel({ submission }: Props) {
                                 {/* Catatan Author (balasan persetujuan/penolakan) */}
                                 {submission.author_approval_notes && (
                                     <div>
-                                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                        <label className="mb-1.5 block text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                             Catatan Author
                                         </label>
-                                        <div className={`rounded-lg border p-3 text-sm ${
-                                            submission.status === 'approved'
-                                                ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300'
-                                                : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300'
-                                        }`}>
+                                        <div
+                                            className={`rounded-lg border p-3 text-sm ${
+                                                submission.status === 'approved'
+                                                    ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300'
+                                                    : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300'
+                                            }`}
+                                        >
                                             <div className="flex items-start gap-2">
-                                                {submission.status === 'approved'
-                                                    ? <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                                                    : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                                                }
+                                                {submission.status === 'approved' ? (
+                                                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                                                ) : (
+                                                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                                                )}
                                                 <p>{submission.author_approval_notes}</p>
                                             </div>
                                         </div>
@@ -307,9 +309,7 @@ export default function CopyeditingPanel({ submission }: Props) {
                                     <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-900/20">
                                         <div className="flex items-center gap-2">
                                             <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                                            <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                                                Menunggu persetujuan Author
-                                            </p>
+                                            <p className="text-sm text-yellow-800 dark:text-yellow-300">Menunggu persetujuan Author</p>
                                         </div>
                                         <a
                                             href={route('user.copyediting.approval', submission.id)}
@@ -321,7 +321,6 @@ export default function CopyeditingPanel({ submission }: Props) {
                                 )}
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>

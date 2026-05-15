@@ -1,6 +1,3 @@
- *
- * @route GET /user/copyediting/{submission}/approval
- */
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -29,7 +26,7 @@ export default function AuthorApproval({ submission }: Props) {
     const [action, setAction] = useState<'approve' | 'reject' | null>(null);
 
     const approveForm = useForm({ author_approval_notes: '' });
-    const rejectForm  = useForm({ author_approval_notes: '' });
+    const rejectForm = useForm({ author_approval_notes: '' });
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
@@ -53,17 +50,15 @@ export default function AuthorApproval({ submission }: Props) {
 
             <div className="py-6">
                 <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-
                     {/* Header */}
                     <div className="mb-6 rounded-xl border border-yellow-200 bg-yellow-50 p-5 dark:border-yellow-800 dark:bg-yellow-900/20">
                         <div className="flex items-start gap-3">
                             <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-yellow-600 dark:text-yellow-400" />
                             <div>
-                                <h1 className="text-lg font-bold text-yellow-900 dark:text-yellow-100">
-                                    Konfirmasi Persetujuan Copyediting
-                                </h1>
+                                <h1 className="text-lg font-bold text-yellow-900 dark:text-yellow-100">Konfirmasi Persetujuan Copyediting</h1>
                                 <p className="mt-1 text-sm text-yellow-800 dark:text-yellow-200">
-                                    Tinjau hasil copyediting dengan seksama. Setelah disetujui, artikel akan masuk ke tahap <strong>Production</strong>.
+                                    Tinjau hasil copyediting dengan seksama. Setelah disetujui, artikel akan masuk ke tahap{' '}
+                                    <strong>Production</strong>.
                                 </p>
                             </div>
                         </div>
@@ -72,7 +67,7 @@ export default function AuthorApproval({ submission }: Props) {
                     {/* Info Artikel */}
                     {submission.article && (
                         <div className="mb-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                            <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Artikel</h2>
+                            <h2 className="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">Artikel</h2>
                             <p className="mt-1 text-base font-semibold text-gray-900 dark:text-gray-100">{submission.article.title}</p>
                             {submission.copyeditor && (
                                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -81,8 +76,11 @@ export default function AuthorApproval({ submission }: Props) {
                             )}
                             {submission.copyedited_at && (
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    Diselesaikan: {new Date(submission.copyedited_at).toLocaleDateString('id-ID', {
-                                        day: 'numeric', month: 'long', year: 'numeric',
+                                    Diselesaikan:{' '}
+                                    {new Date(submission.copyedited_at).toLocaleDateString('id-ID', {
+                                        day: 'numeric',
+                                        month: 'long',
+                                        year: 'numeric',
                                     })}
                                 </p>
                             )}
@@ -93,16 +91,12 @@ export default function AuthorApproval({ submission }: Props) {
                     <div className="mb-4 grid grid-cols-2 gap-4">
                         {/* File Original */}
                         <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                                File Original
-                            </h3>
+                            <h3 className="mb-3 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">File Original</h3>
                             {submission.original_file_url ? (
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900">
                                         <FileText className="h-4 w-4 shrink-0 text-gray-400" />
-                                        <span className="truncate text-xs text-gray-600 dark:text-gray-300">
-                                            {submission.original_file_name}
-                                        </span>
+                                        <span className="truncate text-xs text-gray-600 dark:text-gray-300">{submission.original_file_name}</span>
                                     </div>
                                     <a
                                         href={submission.original_file_url}
@@ -121,16 +115,14 @@ export default function AuthorApproval({ submission }: Props) {
 
                         {/* File Copyedited */}
                         <div className="rounded-xl border border-green-200 bg-green-50 p-4 shadow-sm dark:border-green-800 dark:bg-green-900/20">
-                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-green-700 dark:text-green-400">
+                            <h3 className="mb-3 text-xs font-semibold tracking-wide text-green-700 uppercase dark:text-green-400">
                                 File Copyedited ✓
                             </h3>
                             {submission.copyedited_file_url ? (
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-white p-2 dark:border-green-800 dark:bg-gray-900">
                                         <FileText className="h-4 w-4 shrink-0 text-green-600" />
-                                        <span className="truncate text-xs text-gray-600 dark:text-gray-300">
-                                            {submission.copyedited_file_name}
-                                        </span>
+                                        <span className="truncate text-xs text-gray-600 dark:text-gray-300">{submission.copyedited_file_name}</span>
                                     </div>
                                     <a
                                         href={submission.copyedited_file_url}
@@ -151,12 +143,10 @@ export default function AuthorApproval({ submission }: Props) {
                     {/* Catatan Copyeditor */}
                     {submission.copyeditor_notes && (
                         <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-                            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-400">
+                            <h3 className="mb-2 text-xs font-semibold tracking-wide text-blue-700 uppercase dark:text-blue-400">
                                 Catatan dari Copyeditor
                             </h3>
-                            <p className="text-sm text-blue-900 dark:text-blue-100 whitespace-pre-wrap">
-                                {submission.copyeditor_notes}
-                            </p>
+                            <p className="text-sm whitespace-pre-wrap text-blue-900 dark:text-blue-100">{submission.copyeditor_notes}</p>
                         </div>
                     )}
 
@@ -205,23 +195,14 @@ export default function AuthorApproval({ submission }: Props) {
                                             onChange={(e) => approveForm.setData('author_approval_notes', e.target.value)}
                                             rows={3}
                                             placeholder="Tambahkan catatan untuk Copyeditor jika ada..."
-                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300"
+                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-400 focus:ring-1 focus:ring-green-400 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300"
                                         />
                                     </div>
                                     <div className="flex gap-3">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => setAction(null)}
-                                            className="flex-1"
-                                        >
+                                        <Button type="button" variant="outline" onClick={() => setAction(null)} className="flex-1">
                                             Batal
                                         </Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={approveForm.processing}
-                                            className="flex-1 bg-green-600 hover:bg-green-700"
-                                        >
+                                        <Button type="submit" disabled={approveForm.processing} className="flex-1 bg-green-600 hover:bg-green-700">
                                             <CheckCircle className="mr-2 h-4 w-4" />
                                             {approveForm.processing ? 'Memproses...' : 'Konfirmasi Setuju'}
                                         </Button>
@@ -247,7 +228,7 @@ export default function AuthorApproval({ submission }: Props) {
                                             onChange={(e) => rejectForm.setData('author_approval_notes', e.target.value)}
                                             rows={4}
                                             placeholder="Jelaskan apa yang perlu diperbaiki oleh Copyeditor..."
-                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300"
+                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300"
                                             required
                                         />
                                         {rejectForm.errors.author_approval_notes && (
@@ -255,19 +236,10 @@ export default function AuthorApproval({ submission }: Props) {
                                         )}
                                     </div>
                                     <div className="flex gap-3">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => setAction(null)}
-                                            className="flex-1"
-                                        >
+                                        <Button type="button" variant="outline" onClick={() => setAction(null)} className="flex-1">
                                             Batal
                                         </Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={rejectForm.processing}
-                                            className="flex-1 bg-red-600 hover:bg-red-700"
-                                        >
+                                        <Button type="submit" disabled={rejectForm.processing} className="flex-1 bg-red-600 hover:bg-red-700">
                                             <XCircle className="mr-2 h-4 w-4" />
                                             {rejectForm.processing ? 'Memproses...' : 'Konfirmasi Tolak'}
                                         </Button>
@@ -276,7 +248,6 @@ export default function AuthorApproval({ submission }: Props) {
                             )}
                         </div>
                     )}
-
                 </div>
             </div>
         </AppLayout>
