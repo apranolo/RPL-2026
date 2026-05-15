@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
+use App\Http\Controllers\Admin\DashboardCtrl;
 use App\Http\Controllers\Admin\DataMasterController;
 use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
@@ -155,9 +156,15 @@ Route::middleware(['auth'])->group(function () {
     */
     Route::middleware(['role:'.Role::SUPER_ADMIN])->prefix('admin')->name('admin.')->group(function () {
 
+HEAD
         // Sistem Profil (Ubah Logo/Nama App)
         Route::get('settings/profile', [SettingsCtrl::class, 'index'])->name('settings.profile');
         Route::post('settings/profile', [SettingsCtrl::class, 'update'])->name('settings.profile.update');
+
+        // Admin Dashboard
+        Route::get('dashboard', [DashboardCtrl::class, 'index'])
+            ->name('dashboard');
+ b47f17f (feat(route): add dashboard route for DashboardCtrl)
 
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
