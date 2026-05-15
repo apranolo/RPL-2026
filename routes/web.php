@@ -507,6 +507,24 @@ Route::middleware(['auth'])->group(function () {
             // Create assessment for pembinaan registration
             Route::post('registrations/{registration}/create-assessment', [UserPembinaanController::class, 'createAssessment'])
                 ->name('registrations.create-assessment');
+            
+            Route::prefix('copyediting')->name('copyediting.')->group(function () {
+ 
+            Route::get('{submission}/panel', [\App\Http\Controllers\User\CopyeditingController::class, 'panel'])
+                ->name('panel');
+ 
+            Route::post('{submission}/upload', [\App\Http\Controllers\User\CopyeditingController::class, 'uploadCopyeditedFile'])
+                ->name('upload');
+ 
+            Route::get('{submission}/approval', [\App\Http\Controllers\User\CopyeditingController::class, 'approvalPage'])
+                ->name('approval');
+ 
+            Route::post('{submission}/approve', [\App\Http\Controllers\User\CopyeditingController::class, 'approve'])
+                ->name('approve');
+ 
+            Route::post('{submission}/reject', [\App\Http\Controllers\User\CopyeditingController::class, 'reject'])
+                ->name('reject');
+            });
         });
     });
 
