@@ -26,7 +26,7 @@ class CopyeditingSubmission extends Model
 
     protected $casts = [
         'author_approved_at' => 'datetime',
-        'copyedited_at'      => 'datetime',
+        'copyedited_at' => 'datetime',
     ];
 
     public function article()
@@ -44,8 +44,23 @@ class CopyeditingSubmission extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
-    public function isPending(): bool     { return $this->status === 'pending'; }
-    public function isWaitingApproval(): bool { return $this->status === 'waiting_approval'; }
-    public function isApproved(): bool    { return $this->status === 'approved'; }
-    public function isRejected(): bool    { return $this->status === 'rejected'; }
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function isWaitingApproval(): bool
+    {
+        return $this->status === 'waiting_approval';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
 }
