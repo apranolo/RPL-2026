@@ -31,6 +31,8 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Review\ReviewAssignmentController;
+use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +49,7 @@ use Illuminate\Support\Facades\Storage;
 | directly from the public/storage symlink before PHP is invoked,
 | so this route is never reached and adds zero overhead.
 */
+
 Route::get('/storage/{path}', function (string $path) {
     // Basic path hardening: reject traversal, backslashes, and absolute paths
     if (str_contains($path, '..') || str_contains($path, '\\') || str_starts_with($path, '/')) {
@@ -58,7 +61,7 @@ Route::get('/storage/{path}', function (string $path) {
             abort(404);
         }
 
-        return Storage::disk('public')->response($path);
+        return response()->file(storage_path('app/public/' . $path));
     } catch (\Throwable $e) {
         // Avoid leaking storage layer errors
         abort(404);
@@ -553,6 +556,26 @@ Route::middleware(['auth'])->group(function () {
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
 });
+
+Route::get('/review/invitation/{id}', function ($id) {
+    return Inertia::render('Review/Invitation', [
+        'assignment' => [
+            'id' => $id,
+            // 'journal_title' => 'Journal MU',
+            // 'article_title' => 'Sample Article',
+            // 'editor_name' => 'Editor Name',
+            // 'deadline' => '2026-06-01',
+            // 'status' => 'pending',
+        ]
+    ]);
+});
+
+Route::post('/review-assignment/{id}/accept', [ReviewAssignmentController::class, 'accept'])
+    ->name('review.assignment.accept');
+
+Route::post('/review-assignment/{id}/decline', [ReviewAssignmentController::class, 'decline'])
+    ->name('review.assignment.decline');
+
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
