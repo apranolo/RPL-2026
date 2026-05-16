@@ -31,6 +31,9 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Review\ReviewController;
+
+use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,7 +61,9 @@ Route::get('/storage/{path}', function (string $path) {
             abort(404);
         }
 
-        return Storage::disk('public')->response($path);
+        return response()->file(
+            storage_path('app/public/' . $path)
+        );
     } catch (\Throwable $e) {
         // Avoid leaking storage layer errors
         abort(404);
@@ -545,6 +550,7 @@ Route::middleware(['auth'])->group(function () {
     // Resources (Placeholder)
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
+        
 
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {
@@ -552,6 +558,27 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+
+    Route::middleware(['auth'])->group(function () {
+
+        Route::post(
+            '/review/{assignmentId}/save-draft',
+            [ReviewController::class, 'saveDraft']
+        )->name('review.saveDraft');
+
+        Route::post(
+            '/review/{assignmentId}/submit',
+            [ReviewController::class, 'submitRecommendation']
+        )->name('review.submitRecommendation');
+    });
+
+    Route::get('/review-test', function () {
+
+        return Inertia::render('Review/Recommendation', [
+            'reviewDecisionId' => 1,
+        ]);
+
+    })->middleware('auth');
 });
 
 require __DIR__.'/settings.php';
