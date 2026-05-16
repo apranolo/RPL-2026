@@ -135,14 +135,14 @@ it('generates unique slugs for duplicate titles correctly', function () {
     Agenda::factory()->create([
         'title' => 'Test Slug',
         'slug' => null, // Allow boot() generating slug
-        'university_id' => $this->university->id
+        'university_id' => $this->university->id,
     ]);
 
     // Create second agenda with same title
     $agenda2 = Agenda::factory()->create([
         'title' => 'Test Slug',
         'slug' => null,
-        'university_id' => $this->university->id
+        'university_id' => $this->university->id,
     ]);
 
     expect($agenda2->slug)->toBe('test-slug-1');
@@ -151,7 +151,7 @@ it('generates unique slugs for duplicate titles correctly', function () {
     $agenda3 = Agenda::factory()->create([
         'title' => 'Test Slug',
         'slug' => null,
-        'university_id' => $this->university->id
+        'university_id' => $this->university->id,
     ]);
 
     expect($agenda3->slug)->toBe('test-slug-2');
@@ -163,7 +163,7 @@ it('generates unique slugs for duplicate titles correctly', function () {
     $agenda4 = Agenda::factory()->create([
         'title' => 'Test Slug',
         'slug' => null,
-        'university_id' => $this->university->id
+        'university_id' => $this->university->id,
     ]);
 
     // Since we deleted test-slug-1, the next free one is test-slug-1
