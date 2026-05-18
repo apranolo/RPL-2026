@@ -5,8 +5,29 @@ interface Props {
     assignmentId: number;
 }
 
-export default function Recommendation({ assignmentId }: Props) {
-    const { data, setData, post, processing, errors } = useForm({
+interface Scores {
+    originality: number;
+    methodology: number;
+    novelty: number;
+    clarity: number;
+}
+
+interface FormData {
+    recommendation: string;
+    overall_comment: string;
+    scores: Scores;
+}
+
+export default function Recommendation({
+    assignmentId,
+}: Props) {
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        errors,
+    } = useForm<FormData>({
         recommendation: '',
         overall_comment: '',
         scores: {
@@ -17,14 +38,20 @@ export default function Recommendation({ assignmentId }: Props) {
         },
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (
+        e: React.FormEvent<HTMLFormElement>
+    ) => {
         e.preventDefault();
 
-        post(route('review.submitRecommendation', assignmentId));
+        post(`/review/${assignmentId}/submit`, {
+            preserveScroll: true,
+        });
     };
 
-    const saveDraft = () => {
-        post(route('review.saveDraft', assignmentId));
+    const handleSaveDraft = () => {
+        post(`/review/${assignmentId}/save-draft`, {
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -37,7 +64,10 @@ export default function Recommendation({ assignmentId }: Props) {
                         Final Recommendation
                     </h1>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-6"
+                    >
                         {/* Recommendation */}
                         <div>
                             <label className="mb-2 block font-medium">
@@ -47,9 +77,13 @@ export default function Recommendation({ assignmentId }: Props) {
                             <select
                                 value={data.recommendation}
                                 onChange={(e) =>
-                                    setData('recommendation', e.target.value)
+                                    setData(
+                                        'recommendation',
+                                        e.target.value
+                                    )
                                 }
                                 className="w-full rounded-lg border p-3"
+                                required
                             >
                                 <option value="">
                                     Select Recommendation
@@ -99,12 +133,18 @@ export default function Recommendation({ assignmentId }: Props) {
                                                 max={5}
                                                 value={value}
                                                 onChange={(e) =>
-                                                    setData('scores', {
-                                                        ...data.scores,
-                                                        [key]: Number(
-                                                            e.target.value
-                                                        ),
-                                                    })
+                                                    setData(
+                                                        'scores',
+                                                        {
+                                                            ...data.scores,
+                                                            [key]:
+                                                                Number(
+                                                                    e
+                                                                        .target
+                                                                        .value
+                                                                ),
+                                                        }
+                                                    )
                                                 }
                                                 className="w-full rounded-lg border p-3"
                                             />
@@ -131,6 +171,7 @@ export default function Recommendation({ assignmentId }: Props) {
                                 }
                                 className="w-full rounded-lg border p-3"
                                 placeholder="Masukkan komentar reviewer..."
+                                required
                             />
 
                             {errors.overall_comment && (
@@ -144,8 +185,9 @@ export default function Recommendation({ assignmentId }: Props) {
                         <div className="flex gap-3">
                             <button
                                 type="button"
-                                onClick={saveDraft}
-                                className="rounded-lg border px-5 py-2"
+                                onClick={handleSaveDraft}
+                                disabled={processing}
+                                className="rounded-lg border px-5 py-2 hover:bg-gray-100"
                             >
                                 Save Draft
                             </button>
@@ -153,9 +195,11 @@ export default function Recommendation({ assignmentId }: Props) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="rounded-lg bg-black px-5 py-2 text-white"
+                                className="rounded-lg bg-black px-5 py-2 text-white hover:bg-gray-800 disabled:opacity-50"
                             >
-                                Submit Recommendation
+                                {processing
+                                    ? 'Submitting...'
+                                    : 'Submit Recommendation'}
                             </button>
                         </div>
                     </form>

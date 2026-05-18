@@ -3,16 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class ReviewSubmissionRequest extends FormRequest
 {
     /**
-     * Authorize request
+     * Determine if the user is authorized
      */
     public function authorize(): bool
     {
-        return Auth::check();
+        return true;
     }
 
     /**
@@ -29,43 +28,41 @@ class ReviewSubmissionRequest extends FormRequest
             'overall_comment' => [
                 'required',
                 'string',
-                'min:10',
+                'min:5',
             ],
 
             'scores' => [
                 'required',
                 'array',
-                'min:1',
             ],
 
-            'scores.*' => [
+            'scores.originality' => [
                 'required',
                 'integer',
                 'min:1',
                 'max:5',
             ],
-        ];
-    }
 
-    /**
-     * Custom validation messages
-     */
-    public function messages(): array
-    {
-        return [
-            'recommendation.required' => 'Recommendation wajib dipilih.',
-            'recommendation.in' => 'Recommendation tidak valid.',
+            'scores.methodology' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:5',
+            ],
 
-            'overall_comment.required' => 'Komentar reviewer wajib diisi.',
-            'overall_comment.min' => 'Komentar minimal 10 karakter.',
+            'scores.novelty' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:5',
+            ],
 
-            'scores.required' => 'Semua rubric score wajib diisi.',
-            'scores.array' => 'Format scores tidak valid.',
-
-            'scores.*.required' => 'Nilai rubric wajib diisi.',
-            'scores.*.integer' => 'Nilai rubric harus angka.',
-            'scores.*.min' => 'Nilai minimal adalah 1.',
-            'scores.*.max' => 'Nilai maksimal adalah 5.',
+            'scores.clarity' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:5',
+            ],
         ];
     }
 }

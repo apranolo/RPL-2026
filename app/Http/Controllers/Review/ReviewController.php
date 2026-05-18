@@ -15,12 +15,12 @@ class ReviewController extends Controller
      */
     public function saveDraft(
         ReviewSubmissionRequest $request,
-        int $assignmentId
+        $assignmentId
     ): RedirectResponse {
 
         ReviewDecision::updateOrCreate(
             [
-                'review_assignment_id' => $assignmentId,
+                'review_assignment_id' => (int) $assignmentId,
                 'reviewer_id' => Auth::id(),
             ],
             [
@@ -42,12 +42,12 @@ class ReviewController extends Controller
      */
     public function submitRecommendation(
         ReviewSubmissionRequest $request,
-        int $assignmentId
+        $assignmentId
     ): RedirectResponse {
 
         ReviewDecision::updateOrCreate(
             [
-                'review_assignment_id' => $assignmentId,
+                'review_assignment_id' => (int) $assignmentId,
                 'reviewer_id' => Auth::id(),
             ],
             [
@@ -59,11 +59,9 @@ class ReviewController extends Controller
             ]
         );
 
-        return redirect()
-            ->back()
-            ->with(
-                'success',
-                'Final recommendation berhasil dikirim.'
-            );
+        return back()->with(
+            'success',
+            'Final recommendation berhasil dikirim.'
+        );
     }
 }
