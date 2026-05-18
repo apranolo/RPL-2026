@@ -2,7 +2,17 @@
 
 ## Sistem Penelitian Terintegrasi
 
-Dokumen ini berisi spesifikasi kebutuhan untuk 6 modul utama Sistem Penelitian Terintegrasi, disusun menggunakan standar format analisis kebutuhan (berdasarkan entitas modul utama).
+Dokumen ini berisi spesifikasi kebutuhan untuk 6 modul utama Sistem Penelitian Terintegrasi, disusun menggunakan standar format analisis kebutuhan (berdasarkan entitas modul utama). Dokumen ini telah diselaraskan dengan spesifikasi teknis dan antarmuka pada file penugasan.
+
+---
+
+### Manajemen Hak Akses (RBAC)
+Sistem ini menggunakan mekanisme Role-Based Access Control (RBAC) dengan pembagian peran yang ketat untuk menjaga keamanan dan alur bisnis. Terdapat beberapa peran utama dalam sistem:
+- **Super Admin**: Memiliki hak akses penuh (*global*) ke sistem. Mengelola pengaturan identitas aplikasi (`SettingsCtrl`) dan memantau seluruh log aktivitas sistem (`LogController`).
+- **Admin Kampus (LPPM)**: Mengelola operasi dan alur akademik penelitian (Path: `Admin/`). Tugasnya meliputi verifikasi awal proposal, mem-plotting/menunjuk Reviewer, mengatur jadwal dan kriteria Monev, serta memverifikasi pengajuan Luaran Dosen.
+- **Admin Keuangan**: Secara spesifik menangani alur dana penelitian (Path: `Finance/`). Bertugas me-generate kontrak, mengatur termin pencairan, dan melakukan validasi bukti transfer.
+- **Reviewer**: Pakar yang ditugaskan (diplot) oleh Admin Kampus untuk mengevaluasi substansi proposal dan memberikan rekomendasi Diterima/Ditolak/Revisi.
+- **Peneliti / Dosen**: Pengguna reguler yang mengajukan proposal, melaporkan progres (Monev), mengklaim pengeluaran dana, dan menyumbangkan luaran penelitian.
 
 ---
 
@@ -15,7 +25,7 @@ Modul ini digunakan untuk memfasilitasi dan mengelola proses pengajuan proposal 
 
 - `id_proposal` (Primary Key, Auto-increment)
 - `id_pengusul` (Foreign Key ke tabel `users`, Required)
-- `id_skema_pendanaan` (Foreign Key ke tabel `skema`, Required)
+- `id_skema_pendanaan` (Foreign Key ke tabel `schemas`, Required)
 - `judul_penelitian` (String, Required, Max: 255 karakter, Unique per pengusul di tahun pendanaan yang sama)
 - `abstrak` (Text, Required, Max: 2000 karakter)
 - `latar_belakang` (Text, Required)
@@ -62,11 +72,11 @@ Modul ini bertugas mengatur penunjukan (plotting) proposal ke reviewer, serta al
 **2. Data Requirements**
 
 - `id_plot_reviewer` (Primary Key, Auto-increment)
-- `id_proposal` (Foreign Key ke tabel `proposal`, Required)
+- `id_proposal` (Foreign Key ke tabel `proposals`, Required)
 - `id_reviewer` (Foreign Key ke tabel `users`, Required)
 - `tanggal_mulai_review` (Date, Required)
 - `tanggal_selesai_review` (Date, Required)
-- `komponen_penilaian` (JSON/Tabel relasi skor indikator)
+- `komponen_penilaian` (JSON/Tabel relasi `assessment_criteria`)
 - `catatan_evaluasi` (Text, Required jika ada revisi/penolakan)
 - `skor_total` (Numeric/Float, Default: 0)
 - `keputusan_rekomendasi` (Enum: Diterima, Ditolak, Revisi)
@@ -106,19 +116,16 @@ Modul ini bertugas mengatur penunjukan (plotting) proposal ke reviewer, serta al
 ### 3. Manajemen Kontrak dan Pendanaan
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul untuk mengelola data kontrak, legalitas, rincian anggaran yang disetujui LPPM, penyusunan tahapan pencairan, serta pencatatan administrasi keuangan proyek riset yang bersangkutan (proposal lulus seleksi).
+Modul untuk mengelola data kontrak, legalitas, rincian anggaran yang disetujui, penyusunan tahapan pencairan, serta pencatatan administrasi keuangan oleh peran **Admin Keuangan**.
 
 **2. Data Requirements**
 
 - `id_kontrak` (Primary Key)
 - `nomor_kontrak` (String, Required, Unique)
-- `tanggal_kontrak` (Date, Required)
-- `id_proposal_diterima` (Foreign Key, Required, Unique One-to-One)
-- `pihak_1` (String, Required / Pihak LPPM)
-- `pihak_2` (String, Required / Pihak Peneliti Utama)
+- `id_proposal_diterima` (Foreign Key ke `proposals`, Required, Unique)
 - `total_pendanaan_disetujui` (Numeric/Decimal, Required)
-- `termin_pencairan` (JSON/Relational Table - rincian tahapan: persentase, nominal, status)
-- `bukti_dokumen_keuangan` (String/URL berkas Slip Transfer, Optional/Required Conditionally)
+- `termin_pencairan` (Relasi tabel `fundings` - persentase, nominal, status)
+- `bukti_dokumen_keuangan` (String/URL berkas, Optional/Required Conditionally)
 - `status_kontrak` (Enum: Aktif, Selesai, Ditangguhkan)
 
 **3. Business Rules**
@@ -161,7 +168,7 @@ Modul ini memfasilitasi pelaporan operasional riset di lapangan (_progress track
 **2. Data Requirements**
 
 - `id_monev` (Primary Key)
-- `id_kontrak` (Foreign Key ke tabel `kontrak`, Required)
+- `id_kontrak` (Foreign Key ke tabel `contracts`, Required)
 - `jenis_laporan` (Enum: Logbook, Laporan_Kemajuan, Laporan_Akhir, Required)
 - `tanggal_pelaporan` (Date, Required)
 - `persentase_progres` (Numeric, Range 0-100, Required)
@@ -204,18 +211,17 @@ Modul ini memfasilitasi pelaporan operasional riset di lapangan (_progress track
 ### 5. Manajemen Luaran Penelitian
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul pencatatan seluruh rekam jejak capaian akhir produk atau karya intelektual (output fungsional riset) yang dihasilkan dari sebuah penelitian (seperti Publikasi, Buku, Paten, atau Prototipe).
+Modul pencatatan capaian luaran fungsional riset (Publikasi, HKI, Buku, Prototipe) dari sebuah penelitian.
 
 **2. Data Requirements**
 
 - `id_luaran` (Primary Key)
 - `id_kontrak` (Foreign Key, Required)
-- `jenis_luaran` (Enum: Jurnal_Nasional, Jurnal_Internasional, Prosiding, HKI, Buku, Prototipe, Required)
+- `jenis_luaran` (Enum: Jurnal, HKI, Buku, Produk/Prototipe, Required)
 - `judul_luaran` (String, Max 255, Required)
 - `tahun_capaian` (Year, Required)
-- `penulis_atau_pencipta` (String/Text, Required)
-- `tautan_publikasi` (String URL / DOI; Required conditionally berdasar jenis luaran)
-- `file_sertifikat_atau_cover` (String/URL dokumen otentikasi, Required)
+- `tautan_publikasi` (String URL / DOI; Required conditionally)
+- `file_sertifikat_atau_cover` (String/URL dokumen otentikasi)
 - `status_verifikasi` (Enum: Draft, Menunggu_Verifikasi, Terverifikasi_LPPM, Ditolak)
 
 **3. Business Rules**
