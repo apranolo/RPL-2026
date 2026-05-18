@@ -5,9 +5,11 @@ This directory contains automated workflows for the jurnal_mu project.
 ## Workflows Overview
 
 ### 1. PR Quality Checks (`pr-checks.yml`)
+
 **Triggers:** On every pull request to `main` or `develop` branches
 
 Runs comprehensive quality checks including:
+
 - **PHP Code Style**: Validates PHP code style using Laravel Pint
 - **JavaScript/TypeScript Linting**: Checks JS/TS code with ESLint
 - **Code Formatting**: Verifies code formatting with Prettier
@@ -17,41 +19,51 @@ Runs comprehensive quality checks including:
 All checks must pass before a PR can be merged.
 
 ### 2. PR Labeler (`pr-labeler.yml`)
+
 **Triggers:** When a PR is opened, synchronized, or reopened
 
 Automatically labels PRs based on:
+
 - **File Changes**: Labels like `backend`, `frontend`, `documentation`, `dependencies`, `ci/cd`, `configuration`, `tests`
 - **PR Size**: Labels like `size/xs`, `size/s`, `size/m`, `size/l`, `size/xl` based on lines changed
 
 ### 3. PR Welcome Message (`pr-welcome.yml`)
+
 **Triggers:** When a new PR is opened
 
 Posts a welcoming comment with:
+
 - Greeting to the contributor
 - Checklist of requirements
 - Information about automated checks
 - Guidance on next steps
 
 ### 4. PR Auto Assignment (`pr-auto-assign.yml`)
+
 **Triggers:** When a PR is opened or marked ready for review
 
 Analyzes the PR and:
+
 - Comments on documentation-only PRs
 - Comments on test-only PRs
 - Can be extended to assign specific reviewers based on file paths
 
 ### 5. PR Status Update (`pr-status-update.yml`)
+
 **Triggers:** When the "PR Quality Checks" workflow completes
 
 Updates the PR with:
+
 - Success/failure status of quality checks
 - Link to the workflow run details
 - Timestamp of when checks completed
 
 ### 6. Tests (`tests.yml`)
+
 **Triggers:** On push to `main` or `develop`, and on pull requests
 
 Runs the complete CI pipeline:
+
 - Sets up PHP and Node.js
 - Installs dependencies
 - Builds assets
@@ -60,6 +72,7 @@ Runs the complete CI pipeline:
 ## Configuration Files
 
 ### `.github/labeler.yml`
+
 Configuration for automatic PR labeling based on file patterns.
 
 ## How It Works
@@ -69,11 +82,11 @@ When you create a new pull request:
 1. **Welcome message** is posted immediately
 2. **Labels** are automatically applied based on changed files and PR size
 3. **Quality checks** run in parallel:
-   - PHP linting
-   - JS/TS linting
-   - Code formatting checks
-   - TypeScript type checking
-   - Full test suite
+    - PHP linting
+    - JS/TS linting
+    - Code formatting checks
+    - TypeScript type checking
+    - Full test suite
 4. **Status update** comment is posted when all checks complete
 5. **Auto-assignment** analyzes the PR and may add helpful comments
 
@@ -89,6 +102,7 @@ To add more automation:
 ## Permissions
 
 Most workflows use minimal permissions:
+
 - `contents: read` - Read repository contents
 - `pull-requests: write` - Comment on and label PRs
 - `actions: read` - Read workflow run information

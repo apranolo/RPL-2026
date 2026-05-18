@@ -22,6 +22,7 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\ResourcesController;
+use App\Http\Controllers\Review\ReviewController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
@@ -31,8 +32,6 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Review\ReviewController;
-
 use Inertia\Inertia;
 
 /*
@@ -62,7 +61,7 @@ Route::get('/storage/{path}', function (string $path) {
         }
 
         return response()->file(
-            storage_path('app/public/' . $path)
+            storage_path('app/public/'.$path)
         );
     } catch (\Throwable $e) {
         // Avoid leaking storage layer errors
@@ -550,7 +549,6 @@ Route::middleware(['auth'])->group(function () {
     // Resources (Placeholder)
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
-        
 
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {
