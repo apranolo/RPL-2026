@@ -6,10 +6,30 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
+interface Submission {
+    id: number;
+    title: string;
+    status: string;
+    created_at: string;
+    author?: {
+        name: string;
+    };
+    journal?: {
+        name: string;
+    };
+}
+
 interface InboxProps {
-    counts: any;
+    counts: {
+        unassigned: number;
+        active: number;
+        awaiting_decision: number;
+        archived: number;
+    };
     activeTab: string;
-    submissions: any; // Paginator
+    submissions: {
+        data: Submission[];
+    };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -41,7 +61,7 @@ export default function Inbox({ counts, activeTab, submissions }: InboxProps) {
                             <CardDescription>No submissions found in this category.</CardDescription>
                         </Card>
                     ) : (
-                        submissions.data.map((submission: any) => (
+                        submissions.data.map((submission) => (
                             <Card key={submission.id} className="transition-shadow hover:shadow-md">
                                 <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                                     <div className="space-y-1">
