@@ -6,30 +6,30 @@
 
 ```json
 {
-  "rules": [
-    {
-      "rulePriority": 1,
-      "description": "Keep last 10 prod images",
-      "selection": {
-        "tagStatus": "tagged",
-        "tagPrefixList": ["prod-"],
-        "countType": "imageCountMoreThan",
-        "countNumber": 10
-      },
-      "action": {"type": "expire"}
-    },
-    {
-      "rulePriority": 2,
-      "description": "Remove untagged after 7 days",
-      "selection": {
-        "tagStatus": "untagged",
-        "countType": "sinceImagePushed",
-        "countUnit": "days",
-        "countNumber": 7
-      },
-      "action": {"type": "expire"}
-    }
-  ]
+    "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Keep last 10 prod images",
+            "selection": {
+                "tagStatus": "tagged",
+                "tagPrefixList": ["prod-"],
+                "countType": "imageCountMoreThan",
+                "countNumber": 10
+            },
+            "action": { "type": "expire" }
+        },
+        {
+            "rulePriority": 2,
+            "description": "Remove untagged after 7 days",
+            "selection": {
+                "tagStatus": "untagged",
+                "countType": "sinceImagePushed",
+                "countUnit": "days",
+                "countNumber": 7
+            },
+            "action": { "type": "expire" }
+        }
+    ]
 }
 ```
 
@@ -40,35 +40,35 @@
 name: Artifact Promotion
 
 on:
-  workflow_dispatch:
-    inputs:
-      image_tag:
-        required: true
-      target_env:
-        type: choice
-        options: [staging, production]
+    workflow_dispatch:
+        inputs:
+            image_tag:
+                required: true
+            target_env:
+                type: choice
+                options: [staging, production]
 
 jobs:
-  promote:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Re-tag for environment
-        run: |
-          docker pull $REGISTRY/$IMAGE:${{ inputs.image_tag }}
-          docker tag $REGISTRY/$IMAGE:${{ inputs.image_tag }} \
-            $REGISTRY/$IMAGE:${{ inputs.target_env }}-latest
-          docker push $REGISTRY/$IMAGE:${{ inputs.target_env }}-latest
+    promote:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Re-tag for environment
+              run: |
+                  docker pull $REGISTRY/$IMAGE:${{ inputs.image_tag }}
+                  docker tag $REGISTRY/$IMAGE:${{ inputs.image_tag }} \
+                    $REGISTRY/$IMAGE:${{ inputs.target_env }}-latest
+                  docker push $REGISTRY/$IMAGE:${{ inputs.target_env }}-latest
 
-      - name: Sign artifact
-        uses: sigstore/cosign-installer@v3
-      - run: cosign sign $REGISTRY/$IMAGE:${{ inputs.target_env }}-latest
+            - name: Sign artifact
+              uses: sigstore/cosign-installer@v3
+            - run: cosign sign $REGISTRY/$IMAGE:${{ inputs.target_env }}-latest
 
-      - name: Update GitOps
-        run: |
-          cd gitops/apps/${{ inputs.target_env }}
-          yq e '.image.tag = "${{ inputs.image_tag }}"' -i values.yaml
-          git commit -am "Promote to ${{ inputs.target_env }}"
-          git push
+            - name: Update GitOps
+              run: |
+                  cd gitops/apps/${{ inputs.target_env }}
+                  yq e '.image.tag = "${{ inputs.image_tag }}"' -i values.yaml
+                  git commit -am "Promote to ${{ inputs.target_env }}"
+                  git push
 ```
 
 ## Feature Flags
@@ -97,30 +97,30 @@ else:
 apiVersion: flagger.app/v1beta1
 kind: Canary
 metadata:
-  name: payment-service
-spec:
-  targetRef:
-    kind: Deployment
     name: payment-service
-  service:
-    port: 8080
-  analysis:
-    interval: 1m
-    threshold: 5
-    maxWeight: 50
-    stepWeight: 10
-    metrics:
-      - name: request-success-rate
-        thresholdRange:
-          min: 99
-      - name: request-duration
-        thresholdRange:
-          max: 500
-    webhooks:
-      - name: load-test
-        url: http://flagger-loadtester/
-        metadata:
-          cmd: "hey -z 1m -q 10 http://payment-canary/"
+spec:
+    targetRef:
+        kind: Deployment
+        name: payment-service
+    service:
+        port: 8080
+    analysis:
+        interval: 1m
+        threshold: 5
+        maxWeight: 50
+        stepWeight: 10
+        metrics:
+            - name: request-success-rate
+              thresholdRange:
+                  min: 99
+            - name: request-duration
+              thresholdRange:
+                  max: 500
+        webhooks:
+            - name: load-test
+              url: http://flagger-loadtester/
+              metadata:
+                  cmd: 'hey -z 1m -q 10 http://payment-canary/'
 ```
 
 ## Multi-Platform CI/CD
@@ -131,26 +131,26 @@ spec:
 stages: [test, build, deploy]
 
 test:
-  stage: test
-  image: node:20
-  script:
-    - npm ci && npm test
+    stage: test
+    image: node:20
+    script:
+        - npm ci && npm test
 
 build:
-  stage: build
-  image: docker:latest
-  services: [docker:dind]
-  script:
-    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    stage: build
+    image: docker:latest
+    services: [docker:dind]
+    script:
+        - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+        - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 
 deploy:production:
-  stage: deploy
-  script:
-    - kubectl set image deployment/app app=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-  environment: production
-  when: manual
-  only: [main]
+    stage: deploy
+    script:
+        - kubectl set image deployment/app app=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    environment: production
+    when: manual
+    only: [main]
 ```
 
 ### Jenkins Pipeline
@@ -241,16 +241,16 @@ CMD ["node", "dist/main.js"]
 # CircleCI
 version: 2.1
 jobs:
-  test:
-    parallelism: 4
-    docker:
-      - image: cimg/node:20
-    steps:
-      - checkout
-      - run: npm ci
-      - run: |
-          TESTS=$(circleci tests glob "test/**/*.js" | circleci tests split)
-          npm test $TESTS
+    test:
+        parallelism: 4
+        docker:
+            - image: cimg/node:20
+        steps:
+            - checkout
+            - run: npm ci
+            - run: |
+                  TESTS=$(circleci tests glob "test/**/*.js" | circleci tests split)
+                  npm test $TESTS
 ```
 
 ## Release Orchestration
@@ -294,19 +294,19 @@ echo "✓ Release $VERSION ready for production"
 
 ```json
 {
-  "extends": ["config:base"],
-  "packageRules": [
-    {
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true
-    },
-    {
-      "matchDepTypes": ["devDependencies"],
-      "automerge": true
-    }
-  ],
-  "schedule": ["before 6am on Monday"],
-  "prConcurrentLimit": 5
+    "extends": ["config:base"],
+    "packageRules": [
+        {
+            "matchUpdateTypes": ["minor", "patch"],
+            "automerge": true
+        },
+        {
+            "matchDepTypes": ["devDependencies"],
+            "automerge": true
+        }
+    ],
+    "schedule": ["before 6am on Monday"],
+    "prConcurrentLimit": 5
 }
 ```
 
@@ -319,20 +319,20 @@ echo "✓ Release $VERSION ready for production"
 - name: Cache dependencies
   uses: actions/cache@v3
   with:
-    path: |
-      ~/.npm
-      ~/.cache
-      node_modules
-    key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
-    restore-keys: |
-      ${{ runner.os }}-deps-
+      path: |
+          ~/.npm
+          ~/.cache
+          node_modules
+      key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
+      restore-keys: |
+          ${{ runner.os }}-deps-
 
 - name: Cache Docker layers
   uses: docker/build-push-action@v4
   with:
-    context: .
-    cache-from: type=gha
-    cache-to: type=gha,mode=max
+      context: .
+      cache-from: type=gha
+      cache-to: type=gha,mode=max
 ```
 
 ### Parallel CI Pipeline
@@ -344,29 +344,29 @@ name: Build
 on: [push]
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        node: [18, 20, 22]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-      - run: npm ci && npm test
+    test:
+        strategy:
+            matrix:
+                node: [18, 20, 22]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node }}
+            - run: npm ci && npm test
 
-  build-images:
-    needs: test
-    strategy:
-      matrix:
-        platform: [linux/amd64, linux/arm64]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker/build-push-action@v4
-        with:
-          platforms: ${{ matrix.platform }}
-          tags: app:${{ github.sha }}
+    build-images:
+        needs: test
+        strategy:
+            matrix:
+                platform: [linux/amd64, linux/arm64]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: docker/build-push-action@v4
+              with:
+                  platforms: ${{ matrix.platform }}
+                  tags: app:${{ github.sha }}
 ```
 
 ## Multi-Service Release Orchestration
@@ -376,37 +376,37 @@ jobs:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: release-v2.5.0
+    name: release-v2.5.0
 spec:
-  template:
-    spec:
-      containers:
-        - name: coordinator
-          image: release-bot:latest
-          env:
-            - name: RELEASE_VERSION
-              value: "v2.5.0"
-            - name: SERVICES
-              value: "auth,api,worker,frontend"
-          command:
-            - /bin/bash
-            - -c
-            - |
-              # Deploy in dependency order
-              for svc in auth api worker frontend; do
-                echo "Deploying $svc..."
-                kubectl set image deploy/$svc \
-                  $svc=registry.io/$svc:$RELEASE_VERSION
+    template:
+        spec:
+            containers:
+                - name: coordinator
+                  image: release-bot:latest
+                  env:
+                      - name: RELEASE_VERSION
+                        value: 'v2.5.0'
+                      - name: SERVICES
+                        value: 'auth,api,worker,frontend'
+                  command:
+                      - /bin/bash
+                      - -c
+                      - |
+                          # Deploy in dependency order
+                          for svc in auth api worker frontend; do
+                            echo "Deploying $svc..."
+                            kubectl set image deploy/$svc \
+                              $svc=registry.io/$svc:$RELEASE_VERSION
 
-                kubectl rollout status deploy/$svc --timeout=5m
+                            kubectl rollout status deploy/$svc --timeout=5m
 
-                # Health check
-                kubectl run test-$svc --rm -i --restart=Never \
-                  --image=curlimages/curl -- \
-                  curl -f http://$svc/health
+                            # Health check
+                            kubectl run test-$svc --rm -i --restart=Never \
+                              --image=curlimages/curl -- \
+                              curl -f http://$svc/health
 
-                echo "$svc deployed successfully"
-              done
+                            echo "$svc deployed successfully"
+                          done
 ```
 
 ## Advanced Artifact Management
@@ -475,37 +475,37 @@ def downgrade():
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: release-dashboard
+    name: release-dashboard
 data:
-  dashboard.json: |
-    {
-      "panels": [
+    dashboard.json: |
         {
-          "title": "Deployment Frequency",
-          "targets": [{
-            "expr": "count_over_time(deployment_completed[1d])"
-          }]
-        },
-        {
-          "title": "Lead Time",
-          "targets": [{
-            "expr": "histogram_quantile(0.95, commit_to_deploy_seconds_bucket)"
-          }]
-        },
-        {
-          "title": "Change Failure Rate",
-          "targets": [{
-            "expr": "sum(rate(deployment_failed[1h])) / sum(rate(deployment_total[1h]))"
-          }]
-        },
-        {
-          "title": "Active Releases",
-          "targets": [{
-            "expr": "count(release_in_progress == 1)"
-          }]
+          "panels": [
+            {
+              "title": "Deployment Frequency",
+              "targets": [{
+                "expr": "count_over_time(deployment_completed[1d])"
+              }]
+            },
+            {
+              "title": "Lead Time",
+              "targets": [{
+                "expr": "histogram_quantile(0.95, commit_to_deploy_seconds_bucket)"
+              }]
+            },
+            {
+              "title": "Change Failure Rate",
+              "targets": [{
+                "expr": "sum(rate(deployment_failed[1h])) / sum(rate(deployment_total[1h]))"
+              }]
+            },
+            {
+              "title": "Active Releases",
+              "targets": [{
+                "expr": "count(release_in_progress == 1)"
+              }]
+            }
+          ]
         }
-      ]
-    }
 ```
 
 ## Best Practices

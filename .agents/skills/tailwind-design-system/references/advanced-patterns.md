@@ -7,52 +7,52 @@ Advanced Tailwind CSS v4 patterns including animations, dark mode theming, custo
 ```css
 /* In your CSS file - native @starting-style for entry animations */
 @theme {
-  --animate-dialog-in: dialog-fade-in 0.2s ease-out;
-  --animate-dialog-out: dialog-fade-out 0.15s ease-in;
+    --animate-dialog-in: dialog-fade-in 0.2s ease-out;
+    --animate-dialog-out: dialog-fade-out 0.15s ease-in;
 }
 
 @keyframes dialog-fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(-0.5rem);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-0.5rem);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 @keyframes dialog-fade-out {
-  from {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.95) translateY(-0.5rem);
-  }
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95) translateY(-0.5rem);
+    }
 }
 
 /* Native popover animations using @starting-style */
 [popover] {
-  transition:
-    opacity 0.2s,
-    transform 0.2s,
-    display 0.2s allow-discrete;
-  opacity: 0;
-  transform: scale(0.95);
+    transition:
+        opacity 0.2s,
+        transform 0.2s,
+        display 0.2s allow-discrete;
+    opacity: 0;
+    transform: scale(0.95);
 }
 
 [popover]:popover-open {
-  opacity: 1;
-  transform: scale(1);
+    opacity: 1;
+    transform: scale(1);
 }
 
 @starting-style {
-  [popover]:popover-open {
-    opacity: 0;
-    transform: scale(0.95);
-  }
+    [popover]:popover-open {
+        opacity: 0;
+        transform: scale(0.95);
+    }
 }
 ```
 
@@ -213,12 +213,12 @@ Define reusable custom utilities:
 ```css
 /* Custom utility for decorative lines */
 @utility line-t {
-  @apply relative before:absolute before:top-0 before:-left-[100vw] before:h-px before:w-[200vw] before:bg-gray-950/5 dark:before:bg-white/10;
+    @apply relative before:absolute before:top-0 before:-left-[100vw] before:h-px before:w-[200vw] before:bg-gray-950/5 dark:before:bg-white/10;
 }
 
 /* Custom utility for text gradients */
 @utility text-gradient {
-  @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
 }
 ```
 
@@ -227,31 +227,31 @@ Define reusable custom utilities:
 ```css
 /* Use @theme inline when referencing other CSS variables */
 @theme inline {
-  --font-sans: var(--font-inter), system-ui;
+    --font-sans: var(--font-inter), system-ui;
 }
 
 /* Use @theme static to always generate CSS variables (even when unused) */
 @theme static {
-  --color-brand: oklch(65% 0.15 240);
+    --color-brand: oklch(65% 0.15 240);
 }
 
 /* Import with theme options */
-@import "tailwindcss" theme(static);
+@import 'tailwindcss' theme(static);
 ```
 
 ### Namespace Overrides
 
 ```css
 @theme {
-  /* Clear all default colors and define your own */
-  --color-*: initial;
-  --color-white: #fff;
-  --color-black: #000;
-  --color-primary: oklch(45% 0.2 260);
-  --color-secondary: oklch(65% 0.15 200);
+    /* Clear all default colors and define your own */
+    --color-*: initial;
+    --color-white: #fff;
+    --color-black: #000;
+    --color-primary: oklch(45% 0.2 260);
+    --color-secondary: oklch(65% 0.15 200);
 
-  /* Clear ALL defaults for a minimal setup */
-  /* --*: initial; */
+    /* Clear ALL defaults for a minimal setup */
+    /* --*: initial; */
 }
 ```
 
@@ -259,18 +259,10 @@ Define reusable custom utilities:
 
 ```css
 @theme {
-  /* Use color-mix() for alpha variants */
-  --color-primary-50: color-mix(in oklab, var(--color-primary) 5%, transparent);
-  --color-primary-100: color-mix(
-    in oklab,
-    var(--color-primary) 10%,
-    transparent
-  );
-  --color-primary-200: color-mix(
-    in oklab,
-    var(--color-primary) 20%,
-    transparent
-  );
+    /* Use color-mix() for alpha variants */
+    --color-primary-50: color-mix(in oklab, var(--color-primary) 5%, transparent);
+    --color-primary-100: color-mix(in oklab, var(--color-primary) 10%, transparent);
+    --color-primary-200: color-mix(in oklab, var(--color-primary) 20%, transparent);
 }
 ```
 
@@ -278,10 +270,10 @@ Define reusable custom utilities:
 
 ```css
 @theme {
-  --container-xs: 20rem;
-  --container-sm: 24rem;
-  --container-md: 28rem;
-  --container-lg: 32rem;
+    --container-xs: 20rem;
+    --container-sm: 24rem;
+    --container-md: 28rem;
+    --container-lg: 32rem;
 }
 ```
 

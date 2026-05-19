@@ -10,6 +10,7 @@
 Fitur ini menambahkan tombol **Sync Artikel (OAI-PMH)** pada halaman detail jurnal di dashboard Admin Kampus (LPPM). Ketika diklik, sistem akan mendispatch sebuah **background job** ke Laravel Queue sehingga proses harvesting berjalan secara asinkron tanpa memblokir halaman.
 
 Sebelumnya, harvesting hanya bisa dilakukan melalui perintah Artisan di terminal:
+
 ```bash
 php artisan journals:harvest-articles {journal_id}
 ```
@@ -41,15 +42,15 @@ oai_harvesting_logs   articles
 
 ### Komponen yang Terlibat
 
-| Layer | File | Peran |
-|---|---|---|
-| Job | `app/Jobs/HarvestJournalArticlesJob.php` | Background job dengan deduplication |
-| Controller | `app/Http/Controllers/AdminKampus/JournalController.php` | Dispatch job, return flash |
-| Route | `routes/web.php` | `POST admin-kampus/journals/{journal}/harvest` |
-| Service | `app/Services/OAIPMHHarvester.php` | Logika harvesting OAI-PMH (existing) |
-| Frontend | `resources/js/pages/AdminKampus/Journals/Show.tsx` | UI tombol + status |
-| Types | `resources/js/types/index.d.ts` | Interface `OaiHarvestingLog` |
-| Migration | `database/migrations/2026_03_02_000001_create_jobs_table.php` | Tabel `jobs` untuk queue |
+| Layer      | File                                                          | Peran                                          |
+| ---------- | ------------------------------------------------------------- | ---------------------------------------------- |
+| Job        | `app/Jobs/HarvestJournalArticlesJob.php`                      | Background job dengan deduplication            |
+| Controller | `app/Http/Controllers/AdminKampus/JournalController.php`      | Dispatch job, return flash                     |
+| Route      | `routes/web.php`                                              | `POST admin-kampus/journals/{journal}/harvest` |
+| Service    | `app/Services/OAIPMHHarvester.php`                            | Logika harvesting OAI-PMH (existing)           |
+| Frontend   | `resources/js/pages/AdminKampus/Journals/Show.tsx`            | UI tombol + status                             |
+| Types      | `resources/js/types/index.d.ts`                               | Interface `OaiHarvestingLog`                   |
+| Migration  | `database/migrations/2026_03_02_000001_create_jobs_table.php` | Tabel `jobs` untuk queue                       |
 
 ---
 
@@ -124,6 +125,7 @@ public function harvest(Journal $journal): RedirectResponse
 ```
 
 **Guard-guard:**
+
 1. **Policy `update`** — hanya Admin Kampus dari universitas yang sama.
 2. **Cek `oai_pmh_url`** — jika kosong, redirect dengan pesan error.
 3. **Redirect ke route eksplisit** — bukan `back()` yang bergantung pada header Referer.
@@ -132,13 +134,14 @@ public function harvest(Journal $journal): RedirectResponse
 
 Tiga prop baru ditambahkan ke `Inertia::render()`:
 
-| Prop | Tipe | Keterangan |
-|---|---|---|
-| `articlesCount` | `int` | Jumlah artikel yang sudah tersimpan |
-| `lastHarvestLog` | `array\|null` | Baris terakhir dari `oai_harvesting_logs` |
-| `isHarvestPending` | `bool` | Apakah ada job harvest aktif di antrian |
+| Prop               | Tipe          | Keterangan                                |
+| ------------------ | ------------- | ----------------------------------------- |
+| `articlesCount`    | `int`         | Jumlah artikel yang sudah tersimpan       |
+| `lastHarvestLog`   | `array\|null` | Baris terakhir dari `oai_harvesting_logs` |
+| `isHarvestPending` | `bool`        | Apakah ada job harvest aktif di antrian   |
 
 **`isHarvestPending` query:**
+
 ```php
 DB::table('jobs')
     ->where('queue', 'harvesting')
@@ -157,17 +160,17 @@ Seksi baru **"Artikel OAI-PMH"** ditambahkan di antara info jurnal dan assessmen
 
 - **Badge** jumlah artikel tersimpan
 - **Tombol "Sync Artikel"** dengan state:
-  - Normal → bisa diklik
-  - Loading (`harvesting` state) → spinner + disabled
-  - Pending (`isHarvestPending`) → teks "Antrian Aktif" + disabled
-  - Tidak ada URL → disabled + tooltip hint
+    - Normal → bisa diklik
+    - Loading (`harvesting` state) → spinner + disabled
+    - Pending (`isHarvestPending`) → teks "Antrian Aktif" + disabled
+    - Tidak ada URL → disabled + tooltip hint
 - **OAI-PMH Endpoint URL** dengan link ke endpoint
 - **Warning** jika URL belum dikonfigurasi (dengan link ke form edit)
 - **Riwayat harvest terakhir** menampilkan:
-  - Status badge (Berhasil / Sebagian / Gagal) dengan warna
-  - Jumlah records found dan records imported
-  - Timestamp harvest
-  - Pesan error (jika gagal)
+    - Status badge (Berhasil / Sebagian / Gagal) dengan warna
+    - Jumlah records found dan records imported
+    - Timestamp harvest
+    - Pesan error (jika gagal)
 
 ### 6. TypeScript Interface
 
@@ -193,6 +196,7 @@ export interface OaiHarvestingLog {
 **Queue name:** `harvesting` (terpisah dari queue `default`)
 
 Alasan menggunakan queue name terpisah `harvesting`:
+
 - Mengisolasi job harvest dari job lain
 - Bisa dikonfigurasi worker tersendiri dengan concurrency berbeda
 - Mudah di-monitor dan di-pause secara independen
@@ -200,6 +204,7 @@ Alasan menggunakan queue name terpisah `harvesting`:
 ### Menjalankan Queue Worker
 
 **Development (lokal):**
+
 ```bash
 php artisan queue:work --queue=harvesting
 ```
@@ -208,6 +213,7 @@ php artisan queue:work --queue=harvesting
 Gunakan Supervisor untuk menjaga worker tetap berjalan.
 
 Buat file `/etc/supervisor/conf.d/jurnal-mu-harvesting.conf`:
+
 ```ini
 [program:jurnal-mu-harvesting]
 process_name=%(program_name)s_%(process_num)02d
@@ -231,6 +237,7 @@ supervisorctl start jurnal-mu-harvesting:*
 ### Scheduled Harvesting (Opsional)
 
 Untuk harvest otomatis harian, tambahkan di `routes/console.php`:
+
 ```php
 Schedule::command('journals:harvest-articles --all')
     ->daily()
@@ -258,28 +265,31 @@ Schedule::command('journals:harvest-articles --all')
 
 ## Penanganan Error
 
-| Skenario | Penanganan |
-|---|---|
-| `oai_pmh_url` kosong | Flash `error`, redirect ke show page |
-| Job sudah di antrian | `ShouldBeUnique` menolak dispatch silently, flash `success` tetap muncul (idempotent) |
-| Network timeout ke endpoint | Job diulang otomatis hingga 3x |
-| Semua retry habis | `failed()` mencatat ke `oai_harvesting_logs` dengan status `failed` + error message |
-| XML tidak valid | `OAIPMHHarvester` catches exception, log ke `oai_harvesting_logs` status `failed` |
-| Worker tidak berjalan | Job tetap tersimpan di tabel `jobs`, akan diproses saat worker aktif kembali |
+| Skenario                    | Penanganan                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------- |
+| `oai_pmh_url` kosong        | Flash `error`, redirect ke show page                                                  |
+| Job sudah di antrian        | `ShouldBeUnique` menolak dispatch silently, flash `success` tetap muncul (idempotent) |
+| Network timeout ke endpoint | Job diulang otomatis hingga 3x                                                        |
+| Semua retry habis           | `failed()` mencatat ke `oai_harvesting_logs` dengan status `failed` + error message   |
+| XML tidak valid             | `OAIPMHHarvester` catches exception, log ke `oai_harvesting_logs` status `failed`     |
+| Worker tidak berjalan       | Job tetap tersimpan di tabel `jobs`, akan diproses saat worker aktif kembali          |
 
 ---
 
 ## Bug yang Diperbaiki Selama Implementasi
 
 ### Bug 1: `redirect()->back()` — 302 tanpa tujuan jelas
+
 **Masalah:** `redirect()->back()` bergantung pada HTTP `Referer` header. Jika header tidak ada (REST client, tab baru, dll), Laravel redirect ke `/` yang kemudian diredirect ke `/dashboard` — chain 302 yang membingungkan.  
 **Solusi:** Diganti dengan `redirect()->route('admin-kampus.journals.show', $journal)`.
 
 ### Bug 2: `isHarvestPending` LIKE query — selalu `false`
+
 **Masalah:** Query menggunakan `%"id":X%` (format JSON) tapi Laravel serialize model Job sebagai **PHP serialized string** (`i:X;`), bukan JSON.  
 **Solusi:** Diubah ke `%i:X;%` yang sesuai dengan format PHP serialize.
 
 ### Bug 3: Tidak ada proteksi duplicate job
+
 **Masalah:** Manual check bisa race-condition (dua request simultan lolos).  
 **Solusi:** Job mengimplementasikan `ShouldBeUnique` dengan `uniqueId()` — Laravel's built-in atomic lock via cache.
 
@@ -288,14 +298,16 @@ Schedule::command('journals:harvest-articles --all')
 ## Testing Manual
 
 ### Setup
+
 ```sql
 -- Pastikan ada jurnal dengan oai_pmh_url
-UPDATE journals 
-SET oai_pmh_url = 'https://journal.unnes.ac.id/journals/inapes/oai' 
+UPDATE journals
+SET oai_pmh_url = 'https://journal.unnes.ac.id/journals/inapes/oai'
 WHERE id = 1;
 ```
 
 ### Steps
+
 1. Login sebagai Admin Kampus
 2. Buka **Journals → [nama jurnal]**
 3. Scroll ke seksi "Artikel OAI-PMH"
@@ -305,6 +317,7 @@ WHERE id = 1;
 7. Refresh halaman — cek status harvest terbaru dan jumlah artikel
 
 ### Verifikasi Database
+
 ```sql
 -- Cek job masuk antrian
 SELECT id, queue, JSON_UNQUOTE(JSON_EXTRACT(payload, '$.displayName')) as job_class
@@ -316,6 +329,7 @@ SELECT COUNT(*) as total_articles FROM articles WHERE journal_id = 1;
 ```
 
 ### Test Double-Dispatch
+
 1. Klik **Sync Artikel** dua kali cepat (atau dua tab)
 2. Cek tabel `jobs` — hanya boleh ada **satu** job untuk journal tersebut (`ShouldBeUnique`)
 
@@ -323,14 +337,14 @@ SELECT COUNT(*) as total_articles FROM articles WHERE journal_id = 1;
 
 ## File yang Diubah / Dibuat
 
-| File | Status | Keterangan |
-|---|---|---|
-| `app/Jobs/HarvestJournalArticlesJob.php` | ✨ Baru | Job class dengan ShouldBeUnique |
-| `database/migrations/2026_03_02_000001_create_jobs_table.php` | ✨ Baru | Tabel `jobs` dan `job_batches` |
-| `routes/web.php` | 📝 Diubah | Tambah route `POST harvest` |
-| `app/Http/Controllers/AdminKampus/JournalController.php` | 📝 Diubah | Tambah method `harvest()`, update `show()` |
-| `resources/js/types/index.d.ts` | 📝 Diubah | Tambah interface `OaiHarvestingLog` |
-| `resources/js/pages/AdminKampus/Journals/Show.tsx` | 📝 Diubah | Seksi UI baru "Artikel OAI-PMH" |
+| File                                                          | Status    | Keterangan                                 |
+| ------------------------------------------------------------- | --------- | ------------------------------------------ |
+| `app/Jobs/HarvestJournalArticlesJob.php`                      | ✨ Baru   | Job class dengan ShouldBeUnique            |
+| `database/migrations/2026_03_02_000001_create_jobs_table.php` | ✨ Baru   | Tabel `jobs` dan `job_batches`             |
+| `routes/web.php`                                              | 📝 Diubah | Tambah route `POST harvest`                |
+| `app/Http/Controllers/AdminKampus/JournalController.php`      | 📝 Diubah | Tambah method `harvest()`, update `show()` |
+| `resources/js/types/index.d.ts`                               | 📝 Diubah | Tambah interface `OaiHarvestingLog`        |
+| `resources/js/pages/AdminKampus/Journals/Show.tsx`            | 📝 Diubah | Seksi UI baru "Artikel OAI-PMH"            |
 
 ---
 

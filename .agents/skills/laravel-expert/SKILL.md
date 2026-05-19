@@ -1,15 +1,15 @@
 ---
 name: laravel-expert
-description: "Laravel/PHP backend expert. PROACTIVELY use when working with Laravel, PHP APIs, Eloquent ORM. Triggers: laravel, php, eloquent, artisan"
+description: 'Laravel/PHP backend expert. PROACTIVELY use when working with Laravel, PHP APIs, Eloquent ORM. Triggers: laravel, php, eloquent, artisan'
 autoInvoke: true
 priority: high
 triggers:
-  - "laravel"
-  - "php"
-  - "eloquent"
-  - "artisan"
-  - "blade"
-  - "sanctum"
+    - 'laravel'
+    - 'php'
+    - 'eloquent'
+    - 'artisan'
+    - 'blade'
+    - 'sanctum'
 allowed-tools: Read, Grep, Glob, Edit, Write
 ---
 
@@ -22,6 +22,7 @@ Expert-level Laravel patterns for PHP 8.2+, Eloquent ORM, and API development.
 ## Auto-Detection
 
 This skill activates when:
+
 - Working with Laravel projects
 - Detected `laravel/framework` in composer.json
 - Working with `*.php` files in Laravel structure

@@ -1,4 +1,5 @@
 # Step 4: Seeders & Data Migration Test Report
+
 ## Seed Default Data & Migration Script with Rollback Test
 
 **Date:** January 17, 2026  
@@ -9,16 +10,16 @@
 
 ## 📊 Executive Summary
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| **Templates Created** | 2 | 2 | ✅ PASSED |
-| **Categories Created** | 6 | 6 | ✅ PASSED |
-| **Sub-Categories Created** | 12 | 12 | ✅ PASSED |
-| **Indicators Migrated** | 12 | 12 | ✅ PASSED |
-| **Legacy Indicators Remaining** | 0 | 0 | ✅ PASSED |
-| **Essay Questions Created** | 6 | 6 | ✅ PASSED |
-| **Weight Consistency** | Valid | ✅ VALIDATED | ✅ PASSED |
-| **Rollback Test** | Success | ✅ SUCCESS | ✅ PASSED |
+| Metric                          | Target  | Actual       | Status    |
+| ------------------------------- | ------- | ------------ | --------- |
+| **Templates Created**           | 2       | 2            | ✅ PASSED |
+| **Categories Created**          | 6       | 6            | ✅ PASSED |
+| **Sub-Categories Created**      | 12      | 12           | ✅ PASSED |
+| **Indicators Migrated**         | 12      | 12           | ✅ PASSED |
+| **Legacy Indicators Remaining** | 0       | 0            | ✅ PASSED |
+| **Essay Questions Created**     | 6       | 6            | ✅ PASSED |
+| **Weight Consistency**          | Valid   | ✅ VALIDATED | ✅ PASSED |
+| **Rollback Test**               | Success | ✅ SUCCESS   | ✅ PASSED |
 
 ---
 
@@ -27,17 +28,19 @@
 ### 3 New Seeders Created
 
 #### 1. AccreditationTemplateSeeder
+
 **File:** `database/seeders/AccreditationTemplateSeeder.php`
 
 Creates 2 default accreditation templates:
 
-| Template | Type | Status | Version | Purpose |
-|----------|------|--------|---------|---------|
-| BAN-PT 2024 - Akreditasi Jurnal Ilmiah | akreditasi | ✅ ACTIVE | 2024.1 | Indonesian university accreditation |
-| Scopus 2024 - Indeksasi Jurnal Internasional | indeksasi | ⚪ INACTIVE | 2024.0-draft | Scopus indexing criteria (future use) |
+| Template                                     | Type       | Status      | Version      | Purpose                               |
+| -------------------------------------------- | ---------- | ----------- | ------------ | ------------------------------------- |
+| BAN-PT 2024 - Akreditasi Jurnal Ilmiah       | akreditasi | ✅ ACTIVE   | 2024.1       | Indonesian university accreditation   |
+| Scopus 2024 - Indeksasi Jurnal Internasional | indeksasi  | ⚪ INACTIVE | 2024.0-draft | Scopus indexing criteria (future use) |
 
 **Execution Time:** 18 ms  
 **Output:**
+
 ```
 📋 Seeding Accreditation Templates...
   ✓ Created template 1/2: BAN-PT 2024 - Akreditasi Jurnal Ilmiah (type=akreditasi, active=true)
@@ -48,11 +51,13 @@ Creates 2 default accreditation templates:
 ---
 
 #### 2. DataMigrationSeeder
+
 **File:** `database/seeders/DataMigrationSeeder.php`
 
 Migrates v1.0 legacy indicators to v1.1 hierarchical structure:
 
 **Process Flow:**
+
 1. **Extract Categories** - Groups 12 indicators into 3 unique categories
 2. **Create Categories** - Links to BAN-PT template with weight aggregation
 3. **Extract Sub-Categories** - Identifies 12 unique sub-categories from legacy data
@@ -62,14 +67,15 @@ Migrates v1.0 legacy indicators to v1.1 hierarchical structure:
 
 **Migration Results:**
 
-| Category | Code | Weight | Indicators | Sub-Categories |
-|----------|------|--------|------------|----------------|
-| Kelengkapan Administrasi | ADM | 6.00 | 4 | 4 |
-| Kualitas Konten | KON | 8.50 | 4 | 4 |
-| Proses Editorial | EDT | 9.00 | 4 | 4 |
-| **TOTAL** | - | **23.50** | **12** | **12** |
+| Category                 | Code | Weight    | Indicators | Sub-Categories |
+| ------------------------ | ---- | --------- | ---------- | -------------- |
+| Kelengkapan Administrasi | ADM  | 6.00      | 4          | 4              |
+| Kualitas Konten          | KON  | 8.50      | 4          | 4              |
+| Proses Editorial         | EDT  | 9.00      | 4          | 4              |
+| **TOTAL**                | -    | **23.50** | **12**     | **12**         |
 
 **Sub-Categories Created:**
+
 1. Identitas Jurnal (ADM-01)
 2. Platform Publikasi (ADM-02)
 3. Struktur Organisasi (ADM-03)
@@ -85,6 +91,7 @@ Migrates v1.0 legacy indicators to v1.1 hierarchical structure:
 
 **Execution Time:** 162.92 ms  
 **Output:**
+
 ```
 🔄 Starting v1.0 → v1.1 Data Migration...
 📌 Using template: BAN-PT 2024 - Akreditasi Jurnal Ilmiah (ID: 1)
@@ -123,30 +130,32 @@ Migrates v1.0 legacy indicators to v1.1 hierarchical structure:
 ---
 
 #### 3. EssayQuestionSeeder
+
 **File:** `database/seeders/EssayQuestionSeeder.php`
 
 Creates 6 sample essay questions (3 per template):
 
 **BAN-PT Template Essays (Active):**
 
-| Code | Category | Question | Max Words | Required |
-|------|----------|----------|-----------|----------|
-| ESSAY-ADM-01 | Kelengkapan Administrasi | Jelaskan sejarah dan perkembangan jurnal... | 500 | ✅ Yes |
-| ESSAY-KON-01 | Kualitas Konten | Jelaskan proses peer review... | 600 | ✅ Yes |
-| ESSAY-VIS-01 | Proses Editorial | Jelaskan strategi meningkatkan visibility... | 500 | ⚪ No |
+| Code         | Category                 | Question                                     | Max Words | Required |
+| ------------ | ------------------------ | -------------------------------------------- | --------- | -------- |
+| ESSAY-ADM-01 | Kelengkapan Administrasi | Jelaskan sejarah dan perkembangan jurnal...  | 500       | ✅ Yes   |
+| ESSAY-KON-01 | Kualitas Konten          | Jelaskan proses peer review...               | 600       | ✅ Yes   |
+| ESSAY-VIS-01 | Proses Editorial         | Jelaskan strategi meningkatkan visibility... | 500       | ⚪ No    |
 
 **Scopus Template Essays (Inactive - Draft):**
 
-| Code | Category | Question | Max Words | Required |
-|------|----------|----------|-----------|----------|
-| ESSAY-SCOPUS-QUA-01 | Journal Quality & Policy | Describe editorial board composition... | 400 | ✅ Yes |
-| ESSAY-SCOPUS-ETH-01 | Publication Ethics | Explain plagiarism policies... | 450 | ✅ Yes |
-| ESSAY-SCOPUS-CIT-01 | Visibility & Citation | Provide citation impact evidence... | 350 | ⚪ No |
+| Code                | Category                 | Question                                | Max Words | Required |
+| ------------------- | ------------------------ | --------------------------------------- | --------- | -------- |
+| ESSAY-SCOPUS-QUA-01 | Journal Quality & Policy | Describe editorial board composition... | 400       | ✅ Yes   |
+| ESSAY-SCOPUS-ETH-01 | Publication Ethics       | Explain plagiarism policies...          | 450       | ✅ Yes   |
+| ESSAY-SCOPUS-CIT-01 | Visibility & Citation    | Provide citation impact evidence...     | 350       | ⚪ No    |
 
 **Note:** Seeder automatically created 3 placeholder categories for Scopus template (Journal Quality & Policy, Publication Ethics, Visibility & Citation) since no migration data exists yet.
 
 **Execution Time:** 131.32 ms  
 **Output:**
+
 ```
 📝 Seeding Essay Questions...
 
@@ -184,17 +193,18 @@ $this->call([
     UniversitySeeder::class,        // 3. Universities (no dependencies)
     UserSeeder::class,              // 4. Users (depends on: roles, universities)
     EvaluationIndicatorSeeder::class, // 5. Evaluation Indicators (v1.0 legacy data)
-    
+
     // === NEW v1.1: Hierarchical Borang Structure ===
     AccreditationTemplateSeeder::class, // 6. Templates (2 templates: BAN-PT, Scopus)
     DataMigrationSeeder::class,         // 7. Migrate v1.0 → v1.1 (categories, sub-categories)
     EssayQuestionSeeder::class,         // 8. Essay Questions (6 samples)
-    
+
     JournalSeeder::class,           // 9. Journals (depends on: universities, users, scientific_fields)
 ]);
 ```
 
 **Dependency Chain:**
+
 - AccreditationTemplateSeeder → DataMigrationSeeder → EssayQuestionSeeder
 - EvaluationIndicatorSeeder MUST run BEFORE DataMigrationSeeder (provides legacy data)
 
@@ -210,15 +220,16 @@ $this->call([
 
 **Database State After Seeding:**
 
-| Table | Records | Status |
-|-------|---------|--------|
-| accreditation_templates | 2 | ✅ Created |
-| evaluation_categories | 6 | ✅ Created |
-| evaluation_sub_categories | 12 | ✅ Created |
-| evaluation_indicators | 12 | ✅ All migrated (sub_category_id populated) |
-| essay_questions | 6 | ✅ Created |
+| Table                     | Records | Status                                      |
+| ------------------------- | ------- | ------------------------------------------- |
+| accreditation_templates   | 2       | ✅ Created                                  |
+| evaluation_categories     | 6       | ✅ Created                                  |
+| evaluation_sub_categories | 12      | ✅ Created                                  |
+| evaluation_indicators     | 12      | ✅ All migrated (sub_category_id populated) |
+| essay_questions           | 6       | ✅ Created                                  |
 
 **Hierarchical Structure Validation:**
+
 ```
 BAN-PT Template Hierarchy:
   Template → 3 Categories → 12 Sub-Categories → 12 Indicators
@@ -238,16 +249,17 @@ BAN-PT Template Hierarchy:
 
 **Database State After Rollback:**
 
-| Table | Status | Notes |
-|-------|--------|-------|
-| accreditation_templates | ✗ DROPPED | Successfully removed |
-| evaluation_categories | ✗ DROPPED | Successfully removed |
-| evaluation_sub_categories | ✗ DROPPED | Successfully removed |
-| essay_questions | ✗ DROPPED | Successfully removed |
-| evaluation_indicators | ✅ EXISTS | Retained with v1.0 structure |
-| evaluation_indicators.sub_category_id | ✗ REMOVED | Column dropped |
+| Table                                 | Status    | Notes                        |
+| ------------------------------------- | --------- | ---------------------------- |
+| accreditation_templates               | ✗ DROPPED | Successfully removed         |
+| evaluation_categories                 | ✗ DROPPED | Successfully removed         |
+| evaluation_sub_categories             | ✗ DROPPED | Successfully removed         |
+| essay_questions                       | ✗ DROPPED | Successfully removed         |
+| evaluation_indicators                 | ✅ EXISTS | Retained with v1.0 structure |
+| evaluation_indicators.sub_category_id | ✗ REMOVED | Column dropped               |
 
 **Validation:**
+
 ```
 === AFTER ROLLBACK CHECK ===
 
@@ -268,6 +280,7 @@ BAN-PT Template Hierarchy:
 ```
 
 **Key Findings:**
+
 - ✅ All v1.1 tables successfully dropped
 - ✅ v1.0 indicators remain intact (12 records preserved)
 - ✅ Legacy VARCHAR columns (category, sub_category) still functional
@@ -278,6 +291,7 @@ BAN-PT Template Hierarchy:
 ### Test 3: Re-Migration After Rollback
 
 **Commands:**
+
 ```bash
 php artisan migrate
 php artisan db:seed --class=AccreditationTemplateSeeder
@@ -295,23 +309,23 @@ php artisan db:seed --class=EssayQuestionSeeder
 
 ### Seeder Execution Times
 
-| Seeder | Duration | Records Created |
-|--------|----------|-----------------|
-| **AccreditationTemplateSeeder** | 18 ms | 2 templates |
-| **DataMigrationSeeder** | 162.92 ms | 3 categories + 12 sub-categories + 12 indicator updates |
-| **EssayQuestionSeeder** | 131.32 ms | 6 essays + 3 placeholder categories |
-| **TOTAL** | **312.24 ms** | **26 records + 12 updates** |
+| Seeder                          | Duration      | Records Created                                         |
+| ------------------------------- | ------------- | ------------------------------------------------------- |
+| **AccreditationTemplateSeeder** | 18 ms         | 2 templates                                             |
+| **DataMigrationSeeder**         | 162.92 ms     | 3 categories + 12 sub-categories + 12 indicator updates |
+| **EssayQuestionSeeder**         | 131.32 ms     | 6 essays + 3 placeholder categories                     |
+| **TOTAL**                       | **312.24 ms** | **26 records + 12 updates**                             |
 
 ### Migration Execution Times
 
-| Migration | Up Time | Down Time (Rollback) |
-|-----------|---------|----------------------|
-| create_accreditation_templates_table | 45.89 ms | 3.45 ms |
-| create_evaluation_categories_table | 81.45 ms | 10.13 ms |
-| create_evaluation_sub_categories_table | 274.97 ms | 10.54 ms |
-| create_essay_questions_table | 122.57 ms | 12.80 ms |
-| alter_evaluation_indicators_add_hierarchy | 115.79 ms | 66.00 ms |
-| **TOTAL** | **640.67 ms** | **102.92 ms** |
+| Migration                                 | Up Time       | Down Time (Rollback) |
+| ----------------------------------------- | ------------- | -------------------- |
+| create_accreditation_templates_table      | 45.89 ms      | 3.45 ms              |
+| create_evaluation_categories_table        | 81.45 ms      | 10.13 ms             |
+| create_evaluation_sub_categories_table    | 274.97 ms     | 10.54 ms             |
+| create_essay_questions_table              | 122.57 ms     | 12.80 ms             |
+| alter_evaluation_indicators_add_hierarchy | 115.79 ms     | 66.00 ms             |
+| **TOTAL**                                 | **640.67 ms** | **102.92 ms**        |
 
 ---
 
@@ -329,16 +343,17 @@ php artisan db:seed --class=EssayQuestionSeeder
 
 ### 2. Weight Consistency Check
 
-| Category | Category Weight | Sum of Indicator Weights | Status |
-|----------|----------------|--------------------------|--------|
-| Kelengkapan Administrasi | 6.00 | 6.00 | ✅ MATCH |
-| Kualitas Konten | 8.50 | 8.50 | ✅ MATCH |
-| Proses Editorial | 9.00 | 9.00 | ✅ MATCH |
-| **TOTAL** | **23.50** | **23.50** | ✅ MATCH |
+| Category                 | Category Weight | Sum of Indicator Weights | Status   |
+| ------------------------ | --------------- | ------------------------ | -------- |
+| Kelengkapan Administrasi | 6.00            | 6.00                     | ✅ MATCH |
+| Kualitas Konten          | 8.50            | 8.50                     | ✅ MATCH |
+| Proses Editorial         | 9.00            | 9.00                     | ✅ MATCH |
+| **TOTAL**                | **23.50**       | **23.50**                | ✅ MATCH |
 
 ### 3. Hierarchical Relationships
 
 Sample Indicator Traversal (ADM-01):
+
 ```
 Indicator: ADM-01
   ↓ sub_category_id=1
@@ -365,11 +380,13 @@ Template: BAN-PT 2024 - Akreditasi Jurnal Ilmiah
 ## 🐛 Issues Resolved
 
 ### Issue #1: String Interpolation Syntax Error
+
 **Problem:** `ParseError: syntax error, unexpected token "+"` in seeder output
 
 **Root Cause:** PHP doesn't support arithmetic expressions directly in double-quoted string interpolation (e.g., `{$index + 1}`)
 
 **Solution:** Extract calculations to variables before string usage
+
 ```php
 // ❌ BEFORE
 $this->command->info("Template {$index + 1}/2");
@@ -380,6 +397,7 @@ $this->command->info("Template {$templateNum}/2");
 ```
 
 **Files Fixed:**
+
 - AccreditationTemplateSeeder.php (2 occurrences)
 - DataMigrationSeeder.php (2 occurrences)
 - EssayQuestionSeeder.php (2 occurrences)
@@ -390,20 +408,20 @@ $this->command->info("Template {$templateNum}/2");
 
 ### Requirements Met
 
-| Requirement | Target | Actual | Status |
-|-------------|--------|--------|--------|
-| **R1: Create 2 Templates** | 2 | 2 | ✅ PASSED |
-| **R2: Active BAN-PT Template** | 1 | 1 (is_active=true) | ✅ PASSED |
-| **R3: Inactive Scopus Template** | 1 | 1 (is_active=false) | ✅ PASSED |
-| **R4: Extract Categories from v1.0** | Auto-detect | 3 categories | ✅ PASSED |
-| **R5: Create Sub-Categories** | 12 | 12 | ✅ PASSED |
-| **R6: Migrate All Indicators** | 12/12 | 12/12 (100%) | ✅ PASSED |
-| **R7: No Legacy Indicators Remaining** | 0 | 0 | ✅ PASSED |
-| **R8: Weight Consistency** | Valid | ✅ VALIDATED | ✅ PASSED |
-| **R9: Create 6 Essay Questions** | 6 | 6 | ✅ PASSED |
-| **R10: Essays Link to Categories** | Yes | ✅ Validated | ✅ PASSED |
-| **R11: Rollback Without Data Loss** | Yes | ✅ v1.0 intact | ✅ PASSED |
-| **R12: Re-migration Success** | Yes | ✅ Identical result | ✅ PASSED |
+| Requirement                            | Target      | Actual              | Status    |
+| -------------------------------------- | ----------- | ------------------- | --------- |
+| **R1: Create 2 Templates**             | 2           | 2                   | ✅ PASSED |
+| **R2: Active BAN-PT Template**         | 1           | 1 (is_active=true)  | ✅ PASSED |
+| **R3: Inactive Scopus Template**       | 1           | 1 (is_active=false) | ✅ PASSED |
+| **R4: Extract Categories from v1.0**   | Auto-detect | 3 categories        | ✅ PASSED |
+| **R5: Create Sub-Categories**          | 12          | 12                  | ✅ PASSED |
+| **R6: Migrate All Indicators**         | 12/12       | 12/12 (100%)        | ✅ PASSED |
+| **R7: No Legacy Indicators Remaining** | 0           | 0                   | ✅ PASSED |
+| **R8: Weight Consistency**             | Valid       | ✅ VALIDATED        | ✅ PASSED |
+| **R9: Create 6 Essay Questions**       | 6           | 6                   | ✅ PASSED |
+| **R10: Essays Link to Categories**     | Yes         | ✅ Validated        | ✅ PASSED |
+| **R11: Rollback Without Data Loss**    | Yes         | ✅ v1.0 intact      | ✅ PASSED |
+| **R12: Re-migration Success**          | Yes         | ✅ Identical result | ✅ PASSED |
 
 ---
 
@@ -412,17 +430,20 @@ $this->command->info("Template {$templateNum}/2");
 ### Running Seeders
 
 **Full Database Reset:**
+
 ```bash
 php artisan migrate:fresh --seed
 ```
 
 **Incremental Seeding (after fresh migration):**
+
 ```bash
 php artisan migrate:fresh
 php artisan db:seed
 ```
 
 **Seeding Individual Seeders:**
+
 ```bash
 # Order matters! Run in sequence:
 php artisan db:seed --class=AccreditationTemplateSeeder
@@ -435,16 +456,19 @@ php artisan db:seed --class=EssayQuestionSeeder
 ### Rollback Strategy
 
 **Rollback v1.1 Only (5 migrations):**
+
 ```bash
 php artisan migrate:rollback --step=5
 ```
 
 **Rollback All Migrations:**
+
 ```bash
 php artisan migrate:reset
 ```
 
 **Restore After Rollback:**
+
 ```bash
 php artisan migrate
 # Then re-run seeders as needed
@@ -519,6 +543,7 @@ php artisan migrate
 With Step 4 complete, the project is ready for:
 
 **Step 5: Implement Backend CRUD APIs**
+
 - Create 5 controllers with Inertia responses
 - Add resource routes with Super Admin middleware
 - Create Form Requests for validation
@@ -532,7 +557,7 @@ With Step 4 complete, the project is ready for:
 **Documentation Owner:** Development Team  
 **Last Updated:** January 17, 2026  
 **Database Version:** v1.1 (Hierarchical)  
-**Laravel Version:** 11.x  
+**Laravel Version:** 11.x
 
 ---
 
