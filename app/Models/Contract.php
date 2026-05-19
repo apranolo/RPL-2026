@@ -35,12 +35,12 @@ class Contract extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'value'        => 'decimal:2',
-        'start_date'   => 'date',
-        'end_date'     => 'date',
+        'value' => 'decimal:2',
+        'start_date' => 'date',
+        'end_date' => 'date',
         'generated_at' => 'datetime',
-        'created_at'   => 'datetime',
-        'updated_at'   => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -121,11 +121,11 @@ class Contract extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'draft'    => 'Draft',
-            'aktif'    => 'Aktif',
-            'selesai'  => 'Selesai',
-            'batal'    => 'Dibatalkan',
-            default    => 'Tidak Diketahui',
+            'draft' => 'Draft',
+            'aktif' => 'Aktif',
+            'selesai' => 'Selesai',
+            'batal' => 'Dibatalkan',
+            default => 'Tidak Diketahui',
         };
     }
 
@@ -135,11 +135,11 @@ class Contract extends Model
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'draft'   => 'gray',
-            'aktif'   => 'green',
+            'draft' => 'gray',
+            'aktif' => 'green',
             'selesai' => 'blue',
-            'batal'   => 'red',
-            default   => 'gray',
+            'batal' => 'red',
+            default => 'gray',
         };
     }
 
@@ -178,9 +178,9 @@ class Contract extends Model
      */
     public static function generateContractNumber(): string
     {
-        $year    = now()->format('Y');
-        $month   = now()->format('m');
-        $count   = static::whereYear('created_at', $year)->count() + 1;
+        $year = now()->format('Y');
+        $month = now()->format('m');
+        $count = static::whereYear('created_at', $year)->count() + 1;
         $sequence = str_pad($count, 4, '0', STR_PAD_LEFT);
 
         return "KTR/{$year}/{$month}/{$sequence}";
@@ -194,10 +194,10 @@ class Contract extends Model
     public static function getStatusOptions(): array
     {
         return [
-            'draft'   => 'Draft',
-            'aktif'   => 'Aktif',
+            'draft' => 'Draft',
+            'aktif' => 'Aktif',
             'selesai' => 'Selesai',
-            'batal'   => 'Dibatalkan',
+            'batal' => 'Dibatalkan',
         ];
     }
 }

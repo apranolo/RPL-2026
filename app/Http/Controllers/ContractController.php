@@ -37,7 +37,7 @@ class ContractController extends Controller
 
         return Inertia::render('Finance/Contract/Index', [
             'contracts' => $contracts,
-            'filters'   => $request->only(['status', 'search']),
+            'filters' => $request->only(['status', 'search']),
         ]);
     }
 
@@ -72,13 +72,13 @@ class ContractController extends Controller
     public function generate(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'journal_id'  => 'required|exists:journals,id',
-            'title'       => 'required|string|max:255',
+            'journal_id' => 'required|exists:journals,id',
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
-            'value'       => 'nullable|numeric|min:0',
-            'start_date'  => 'required|date',
-            'end_date'    => 'required|date|after_or_equal:start_date',
-            'notes'       => 'nullable|string|max:1000',
+            'value' => 'nullable|numeric|min:0',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         // Ensure the journal exists and retrieve its owner
@@ -98,18 +98,18 @@ class ContractController extends Controller
         DB::beginTransaction();
         try {
             $contract = Contract::create([
-                'journal_id'      => $journal->id,
-                'user_id'         => $journal->user_id,
+                'journal_id' => $journal->id,
+                'user_id' => $journal->user_id,
                 'contract_number' => Contract::generateContractNumber(),
-                'title'           => $validated['title'],
-                'description'     => $validated['description'] ?? null,
-                'value'           => $validated['value'] ?? null,
-                'start_date'      => $validated['start_date'],
-                'end_date'        => $validated['end_date'],
-                'status'          => 'draft',
-                'generated_at'    => now(),
-                'generated_by'    => $request->user()->id,
-                'notes'           => $validated['notes'] ?? null,
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'value' => $validated['value'] ?? null,
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'],
+                'status' => 'draft',
+                'generated_at' => now(),
+                'generated_by' => $request->user()->id,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             DB::commit();
@@ -122,9 +122,9 @@ class ContractController extends Controller
             DB::rollBack();
 
             Log::error('ContractController@generate: Gagal membuat draft kontrak.', [
-                'user_id'    => $request->user()->id,
+                'user_id' => $request->user()->id,
                 'journal_id' => $validated['journal_id'] ?? null,
-                'exception'  => $e->getMessage(),
+                'exception' => $e->getMessage(),
             ]);
 
             return back()->withErrors([
@@ -148,7 +148,7 @@ class ContractController extends Controller
     {
         $validated = $request->validate([
             'status' => 'required|string|in:aktif,selesai,batal',
-            'notes'  => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         $newStatus = $validated['status'];
@@ -177,7 +177,7 @@ class ContractController extends Controller
         try {
             $contract->update([
                 'status' => $newStatus,
-                'notes'  => $validated['notes'] ?? $contract->notes,
+                'notes' => $validated['notes'] ?? $contract->notes,
             ]);
 
             $newLabel = Contract::getStatusOptions()[$newStatus] ?? $newStatus;
@@ -187,9 +187,9 @@ class ContractController extends Controller
         } catch (\Exception $e) {
             Log::error('ContractController@updateStatus: Gagal mengubah status kontrak.', [
                 'contract_id' => $contract->id,
-                'user_id'     => $request->user()->id,
-                'new_status'  => $newStatus,
-                'exception'   => $e->getMessage(),
+                'user_id' => $request->user()->id,
+                'new_status' => $newStatus,
+                'exception' => $e->getMessage(),
             ]);
 
             return back()->withErrors([
@@ -222,8 +222,8 @@ class ContractController extends Controller
         } catch (\Exception $e) {
             Log::error('ContractController@destroy: Gagal menghapus kontrak.', [
                 'contract_id' => $contract->id,
-                'user_id'     => $request->user()->id,
-                'exception'   => $e->getMessage(),
+                'user_id' => $request->user()->id,
+                'exception' => $e->getMessage(),
             ]);
 
             return back()->withErrors([
