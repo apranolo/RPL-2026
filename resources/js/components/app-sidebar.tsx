@@ -12,6 +12,7 @@ import {
     Building2,
     CalendarDays,
     ClipboardList,
+    FileText,
     LayoutGrid,
     Library,
     LifeBuoy,
@@ -151,6 +152,11 @@ export function AppSidebar() {
                 title: 'Jurnal',
                 href: route('user.journals.index'),
                 icon: BookOpen,
+            },
+            {
+                title: 'Luaran',
+                href: route('user.outputs.create'),
+                icon: FileText,
             },
             {
                 title: 'Pembinaan',

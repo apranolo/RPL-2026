@@ -26,6 +26,7 @@ use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
+use App\Http\Controllers\OutputController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
@@ -507,6 +508,14 @@ Route::middleware(['auth'])->group(function () {
             // Create assessment for pembinaan registration
             Route::post('registrations/{registration}/create-assessment', [UserPembinaanController::class, 'createAssessment'])
                 ->name('registrations.create-assessment');
+        });
+
+        // Outputs (Luaran) Management
+        Route::prefix('outputs')->name('outputs.')->group(function () {
+            Route::get('create', [OutputController::class, 'create'])
+                ->name('create');
+            Route::post('store-journal', [OutputController::class, 'storeJournal'])
+                ->name('store-journal');
         });
     });
 
