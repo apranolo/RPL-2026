@@ -1,6 +1,6 @@
-import { Link } from '@inertiajs/react';
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { Link } from '@inertiajs/react';
 
 interface InboxTabProps {
     counts: {
@@ -30,14 +30,12 @@ export function InboxTab({ counts, activeTab }: InboxTabProps) {
                         href={route('user.editorial.desk.inbox', { tab: tab.id })}
                         className={cn(
                             'flex items-center justify-center space-x-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all',
-                            isActive 
-                                ? 'bg-background text-foreground shadow-sm' 
-                                : 'text-muted-foreground hover:bg-muted-foreground/10'
+                            isActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted-foreground/10',
                         )}
                     >
                         <span>{tab.label}</span>
                         {tab.count > 0 && (
-                            <Badge variant={isActive ? 'default' : 'secondary'} className="ml-2 px-1.5 min-w-[20px] justify-center">
+                            <Badge variant={isActive ? 'default' : 'secondary'} className="ml-2 min-w-[20px] justify-center px-1.5">
                                 {tab.count}
                             </Badge>
                         )}

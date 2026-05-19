@@ -24,9 +24,9 @@ class DeskController extends Controller
 
         // Determine active tab from query params, default to unassigned
         $activeTab = $request->query('tab', 'unassigned');
-        
+
         // Ensure valid tab
-        if (!in_array($activeTab, array_keys($counts))) {
+        if (! in_array($activeTab, array_keys($counts))) {
             $activeTab = 'unassigned';
         }
 
