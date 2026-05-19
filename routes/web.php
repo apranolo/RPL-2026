@@ -31,9 +31,11 @@ use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\Editorial\EditorialDiscussionController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -573,7 +575,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Shared Routes (All Roles)
+    | Shared Routes (All Roles) & Editorial Internal
     |--------------------------------------------------------------------------
     */
 
@@ -587,13 +589,24 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('proposal', ProposalController::class);
 
-    // Profile Management
-    // Route::prefix('profile')->name('profile.')->group(function () {
-    //     Route::get('/', [ProfileController::class, 'edit'])->name('edit');
-    //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
-    //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
-    // });
-});
+    /* --- Editorial Discussion Routes (Sudah di dalam Auth Middleware) --- */
+    Route::get('/editorial/desk/discussion/{submissionId}', function ($submissionId) {
+        return Inertia::render('Editorial/Desk/Discussion', [
+            'submissionId' => (int) $submissionId,
+        ]);
+    })->name('editorial.desk.discussion');
+
+    Route::get('/editorial/discussions/{submissionId}', [EditorialDiscussionController::class, 'index'])
+        ->name('editorial.discussions.index');
+
+    Route::post('/editorial/discussions/{submissionId}', [EditorialDiscussionController::class, 'store'])
+        ->name('editorial.discussions.store');
+
+}); // <--- BATAS AKHIR MIDDLEWARE AUTH
 
 require __DIR__.'/settings.php';
+<<<<<<< Updated upstream
 require __DIR__.'/auth.php';
+=======
+require __DIR__.'/auth.php';
+>>>>>>> Stashed changes

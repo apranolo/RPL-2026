@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
-// Common navigation items shared across all roles
 const commonNavItems: NavItem[] = [
     {
         title: 'Support',
@@ -36,9 +35,8 @@ const commonNavItems: NavItem[] = [
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
-    const { user } = auth;
+    const user = auth?.user ?? null; // ← guard: auth atau user bisa null
 
-    // Base items available to everyone
     const baseNavItems: NavItem[] = [
         {
             title: 'Dashboard',
@@ -47,11 +45,10 @@ export function AppSidebar() {
         },
     ];
 
-    // Role-specific items
     let roleNavItems: NavItem[] = [];
 
-    if (!user.role) {
-        // Fallback for users without assigned roles - show only common items
+    if (!user || !user.role) {
+        // Fallback: user null atau belum punya role
         roleNavItems = [...commonNavItems];
     } else if (user.role.name === ROLE_NAMES.SUPER_ADMIN) {
         roleNavItems = [
@@ -102,7 +99,6 @@ export function AppSidebar() {
             ...commonNavItems,
         ];
     } else if (user.role.name === ROLE_NAMES.ADMIN_KAMPUS) {
-        // Build Admin Kampus menu items
         const adminKampusItems: NavItem[] = [
             {
                 title: 'Pengelola Jurnal',
@@ -130,7 +126,6 @@ export function AppSidebar() {
             },
         ];
 
-        // Add Reviewer menu only if user has reviewer role
         if (user.roles && user.roles.some((role: { name: string }) => role.name === 'Reviewer')) {
             adminKampusItems.push({
                 title: 'Reviewer',
@@ -164,7 +159,6 @@ export function AppSidebar() {
             ...commonNavItems,
         ];
     } else {
-        // Fallback for unrecognized roles - show only common items
         roleNavItems = [...commonNavItems];
     }
 
