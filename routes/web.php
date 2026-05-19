@@ -24,6 +24,7 @@ use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
@@ -552,7 +553,28 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+    /*
+    |--------------------------------------------------------------------------
+    | Finance — Contract Management Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['auth'])->prefix('finance')->name('finance.')->group(function () {
+        Route::prefix('contracts')->name('contracts.')->group(function () {
+            Route::get('/', [ContractController::class, 'index'])
+                ->name('index');
+            Route::get('{contract}', [ContractController::class, 'show'])
+                ->name('show');
+            Route::post('generate', [ContractController::class, 'generate'])
+                ->name('generate');
+            Route::patch('{contract}/status', [ContractController::class, 'updateStatus'])
+                ->name('update-status');
+            Route::delete('{contract}', [ContractController::class, 'destroy'])
+                ->name('destroy');
+        });
+    });
+
 });
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
