@@ -339,7 +339,7 @@ class Journal extends Model
         }
 
         return $query->whereNotNull('indexations')
-            ->where('indexations->'.$platform, true);
+            ->whereNotNull('indexations->'.$platform);
     }
 
     /**
@@ -349,7 +349,7 @@ class Journal extends Model
     public function scopeIndexedInScopus($query)
     {
         return $query->whereNotNull('indexations')
-            ->where('indexations->Scopus', true);
+            ->whereNotNull('indexations->Scopus');
     }
 
     /**
