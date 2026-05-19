@@ -556,3 +556,16 @@ Route::middleware(['auth'])->group(function () {
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
+use App\Http\Controllers\Editorial\PlagiarismController;
+
+Route::post('/plagiarism-check', [
+    PlagiarismController::class,
+    'store'
+]);
+
+use Inertia\Inertia;
+
+Route::get('/plagiarism-check', function () {
+    return Inertia::render('Editorial/Desk/Plagiarism');
+});
