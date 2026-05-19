@@ -42,13 +42,18 @@ return new class extends Migration
             // Update column comments to mark old columns as DEPRECATED
             DB::statement("ALTER TABLE evaluation_indicators 
                 MODIFY category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
-    
+
             DB::statement("ALTER TABLE evaluation_indicators 
                 MODIFY sub_category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
-    
+
             // Make category nullable for new indicators created via hierarchy
             DB::statement('ALTER TABLE evaluation_indicators 
                 MODIFY category VARCHAR(100) NULL');
+        } else {
+            Schema::table('evaluation_indicators', function (Blueprint $table) {
+                $table->string('category', 100)->nullable()->change();
+                $table->string('sub_category', 100)->nullable()->change();
+            });
         }
     }
 
@@ -78,7 +83,7 @@ return new class extends Migration
             // Revert comments to v1.0 state (remove DEPRECATED warnings)
             DB::statement("ALTER TABLE evaluation_indicators 
                 MODIFY category VARCHAR(100) NOT NULL COMMENT 'Kategori utama, e.g., Kelengkapan Administrasi'");
-    
+
             DB::statement("ALTER TABLE evaluation_indicators 
                 MODIFY sub_category VARCHAR(100) NULL COMMENT 'Sub-kategori (optional)'");
         }

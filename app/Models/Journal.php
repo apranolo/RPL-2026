@@ -339,7 +339,7 @@ class Journal extends Model
         }
 
         return $query->whereNotNull('indexations')
-            ->where('indexations->' . $platform, true);
+            ->where('indexations->'.$platform, true);
     }
 
     /**
