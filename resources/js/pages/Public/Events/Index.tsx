@@ -2,11 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-<<<<<<< HEAD
-import { Pagination } from '@/components/ui/pagination';
-=======
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination';
->>>>>>> d84f825452828a8f6685cf4bda83eede860f01e4
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PublicLayout from '@/layouts/public-layout';
@@ -304,9 +300,6 @@ export default function Index({ agendas, filters, types = [] }: Props) {
 
                 {agendas.last_page > 1 && (
                     <div className="mt-12 flex justify-center">
-<<<<<<< HEAD
-                        <Pagination links={agendas.links} />
-=======
                         <Pagination>
                             <PaginationContent>
                                 {agendas.links.map((link, index) => (
@@ -326,7 +319,6 @@ export default function Index({ agendas, filters, types = [] }: Props) {
                                 ))}
                             </PaginationContent>
                         </Pagination>
->>>>>>> d84f825452828a8f6685cf4bda83eede860f01e4
                     </div>
                 )}
             </div>
