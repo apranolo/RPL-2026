@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
@@ -558,16 +559,32 @@ require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
 
 
-use App\Http\Controllers\SubmissionController;
 
 /*
 |--------------------------------------------------------------------------
 | Wizard Submission - Step 1 (Start)
 |--------------------------------------------------------------------------
 | Route ini digunakan untuk menampilkan halaman awal wizard submission.
-
 */
-Route::get('/submission/step-1', [SubmissionController::class, 'step1'])
+
+// =========================
+// STEP 1
+// =========================
+Route::get('/submission/step-1', [\App\Http\Controllers\SubmissionController::class, 'step1'])
     ->name('submission.step1');
 
+Route::post('/submission/step-1', [\App\Http\Controllers\SubmissionController::class, 'storeStep1'])
+    ->name('submission.step1.store');
 
+Route::post('/submission/init', [\App\Http\Controllers\SubmissionController::class, 'initWizard'])
+    ->name('submission.init');
+
+
+// =========================
+// STEP 2
+// =========================
+Route::get('/submission/step-2', [\App\Http\Controllers\SubmissionController::class, 'step2'])
+    ->name('submission.step2');
+
+Route::post('/wizard/step-2-upload', [\App\Http\Controllers\SubmissionController::class, 'step2Upload'])
+    ->name('wizard.step2.upload');
