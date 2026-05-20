@@ -264,6 +264,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
             ->name('reviews.summary');
 
+        // Penentuan Keputusan Diterima/Ditolak (Decision)
+        Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
+            ->name('decision.decide');
+
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             Route::get('/', [AdminPembinaanController::class, 'index'])
