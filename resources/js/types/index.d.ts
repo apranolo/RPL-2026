@@ -3,6 +3,19 @@ import type { Config } from 'ziggy-js';
 
 export interface Auth {
     user: User;
+    notifications?: Array<{
+        id: string;
+        type: string;
+        data: {
+            message?: string;
+            title?: string;
+            action_url?: string;
+            [key: string]: unknown;
+        };
+        read_at?: string | null;
+        created_at: string;
+    }>;
+    unread_notifications_count?: number;
 }
 
 export interface BreadcrumbItem {

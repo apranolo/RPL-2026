@@ -47,6 +47,16 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user() ?
                     $request->user()->load(['role', 'university']) :
                     null,
+                'notifications' => $request->user() ?
+                    $request->user()->notifications()->orderBy('created_at', 'desc')->limit(5)->get()->map(fn ($n) => [
+                        'id' => $n->id,
+                        'type' => $n->type,
+                        'data' => $n->data,
+                        'read_at' => $n->read_at?->format('Y-m-d H:i:s'),
+                        'created_at' => $n->created_at->format('Y-m-d H:i:s'),
+                    ]) : [],
+                'unread_notifications_count' => $request->user() ?
+                    $request->user()->unreadNotifications()->count() : 0,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

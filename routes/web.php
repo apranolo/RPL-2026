@@ -130,6 +130,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // Reviewer Notification
+    Route::post('notifications/notify-reviewer', [\App\Http\Controllers\NotificationController::class, 'notifyReviewer'])
+        ->name('notifications.notify-reviewer');
+
     /*
     |--------------------------------------------------------------------------
     | Super Admin Routes
