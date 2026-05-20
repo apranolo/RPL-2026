@@ -39,9 +39,19 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        // Load dynamic settings
+        $settings = ['app_name' => config('app.name'), 'app_logo' => null];
+        if (\Illuminate\Support\Facades\Storage::disk('local')->exists('settings.json')) {
+            $savedSettings = json_decode(\Illuminate\Support\Facades\Storage::disk('local')->get('settings.json'), true);
+            if ($savedSettings) {
+                $settings = array_merge($settings, $savedSettings);
+            }
+        }
+
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'name' => $settings['app_name'],
+            'logo' => $settings['app_logo'] ? asset('storage/' . $settings['app_logo']) : null,
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user() ?
