@@ -247,6 +247,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reviewers', [\App\Http\Controllers\Admin\ReviewerController::class, 'index'])
             ->name('reviewers.index');
 
+        // Schemas Management (v1.1)
+        Route::resource('schemas', \App\Http\Controllers\SchemaController::class);
+
         // View all journals (read-only for monitoring)
         Route::get('journals', [\App\Http\Controllers\Admin\JournalController::class, 'index'])
             ->name('journals.index');
