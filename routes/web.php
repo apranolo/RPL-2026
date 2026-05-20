@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AccreditationTemplateController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
 use App\Http\Controllers\Admin\DataMasterController;
@@ -255,6 +256,16 @@ Route::middleware(['auth'])->group(function () {
                 ->name('destroy');
             Route::post('{pembinaan}/toggle-status', [AdminPembinaanController::class, 'toggleStatus'])
                 ->name('toggle-status');
+        });
+
+        // Contract Management
+        Route::prefix('contracts')->name('contracts.')->group(function () {
+            Route::post('generate', [ContractController::class, 'generate'])
+                ->name('generate');
+            Route::get('{contract}', [ContractController::class, 'show'])
+                ->name('show');
+            Route::post('{contract}/update-status', [ContractController::class, 'updateStatus'])
+                ->name('update-status');
         });
 
     });
