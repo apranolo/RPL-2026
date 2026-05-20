@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
 use App\Http\Controllers\AdminKampus\JournalApprovalController;
@@ -236,6 +237,10 @@ Route::middleware(['auth'])->group(function () {
         // View all assessments (read-only for monitoring)
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
+
+        // Rekap Hasil Penilaian (Summary)
+        Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
+            ->name('reviews.summary');
 
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
