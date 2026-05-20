@@ -271,11 +271,7 @@ function GradeRow({ item }: { item: GradeItem }) {
     return (
         <div className={`flex items-center gap-3 rounded-lg p-3 ${bgColor}`}>
             {/* Grade badge */}
-            <div
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${barColor}`}
-            >
-                {letter}
-            </div>
+            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${barColor}`}>{letter}</div>
 
             {/* Label & bar */}
             <div className="min-w-0 flex-1">
@@ -286,17 +282,12 @@ function GradeRow({ item }: { item: GradeItem }) {
                     </span>
                 </div>
                 <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
-                    <div
-                        className={`h-full rounded-full ${barColor} transition-all duration-500`}
-                        style={{ width: `${item.percentage}%` }}
-                    />
+                    <div className={`h-full rounded-full ${barColor} transition-all duration-500`} style={{ width: `${item.percentage}%` }} />
                 </div>
             </div>
 
             {/* Percentage */}
-            <div className={`w-14 text-right text-sm font-semibold tabular-nums ${textColor}`}>
-                {item.percentage.toFixed(1)}%
-            </div>
+            <div className={`w-14 text-right text-sm font-semibold tabular-nums ${textColor}`}>{item.percentage.toFixed(1)}%</div>
         </div>
     );
 }
@@ -353,7 +344,6 @@ export default function ReviewSummary({
             <Head title="Rekap Hasil Penilaian" />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-4 md:p-6">
-
                 {/* ── Page Header ────────────────────────────────────────── */}
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -361,9 +351,7 @@ export default function ReviewSummary({
                             <ClipboardList className="h-6 w-6 text-primary" />
                             Rekap Hasil Penilaian
                         </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Tabel kalkulasi komprehensif seluruh hasil penilaian jurnal
-                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">Tabel kalkulasi komprehensif seluruh hasil penilaian jurnal</p>
                     </div>
                 </div>
 
@@ -379,7 +367,7 @@ export default function ReviewSummary({
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
                             {/* Search */}
                             <div className="relative lg:col-span-2">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     id="filter-search"
                                     placeholder="Cari judul / ISSN jurnal..."
@@ -482,12 +470,7 @@ export default function ReviewSummary({
                                 </Select>
                             )}
 
-                            <Button
-                                variant="default"
-                                size="sm"
-                                onClick={() => applyFilters({})}
-                                className="gap-1.5"
-                            >
+                            <Button variant="default" size="sm" onClick={() => applyFilters({})} className="gap-1.5">
                                 <Search className="h-3.5 w-3.5" />
                                 Terapkan
                             </Button>
@@ -505,9 +488,7 @@ export default function ReviewSummary({
                             )}
 
                             {hasActiveFilters && (
-                                <span className="text-xs text-muted-foreground">
-                                    Filter aktif – data ditampilkan sesuai seleksi
-                                </span>
+                                <span className="text-xs text-muted-foreground">Filter aktif – data ditampilkan sesuai seleksi</span>
                             )}
                         </div>
                     </CardContent>
@@ -515,47 +496,17 @@ export default function ReviewSummary({
 
                 {/* ── Global Stat Cards ───────────────────────────────────── */}
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-                    <StatCard
-                        icon={LayoutGrid}
-                        title="Total Penilaian"
-                        value={globalStats.total}
-                        sub="Seluruh assessment"
-                        highlight
-                    />
-                    <StatCard
-                        icon={Activity}
-                        title="Draft"
-                        value={globalStats.draft}
-                        sub="Belum disubmit"
-                    />
-                    <StatCard
-                        icon={FileSearch}
-                        title="Submitted"
-                        value={globalStats.submitted}
-                        sub="Menunggu review"
-                    />
-                    <StatCard
-                        icon={GraduationCap}
-                        title="Reviewed"
-                        value={globalStats.reviewed}
-                        sub="Sudah direview"
-                    />
+                    <StatCard icon={LayoutGrid} title="Total Penilaian" value={globalStats.total} sub="Seluruh assessment" highlight />
+                    <StatCard icon={Activity} title="Draft" value={globalStats.draft} sub="Belum disubmit" />
+                    <StatCard icon={FileSearch} title="Submitted" value={globalStats.submitted} sub="Menunggu review" />
+                    <StatCard icon={GraduationCap} title="Reviewed" value={globalStats.reviewed} sub="Sudah direview" />
                     <StatCard
                         icon={TrendingUp}
                         title="Rata-rata Skor"
                         value={formatPct(globalStats.avg_percentage)}
-                        sub={
-                            globalStats.avg_percentage !== null
-                                ? `dari ${submittedTotal} penilaian`
-                                : 'Belum ada data'
-                        }
+                        sub={globalStats.avg_percentage !== null ? `dari ${submittedTotal} penilaian` : 'Belum ada data'}
                     />
-                    <StatCard
-                        icon={BarChart3}
-                        title="Completion Rate"
-                        value={`${globalStats.completion_rate}%`}
-                        sub="Submitted / total"
-                    />
+                    <StatCard icon={BarChart3} title="Completion Rate" value={`${globalStats.completion_rate}%`} sub="Submitted / total" />
                 </div>
 
                 {/* ── Score Range Row ─────────────────────────────────────── */}
@@ -569,10 +520,7 @@ export default function ReviewSummary({
                                 <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                                     {formatPct(globalStats.highest_score)}
                                 </div>
-                                <Progress
-                                    value={globalStats.highest_score ?? 0}
-                                    className="mt-2 h-1.5 [&>div]:bg-emerald-500"
-                                />
+                                <Progress value={globalStats.highest_score ?? 0} className="mt-2 h-1.5 [&>div]:bg-emerald-500" />
                             </CardContent>
                         </Card>
 
@@ -593,13 +541,8 @@ export default function ReviewSummary({
                                 <CardTitle className="text-sm font-medium text-muted-foreground">Skor Terendah</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                                    {formatPct(globalStats.lowest_score)}
-                                </div>
-                                <Progress
-                                    value={globalStats.lowest_score ?? 0}
-                                    className="mt-2 h-1.5 [&>div]:bg-red-500"
-                                />
+                                <div className="text-2xl font-bold text-red-600 dark:text-red-400">{formatPct(globalStats.lowest_score)}</div>
+                                <Progress value={globalStats.lowest_score ?? 0} className="mt-2 h-1.5 [&>div]:bg-red-500" />
                             </CardContent>
                         </Card>
                     </div>
@@ -607,7 +550,7 @@ export default function ReviewSummary({
 
                 {/* ── Tabs: Grade Dist | Per-Program | Per-Univ | Per-Kategori | Detail ── */}
                 <Tabs defaultValue="grade" className="w-full">
-                    <TabsList className="mb-4 flex-wrap gap-1 h-auto">
+                    <TabsList className="mb-4 h-auto flex-wrap gap-1">
                         <TabsTrigger value="grade" className="gap-1.5">
                             <Award className="h-3.5 w-3.5" />
                             Distribusi Grade
@@ -638,9 +581,7 @@ export default function ReviewSummary({
                                     <Award className="h-5 w-5 text-primary" />
                                     Distribusi Grade Penilaian
                                 </CardTitle>
-                                <CardDescription>
-                                    Berdasarkan {submittedTotal} penilaian yang telah disubmit
-                                </CardDescription>
+                                <CardDescription>Berdasarkan {submittedTotal} penilaian yang telah disubmit</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 {submittedTotal === 0 ? (
@@ -673,22 +614,14 @@ export default function ReviewSummary({
                                                         return (
                                                             <TableRow key={item.grade}>
                                                                 <TableCell>
-                                                                    <span
-                                                                        className={`font-bold ${GRADE_TEXT_COLORS[letter] ?? ''}`}
-                                                                    >
+                                                                    <span className={`font-bold ${GRADE_TEXT_COLORS[letter] ?? ''}`}>
                                                                         {item.grade}
                                                                     </span>
                                                                 </TableCell>
-                                                                <TableCell className="text-muted-foreground text-sm">
-                                                                    {item.label}
-                                                                </TableCell>
-                                                                <TableCell className="text-center font-medium">
-                                                                    {item.count}
-                                                                </TableCell>
+                                                                <TableCell className="text-sm text-muted-foreground">{item.label}</TableCell>
+                                                                <TableCell className="text-center font-medium">{item.count}</TableCell>
                                                                 <TableCell className="text-right">
-                                                                    <span
-                                                                        className={`tabular-nums font-semibold ${GRADE_TEXT_COLORS[letter] ?? ''}`}
-                                                                    >
+                                                                    <span className={`font-semibold tabular-nums ${GRADE_TEXT_COLORS[letter] ?? ''}`}>
                                                                         {item.percentage.toFixed(1)}%
                                                                     </span>
                                                                 </TableCell>
@@ -697,9 +630,7 @@ export default function ReviewSummary({
                                                     })}
                                                     <TableRow className="bg-muted/30 font-semibold">
                                                         <TableCell colSpan={2}>Total</TableCell>
-                                                        <TableCell className="text-center">
-                                                            {submittedTotal}
-                                                        </TableCell>
+                                                        <TableCell className="text-center">{submittedTotal}</TableCell>
                                                         <TableCell className="text-right">100%</TableCell>
                                                     </TableRow>
                                                 </TableBody>
@@ -719,9 +650,7 @@ export default function ReviewSummary({
                                     <BookOpen className="h-5 w-5 text-primary" />
                                     Rekap Per Program Pembinaan
                                 </CardTitle>
-                                <CardDescription>
-                                    Jumlah penilaian dan rata-rata skor per program
-                                </CardDescription>
+                                <CardDescription>Jumlah penilaian dan rata-rata skor per program</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
                                 {pembinaanSummary.length === 0 ? (
@@ -755,36 +684,24 @@ export default function ReviewSummary({
                                                                 {p.category_label}
                                                             </Badge>
                                                         </TableCell>
-                                                        <TableCell>
-                                                            {getStatusBadge(p.status, p.status_label)}
-                                                        </TableCell>
-                                                        <TableCell className="text-sm text-muted-foreground">
-                                                            {p.assessment_period ?? '–'}
-                                                        </TableCell>
+                                                        <TableCell>{getStatusBadge(p.status, p.status_label)}</TableCell>
+                                                        <TableCell className="text-sm text-muted-foreground">{p.assessment_period ?? '–'}</TableCell>
                                                         <TableCell className="text-center">
                                                             <div className="flex flex-col items-center">
                                                                 <span className="font-medium">{p.approved_registrations}</span>
-                                                                <span className="text-xs text-muted-foreground">
-                                                                    / {p.total_registrations}
-                                                                </span>
+                                                                <span className="text-xs text-muted-foreground">/ {p.total_registrations}</span>
                                                             </div>
                                                         </TableCell>
-                                                        <TableCell className="text-center text-muted-foreground">
-                                                            {p.assessments.draft}
-                                                        </TableCell>
+                                                        <TableCell className="text-center text-muted-foreground">{p.assessments.draft}</TableCell>
                                                         <TableCell className="text-center text-amber-600 dark:text-amber-400">
                                                             {p.assessments.submitted}
                                                         </TableCell>
                                                         <TableCell className="text-center text-emerald-600 dark:text-emerald-400">
                                                             {p.assessments.reviewed}
                                                         </TableCell>
-                                                        <TableCell className="text-center font-semibold">
-                                                            {p.assessments.total}
-                                                        </TableCell>
+                                                        <TableCell className="text-center font-semibold">{p.assessments.total}</TableCell>
                                                         <TableCell className="text-right">
-                                                            <span
-                                                                className={`tabular-nums ${getPctColor(p.assessments.avg_percentage)}`}
-                                                            >
+                                                            <span className={`tabular-nums ${getPctColor(p.assessments.avg_percentage)}`}>
                                                                 {formatPct(p.assessments.avg_percentage)}
                                                             </span>
                                                         </TableCell>
@@ -806,9 +723,7 @@ export default function ReviewSummary({
                                     <University className="h-5 w-5 text-primary" />
                                     Rekap Per Universitas
                                 </CardTitle>
-                                <CardDescription>
-                                    Distribusi penilaian dan performa rata-rata per institusi
-                                </CardDescription>
+                                <CardDescription>Distribusi penilaian dan performa rata-rata per institusi</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
                                 {universitySummary.length === 0 ? (
@@ -834,48 +749,33 @@ export default function ReviewSummary({
                                             </TableHeader>
                                             <TableBody>
                                                 {universitySummary.map((u, idx) => {
-                                                    const completion = u.total > 0
-                                                        ? ((u.submitted + u.reviewed) / u.total) * 100
-                                                        : 0;
+                                                    const completion = u.total > 0 ? ((u.submitted + u.reviewed) / u.total) * 100 : 0;
                                                     return (
                                                         <TableRow key={u.university_id}>
-                                                            <TableCell className="text-muted-foreground text-sm">
-                                                                {idx + 1}
-                                                            </TableCell>
-                                                            <TableCell className="font-medium">
-                                                                {u.university_name}
-                                                            </TableCell>
+                                                            <TableCell className="text-sm text-muted-foreground">{idx + 1}</TableCell>
+                                                            <TableCell className="font-medium">{u.university_name}</TableCell>
                                                             <TableCell>
                                                                 <Badge variant="secondary" className="font-mono text-xs">
                                                                     {u.university_code}
                                                                 </Badge>
                                                             </TableCell>
-                                                            <TableCell className="text-center text-muted-foreground">
-                                                                {u.draft}
-                                                            </TableCell>
+                                                            <TableCell className="text-center text-muted-foreground">{u.draft}</TableCell>
                                                             <TableCell className="text-center text-amber-600 dark:text-amber-400">
                                                                 {u.submitted}
                                                             </TableCell>
                                                             <TableCell className="text-center text-emerald-600 dark:text-emerald-400">
                                                                 {u.reviewed}
                                                             </TableCell>
-                                                            <TableCell className="text-center font-semibold">
-                                                                {u.total}
-                                                            </TableCell>
+                                                            <TableCell className="text-center font-semibold">{u.total}</TableCell>
                                                             <TableCell className="text-right">
-                                                                <span
-                                                                    className={`tabular-nums ${getPctColor(u.avg_percentage)}`}
-                                                                >
+                                                                <span className={`tabular-nums ${getPctColor(u.avg_percentage)}`}>
                                                                     {formatPct(u.avg_percentage)}
                                                                 </span>
                                                             </TableCell>
                                                             <TableCell className="text-right">
                                                                 <div className="flex items-center justify-end gap-2">
-                                                                    <Progress
-                                                                        value={completion}
-                                                                        className="h-1.5 w-16"
-                                                                    />
-                                                                    <span className="w-10 text-right text-xs tabular-nums text-muted-foreground">
+                                                                    <Progress value={completion} className="h-1.5 w-16" />
+                                                                    <span className="w-10 text-right text-xs text-muted-foreground tabular-nums">
                                                                         {completion.toFixed(0)}%
                                                                     </span>
                                                                 </div>
@@ -899,9 +799,7 @@ export default function ReviewSummary({
                                     <Building2 className="h-5 w-5 text-primary" />
                                     Kalkulasi Per Kategori Evaluasi
                                 </CardTitle>
-                                <CardDescription>
-                                    Rata-rata kontribusi skor per kategori — berguna untuk identifikasi area lemah
-                                </CardDescription>
+                                <CardDescription>Rata-rata kontribusi skor per kategori — berguna untuk identifikasi area lemah</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
                                 {categorySummary.length === 0 ? (
@@ -932,22 +830,16 @@ export default function ReviewSummary({
                                                                 {cat.category_code}
                                                             </Badge>
                                                         </TableCell>
-                                                        <TableCell className="font-medium">
-                                                            {cat.category_name}
-                                                        </TableCell>
-                                                        <TableCell className="text-right tabular-nums text-muted-foreground">
+                                                        <TableCell className="font-medium">{cat.category_name}</TableCell>
+                                                        <TableCell className="text-right text-muted-foreground tabular-nums">
                                                             {cat.category_weight.toFixed(0)}%
                                                         </TableCell>
-                                                        <TableCell className="text-right tabular-nums">
-                                                            {formatScore(cat.avg_score)}
-                                                        </TableCell>
-                                                        <TableCell className="text-right tabular-nums text-muted-foreground">
+                                                        <TableCell className="text-right tabular-nums">{formatScore(cat.avg_score)}</TableCell>
+                                                        <TableCell className="text-right text-muted-foreground tabular-nums">
                                                             {formatScore(cat.avg_max_score)}
                                                         </TableCell>
                                                         <TableCell className="text-right">
-                                                            <span
-                                                                className={`tabular-nums font-semibold ${getPctColor(cat.avg_percentage)}`}
-                                                            >
+                                                            <span className={`font-semibold tabular-nums ${getPctColor(cat.avg_percentage)}`}>
                                                                 {formatPct(cat.avg_percentage)}
                                                             </span>
                                                         </TableCell>
@@ -956,14 +848,9 @@ export default function ReviewSummary({
                                                         </TableCell>
                                                         <TableCell>
                                                             <div className="flex items-center gap-2">
-                                                                <Progress
-                                                                    value={cat.avg_percentage ?? 0}
-                                                                    className="h-2 flex-1"
-                                                                />
-                                                                <span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-                                                                    {cat.avg_percentage !== null
-                                                                        ? `${cat.avg_percentage.toFixed(0)}%`
-                                                                        : '–'}
+                                                                <Progress value={cat.avg_percentage ?? 0} className="h-2 flex-1" />
+                                                                <span className="w-10 shrink-0 text-right text-xs text-muted-foreground tabular-nums">
+                                                                    {cat.avg_percentage !== null ? `${cat.avg_percentage.toFixed(0)}%` : '–'}
                                                                 </span>
                                                             </div>
                                                         </TableCell>
@@ -985,9 +872,7 @@ export default function ReviewSummary({
                                     <ClipboardList className="h-5 w-5 text-primary" />
                                     Detail Seluruh Penilaian
                                 </CardTitle>
-                                <CardDescription>
-                                    Daftar lengkap penilaian jurnal dengan skor dan grade individual
-                                </CardDescription>
+                                <CardDescription>Daftar lengkap penilaian jurnal dengan skor dan grade individual</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
                                 {assessments.data.length === 0 ? (
@@ -995,12 +880,7 @@ export default function ReviewSummary({
                                         <ClipboardList className="mb-3 h-10 w-10 opacity-30" />
                                         <p className="text-sm">Tidak ada penilaian ditemukan</p>
                                         {hasActiveFilters && (
-                                            <Button
-                                                variant="link"
-                                                size="sm"
-                                                className="mt-2 text-xs"
-                                                onClick={clearFilters}
-                                            >
+                                            <Button variant="link" size="sm" className="mt-2 text-xs" onClick={clearFilters}>
                                                 Hapus semua filter
                                             </Button>
                                         )}
@@ -1028,9 +908,7 @@ export default function ReviewSummary({
                                                         <TableRow key={a.id}>
                                                             <TableCell>
                                                                 <div>
-                                                                    <div className="font-medium line-clamp-1">
-                                                                        {a.journal?.title ?? '–'}
-                                                                    </div>
+                                                                    <div className="line-clamp-1 font-medium">{a.journal?.title ?? '–'}</div>
                                                                     {a.journal?.issn && (
                                                                         <div className="font-mono text-xs text-muted-foreground">
                                                                             ISSN: {a.journal.issn}
@@ -1041,9 +919,7 @@ export default function ReviewSummary({
                                                             <TableCell className="text-sm">
                                                                 {a.university ? (
                                                                     <div>
-                                                                        <div className="font-medium line-clamp-1">
-                                                                            {a.university.name}
-                                                                        </div>
+                                                                        <div className="line-clamp-1 font-medium">{a.university.name}</div>
                                                                         <div className="font-mono text-xs text-muted-foreground">
                                                                             {a.university.code}
                                                                         </div>
@@ -1056,41 +932,31 @@ export default function ReviewSummary({
                                                                 {a.user ? (
                                                                     <div>
                                                                         <div className="font-medium">{a.user.name}</div>
-                                                                        <div className="text-xs text-muted-foreground">
-                                                                            {a.user.email}
-                                                                        </div>
+                                                                        <div className="text-xs text-muted-foreground">{a.user.email}</div>
                                                                     </div>
                                                                 ) : (
                                                                     <span className="text-muted-foreground">–</span>
                                                                 )}
                                                             </TableCell>
-                                                            <TableCell>
-                                                                {getStatusBadge(a.status, a.status_label)}
-                                                            </TableCell>
-                                                            <TableCell className="text-sm text-muted-foreground">
-                                                                {a.period ?? '–'}
-                                                            </TableCell>
-                                                            <TableCell className="text-right tabular-nums">
-                                                                {formatScore(a.total_score)}
-                                                            </TableCell>
-                                                            <TableCell className="text-right tabular-nums text-muted-foreground">
+                                                            <TableCell>{getStatusBadge(a.status, a.status_label)}</TableCell>
+                                                            <TableCell className="text-sm text-muted-foreground">{a.period ?? '–'}</TableCell>
+                                                            <TableCell className="text-right tabular-nums">{formatScore(a.total_score)}</TableCell>
+                                                            <TableCell className="text-right text-muted-foreground tabular-nums">
                                                                 {formatScore(a.max_score)}
                                                             </TableCell>
                                                             <TableCell className="text-right">
-                                                                <span
-                                                                    className={`tabular-nums ${getPctColor(a.percentage ?? null)}`}
-                                                                >
+                                                                <span className={`tabular-nums ${getPctColor(a.percentage ?? null)}`}>
                                                                     {formatPct(a.percentage ?? null)}
                                                                 </span>
                                                             </TableCell>
                                                             <TableCell>
-                                                                {a.percentage !== null
-                                                                    ? getGradeBadge(a.grade)
-                                                                    : <span className="text-muted-foreground text-sm">–</span>}
+                                                                {a.percentage !== null ? (
+                                                                    getGradeBadge(a.grade)
+                                                                ) : (
+                                                                    <span className="text-sm text-muted-foreground">–</span>
+                                                                )}
                                                             </TableCell>
-                                                            <TableCell className="text-sm text-muted-foreground">
-                                                                {a.submitted_at ?? '–'}
-                                                            </TableCell>
+                                                            <TableCell className="text-sm text-muted-foreground">{a.submitted_at ?? '–'}</TableCell>
                                                         </TableRow>
                                                     ))}
                                                 </TableBody>
@@ -1100,8 +966,7 @@ export default function ReviewSummary({
                                         {/* Pagination */}
                                         <div className="flex flex-col gap-3 border-t p-4 sm:flex-row sm:items-center sm:justify-between">
                                             <p className="text-sm text-muted-foreground">
-                                                Menampilkan{' '}
-                                                <span className="font-medium">{assessments.from}</span>–
+                                                Menampilkan <span className="font-medium">{assessments.from}</span>–
                                                 <span className="font-medium">{assessments.to}</span> dari{' '}
                                                 <span className="font-medium">{assessments.total}</span> penilaian
                                             </p>
@@ -1110,9 +975,7 @@ export default function ReviewSummary({
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() =>
-                                                            router.get(assessments.prev_page_url!, {}, { preserveState: true })
-                                                        }
+                                                        onClick={() => router.get(assessments.prev_page_url!, {}, { preserveState: true })}
                                                     >
                                                         <ChevronLeft className="h-4 w-4" />
                                                         Sebelumnya
@@ -1125,9 +988,7 @@ export default function ReviewSummary({
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() =>
-                                                            router.get(assessments.next_page_url!, {}, { preserveState: true })
-                                                        }
+                                                        onClick={() => router.get(assessments.next_page_url!, {}, { preserveState: true })}
                                                     >
                                                         Berikutnya
                                                         <ChevronRight className="h-4 w-4" />

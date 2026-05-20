@@ -164,14 +164,14 @@ class ReviewController extends Controller
         $filterOptions = $this->buildFilterOptions();
 
         return Inertia::render('Admin/Reviewer/Summary', [
-            'globalStats'        => $globalStats,
-            'gradeDistribution'  => $gradeDistribution,
-            'pembinaanSummary'   => $pembinaanSummary,
-            'universitySummary'  => $universitySummary,
-            'categorySummary'    => $categorySummary,
-            'assessments'        => $assessments,
-            'filterOptions'      => $filterOptions,
-            'filters'            => $request->only([
+            'globalStats' => $globalStats,
+            'gradeDistribution' => $gradeDistribution,
+            'pembinaanSummary' => $pembinaanSummary,
+            'universitySummary' => $universitySummary,
+            'categorySummary' => $categorySummary,
+            'assessments' => $assessments,
+            'filterOptions' => $filterOptions,
+            'filters' => $request->only([
                 'pembinaan_id',
                 'university_id',
                 'status',
@@ -225,28 +225,28 @@ class ReviewController extends Controller
             )
             ->first();
 
-        $total        = (int) ($totals->total ?? 0);
-        $submitted    = (int) ($totals->submitted ?? 0);
-        $reviewed     = (int) ($totals->reviewed ?? 0);
+        $total = (int) ($totals->total ?? 0);
+        $submitted = (int) ($totals->submitted ?? 0);
+        $reviewed = (int) ($totals->reviewed ?? 0);
         $completionRate = $total > 0
             ? round((($submitted + $reviewed) / $total) * 100, 1)
             : 0.0;
 
         return [
-            'total'           => $total,
-            'draft'           => (int) ($totals->draft ?? 0),
-            'submitted'       => $submitted,
-            'reviewed'        => $reviewed,
-            'avg_score'       => $scoreStats->avg_score !== null
+            'total' => $total,
+            'draft' => (int) ($totals->draft ?? 0),
+            'submitted' => $submitted,
+            'reviewed' => $reviewed,
+            'avg_score' => $scoreStats->avg_score !== null
                 ? round((float) $scoreStats->avg_score, 2)
                 : null,
-            'avg_percentage'  => $scoreStats->avg_percentage !== null
+            'avg_percentage' => $scoreStats->avg_percentage !== null
                 ? round((float) $scoreStats->avg_percentage, 1)
                 : null,
-            'highest_score'   => $scoreStats->highest_score !== null
+            'highest_score' => $scoreStats->highest_score !== null
                 ? round((float) $scoreStats->highest_score, 1)
                 : null,
-            'lowest_score'    => $scoreStats->lowest_score !== null
+            'lowest_score' => $scoreStats->lowest_score !== null
                 ? round((float) $scoreStats->lowest_score, 1)
                 : null,
             'completion_rate' => $completionRate,
@@ -290,7 +290,7 @@ class ReviewController extends Controller
                 $pct >= self::GRADE_THRESHOLDS['B'] => 'B',
                 $pct >= self::GRADE_THRESHOLDS['C'] => 'C',
                 $pct >= self::GRADE_THRESHOLDS['D'] => 'D',
-                default                             => 'E',
+                default => 'E',
             };
             $grades[$grade]['count']++;
         }
@@ -312,9 +312,6 @@ class ReviewController extends Controller
      * Menyertakan jumlah peserta, rata-rata skor, dan distribusi status
      * untuk setiap program pembinaan yang aktif (tidak tergantung filter).
      * Difilter hanya berdasarkan filter yang tidak berkaitan dengan pembinaan itu sendiri.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Support\Collection
      */
     private function buildPembinaanSummary(Request $request): \Illuminate\Support\Collection
     {
@@ -362,22 +359,22 @@ class ReviewController extends Controller
                 )->first();
 
                 return [
-                    'id'                   => $pembinaan->id,
-                    'name'                 => $pembinaan->name,
-                    'category'             => $pembinaan->category,
-                    'category_label'       => $pembinaan->category_label,
-                    'status'               => $pembinaan->status,
-                    'status_label'         => $pembinaan->status_label,
-                    'assessment_period'    => $pembinaan->assessment_start
+                    'id' => $pembinaan->id,
+                    'name' => $pembinaan->name,
+                    'category' => $pembinaan->category,
+                    'category_label' => $pembinaan->category_label,
+                    'status' => $pembinaan->status,
+                    'status_label' => $pembinaan->status_label,
+                    'assessment_period' => $pembinaan->assessment_start
                         ? $pembinaan->assessment_start->format('M Y').' – '.$pembinaan->assessment_end->format('M Y')
                         : null,
-                    'total_registrations'  => (int) $pembinaan->total_registrations,
+                    'total_registrations' => (int) $pembinaan->total_registrations,
                     'approved_registrations' => (int) $pembinaan->approved_registrations,
                     'assessments' => [
-                        'total'          => (int) ($stats->total ?? 0),
-                        'draft'          => (int) ($stats->draft ?? 0),
-                        'submitted'      => (int) ($stats->submitted ?? 0),
-                        'reviewed'       => (int) ($stats->reviewed ?? 0),
+                        'total' => (int) ($stats->total ?? 0),
+                        'draft' => (int) ($stats->draft ?? 0),
+                        'submitted' => (int) ($stats->submitted ?? 0),
+                        'reviewed' => (int) ($stats->reviewed ?? 0),
                         'avg_percentage' => $stats->avg_percentage !== null
                             ? round((float) $stats->avg_percentage, 1)
                             : null,
@@ -393,7 +390,6 @@ class ReviewController extends Controller
      * per institusi (universitas) dari hasil query yang sudah ter-filter.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Support\Collection
      */
     private function buildUniversitySummary($query): \Illuminate\Support\Collection
     {
@@ -417,14 +413,14 @@ class ReviewController extends Controller
             ->get();
 
         return $rows->map(fn ($row) => [
-            'university_id'   => $row->university_id,
+            'university_id' => $row->university_id,
             'university_name' => $row->university_name,
             'university_code' => $row->university_code,
-            'total'           => (int) $row->total,
-            'draft'           => (int) $row->draft,
-            'submitted'       => (int) $row->submitted,
-            'reviewed'        => (int) $row->reviewed,
-            'avg_percentage'  => $row->avg_percentage !== null
+            'total' => (int) $row->total,
+            'draft' => (int) $row->draft,
+            'submitted' => (int) $row->submitted,
+            'reviewed' => (int) $row->reviewed,
+            'avg_percentage' => $row->avg_percentage !== null
                 ? round((float) $row->avg_percentage, 1)
                 : null,
         ]);
@@ -438,7 +434,6 @@ class ReviewController extends Controller
      * Berguna untuk mengidentifikasi kategori mana yang paling lemah secara rata-rata.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Support\Collection
      */
     private function buildCategorySummary($query): \Illuminate\Support\Collection
     {
@@ -454,14 +449,14 @@ class ReviewController extends Controller
                 ->ordered()
                 ->get()
                 ->map(fn ($cat) => [
-                    'category_id'      => $cat->id,
-                    'category_code'    => $cat->code,
-                    'category_name'    => $cat->name,
-                    'category_weight'  => (float) $cat->weight,
-                    'avg_score'        => null,
-                    'avg_max_score'    => null,
-                    'avg_percentage'   => null,
-                    'response_count'   => 0,
+                    'category_id' => $cat->id,
+                    'category_code' => $cat->code,
+                    'category_name' => $cat->name,
+                    'category_weight' => (float) $cat->weight,
+                    'avg_score' => null,
+                    'avg_max_score' => null,
+                    'avg_percentage' => null,
+                    'response_count' => 0,
                 ]);
         }
 
@@ -486,20 +481,20 @@ class ReviewController extends Controller
             ->get();
 
         return $rows->map(fn ($row) => [
-            'category_id'     => $row->category_id,
-            'category_code'   => $row->category_code,
-            'category_name'   => $row->category_name,
+            'category_id' => $row->category_id,
+            'category_code' => $row->category_code,
+            'category_name' => $row->category_name,
             'category_weight' => (float) $row->category_weight,
-            'avg_score'       => $row->avg_score !== null
+            'avg_score' => $row->avg_score !== null
                 ? round((float) $row->avg_score, 2)
                 : null,
-            'avg_max_score'   => $row->avg_max_score !== null
+            'avg_max_score' => $row->avg_max_score !== null
                 ? round((float) $row->avg_max_score, 2)
                 : null,
-            'avg_percentage'  => ($row->avg_score !== null && $row->avg_max_score > 0)
+            'avg_percentage' => ($row->avg_score !== null && $row->avg_max_score > 0)
                 ? round(((float) $row->avg_score / (float) $row->avg_max_score) * 100, 1)
                 : null,
-            'response_count'  => (int) $row->response_count,
+            'response_count' => (int) $row->response_count,
         ]);
     }
 
@@ -511,38 +506,35 @@ class ReviewController extends Controller
 
     /**
      * Memformat satu baris data assessment untuk tampilan tabel detail.
-     *
-     * @param  \App\Models\JournalAssessment  $assessment
-     * @return array
      */
     private function formatAssessmentRow(JournalAssessment $assessment): array
     {
         return [
-            'id'             => $assessment->id,
-            'period'         => $assessment->period,
-            'status'         => $assessment->status,
-            'status_label'   => $assessment->status_label,
-            'status_color'   => $assessment->status_color,
-            'total_score'    => $assessment->total_score,
-            'max_score'      => $assessment->max_score,
-            'percentage'     => $assessment->percentage,
-            'grade'          => $assessment->grade,
-            'submitted_at'   => $assessment->submitted_at?->format('d M Y H:i'),
-            'reviewed_at'    => $assessment->reviewed_at?->format('d M Y H:i'),
+            'id' => $assessment->id,
+            'period' => $assessment->period,
+            'status' => $assessment->status,
+            'status_label' => $assessment->status_label,
+            'status_color' => $assessment->status_color,
+            'total_score' => $assessment->total_score,
+            'max_score' => $assessment->max_score,
+            'percentage' => $assessment->percentage,
+            'grade' => $assessment->grade,
+            'submitted_at' => $assessment->submitted_at?->format('d M Y H:i'),
+            'reviewed_at' => $assessment->reviewed_at?->format('d M Y H:i'),
             'assessment_date' => $assessment->assessment_date?->format('d M Y'),
-            'journal'        => $assessment->journal ? [
-                'id'    => $assessment->journal->id,
+            'journal' => $assessment->journal ? [
+                'id' => $assessment->journal->id,
                 'title' => $assessment->journal->title,
-                'issn'  => $assessment->journal->issn,
+                'issn' => $assessment->journal->issn,
             ] : null,
-            'university'     => $assessment->journal?->university ? [
-                'id'   => $assessment->journal->university->id,
+            'university' => $assessment->journal?->university ? [
+                'id' => $assessment->journal->university->id,
                 'name' => $assessment->journal->university->name,
                 'code' => $assessment->journal->university->code,
             ] : null,
-            'user'           => $assessment->user ? [
-                'id'    => $assessment->user->id,
-                'name'  => $assessment->user->name,
+            'user' => $assessment->user ? [
+                'id' => $assessment->user->id,
+                'name' => $assessment->user->name,
                 'email' => $assessment->user->email,
             ] : null,
         ];
@@ -593,10 +585,10 @@ class ReviewController extends Controller
             ->map(fn ($p) => ['value' => $p, 'label' => $p]);
 
         return [
-            'pembinaan'      => $pembinaan,
-            'universities'   => $universities,
+            'pembinaan' => $pembinaan,
+            'universities' => $universities,
             'status_options' => $statusOptions,
-            'periods'        => $periods,
+            'periods' => $periods,
         ];
     }
 }
