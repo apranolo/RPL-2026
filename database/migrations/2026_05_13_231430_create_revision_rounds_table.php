@@ -13,7 +13,7 @@ return new class extends Migration
 {
     Schema::create('revision_rounds', function (Blueprint $table) {
         $table->id('id_round'); 
-        $table->foreignId('id_submission')->constrained('submissions', 'id_submission')->cascadeOnDelete();
+        $table->unsignedBigInteger('id_submission');
         $table->integer('round_number');
         $table->date('revision_due_date')->nullable();
         $table->text('revision_note')->nullable();

@@ -13,7 +13,7 @@ return new class extends Migration
 {
     Schema::create('copyediting_tasks', function (Blueprint $table) {
         $table->id('id_task');
-        $table->foreignId('id_submission')->constrained('submissions', 'id_submission')->cascadeOnDelete();
+        $table->unsignedBigInteger('id_submission');
         $table->foreignId('id_copyeditor')->nullable()->constrained('users', 'id')->nullOnDelete();
         $table->enum('status', ['Pending', 'InProgress', 'AwaitingAuthorConfirm', 'Completed'])->default('Pending');
         $table->text('editor_note')->nullable();
