@@ -73,10 +73,6 @@ test('production issue edit page is rendered', function () {
     $response = $this->actingAs($this->user)
         ->get(route('production.issue.edit', $issue));
 
-    // Nonaktifkan pengecekan file fisik komponen Inertia khusus di test ini
-    // karena file Edit.tsx baru akan dibuat di task/branch selanjutnya.
-    config()->set('inertia.testing.ensure_pages_exist', false);
-
     $response->assertStatus(200);
     $response->assertInertia(fn (Assert $page) => $page
         ->component('Production/Issue/Edit')
