@@ -523,6 +523,10 @@ Route::middleware(['auth'])->group(function () {
                 ->name('create');
             Route::post('/', [\App\Http\Controllers\Production\IssueController::class, 'store'])
                 ->name('store');
+            Route::get('{issue}/edit', [\App\Http\Controllers\Production\IssueController::class, 'edit'])
+                ->name('edit');
+            Route::put('{issue}', [\App\Http\Controllers\Production\IssueController::class, 'update'])
+                ->name('update');
         });
     });
 
