@@ -11,12 +11,10 @@ class ReviewAssignmentController extends Controller
     /**
      * Reviewer menerima undangan review
      */
-    public function accept($id)
+    public function accept(Request $request, $id)
     {
-        // mencari assignment berdasarkan ID
         $assignment = ReviewAssignment::findOrFail($id);
 
-        // ubah status menjadi accepted
         $assignment->status = 'accepted';
         $assignment->responded_at = now();
         $assignment->save();
@@ -29,14 +27,17 @@ class ReviewAssignmentController extends Controller
     /**
      * Reviewer menolak undangan review
      */
-    public function decline($id)
+    public function decline(Request $request, $id)
     {
-        // mencari assignment berdasarkan ID
+        $validated = $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
         $assignment = ReviewAssignment::findOrFail($id);
 
-        // ubah status menjadi declined
         $assignment->status = 'declined';
         $assignment->responded_at = now();
+        $assignment->rejection_reason = $validated['reason'];
         $assignment->save();
 
         return redirect()

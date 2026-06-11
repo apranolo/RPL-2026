@@ -11,6 +11,8 @@ class ReviewAssignment extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'reviewer_assignments';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,6 +24,7 @@ class ReviewAssignment extends Model
         'assigned_by',
         'assigned_at',
         'status',
+        'rejection_reason',
         'updated_by',
         'deleted_by',
     ];
