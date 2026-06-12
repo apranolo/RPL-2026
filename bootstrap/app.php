@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\CheckJournalOwnership;
+use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\CheckUniversity;
+use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -28,10 +32,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Register middleware aliases
         $middleware->alias([
-            'role' => App\Http\Middleware\CheckRole::class,
-            'active' => App\Http\Middleware\EnsureUserIsActive::class,
-            'journal.owner' => App\Http\Middleware\CheckJournalOwnership::class,
-            'university' => App\Http\Middleware\CheckUniversity::class,
+            'role' => CheckRole::class,
+            'active' => EnsureUserIsActive::class,
+            'journal.owner' => CheckJournalOwnership::class,
+            'university' => CheckUniversity::class,
         ]);
 
         // Web middleware stack

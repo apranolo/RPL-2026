@@ -206,8 +206,8 @@ class ReviewAssignment extends Model
                 $model->assigned_at = now();
             }
 
-            if (auth::check() && ! $model->assigned_by) {
-                $model->assigned_by = auth::id();
+            if (Auth::check() && ! $model->assigned_by) {
+                $model->assigned_by = Auth::id();
             }
         });
 
@@ -220,8 +220,8 @@ class ReviewAssignment extends Model
 
         // Auto-fill deleted_by on soft delete
         static::deleting(function ($model) {
-            if (auth::check() && ! $model->isForceDeleting()) {
-                $model->deleted_by = auth::id();
+            if (Auth::check() && ! $model->isForceDeleting()) {
+                $model->deleted_by = Auth::id();
                 $model->save();
             }
         });

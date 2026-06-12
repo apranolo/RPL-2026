@@ -217,14 +217,6 @@ export default function JournalShow({ journal, articles, statistics, lastHarvest
         }
     };
 
-    const getStatusBadge = (status: 'draft' | 'submitted' | 'reviewed') => {
-        const colors = {
-            draft: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-            submitted: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-            reviewed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-        };
-        return <Badge className={colors[status]}>{status === 'draft' ? 'Draft' : status === 'submitted' ? 'Submitted' : 'Reviewed'}</Badge>;
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

@@ -2,6 +2,7 @@
 
 use App\Models\Journal;
 use App\Models\University;
+use Inertia\Testing\AssertableInertia;
 
 it('loads the public journals index with required statistics properties', function () {
     // Create necessary data
@@ -20,7 +21,7 @@ it('loads the public journals index with required statistics properties', functi
     $response = $this->get(route('journals.index'));
 
     $response->assertStatus(200);
-    $response->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+    $response->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Journals/Index')
         ->has('journals')
         ->has('sintaStats')
@@ -54,7 +55,7 @@ it('filters journals by indexation including names with spaces', function () {
     $response = $this->get(route('journals.index', ['indexation' => 'Web of Science']));
 
     $response->assertStatus(200);
-    $response->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+    $response->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Journals/Index')
         ->has('journals.data', 1)
         ->where('journals.data.0.title', 'WOS Journal')
@@ -64,7 +65,7 @@ it('filters journals by indexation including names with spaces', function () {
     $response = $this->get(route('journals.index', ['indexation' => 'Scopus']));
 
     $response->assertStatus(200);
-    $response->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+    $response->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Journals/Index')
         ->has('journals.data', 1)
         ->where('journals.data.0.title', 'Scopus Journal')

@@ -201,23 +201,6 @@ export default function JournalShow({ journal, articles, articlesCount, lastHarv
         );
     };
 
-    const getStatusBadge = (assessment: Assessment) => {
-        const variants: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-            gray: 'secondary',
-            yellow: 'default',
-            green: 'outline',
-        };
-
-        return <Badge variant={variants[assessment.status_color] || 'default'}>{assessment.status_label}</Badge>;
-    };
-
-    const getGradeBadge = (percentage: number) => {
-        if (percentage >= 90) return <Badge className="bg-green-500 text-white">A</Badge>;
-        if (percentage >= 80) return <Badge className="bg-blue-500 text-white">B</Badge>;
-        if (percentage >= 70) return <Badge className="bg-yellow-500 text-white">C</Badge>;
-        if (percentage >= 60) return <Badge className="bg-orange-500 text-white">D</Badge>;
-        return <Badge variant="destructive">E</Badge>;
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

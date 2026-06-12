@@ -132,9 +132,7 @@ interface Props {
     sintaRanks: FilterOption[];
     indexationOptions: FilterOption[];
     // Phase 2 filter options
-    pembinaanPeriods: FilterOption[];
     pembinaanYears: FilterOption[];
-    participationOptions: FilterOption[];
     approvalStatusOptions: FilterOption[];
     universityUsers?: UniversityUser[];
 }
@@ -145,9 +143,6 @@ export default function JournalsIndex({
     scientificFields,
     sintaRanks,
     indexationOptions,
-    pembinaanPeriods,
-    // pembinaanYears,
-    participationOptions,
     approvalStatusOptions,
     universityUsers = [],
 }: Props) {

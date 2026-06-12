@@ -9,6 +9,7 @@ use App\Models\EvaluationIndicator;
 use App\Models\Journal;
 use App\Models\JournalAssessment;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -157,7 +158,7 @@ class AssessmentController extends Controller
                 // Handle file attachments
                 if (isset($responseData['attachments']) && is_array($responseData['attachments'])) {
                     foreach ($responseData['attachments'] as $file) {
-                        if ($file instanceof \Illuminate\Http\UploadedFile) {
+                        if ($file instanceof UploadedFile) {
                             $this->storeAttachment($response, $file, $user->id);
                         }
                     }
@@ -310,7 +311,7 @@ class AssessmentController extends Controller
                 // Handle file attachments
                 if (isset($responseData['attachments']) && is_array($responseData['attachments'])) {
                     foreach ($responseData['attachments'] as $file) {
-                        if ($file instanceof \Illuminate\Http\UploadedFile) {
+                        if ($file instanceof UploadedFile) {
                             $this->storeAttachment($response, $file, $request->user()->id);
                         }
                     }
@@ -589,7 +590,7 @@ class AssessmentController extends Controller
     /**
      * Store attachment file
      *
-     * @param  \Illuminate\Http\UploadedFile  $file
+     * @param  UploadedFile  $file
      */
     private function storeAttachment(AssessmentResponse $response, $file, int $userId): AssessmentAttachment
     {

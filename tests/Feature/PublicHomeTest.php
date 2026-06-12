@@ -3,6 +3,7 @@
 use App\Models\Journal;
 use App\Models\University;
 use Illuminate\Support\Facades\Cache;
+use Inertia\Testing\AssertableInertia;
 
 it('loads the welcome page with correct inertia components and props', function () {
     // Setup test data
@@ -30,7 +31,7 @@ it('loads the welcome page with correct inertia components and props', function 
     $response = $this->get('/');
 
     $response->assertStatus(200);
-    $response->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+    $response->assertInertia(fn (AssertableInertia $page) => $page
         ->component('welcome')
         ->has('featuredJournals', 4)
         ->has('totalUniversities')

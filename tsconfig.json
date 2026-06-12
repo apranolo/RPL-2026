@@ -104,10 +104,9 @@
         // "allowUnusedLabels": true,                        /* Disable error reporting for unused labels. */
         // "allowUnreachableCode": true,                     /* Disable error reporting for unreachable code. */
 
-        /* Completeness */
-        // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
-        "skipLibCheck": true /* Skip type checking all .d.ts files. */,
+        
         "ignoreDeprecations": "6.0",
+        "skipLibCheck": true,
         "baseUrl": ".",
         "paths": {
             "@/*": ["./resources/js/*"],
@@ -118,6 +117,7 @@
     "include": [
         "resources/js/**/*.ts",
         "resources/js/**/*.d.ts",
-        "resources/js/**/*.tsx",
+        "resources/js/**/*.tsx"
     ]
+    
 }

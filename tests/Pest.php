@@ -1,6 +1,10 @@
 <?php
 
-pest()->extend(Tests\DuskTestCase::class)
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\DuskTestCase;
+use Tests\TestCase;
+
+pest()->extend(DuskTestCase::class)
 //  ->use(Illuminate\Foundation\Testing\DatabaseMigrations::class)
     ->in('Browser');
 
@@ -15,12 +19,12 @@ pest()->extend(Tests\DuskTestCase::class)
 |
 */
 
-pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
     ->in('Feature');
 
-pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
     ->in('Unit');
 
 /*

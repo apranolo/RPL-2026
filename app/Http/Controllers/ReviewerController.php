@@ -6,8 +6,10 @@ use App\Models\PembinaanReview;
 use App\Models\ReviewerAssignment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReviewerController extends Controller
 {
@@ -141,7 +143,7 @@ class ReviewerController extends Controller
     /**
      * Download attachment from registration.
      */
-    public function downloadAttachment(ReviewerAssignment $assignment, $attachmentId): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function downloadAttachment(ReviewerAssignment $assignment, $attachmentId): StreamedResponse
     {
         $this->authorize('view', $assignment);
 
@@ -151,7 +153,7 @@ class ReviewerController extends Controller
             abort(404, 'File not found.');
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('public')->download(
+        return Storage::disk('public')->download(
             $attachment->file_path,
             $attachment->file_name
         );

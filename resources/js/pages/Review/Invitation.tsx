@@ -1,7 +1,7 @@
-import type { FormEvent } from 'react';
-import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Head, useForm } from '@inertiajs/react';
+import type { FormEvent } from 'react';
 
 interface InvitationProps {
     assignment: {
@@ -46,37 +46,31 @@ export default function Invitation({ assignment }: InvitationProps) {
 
                     <div className="mt-8 grid gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-700">
                         <div>
-                            <span className="font-medium text-slate-900">Assignment ID:</span>{' '}
-                            {assignment.id}
+                            <span className="font-medium text-slate-900">Assignment ID:</span> {assignment.id}
                         </div>
                         {assignment.journal_title && (
                             <div>
-                                <span className="font-medium text-slate-900">Journal Title:</span>{' '}
-                                {assignment.journal_title}
+                                <span className="font-medium text-slate-900">Journal Title:</span> {assignment.journal_title}
                             </div>
                         )}
                         {assignment.article_title && (
                             <div>
-                                <span className="font-medium text-slate-900">Article Title:</span>{' '}
-                                {assignment.article_title}
+                                <span className="font-medium text-slate-900">Article Title:</span> {assignment.article_title}
                             </div>
                         )}
                         {assignment.editor_name && (
                             <div>
-                                <span className="font-medium text-slate-900">Editor:</span>{' '}
-                                {assignment.editor_name}
+                                <span className="font-medium text-slate-900">Editor:</span> {assignment.editor_name}
                             </div>
                         )}
                         {assignment.deadline && (
                             <div>
-                                <span className="font-medium text-slate-900">Deadline:</span>{' '}
-                                {assignment.deadline}
+                                <span className="font-medium text-slate-900">Deadline:</span> {assignment.deadline}
                             </div>
                         )}
                         {assignment.status && (
                             <div>
-                                <span className="font-medium text-slate-900">Status:</span>{' '}
-                                {assignment.status}
+                                <span className="font-medium text-slate-900">Status:</span> {assignment.status}
                             </div>
                         )}
                     </div>
@@ -93,27 +87,15 @@ export default function Invitation({ assignment }: InvitationProps) {
                                 placeholder="Berikan alasan singkat mengapa Anda menolak undangan review"
                                 className="mt-2 min-h-[120px]"
                             />
-                            {errors.reason && (
-                                <p className="mt-2 text-sm text-destructive">{errors.reason}</p>
-                            )}
+                            {errors.reason && <p className="mt-2 text-sm text-destructive">{errors.reason}</p>}
                         </div>
 
                         <div className="flex flex-col gap-3 sm:flex-row">
-                            <Button
-                                type="button"
-                                className="w-full"
-                                onClick={accept}
-                                disabled={processing}
-                            >
+                            <Button type="button" className="w-full" onClick={accept} disabled={processing}>
                                 {processing ? 'Processing...' : 'Accept'}
                             </Button>
 
-                            <Button
-                                type="submit"
-                                variant="destructive"
-                                className="w-full"
-                                disabled={processing}
-                            >
+                            <Button type="submit" variant="destructive" className="w-full" disabled={processing}>
                                 {processing ? 'Processing...' : 'Decline'}
                             </Button>
                         </div>

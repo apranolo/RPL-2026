@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\ReviewAssignment;
+use Illuminate\Http\Request;
 
 class ReviewAssignmentController extends Controller
 {

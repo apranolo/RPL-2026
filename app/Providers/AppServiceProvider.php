@@ -2,6 +2,24 @@
 
 namespace App\Providers;
 
+use App\Models\AccreditationTemplate;
+use App\Models\EssayQuestion;
+use App\Models\EvaluationCategory;
+use App\Models\EvaluationIndicator;
+use App\Models\EvaluationSubCategory;
+use App\Models\Journal;
+use App\Models\JournalAssessment;
+use App\Models\University;
+use App\Models\User;
+use App\Policies\AccreditationTemplatePolicy;
+use App\Policies\EssayQuestionPolicy;
+use App\Policies\EvaluationCategoryPolicy;
+use App\Policies\EvaluationIndicatorPolicy;
+use App\Policies\EvaluationSubCategoryPolicy;
+use App\Policies\JournalAssessmentPolicy;
+use App\Policies\JournalPolicy;
+use App\Policies\UniversityPolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,17 +39,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Register policies
-        Gate::policy(\App\Models\User::class, \App\Policies\UserPolicy::class);
-        Gate::policy(\App\Models\Journal::class, \App\Policies\JournalPolicy::class);
-        Gate::policy(\App\Models\JournalAssessment::class, \App\Policies\JournalAssessmentPolicy::class);
-        Gate::policy(\App\Models\University::class, \App\Policies\UniversityPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Journal::class, JournalPolicy::class);
+        Gate::policy(JournalAssessment::class, JournalAssessmentPolicy::class);
+        Gate::policy(University::class, UniversityPolicy::class);
 
         // NEW v1.1: Hierarchical Borang Policies (Super Admin only)
-        Gate::policy(\App\Models\AccreditationTemplate::class, \App\Policies\AccreditationTemplatePolicy::class);
-        Gate::policy(\App\Models\EvaluationCategory::class, \App\Policies\EvaluationCategoryPolicy::class);
-        Gate::policy(\App\Models\EvaluationSubCategory::class, \App\Policies\EvaluationSubCategoryPolicy::class);
-        Gate::policy(\App\Models\EvaluationIndicator::class, \App\Policies\EvaluationIndicatorPolicy::class);
-        Gate::policy(\App\Models\EssayQuestion::class, \App\Policies\EssayQuestionPolicy::class);
+        Gate::policy(AccreditationTemplate::class, AccreditationTemplatePolicy::class);
+        Gate::policy(EvaluationCategory::class, EvaluationCategoryPolicy::class);
+        Gate::policy(EvaluationSubCategory::class, EvaluationSubCategoryPolicy::class);
+        Gate::policy(EvaluationIndicator::class, EvaluationIndicatorPolicy::class);
+        Gate::policy(EssayQuestion::class, EssayQuestionPolicy::class);
 
         // Define additional gates if needed
         Gate::define('manage-universities', function ($user) {

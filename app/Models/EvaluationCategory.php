@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,13 +25,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $description
  * @property float $weight
  * @property int $display_order
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- * @property \Carbon\Carbon|null $deleted_at
- * @property-read \App\Models\AccreditationTemplate $template
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EvaluationSubCategory[] $subCategories
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EssayQuestion[] $essayQuestions
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EvaluationIndicator[] $indicators
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read AccreditationTemplate $template
+ * @property-read Collection|EvaluationSubCategory[] $subCategories
+ * @property-read Collection|EssayQuestion[] $essayQuestions
+ * @property-read Collection|EvaluationIndicator[] $indicators
  */
 class EvaluationCategory extends Model
 {
@@ -112,8 +115,8 @@ class EvaluationCategory extends Model
     /**
      * Scope: Order by display order.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeOrdered($query)
     {
@@ -123,8 +126,8 @@ class EvaluationCategory extends Model
     /**
      * Scope: Get categories for a specific template.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForTemplate($query, int $templateId)
     {
