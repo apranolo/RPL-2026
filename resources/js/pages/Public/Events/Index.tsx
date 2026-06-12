@@ -8,7 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CalendarDays, MapPin, Clock, Search } from 'lucide-react';
 import { PaginatedData } from '@/types';
 import { useState, FormEvent, useEffect } from 'react';
-import { Pagination } from '@/components/ui/pagination';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+} from '@/components/ui/pagination';
 import { Progress } from '@/components/ui/progress';
 
 interface AgendaItem {
@@ -284,7 +290,23 @@ export default function Index({ agendas, filters, types = [] }: Props) {
 
                 {agendas.last_page > 1 && (
                     <div className="mt-12 flex justify-center">
-                         <Pagination links={agendas.links} />
+                        <Pagination>
+                            <PaginationContent>
+                                {agendas.links.map((link, index) => (
+                                    <PaginationItem key={index}>
+                                        {link.url ? (
+                                            <PaginationLink
+                                                href={link.url}
+                                                isActive={link.active}
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                            />
+                                        ) : (
+                                            <PaginationEllipsis />
+                                        )}
+                                    </PaginationItem>
+                                ))}
+                            </PaginationContent>
+                        </Pagination>
                     </div>
                 )}
             </div>
