@@ -17,23 +17,29 @@ abstract class TestCase extends BaseTestCase
      */
     protected function seedRoles(): void
     {
-        Role::create([
-            'name' => Role::SUPER_ADMIN,
-            'display_name' => 'Super Administrator',
-            'description' => 'Super Administrator with full access',
-        ]);
+        Role::firstOrCreate(
+            ['name' => Role::SUPER_ADMIN],
+            [
+                'display_name' => 'Super Administrator',
+                'description' => 'Super Administrator with full access',
+            ]
+        );
 
-        Role::create([
-            'name' => Role::ADMIN_KAMPUS,
-            'display_name' => 'Administrator Kampus',
-            'description' => 'University Administrator',
-        ]);
+        Role::firstOrCreate(
+            ['name' => Role::ADMIN_KAMPUS],
+            [
+                'display_name' => 'Administrator Kampus',
+                'description' => 'University Administrator',
+            ]
+        );
 
-        Role::create([
-            'name' => Role::USER,
-            'display_name' => 'Pengelola Jurnal',
-            'description' => 'Journal Manager',
-        ]);
+        Role::firstOrCreate(
+            ['name' => Role::USER],
+            [
+                'display_name' => 'Pengelola Jurnal',
+                'description' => 'Journal Manager',
+            ]
+        );
     }
 
     /**
@@ -121,7 +127,7 @@ abstract class TestCase extends BaseTestCase
                     // else: no indexation (30%)
 
                     // Set SINTA rank
-                    $sintaRank = null;
+                    $sintaRank = 'non_sinta';
                     if (rand(1, 100) <= 50) {
                         // Distribution: SINTA 1 (5%), 2 (10%), 3 (15%), 4 (30%), 5 (25%), 6 (15%)
                         $sintaDistribution = [1 => 5, 2 => 10, 3 => 15, 4 => 30, 5 => 25, 6 => 15];
@@ -131,7 +137,7 @@ abstract class TestCase extends BaseTestCase
                         foreach ($sintaDistribution as $rank => $percentage) {
                             $cumulative += $percentage;
                             if ($roll <= $cumulative) {
-                                $sintaRank = (string) $rank;
+                                $sintaRank = 'sinta_' . $rank;
                                 break;
                             }
                         }
