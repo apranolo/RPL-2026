@@ -20,9 +20,7 @@ export default function SettingsIndex({ settings }: SettingsProps) {
         app_logo: null as File | null,
     });
 
-    const [previewUrl, setPreviewUrl] = useState<string | null>(
-        settings.app_logo ? `/storage/${settings.app_logo}` : null
-    );
+    const [previewUrl, setPreviewUrl] = useState<string | null>(settings.app_logo ? `/storage/${settings.app_logo}` : null);
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -83,7 +81,9 @@ export default function SettingsIndex({ settings }: SettingsProps) {
 
                             {/* App Logo */}
                             <div className="space-y-3">
-                                <Label htmlFor="app_logo" className="text-sm font-medium">Logo Aplikasi</Label>
+                                <Label htmlFor="app_logo" className="text-sm font-medium">
+                                    Logo Aplikasi
+                                </Label>
 
                                 <div className="mt-2 flex items-start gap-6 sm:items-center">
                                     <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-dashed border-sidebar-border/70 bg-neutral-50 dark:border-sidebar-border dark:bg-neutral-900">

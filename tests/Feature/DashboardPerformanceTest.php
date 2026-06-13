@@ -105,7 +105,7 @@ describe('Large Dataset Handling', function () {
                 'university_id' => $this->university->id,
                 'scientific_field_id' => $fields->random()->id,
                 'indexations' => $i % 2 === 0 ? ['Scopus' => true] : null,
-                'sinta_rank' => $i % 3 === 0 ? 'sinta_' . (($i % 6) + 1) : 'non_sinta',
+                'sinta_rank' => $i % 3 === 0 ? 'sinta_'.(($i % 6) + 1) : 'non_sinta',
             ]);
         }
 
@@ -210,7 +210,7 @@ describe('Large Dataset Handling', function () {
                 'university_id' => $this->university->id,
                 'scientific_field_id' => $fields->random()->id,
                 'indexations' => ! empty($indexations) ? $indexations : null,
-                'sinta_rank' => rand(0, 10) > 5 ? 'sinta_' . rand(1, 6) : 'non_sinta',
+                'sinta_rank' => rand(0, 10) > 5 ? 'sinta_'.rand(1, 6) : 'non_sinta',
             ]);
         }
 

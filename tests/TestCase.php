@@ -137,7 +137,7 @@ abstract class TestCase extends BaseTestCase
                         foreach ($sintaDistribution as $rank => $percentage) {
                             $cumulative += $percentage;
                             if ($roll <= $cumulative) {
-                                $sintaRank = 'sinta_' . $rank;
+                                $sintaRank = 'sinta_'.$rank;
                                 break;
                             }
                         }
