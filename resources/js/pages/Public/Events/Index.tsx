@@ -7,15 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarDays, MapPin, Clock, Search } from 'lucide-react';
 import { PaginatedData } from '@/types';
-// import { useState, FormEvent, useEffect } from 'react';
-// import {
-//     Pagination,
-//     PaginationContent,
-//     PaginationEllipsis,
-//     PaginationItem,
-//     PaginationLink,
-// } from '@/components/ui/pagination';
-// import { Progress } from '@/components/ui/progress';
 import { FormEvent, useEffect, useState } from 'react';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination';
 import { Progress } from '@radix-ui/react-progress';
@@ -298,13 +289,6 @@ export default function Index({ agendas, filters, types = [] }: Props) {
                                 {agendas.links.map((link, index) => (
                                     <PaginationItem key={index}>
                                         {link.url ? (
-                                        //     <PaginationLink
-                                        //         href={link.url}
-                                        //         isActive={link.active}
-                                        //         dangerouslySetInnerHTML={{ __html: link.label }}
-                                        //     />
-                                        // ) : (
-                                        //     <PaginationEllipsis />
                                             <Link href={link.url}>
                                                 <PaginationLink isActive={link.active}>
                                                     {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
