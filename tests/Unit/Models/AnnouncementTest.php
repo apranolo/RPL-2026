@@ -9,27 +9,6 @@ use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
-    if (! Schema::hasTable('announcements')) {
-        Schema::create('announcements', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('university_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('title');
-            $table->string('slug')->nullable()->unique();
-            $table->text('content');
-            $table->text('description')->nullable();
-            $table->string('thumbnail')->nullable();
-            $table->dateTime('published_at')->nullable();
-            $table->dateTime('expires_at')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->boolean('is_featured')->default(false);
-            $table->softDeletes();
-            $table->timestamps();
-        });
-    }
-});
-
 function announcementPayload(array $overrides = []): array
 {
     return array_merge([
