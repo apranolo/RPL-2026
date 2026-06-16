@@ -553,7 +553,7 @@ Route::middleware(['auth'])->group(function () {
                 ->name('delete-doc');
         });
         // Proposal
-        Route::prefix('proposal')->name('proposal.')->group(function (){
+        Route::prefix('proposal')->name('proposal.')->group(function () {
             //
         });
     });

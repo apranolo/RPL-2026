@@ -1,8 +1,8 @@
 <?php
 
 namespace Database\Factories;
-use App\Models\ResearchSchema;
 
+use App\Models\ResearchSchema;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -15,7 +15,6 @@ class ProposalFactory extends Factory
      *
      * @return array<string, mixed>
      */
-
     public function definition(): array
     {
         return [
