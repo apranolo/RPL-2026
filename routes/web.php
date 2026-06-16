@@ -20,6 +20,7 @@ use App\Http\Controllers\AdminKampus\UserController as AdminKampusUserController
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\OutputController;
@@ -426,6 +427,16 @@ Route::middleware(['auth'])->group(function () {
                 'destroy' => 'events.destroy',
             ]);
 
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Keuangan Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
+        Route::get('contracts', [ContractController::class, 'index'])
+            ->name('contracts.index');
     });
 
     /*
