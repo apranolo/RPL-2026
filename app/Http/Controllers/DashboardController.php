@@ -18,9 +18,12 @@ class DashboardController extends Controller
     {
         $user = $request->user()->load(['role', 'university']);
 
+        // Calculate journal statistics for visualization first to utilize cached data
+        $statistics = $this->calculateJournalStatisticsForRole($user);
+
         // Initialize stats
         $stats = [
-            'total_journals' => 0,
+            'total_journals' => $statistics['totals']['total_journals'] ?? 0,
             'total_assessments' => 0,
             'average_score' => 0.0,
         ];
@@ -28,7 +31,6 @@ class DashboardController extends Controller
         // Get stats based on user role
         if ($user->role->name === 'Super Admin') {
             // Super Admin sees all data
-            $stats['total_journals'] = DB::table('journals')->count();
             $stats['total_assessments'] = DB::table('journal_assessments')->count();
 
             $avgScore = DB::table('journal_assessments')
@@ -53,10 +55,6 @@ class DashboardController extends Controller
 
         } elseif ($user->role->name === 'Admin Kampus') {
             // Admin Kampus sees only their university data
-            $stats['total_journals'] = DB::table('journals')
-                ->where('university_id', $user->university_id)
-                ->count();
-
             $stats['total_assessments'] = DB::table('journal_assessments')
                 ->join('journals', 'journal_assessments.journal_id', '=', 'journals.id')
                 ->where('journals.university_id', $user->university_id)
@@ -71,10 +69,6 @@ class DashboardController extends Controller
 
         } else {
             // Regular user (Pengelola Jurnal) sees only their own journals
-            $stats['total_journals'] = DB::table('journals')
-                ->where('user_id', $user->id)
-                ->count();
-
             $stats['total_assessments'] = DB::table('journal_assessments')
                 ->join('journals', 'journal_assessments.journal_id', '=', 'journals.id')
                 ->where('journals.user_id', $user->id)
@@ -88,24 +82,12 @@ class DashboardController extends Controller
             $stats['average_score'] = $avgScore ? round($avgScore, 2) : 0.0;
 
             // Add journal breakdown by approval status for User
-            $stats['journals_by_status'] = [
-                'pending' => DB::table('journals')
-                    ->where('user_id', $user->id)
-                    ->where('approval_status', 'pending')
-                    ->count(),
-                'approved' => DB::table('journals')
-                    ->where('user_id', $user->id)
-                    ->where('approval_status', 'approved')
-                    ->count(),
-                'rejected' => DB::table('journals')
-                    ->where('user_id', $user->id)
-                    ->where('approval_status', 'rejected')
-                    ->count(),
+            $stats['journals_by_status'] = $statistics['totals']['journals_by_status'] ?? [
+                'pending' => 0,
+                'approved' => 0,
+                'rejected' => 0,
             ];
         }
-
-        // Calculate journal statistics for visualization
-        $statistics = $this->calculateJournalStatisticsForRole($user);
 
         return Inertia::render('dashboard', [
             'stats' => $stats,
@@ -232,12 +214,19 @@ class DashboardController extends Controller
             ->values()
             ->toArray();
 
+        $journalsByStatus = [
+            'pending' => $journals->filter(fn ($j) => $j->approval_status === 'pending')->count(),
+            'approved' => $journals->filter(fn ($j) => $j->approval_status === 'approved')->count(),
+            'rejected' => $journals->filter(fn ($j) => $j->approval_status === 'rejected')->count(),
+        ];
+
         return [
             'totals' => [
                 'total_journals' => $totalJournals,
                 'indexed_journals' => $indexedJournals,
                 'sinta_journals' => $sintaJournals,
                 'non_sinta_journals' => $nonSintaJournals,
+                'journals_by_status' => $journalsByStatus,
             ],
             'by_indexation' => $byIndexation,
             'by_accreditation' => $byAccreditation,
