@@ -34,22 +34,31 @@ interface Proposal {
     title: string;
 }
 
+interface Contract {
+    id: number;
+    nomor_kontrak: string;
+}
+
 interface ProgressReport {
     id: number;
     title: string;
     content: string;
+    report_type: 'logbook' | 'laporan_kemajuan' | 'laporan_akhir';
+    report_date: string;
     progress_percentage: number;
     report_period: string;
     status: 'draft' | 'submitted' | 'reviewed';
     submitted_at: string | null;
     created_at: string;
     proposal: Proposal;
+    contract: Contract | null;
     evaluations: Evaluation[];
 }
 
 interface Filters {
     search: string;
     status: string;
+    report_type: string;
 }
 
 interface Props {
@@ -76,9 +85,15 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'second
     reviewed: { label: 'Reviewed', variant: 'outline' },
 };
 
+const reportTypeConfig: Record<string, string> = {
+    logbook: 'Logbook',
+    laporan_kemajuan: 'Laporan Kemajuan',
+    laporan_akhir: 'Laporan Akhir',
+};
+
 export default function ProgressIndex({ progressReports, filters: initialFilters }: Props) {
     const { flash } = usePage<SharedData>().props;
-    const [filters, setFilters] = useState<Filters>(initialFilters || { search: '', status: '' });
+    const [filters, setFilters] = useState<Filters>(initialFilters || { search: '', status: '', report_type: '' });
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
@@ -92,6 +107,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
             {
                 ...filters,
                 status: filters.status || undefined,
+                report_type: filters.report_type || undefined,
             },
             { preserveState: true },
         );
@@ -105,13 +121,14 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
             {
                 ...newFilters,
                 status: newFilters.status || undefined,
+                report_type: newFilters.report_type || undefined,
             },
             { preserveState: true },
         );
     };
 
     const resetFilters = () => {
-        setFilters({ search: '', status: '' });
+        setFilters({ search: '', status: '', report_type: '' });
         router.get(route('user.progress.index'));
     };
 
@@ -159,6 +176,16 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                     <SelectItem value="reviewed">Reviewed</SelectItem>
                                 </SelectContent>
                             </Select>
+                            <Select value={filters.report_type} onValueChange={(value) => handleFilterChange('report_type', value)}>
+                                <SelectTrigger className="w-full sm:w-[200px]">
+                                    <SelectValue placeholder="Semua Jenis" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="logbook">Logbook</SelectItem>
+                                    <SelectItem value="laporan_kemajuan">Laporan Kemajuan</SelectItem>
+                                    <SelectItem value="laporan_akhir">Laporan Akhir</SelectItem>
+                                </SelectContent>
+                            </Select>
                             <div className="flex gap-2">
                                 <Button type="submit" size="sm">
                                     <Search className="mr-2 h-4 w-4" />
@@ -180,7 +207,9 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                 <TableRow>
                                     <TableHead className="w-[50px]">No</TableHead>
                                     <TableHead>Judul Laporan</TableHead>
+                                    <TableHead>Jenis</TableHead>
                                     <TableHead>Proposal</TableHead>
+                                    <TableHead>Tgl Pelaporan</TableHead>
                                     <TableHead>Periode</TableHead>
                                     <TableHead className="text-center">Progres</TableHead>
                                     <TableHead className="text-center">Status</TableHead>
@@ -191,7 +220,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                             <TableBody>
                                 {progressReports.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="py-10 text-center">
+                                        <TableCell colSpan={10} className="py-10 text-center">
                                             <div className="flex flex-col items-center gap-2">
                                                 <FileText className="h-10 w-10 text-muted-foreground" />
                                                 <p className="text-sm text-muted-foreground">Belum ada laporan kemajuan</p>
@@ -203,7 +232,11 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                         <TableRow key={report.id}>
                                             <TableCell>{(progressReports.current_page - 1) * progressReports.per_page + index + 1}</TableCell>
                                             <TableCell className="font-medium">{report.title}</TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline">{reportTypeConfig[report.report_type] ?? report.report_type}</Badge>
+                                            </TableCell>
                                             <TableCell className="text-sm text-muted-foreground">{report.proposal?.title ?? '-'}</TableCell>
+                                            <TableCell className="text-sm">{report.report_date}</TableCell>
                                             <TableCell>{report.report_period}</TableCell>
                                             <TableCell className="text-center">
                                                 <div className="flex items-center justify-center gap-2">

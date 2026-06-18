@@ -11,9 +11,12 @@ class ProgressReport extends Model
 
     protected $fillable = [
         'proposal_id',
+        'contract_id',
         'user_id',
         'title',
         'content',
+        'report_type',
+        'report_date',
         'progress_percentage',
         'report_period',
         'attachment_path',
@@ -25,6 +28,7 @@ class ProgressReport extends Model
     {
         return [
             'progress_percentage' => 'integer',
+            'report_date' => 'date',
             'submitted_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
@@ -43,6 +47,14 @@ class ProgressReport extends Model
     public function proposal()
     {
         return $this->belongsTo(Proposal::class);
+    }
+
+    /**
+     * Get the contract this report belongs to.
+     */
+    public function contract()
+    {
+        return $this->belongsTo(Contract::class);
     }
 
     /**

@@ -17,7 +17,7 @@ class ProgressController extends Controller
         $user = Auth::user();
 
         $query = ProgressReport::where('user_id', $user->id)
-            ->with(['proposal', 'evaluations.reviewer']);
+            ->with(['proposal', 'contract', 'evaluations.reviewer']);
 
         // Search by title
         if ($search = $request->input('search')) {
@@ -32,11 +32,16 @@ class ProgressController extends Controller
             $query->where('status', $status);
         }
 
+        // Filter by report type
+        if ($reportType = $request->input('report_type')) {
+            $query->where('report_type', $reportType);
+        }
+
         $progressReports = $query->latest()->paginate(10)->withQueryString();
 
         return Inertia::render('Progress/Index', [
             'progressReports' => $progressReports,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status', 'report_type']),
         ]);
     }
 }
