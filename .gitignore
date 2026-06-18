@@ -29,3 +29,4 @@ Dockerfile
 /.zed
 /.github/instructions   
 /.agents/workflows
+/docs/ui-frontend/specs/TEMPLATE_VIEW_SPEC.md
