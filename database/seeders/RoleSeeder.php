@@ -24,6 +24,11 @@ class RoleSeeder extends Seeder
                 'description' => 'Bertanggung jawab mengelola data jurnal di tingkat kampus. Dapat meninjau, menyetujui, atau menolak jurnal yang diajukan oleh PTM di kampusnya.',
             ],
             [
+                'name' => Role::ADMIN_KEUANGAN,
+                'display_name' => 'Admin Keuangan',
+                'description' => 'Bertanggung jawab mengelola kontrak, pendanaan, dan monitoring realisasi pembayaran program.',
+            ],
+            [
                 'name' => Role::USER,
                 'display_name' => 'User',
                 'description' => 'User biasa yang dapat mengelola jurnal. Legacy role untuk backward compatibility.',
