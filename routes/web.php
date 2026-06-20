@@ -161,8 +161,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('settings/profile', [SettingsCtrl::class, 'update'])->name('settings.profile.update');
 
         // Admin Dashboard
+        // Route::get('dashboard', [DashboardCtrl::class, 'index'])
+        //     ->name('dashboard');
+
+        // Admin Dashboard Revisi
         Route::get('dashboard', [DashboardCtrl::class, 'index'])
-            ->name('dashboard');
+            ->name('dashboard')
+            ->middleware('role:Super Admin,Admin Kampus');
 
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])

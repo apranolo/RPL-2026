@@ -27,37 +27,23 @@ class DashboardCtrl extends Controller
     }
 
     /**
-     * Agregasi pendanaan tahunan menggunakan Query Builder
-     * 
-     * @return array
+     * Agregasi pendanaan tahunan menggunakan Query Builder dari data riil database
+     * * @return \Illuminate\Support\Collection
      */
     public function getFundingChart()
     {
-        // Contoh implementasi Query Build jika ada tabel pendanaan/kontrak
-        // Karena di studi kasus ini kita asumsikan tabel kontrak akan ada di minggu 9-11
-        // Maka kita sertakan bentuk query builder dan mengembalikan mock data untuk charting
-
-        /*
-        $data = DB::table('kontraks')
+        // Mengambil data riil dari tabel contracts sesuai skema database PR #25
+        $data = DB::table('contracts')
             ->select(
-                DB::raw('YEAR(tanggal_mulai) as year'), 
-                DB::raw('SUM(dana_disetujui) as total')
+                DB::raw('YEAR(start_date) as year'), 
+                DB::raw('SUM(contract_value) as total')
             )
-            ->where('status', 'disetujui')
-            ->groupBy(DB::raw('YEAR(tanggal_mulai)'))
+            // Memfilter kontrak yang sudah disetujui/berjalan (active & completed)
+            ->whereIn('status', ['active', 'completed'])
+            ->groupBy(DB::raw('YEAR(start_date)'))
             ->orderBy('year', 'asc')
             ->get();
             
         return $data;
-        */
-
-        // Mock data
-        return [
-            [ 'year' => 2022, 'total' => 150000000 ],
-            [ 'year' => 2023, 'total' => 200000000 ],
-            [ 'year' => 2024, 'total' => 350000000 ],
-            [ 'year' => 2025, 'total' => 500000000 ],
-            [ 'year' => 2026, 'total' => 450000000 ],
-        ];
     }
 }
