@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\JournalAssessment;
+use App\Models\Evaluation; // Model diperbaiki menjadi Evaluation (atau ProgressReport jika relevan)
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,30 +21,42 @@ class TimelineController extends Controller
         $user = $request->user()->load(['role']);
         $year = (int) $request->input('year', date('Y'));
 
-        $baseQuery = JournalAssessment::query()
+        // -----------------------------------------------------------------
+        // 1. Menggunakan Model yang Tepat
+        // -----------------------------------------------------------------
+        $baseQuery = Evaluation::query()
             ->whereYear('created_at', $year);
 
+        // -----------------------------------------------------------------
+        // 2. Filter Akses Berdasarkan Role
+        // -----------------------------------------------------------------
         if ($user->role->name === 'Admin Kampus') {
-            $baseQuery->whereHas('journal', fn ($q) =>
+            // Asumsi: Evaluation terhubung ke progressReport, lalu ke user
+            $baseQuery->whereHas('progressReport.user', fn ($q) =>
                 $q->where('university_id', $user->university_id)
             );
         } elseif ($user->role->name !== 'Super Admin') {
-            $baseQuery->where('user_id', $user->id);
+            $baseQuery->whereHas('progressReport', fn ($q) =>
+                $q->where('user_id', $user->id)
+            );
         }
 
+        // -----------------------------------------------------------------
+        // 3. Kalkulasi Data Bulanan
+        // -----------------------------------------------------------------
         // Monthly counts
         $monthlyCounts = (clone $baseQuery)
             ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('count', 'month')->toArray();
 
-        // Monthly scores
-        $monthlyScores = (clone $baseQuery)->whereNotNull('percentage')
+        // Monthly scores (Asumsi field skor di model Evaluation bernama 'score')
+        $monthlyScores = (clone $baseQuery)->whereNotNull('score')
             ->select(
                 DB::raw('MONTH(created_at) as month'),
-                DB::raw('AVG(percentage) as avg_score'),
-                DB::raw('MAX(percentage) as max_score'),
-                DB::raw('MIN(percentage) as min_score')
+                DB::raw('AVG(score) as avg_score'),
+                DB::raw('MAX(score) as max_score'),
+                DB::raw('MIN(score) as min_score')
             )
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->get()->keyBy('month')->toArray();
@@ -54,6 +66,9 @@ class TimelineController extends Controller
             ->select('status', DB::raw('COUNT(*) as count'))
             ->groupBy('status')->pluck('count', 'status')->toArray();
 
+        // -----------------------------------------------------------------
+        // 4. Formatting Timeline
+        // -----------------------------------------------------------------
         $months = [1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'Mei',6=>'Jun',
                    7=>'Jul',8=>'Ags',9=>'Sep',10=>'Okt',11=>'Nov',12=>'Des'];
 
@@ -78,6 +93,9 @@ class TimelineController extends Controller
             ];
         }
 
+        // -----------------------------------------------------------------
+        // 5. Response
+        // -----------------------------------------------------------------
         return response()->json([
             'year'     => $year,
             'total'    => $totalYear,
@@ -88,9 +106,9 @@ class TimelineController extends Controller
                 'reviewed'  => $statusDist['reviewed'] ?? 0,
             ],
             'summary' => [
-                'total_assessments' => $totalYear,
+                'total_evaluations' => $totalYear, // Kunci array diubah agar sesuai konteks
                 'avg_score' => $totalYear > 0
-                    ? round((clone $baseQuery)->whereNotNull('percentage')->avg('percentage') ?? 0, 1)
+                    ? round((clone $baseQuery)->whereNotNull('score')->avg('score') ?? 0, 1)
                     : 0,
                 'completion_rate' => $totalYear > 0
                     ? round(((clone $baseQuery)->where('status', 'reviewed')->count() / $totalYear) * 100, 1)

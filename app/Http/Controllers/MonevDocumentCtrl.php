@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JournalAssessment;
+use App\Models\Evaluation; // Model sudah diganti menjadi Evaluation
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -12,13 +12,12 @@ class MonevDocumentCtrl extends Controller
      * Print rekap evaluasi monev (monitoring & evaluasi).
      *
      * Renders a print-optimized Blade view containing the evaluation recap
-     * data. The rendered HTML page includes print CSS so the user can
-     * Ctrl+P / Cmd+P to produce a PDF directly from the browser.
+     * data.
      *
      * Access is scoped by the authenticated user's role:
-     *  - Super Admin  → all assessments
-     *  - Admin Kampus → assessments within their university
-     *  - User         → only their own assessments
+     * - Super Admin  → all evaluations
+     * - Admin Kampus → evaluations within their university
+     * - User         → only their own evaluations
      *
      * @return \Illuminate\Contracts\View\View
      */
@@ -28,59 +27,60 @@ class MonevDocumentCtrl extends Controller
 
         // -----------------------------------------------------------------
         // 1. Build base query with necessary eager-loads
+        // Menggunakan Evaluation dan ProgressReport (sesuai modul Monev)
         // -----------------------------------------------------------------
-        $query = JournalAssessment::query()
+        $query = Evaluation::query()
             ->with([
-                'journal.university',
-                'journal.scientificField',
-                'user',
+                'progressReport.user.university',
                 'reviewer',
             ])
-            ->whereNotNull('total_score')
-            ->orderByDesc('assessment_date');
+            ->orderByDesc('created_at'); // Menggunakan created_at sebagai standar
 
         // -----------------------------------------------------------------
         // 2. Scope by role
         // -----------------------------------------------------------------
         if ($user->role->name === 'Admin Kampus') {
-            $query->whereHas('journal', function ($q) use ($user) {
+            $query->whereHas('progressReport.user', function ($q) use ($user) {
                 $q->where('university_id', $user->university_id);
             });
         } elseif ($user->role->name !== 'Super Admin') {
-            // Regular user – only own assessments
-            $query->where('user_id', $user->id);
+            // Regular user – only own progress reports/evaluations
+            $query->whereHas('progressReport', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
         }
 
         // -----------------------------------------------------------------
         // 3. Optional filters from query-string
         // -----------------------------------------------------------------
         if ($request->filled('period')) {
-            $query->where('period', $request->input('period'));
+            $query->whereHas('progressReport', function ($q) use ($request) {
+                $q->where('period', $request->input('period'));
+            });
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
         }
 
-        $assessments = $query->get();
+        $evaluations = $query->get();
 
         // -----------------------------------------------------------------
         // 4. Aggregate statistics
         // -----------------------------------------------------------------
         $statistics = [
-            'total'         => $assessments->count(),
-            'average_score' => $assessments->avg('percentage') ?? 0,
-            'max_score'     => $assessments->max('percentage') ?? 0,
-            'min_score'     => $assessments->min('percentage') ?? 0,
-            'by_status'     => $assessments->groupBy('status')->map->count(),
-            'by_grade'      => $assessments->groupBy('grade')->map->count(),
+            'total'         => $evaluations->count(),
+            'average_score' => $evaluations->avg('score') ?? 0, // Asumsi nama field adalah score
+            'max_score'     => $evaluations->max('score') ?? 0,
+            'min_score'     => $evaluations->min('score') ?? 0,
+            'by_status'     => $evaluations->groupBy('status')->map->count(),
         ];
 
         // -----------------------------------------------------------------
         // 5. Render the print-optimised Blade view
         // -----------------------------------------------------------------
         return view('print.evaluasi', [
-            'assessments' => $assessments,
+            'evaluations' => $evaluations, // Variabel diubah menyesuaikan model
             'statistics'  => $statistics,
             'user'        => $user,
             'filters'     => $request->only(['period', 'status']),
