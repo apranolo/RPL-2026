@@ -11,14 +11,14 @@ class ReviewerProfile extends Model
 
     protected $fillable = [
         'user_id',
-        'skills',
+        'research_interests',
         'total_reviews',
         'completed_reviews',
-        'bio',
+        'biography',
     ];
 
     protected $casts = [
-        'skills' => 'array',
+        'research_interests' => 'array',
     ];
 
     public function user()
