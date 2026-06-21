@@ -435,4 +435,8 @@ class User extends Authenticatable
 
         return strtoupper(substr($this->name, 0, 2));
     }
+public function reviewerProfile()
+{
+    return $this->hasOne(\App\Models\ReviewerProfile::class);
+}
 }
