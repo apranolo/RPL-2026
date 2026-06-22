@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\AuthorProfile;
 
 class User extends Authenticatable
 {
@@ -145,6 +146,14 @@ class User extends Authenticatable
     public function uploadedAttachments()
     {
         return $this->hasMany(AssessmentAttachment::class, 'uploaded_by');
+    }
+
+    /**
+     * Get the author profile of this user
+     */
+    public function authorProfile()
+    {
+        return $this->hasOne(AuthorProfile::class);
     }
 
     /*
