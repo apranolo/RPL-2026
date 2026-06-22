@@ -151,6 +151,11 @@ class User extends Authenticatable
     /**
      * Get the author profile of this user
      */
+    public function citations()
+    {
+        return $this->hasMany(Citation::class);
+    }
+
     public function authorProfile()
     {
         return $this->hasOne(AuthorProfile::class);
