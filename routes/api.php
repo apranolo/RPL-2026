@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\OutputStatsCtrl;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
@@ -48,4 +49,10 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // TODO: Add other protected routes here
     // Route::apiResource('journals', JournalController::class);
     // Route::apiResource('universities', UniversityController::class);
+
+    // Output Statistics
+    Route::prefix('stats/outputs')->group(function () {
+        Route::get('/by-category', [OutputStatsCtrl::class, 'getCategory']);
+        Route::get('/yearly',      [OutputStatsCtrl::class, 'getYearly']);
+    });
 });
