@@ -239,7 +239,7 @@ class User extends Authenticatable
      */
     public function scopeSearch($query, ?string $search)
     {
-        if (! $search) {
+        if (!$search) {
             return $query;
         }
 
@@ -364,7 +364,7 @@ class User extends Authenticatable
         $userRoles = array_unique($userRoles);
 
         foreach ($roleNames as $roleName) {
-            if (! in_array($roleName, $userRoles)) {
+            if (!in_array($roleName, $userRoles)) {
                 return false;
             }
         }
@@ -380,7 +380,7 @@ class User extends Authenticatable
         $roleNames = $this->roles()->pluck('name')->toArray();
 
         // Add primary role if exists and not already in array
-        if ($this->role && ! in_array($this->role->name, $roleNames)) {
+        if ($this->role && !in_array($this->role->name, $roleNames)) {
             $roleNames[] = $this->role->name;
         }
 
@@ -430,13 +430,13 @@ class User extends Authenticatable
     {
         $words = explode(' ', $this->name);
         if (count($words) >= 2) {
-            return strtoupper(substr($words[0], 0, 1).substr($words[1], 0, 1));
+            return strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
         }
 
         return strtoupper(substr($this->name, 0, 2));
     }
-public function reviewerProfile()
-{
-    return $this->hasOne(\App\Models\ReviewerProfile::class);
-}
+    public function reviewerProfile()
+    {
+        return $this->hasOne(\App\Models\ReviewerProfile::class);
+    }
 }

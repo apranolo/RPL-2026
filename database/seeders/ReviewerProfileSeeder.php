@@ -2,13 +2,15 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\ReviewerProfile;
-use Illuminate\Database\Seeder;
+
 
 class ReviewerProfileSeeder extends Seeder
 {
-    public function run(): void
+     public function run(): void
     {
         $user = User::first();
 
@@ -32,4 +34,5 @@ class ReviewerProfileSeeder extends Seeder
             ]
         );
     }
+
 }
