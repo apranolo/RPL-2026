@@ -61,6 +61,12 @@ class Contract extends Model
         'deleted_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'nomor_kontrak',
+        'total_pendanaan_disetujui',
+        'status_kontrak',
+    ];
+
     /*
     |--------------------------------------------------------------------------
     | Relationships
@@ -139,6 +145,26 @@ class Contract extends Model
     | Accessors & Helpers
     |--------------------------------------------------------------------------
     */
+
+    public function getNomorKontrakAttribute(): string
+    {
+        return $this->contract_number;
+    }
+
+    public function getTotalPendanaanDisetujuiAttribute()
+    {
+        return $this->contract_value;
+    }
+
+    public function getStatusKontrakAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => 'Aktif',
+            self::STATUS_COMPLETED => 'Selesai',
+            self::STATUS_CANCELLED => 'Ditangguhkan',
+            default => 'Draft',
+        };
+    }
 
     public function getStatusLabelAttribute(): string
     {
