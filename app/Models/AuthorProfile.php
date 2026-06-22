@@ -16,11 +16,17 @@ class AuthorProfile extends Model
         'orcid',
         'affiliation',
         'bio',
+        'h_index',
+        'total_citations',
+        'yearly_data',
     ];
 
     protected function casts(): array
     {
         return [
+            'yearly_data' => 'array',
+            'h_index' => 'integer',
+            'total_citations' => 'integer',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'deleted_at' => 'datetime',
