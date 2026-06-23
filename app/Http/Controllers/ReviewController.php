@@ -75,7 +75,7 @@ class ReviewController extends Controller
             ]);
 
             // Ensure assignment and registration statuses are correct
-            if (!$assignment->isCompleted()) {
+            if (! $assignment->isCompleted()) {
                 $assignment->markCompleted();
             }
 
