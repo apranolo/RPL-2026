@@ -3,63 +3,90 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
-use App\Models\Galley; // Pastikan model ini sudah dibuat
-use App\Models\Article; // Digunakan di assignToIssue
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Galley;
+use App\Models\Article;
+use App\Http\Requests\StoreGalleyRequest;
+use Illuminate\Support\Facades\Auth;
 
 class GalleyController extends Controller
 {
     /**
-     * TUGAS 1: Upload Galley file (PDF / HTML / XML) per artikel
-     * Sesuai PRD Modul 5 & 6
+     * STORE GALLEY (FIXED)
      */
-    public function store(Request $request, $articleId)
+    public function store(StoreGalleyRequest $request, $articleId)
     {
-        // 1. Validasi sesuai PRD: PDF/HTML/XML, Max 10MB
-        $request->validate([
-            'label' => 'required|string|max:255',
-            'file' => 'required|mimes:pdf,html,xml|max:10240', 
-        ]);
+        $article = Article::findOrFail($articleId);
+
+        // ================================
+        // MULTI-TENANCY CHECK (EDITOR ONLY)
+        // ================================
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Unauthorized');
+        }
+
+        if ($user->role !== 'editor') {
+            abort(403, 'Only editor can upload galley');
+        }
+
+        if ($user->journal_id !== $article->journal_id) {
+            abort(403, 'You are not editor of this journal');
+        }
 
         try {
-            // 2. Ambil file dan buat nama unik
             $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            
-            // 3. Simpan ke storage (folder: storage/app/public/galleys/{articleId})
-            $path = $file->storeAs('galleys/' . $articleId, $filename, 'public');
 
-            // 4. Simpan metadata ke database jurnal_mu
-            Galley::create([
-                'article_id' => $articleId,
-                'label' => $request->label,
-                'file_path' => $path,
-                'file_type' => $file->getClientOriginalExtension(),
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $path = $file->storeAs(
+                'galleys/' . $articleId,
+                $filename,
+                'public'
+            );
+
+            $galley = Galley::create([
+                'id_submission' => $articleId,
+                'label'         => $request->label,
+                'file_path'     => $path,
             ]);
 
-            return back()->with('success', 'File Galley berhasil diunggah.');
-            
+            return back()->with('success', 'Galley uploaded successfully.');
+
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal upload: ' . $e->getMessage());
+            return back()->with('error', 'Upload failed: ' . $e->getMessage());
         }
     }
 
     /**
-     * TUGAS 2: Jadwalkan artikel ke sebuah Issue
+     * ASSIGN ARTICLE TO ISSUE (FIXED + SAFE)
      */
-    public function assignToIssue(Request $request, $articleId)
+    public function assignToIssue($articleId, \Illuminate\Http\Request $request)
     {
         $request->validate([
             'issue_id' => 'required|exists:issues,id',
         ]);
 
         $article = Article::findOrFail($articleId);
+
+        $user = Auth::user();
+
+        // ================================
+        // MULTI-TENANCY CHECK
+        // ================================
+        if (!$user || $user->role !== 'editor') {
+            abort(403, 'Only editor can assign article');
+        }
+
+        if ($user->journal_id !== $article->journal_id) {
+            abort(403, 'Not allowed for this journal');
+        }
+
         $article->update([
             'issue_id' => $request->issue_id,
-            'status' => 'Scheduled' // Status berubah untuk dashboard Modul 6
+            'status'   => 'Scheduled',
         ]);
 
-        return back()->with('success', 'Artikel berhasil dijadwalkan.');
+        return back()->with('success', 'Article assigned to issue successfully.');
     }
 }
