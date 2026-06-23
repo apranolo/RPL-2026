@@ -79,12 +79,20 @@ class ReviewerController extends Controller
     {
         $user = request()->user();
 
+        // Check if review already submitted
+        $existingReview = PembinaanReview::where('registration_id', $assignment->registration_id)
+            ->where('reviewer_id', $user->id)
+            ->first();
+
         // Authorize via policy
-        $this->authorize('submitReview', [
-            PembinaanReview::class,
-            $user->id,
-            $assignment->registration_id,
-        ]);
+        if ($existingReview) {
+            $this->authorize('update', $existingReview);
+        } else {
+            $this->authorize('submitReview', [
+                PembinaanReview::class,
+                $assignment->registration_id,
+            ]);
+        }
 
         $assignment->load([
             'registration.pembinaan.accreditationTemplate',
@@ -93,8 +101,9 @@ class ReviewerController extends Controller
             'registration.attachments',
         ]);
 
-        return Inertia::render('Reviewer/Assignments/Review', [
+        return Inertia::render('Reviewer/FormReview', [
             'assignment' => $assignment,
+            'existingReview' => $existingReview,
         ]);
     }
 
@@ -108,7 +117,6 @@ class ReviewerController extends Controller
         // Authorize via policy
         $this->authorize('submitReview', [
             PembinaanReview::class,
-            $user->id,
             $assignment->registration_id,
         ]);
 

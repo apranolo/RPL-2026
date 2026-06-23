@@ -23,6 +23,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
@@ -527,6 +528,10 @@ Route::middleware(['auth'])->group(function () {
                 ->name('review-form');
             Route::post('{assignment}/review', [MainReviewerController::class, 'submitReview'])
                 ->name('submit-review');
+            Route::post('{assignment}/assessment', [ReviewController::class, 'storeAssessment'])
+                ->name('store-assessment');
+            Route::put('{assignment}/assessment', [ReviewController::class, 'updateAssessment'])
+                ->name('update-assessment');
             Route::get('{assignment}/attachments/{attachment}', [MainReviewerController::class, 'downloadAttachment'])
                 ->name('attachments.download');
         });

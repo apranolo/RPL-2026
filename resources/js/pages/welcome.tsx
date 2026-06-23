@@ -1,4 +1,4 @@
-import logoUrl from '@/assets/logo_dark.png';
+  import logoUrl from '@/assets/logo_dark.png';
 import JournalCard from '@/components/journal-card';
 import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
