@@ -156,6 +156,14 @@ class User extends Authenticatable
         return $this->hasOne(AuthorProfile::class);
     }
 
+    /**
+     * Get the reviewer profile of this user
+     */
+    public function reviewerProfile()
+    {
+        return $this->hasOne(ReviewerProfile::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Scopes
