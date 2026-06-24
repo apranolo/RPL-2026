@@ -206,6 +206,14 @@ class Journal extends Model
     }
 
     /**
+     * Get all issues for this journal
+     */
+    public function issues()
+    {
+        return $this->hasMany(Issue::class);
+    }
+
+    /**
      * Get recent articles for this journal
      */
     public function recentArticles(int $limit = 10)
