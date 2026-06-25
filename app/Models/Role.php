@@ -21,8 +21,6 @@ class Role extends Model
 
     public const REVIEWER = 'Reviewer';
 
-    public const EDITOR = 'Editor';
-
     /**
      * The attributes that are mass assignable.
      *

@@ -560,7 +560,7 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     // NOTE: Group ini akan diperbaiki lebih lanjut oleh ADITYA GAUTAMA
-    Route::middleware(['role:'.Role::EDITOR])->prefix('editorial')->name('editorial.')->group(function () {
+    Route::middleware(['role:Editor'])->prefix('editorial')->name('editorial.')->group(function () {
 
         // Activity Log per submission
         Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
