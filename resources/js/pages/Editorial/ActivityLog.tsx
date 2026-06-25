@@ -1,4 +1,27 @@
 import ActivityLogTimeline from '@/components/ActivityLogTimeline';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/react';
+import { ClipboardList } from 'lucide-react';
+
+/**
+ * ActivityLog Page (Editorial)
+ *
+ * @description
+ * Halaman utama Activity Log untuk Editor. Menampilkan timeline kronologis
+ * seluruh aksi editorial yang terjadi pada sebuah submission, termasuk
+ * aktor, waktu, dan deskripsi aktivitas.
+ *
+ * @route GET /editorial/submissions/{submission}/activity-logs
+ *
+ * @features
+ * - Timeline vertikal kronologis semua aksi editorial
+ * - Informasi aktor (user) per aksi
+ * - Detail submission ID
+ * - Status empty state saat belum ada aktivitas
+ *
+ * @author REGIANA HERMAWAN
+ */
 
 interface User {
     id: number;
@@ -18,64 +41,55 @@ interface Props {
     logs: Log[];
 }
 
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Editorial', href: '#' },
+    { title: 'Activity Log', href: '#' },
+];
+
 export default function ActivityLog({
     submissionId,
     logs,
 }: Props) {
     return (
-        
-        <div className="min-h-screen overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-700 to-cyan-900">
-            {/* Decorative Background */}
-            <div className="absolute inset-0 opacity-10">
-                <div className="absolute left-0 top-0 h-96 w-96 rounded-full bg-cyan-300 blur-3xl"></div>
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Activity Log" />
 
-                <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-emerald-300 blur-3xl"></div>
-            </div>
+            {/* Wrapper utama halaman dengan padding yang responsif */}
+            <div className="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
 
-            {/* Main Content */}
-            <div className="relative z-10 mx-auto max-w-7xl px-6 py-12 lg:px-10">
-                {/* Top Header */}
-                <div className="mb-12">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 backdrop-blur-md">
-                        <div className="h-2 w-2 rounded-full bg-emerald-300"></div>
-
-                        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-100">
-                            Editorial Workflow
-                        </span>
+                {/* 1. Header Halaman */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                            <ClipboardList className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+                                Activity Log
+                            </h1>
+                            <p className="text-sm text-muted-foreground mt-1">
+                                Monitor every editorial activity and workflow history for this submission.
+                            </p>
+                        </div>
                     </div>
 
-                    <h1 className="mt-6 text-5xl font-black tracking-tight text-white md:text-6xl">
-                        Activity Log
-                    </h1>
-
-                    <p className="mt-4 max-w-2xl text-lg leading-relaxed text-emerald-100/80">
-                        Monitor every editorial activity and workflow history
-                        for this submission in real time.
-                    </p>
-
-                    {/* Submission Card */}
-                    <div className="mt-8 inline-flex items-center gap-4 rounded-2xl border border-white/10 bg-white/10 px-6 py-4 shadow-2xl backdrop-blur-xl">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-300 to-cyan-300 text-lg font-bold text-slate-900">
-                            #
-                        </div>
-
-                        <div>
-                            <p className="text-xs uppercase tracking-[0.25em] text-emerald-100/50">
-                                Submission ID
-                            </p>
-
-                            <h2 className="text-xl font-bold text-white">
-                                #{submissionId}
-                            </h2>
-                        </div>
+                    {/* Submission ID Badge */}
+                    <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-4 py-2">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Submission
+                        </span>
+                        <span className="text-sm font-bold text-foreground">
+                            #{submissionId}
+                        </span>
                     </div>
                 </div>
 
-                {/* Timeline Section */}
-                <div className="rounded-[36px] border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-md md:p-10">
+                {/* 2. Area Konten — Timeline */}
+                <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
                     <ActivityLogTimeline logs={logs} />
                 </div>
             </div>
-        </div>
+        </AppLayout>
     );
 }

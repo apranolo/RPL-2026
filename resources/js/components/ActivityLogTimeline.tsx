@@ -1,3 +1,21 @@
+import { Clock, User } from 'lucide-react';
+
+/**
+ * ActivityLogTimeline Component
+ *
+ * @description
+ * Komponen timeline vertikal yang menampilkan kronologis seluruh aksi editorial
+ * pada sebuah submission. Setiap item menampilkan aksi, aktor, deskripsi,
+ * dan waktu kejadian secara visual.
+ *
+ * @features
+ * - Timeline vertikal dengan dot indicator per aksi
+ * - Card per aktivitas dengan gradient accent
+ * - Informasi aktor (avatar + nama)
+ * - Format waktu locale id-ID
+ * - Empty state saat belum ada aktivitas
+ */
+
 interface User {
     id: number;
     name: string;
@@ -20,13 +38,15 @@ export default function ActivityLogTimeline({
 }: Props) {
     if (logs.length === 0) {
         return (
-            <div className="rounded-[32px] border border-white/10 bg-white/10 p-10 text-center shadow-2xl backdrop-blur-xl">
-                <h3 className="text-2xl font-bold text-white">
+            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-muted/30 p-12 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
+                    <Clock className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground">
                     Belum Ada Aktivitas
                 </h3>
-
-                <p className="mt-3 text-sm text-emerald-100/70">
-                    Aktivitas editorial akan muncul pada halaman ini.
+                <p className="max-w-sm text-sm text-muted-foreground">
+                    Aktivitas editorial akan muncul pada halaman ini setelah ada aksi yang dilakukan.
                 </p>
             </div>
         );
@@ -35,40 +55,41 @@ export default function ActivityLogTimeline({
     return (
         <div className="relative">
             {/* Main Timeline Line */}
-            <div className="absolute left-5 top-0 h-full w-[3px] rounded-full bg-gradient-to-b from-emerald-300 via-cyan-300 to-transparent"></div>
+            <div className="absolute left-[19px] top-2 h-[calc(100%-16px)] w-[2px] bg-gradient-to-b from-primary via-secondary to-transparent"></div>
 
-            <div className="space-y-10">
+            <div className="space-y-6">
                 {logs.map((log, index) => (
                     <div
                         key={log.id}
-                        className="relative flex gap-6"
+                        className="relative flex gap-4"
                     >
                         {/* Timeline Dot */}
-                        <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 border-emerald-300 bg-slate-900 shadow-lg shadow-emerald-500/40">
-                            <div className="h-3 w-3 rounded-full bg-emerald-300"></div>
+                        <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-[3px] border-primary bg-background shadow-sm ring-2 ring-primary/20">
+                            <div className="h-2.5 w-2.5 rounded-full bg-primary"></div>
                         </div>
 
                         {/* Card */}
-                        <div className="group flex-1 overflow-hidden rounded-[28px] border border-white/10 bg-white/10 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/15">
+                        <div className="group flex-1 overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                             {/* Top Accent */}
-                            <div className="h-1 w-full bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-400"></div>
+                            <div className="h-1 w-full bg-gradient-to-r from-primary via-secondary to-primary/50"></div>
 
-                            <div className="p-6 md:p-8">
+                            <div className="p-5 md:p-6">
                                 {/* Header */}
-                                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                                     <div>
-                                        <h2 className="text-2xl font-bold tracking-tight text-white">
+                                        <h2 className="text-lg font-bold tracking-tight text-foreground">
                                             {log.action}
                                         </h2>
 
-                                        <p className="mt-4 max-w-3xl text-sm leading-7 text-emerald-50/80">
+                                        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
                                             {log.description ??
                                                 'Tidak ada deskripsi aktivitas'}
                                         </p>
                                     </div>
 
                                     {/* Date Badge */}
-                                    <div className="shrink-0 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-200 shadow-lg">
+                                    <div className="shrink-0 flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                                        <Clock className="h-3.5 w-3.5" />
                                         {new Date(
                                             log.created_at
                                         ).toLocaleString('id-ID', {
@@ -79,19 +100,16 @@ export default function ActivityLogTimeline({
                                 </div>
 
                                 {/* Footer */}
-                                <div className="mt-8 flex items-center gap-4 border-t border-white/10 pt-5">
+                                <div className="mt-5 flex items-center gap-3 border-t border-border pt-4">
                                     {/* Avatar */}
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-cyan-300 text-lg font-bold text-slate-900 shadow-lg">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                                         {log.user?.name?.charAt(0)}
                                     </div>
 
                                     {/* User */}
-                                    <div>
-                                        <p className="text-xs uppercase tracking-[0.3em] text-emerald-100/40">
-                                            Actor
-                                        </p>
-
-                                        <p className="mt-1 text-base font-semibold text-white">
+                                    <div className="flex items-center gap-1.5">
+                                        <User className="h-3.5 w-3.5 text-muted-foreground" />
+                                        <p className="text-sm font-medium text-foreground">
                                             {log.user?.name}
                                         </p>
                                     </div>

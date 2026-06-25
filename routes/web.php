@@ -556,6 +556,20 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Editor Routes (v1.1 - Submission Editorial)
+    |--------------------------------------------------------------------------
+    */
+    // NOTE: Group ini akan diperbaiki lebih lanjut oleh ADITYA GAUTAMA
+    Route::middleware(['role:'.Role::EDITOR])->prefix('editorial')->name('editorial.')->group(function () {
+
+        // Activity Log per submission
+        Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
+            ->name('activity-logs.index');
+
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Reviewer Routes (v1.1)
     |--------------------------------------------------------------------------
     */
@@ -598,18 +612,6 @@ Route::middleware(['auth'])->group(function () {
         ->name('resources');
 
     Route::resource('proposal', ProposalController::class);
-
-    // Profile Management
-    // Route::prefix('profile')->name('profile.')->group(function () {
-    //     Route::get('/', [ProfileController::class, 'edit'])->name('edit');
-    //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
-    //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
-    // });
-
-    Route::get(
-        '/editorial/submissions/{submission}/activity-logs',
-        [ActivityLogController::class, 'index']
-    )->name('editorial.activity-logs.index');
 });
 
 require __DIR__.'/settings.php';

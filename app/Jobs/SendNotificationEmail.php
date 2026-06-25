@@ -23,14 +23,8 @@ class SendNotificationEmail implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(EmailNotificationService $service): void
     {
-        $service = new EmailNotificationService;
-
         $service->send($this->emailData);
-
-        dump('QUEUE BERHASIL');
-
-        dump($this->emailData);
     }
 }
