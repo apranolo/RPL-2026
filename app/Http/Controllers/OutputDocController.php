@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ResearchOutput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -77,20 +78,21 @@ class OutputDocController extends Controller
             'cover_image.max'        => 'Ukuran cover maksimal 2 MB.',
         ]);
 
-        // ── Delete old file (when model exists, retrieve path from DB) ──
-        // Example (uncomment when OutputProduct model is available):
-        // $product = OutputProduct::findOrFail($productId);
-        // $this->authorize('update', $product);
-        // if ($product->cover_image && Storage::disk('public')->exists($product->cover_image)) {
-        //     Storage::disk('public')->delete($product->cover_image);
-        // }
+        // ── Find and Authorize ──
+        $product = ResearchOutput::findOrFail($productId);
+        $this->authorize('update', $product);
+
+        // ── Delete old file ──
+        if ($product->cover_image && Storage::disk('public')->exists($product->cover_image)) {
+            Storage::disk('public')->delete($product->cover_image);
+        }
 
         // ── Store new file ──
         $path = $request->file('cover_image')
             ->store("outputs/products/covers/{$productId}", 'public');
 
-        // ── Persist to DB (uncomment when model exists) ──
-        // $product->update(['cover_image' => $path]);
+        // ── Persist to DB ──
+        $product->update(['cover_image' => $path]);
 
         // Return uploaded path in session so frontend can read it
         return redirect()
@@ -119,12 +121,14 @@ class OutputDocController extends Controller
             'document.max'      => 'Ukuran dokumen maksimal 10 MB.',
         ]);
 
-        // ── Delete old file (when model exists) ──
-        // $product = OutputProduct::findOrFail($productId);
-        // $this->authorize('update', $product);
-        // if ($product->document && Storage::disk('public')->exists($product->document)) {
-        //     Storage::disk('public')->delete($product->document);
-        // }
+        // ── Find and Authorize ──
+        $product = ResearchOutput::findOrFail($productId);
+        $this->authorize('update', $product);
+
+        // ── Delete old file ──
+        if ($product->document && Storage::disk('public')->exists($product->document)) {
+            Storage::disk('public')->delete($product->document);
+        }
 
         // ── Store new file — keep original filename (sanitised) ──
         $originalName = $request->file('document')->getClientOriginalName();
@@ -138,8 +142,8 @@ class OutputDocController extends Controller
                 'public'
             );
 
-        // ── Persist to DB (uncomment when model exists) ──
-        // $product->update(['document' => $path]);
+        // ── Persist to DB ──
+        $product->update(['document' => $path]);
 
         return redirect()
             ->back()
@@ -163,15 +167,15 @@ class OutputDocController extends Controller
 
         $type = $request->input('type');
 
-        // ── When model exists, load and verify ownership ──
-        // $product = OutputProduct::findOrFail($productId);
-        // $this->authorize('update', $product);
-        //
-        // $field = $type === 'cover' ? 'cover_image' : 'document';
-        // if ($product->$field && Storage::disk('public')->exists($product->$field)) {
-        //     Storage::disk('public')->delete($product->$field);
-        //     $product->update([$field => null]);
-        // }
+        // ── Find and Authorize ──
+        $product = ResearchOutput::findOrFail($productId);
+        $this->authorize('update', $product);
+
+        $field = $type === 'cover' ? 'cover_image' : 'document';
+        if ($product->$field && Storage::disk('public')->exists($product->$field)) {
+            Storage::disk('public')->delete($product->$field);
+            $product->update([$field => null]);
+        }
 
         $label = $type === 'cover' ? 'Cover produk' : 'Dokumen bukti luaran';
 

@@ -31,6 +31,12 @@ class ResearchOutput extends Model
         'file_path',
         'status',
         'keterangan',
+        'tkt_level',
+        'version',
+        'year',
+        'url',
+        'cover_image',
+        'document',
     ];
 
     // Relasi ke User

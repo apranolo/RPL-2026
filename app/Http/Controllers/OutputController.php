@@ -61,10 +61,16 @@ class OutputController extends Controller
 
     /**
      * Handle the submission of the Produk/Prototipe output form.
+     *
+     * Logika:
+     *  1. Validasi input.
+     *  2. Buat record ResearchOutput — user_id SELALU dari Auth::id() (RBAC).
+     *  3. Simpan file cover/dokumen (jika ada) lalu update path ke record yang sama.
      */
     public function storeProduct(Request $request)
     {
         $validated = $request->validate([
+            'proposal_id' => 'nullable|integer|exists:proposals,id',
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
             'tkt_level'   => 'required|integer|min:1|max:9',
@@ -77,24 +83,43 @@ class OutputController extends Controller
             'document'    => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
 
-        // Simpan ke database — user_id diambil dari sesi login (RBAC).
-        // Aktifkan baris berikut ketika migrasi DB sudah siap:
-        // $product = ResearchOutput::create([
-        //     ...$validated,
-        //     'user_id' => Auth::id(),   // << selalu ikat ke user yang login
-        // ]);
+        // ── Simpan data ke DB — user_id selalu diikat ke user yang sedang login (RBAC) ──
+        $product = ResearchOutput::create([
+            'proposal_id' => $validated['proposal_id'] ?? null,
+            'user_id'     => Auth::id(),   // ← RBAC: selalu dari sesi login, bukan dari input
+            'kategori'    => 'produk',
+            'judul'       => $validated['title'],
+            'keterangan'  => $validated['description'],
+            'tkt_level'   => $validated['tkt_level'],
+            'version'     => $validated['version'] ?? null,
+            'year'        => $validated['year'],
+            'url'         => $validated['url'] ?? null,
+            'status'      => $validated['status'],
+        ]);
 
-        // Handling file uploads — path disimpan ke kolom model setelah DB aktif
+        // ── Upload cover image (jika ada) & simpan path ke record ──
         if ($request->hasFile('cover_image')) {
-            $coverPath = $request->file('cover_image')->store('outputs/products/covers', 'public');
-            // $product->update(['cover_image' => $coverPath]);
+            $coverPath = $request->file('cover_image')
+                ->store("outputs/products/covers/{$product->id}", 'public');
+            $product->update(['cover_image' => $coverPath]);
         }
 
+        // ── Upload dokumen bukti (jika ada) & simpan path ke record ──
         if ($request->hasFile('document')) {
-            $docPath = $request->file('document')->store('outputs/products/documents', 'public');
-            // $product->update(['document' => $docPath]);
+            $originalName = $request->file('document')->getClientOriginalName();
+            $safeName     = preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
+            $timestamp    = now()->format('YmdHis');
+
+            $docPath = $request->file('document')
+                ->storeAs(
+                    "outputs/products/documents/{$product->id}",
+                    "{$timestamp}_{$safeName}",
+                    'public'
+                );
+            $product->update(['document' => $docPath]);
         }
 
-        return redirect()->back()->with('success', 'Data luaran Produk/Prototipe berhasil disimpan.');
+        return redirect()->route('user.outputs.index')
+            ->with('success', 'Data luaran Produk/Prototipe berhasil disimpan.');
     }
 }
