@@ -1,9 +1,9 @@
 /**
  * Wizard Step 5 — Confirm & Submit
  *
- * @description Summary page showing all data from Steps 1-4.
+ * @description Summary page showing all data from Steps 1-4 for OJS Submission.
  *              The user reviews everything and clicks "Submit" to finalize.
- * @route GET /user/submission-wizard/{assessment}/confirm
+ * @route GET /user/submission-wizard/{submission}/confirm
  */
 import WizardProgressBar, { type WizardStep } from '@/components/WizardProgressBar';
 import { Badge } from '@/components/ui/badge';
@@ -13,19 +13,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
-import type { AssessmentJournalMetadata } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import {
     AlertTriangle,
     ArrowLeft,
     BookOpen,
-    Calendar,
     CheckCircle,
     FileText,
     Send,
-    Shield,
     Users,
-    XCircle,
+    Globe,
+    Tag,
+    UserCheck,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -33,544 +32,401 @@ import { useState } from 'react';
 
 interface Journal {
     id: number;
-    title: string;
-    issn: string;
+    title?: string;
+    name?: string;
+    issn?: string;
     e_issn?: string;
-    url?: string;
-    university?: { id: number; name: string; short_name?: string };
-    scientific_field?: { id: number; name: string };
 }
 
-interface EvaluationIndicator {
+interface SubmissionFile {
     id: number;
-    code: string;
-    category: string;
-    question: string;
-    description: string | null;
-    weight: number;
-    answer_type: 'boolean' | 'scale' | 'text';
+    file_path: string;
+    file_type: 'ManuscriptMain' | 'Supplementary';
+    file_size: number;
 }
 
-interface Response {
+interface Contributor {
     id: number;
-    evaluation_indicator: EvaluationIndicator;
-    answer_boolean: boolean | null;
-    answer_scale: number | null;
-    answer_text: string | null;
-    score: number;
-    notes: string | null;
-    attachments?: Array<{ id: number; original_filename: string }>;
+    name: string;
+    email: string;
+    affiliation?: string;
+    is_corresponding: boolean;
 }
 
-interface AssessmentIssue {
+interface Submission {
     id: number;
-    title: string;
-    description: string;
-    category: string;
-    priority: string;
-}
-
-interface Assessment {
-    id: number;
-    journal: Journal;
-    assessment_date: string;
-    period: string | null;
-    notes: string | null;
-    status: 'draft' | 'submitted' | 'reviewed';
-    kategori_diusulkan?: string | null;
-    jumlah_editor?: number | null;
-    jumlah_reviewer?: number | null;
-    jumlah_author?: number | null;
-    jumlah_institusi_editor?: number | null;
-    jumlah_institusi_reviewer?: number | null;
-    jumlah_institusi_author?: number | null;
-    journalMetadata?: AssessmentJournalMetadata[];
-    responses?: Response[];
-    issues?: AssessmentIssue[];
-    total_score?: number;
-    max_score?: number;
-    percentage?: number;
-    created_at: string;
-}
-
-interface WizardStatusItem {
-    label: string;
-    complete: boolean;
-    description: string;
+    journal_id: number;
+    author_id: number;
+    title: string | null;
+    abstract: string | null;
+    keywords: string[] | string | null;
+    language: string;
+    status: string;
+    journal?: Journal;
+    files?: SubmissionFile[];
+    contributors?: Contributor[];
 }
 
 interface Props {
-    assessment: Assessment;
-    responsesByCategory: Record<string, Response[]>;
-    completionPercentage: number;
-    totalIndicators: number;
-    answeredIndicators: number;
-    wizardStatus: Record<string, WizardStatusItem>;
+    submission: Submission;
 }
 
-// ─── Month Helper ───────────────────────────────────────────────────
+// ─── Format File Size Helper ────────────────────────────────────────
 
-const MONTH_NAMES = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
-];
-
-// ─── Category label helpers ─────────────────────────────────────────
-
-const ISSUE_CATEGORY_LABELS: Record<string, string> = {
-    editorial: 'Editorial',
-    technical: 'Teknis',
-    content_quality: 'Kualitas Konten',
-    management: 'Manajemen',
+const formatBytes = (bytes: number, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
-const ISSUE_PRIORITY_LABELS: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-    high: { label: 'Tinggi', variant: 'destructive' },
-    medium: { label: 'Sedang', variant: 'default' },
-    low: { label: 'Rendah', variant: 'secondary' },
-};
-
-// ─── Component ──────────────────────────────────────────────────────
-
-export default function Step5Confirm({
-    assessment,
-    responsesByCategory,
-    completionPercentage,
-    totalIndicators,
-    answeredIndicators,
-    wizardStatus,
-}: Props) {
+export default function Step5Confirm({ submission }: Props) {
     const [confirmed, setConfirmed] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
-    // Convert wizardStatus to WizardStep array for the progress bar
-    const wizardSteps: WizardStep[] = Object.values(wizardStatus).map((s) => ({
-        label: s.label,
-        description: s.description,
-        complete: s.complete,
-    }));
+    // Progress Bar configuration
+    const wizardSteps: WizardStep[] = [
+        { label: 'Start', description: 'Pilih Jurnal & Syarat', complete: true },
+        { label: 'Upload Files', description: 'Unggah Manuskrip', complete: true },
+        { label: 'Metadata', description: 'Judul & Abstrak', complete: true },
+        { label: 'Contributors', description: 'Penulis Pendamping', complete: true },
+        { label: 'Confirm', description: 'Rangkuman & Submit', complete: false },
+    ];
 
-    const allStepsComplete = Object.entries(wizardStatus)
-        .filter(([key]) => key !== 'step5')
-        .every(([, s]) => s.complete);
+    // Data validations
+    const hasTitle = !!submission.title?.trim();
+    const hasAbstract = !!submission.abstract?.trim();
+    const hasMainManuscript = submission.files?.some(f => f.file_type === 'ManuscriptMain') ?? false;
+    const hasJournal = !!submission.journal;
 
-    const canSubmit = allStepsComplete && confirmed && !submitting;
+    const validationErrors: string[] = [];
+    if (!hasJournal) validationErrors.push('Jurnal tujuan belum dipilih.');
+    if (!hasTitle) validationErrors.push('Judul naskah wajib diisi.');
+    if (!hasAbstract) validationErrors.push('Abstrak naskah wajib diisi.');
+    if (!hasMainManuscript) validationErrors.push('Berkas manuskrip utama wajib diunggah.');
+
+    const isValid = validationErrors.length === 0;
+    const canSubmit = isValid && confirmed && !submitting;
 
     const handleFinalSubmit = () => {
         if (!canSubmit) return;
         setSubmitting(true);
 
         router.post(
-            route('user.submission-wizard.final-submit', assessment.id),
+            route('user.submission-wizard.final-submit', submission.id),
             { confirm_submission: true },
             {
                 preserveScroll: true,
                 onError: () => setSubmitting(false),
-            },
+            }
         );
     };
 
-    // ─── Render Helpers ─────────────────────────────────────────────
-
-    const renderAnswer = (response: Response) => {
-        const indicator = response.evaluation_indicator;
-
-        if (indicator.answer_type === 'boolean') {
-            return response.answer_boolean ? (
-                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle className="h-4 w-4" /> Ya
-                </span>
-            ) : (
-                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-500">
-                    <XCircle className="h-4 w-4" /> Tidak
-                </span>
-            );
+    // Parse Keywords safely
+    let parsedKeywords: string[] = [];
+    if (Array.isArray(submission.keywords)) {
+        parsedKeywords = submission.keywords;
+    } else if (typeof submission.keywords === 'string') {
+        try {
+            const parsed = JSON.parse(submission.keywords);
+            parsedKeywords = Array.isArray(parsed) ? parsed : [submission.keywords];
+        } catch {
+            parsedKeywords = submission.keywords.split(',').map(k => k.trim()).filter(Boolean);
         }
-
-        if (indicator.answer_type === 'scale') {
-            return (
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">{response.answer_scale}/5</span>
-                    <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map((n) => (
-                            <div
-                                key={n}
-                                className={`h-2.5 w-2.5 rounded-full ${
-                                    n <= (response.answer_scale || 0)
-                                        ? 'bg-blue-500'
-                                        : 'bg-muted-foreground/20'
-                                }`}
-                            />
-                        ))}
-                    </div>
-                </div>
-            );
-        }
-
-        return (
-            <p className="max-w-md truncate text-sm text-muted-foreground">
-                {response.answer_text || '—'}
-            </p>
-        );
-    };
-
-    // ─── JSX ────────────────────────────────────────────────────────
+    }
 
     return (
         <AppLayout>
-            <Head title="Konfirmasi Pengajuan — Wizard Step 5" />
+            <Head title="Konfirmasi &amp; Kirim Naskah — Wizard Step 5" />
 
             <div className="mx-auto max-w-5xl space-y-8 pb-12">
                 {/* ── Page Header ───────────────────────────── */}
-                <div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="mb-3"
-                        onClick={() => router.visit(route('user.assessments.edit', assessment.id))}
-                    >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Kembali ke Edit
-                    </Button>
-                    <h1 className="text-3xl font-bold tracking-tight">Konfirmasi &amp; Kirim Pengajuan</h1>
-                    <p className="mt-1 text-muted-foreground">
-                        Periksa seluruh data Anda sebelum mengirimkan assessment.
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-violet-400">
+                        Konfirmasi &amp; Kirim Naskah
+                    </h1>
+                    <p className="text-muted-foreground">
+                        Tinjau ringkasan naskah artikel Anda sebelum melakukan pengiriman final ke dewan editor.
                     </p>
                 </div>
 
                 {/* ── Wizard Progress Bar ───────────────────── */}
-                <WizardProgressBar steps={wizardSteps} currentStep={4} />
-
-                {/* ── Completion Overview ───────────────────── */}
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            <Shield className="h-5 w-5 text-blue-500" />
-                            Kelengkapan Data
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="space-y-1">
-                                <p className="text-sm text-muted-foreground">
-                                    Indikator dijawab: <span className="font-semibold text-foreground">{answeredIndicators}</span> dari{' '}
-                                    <span className="font-semibold text-foreground">{totalIndicators}</span>
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="h-3 w-40 overflow-hidden rounded-full bg-muted">
-                                    <div
-                                        className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-                                        style={{ width: `${completionPercentage}%` }}
-                                    />
-                                </div>
-                                <span className="text-sm font-bold">{completionPercentage}%</span>
-                            </div>
-                        </div>
-
-                        {!allStepsComplete && (
-                            <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300">
-                                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                                <p className="text-sm">
-                                    Beberapa langkah belum lengkap. Harap lengkapi semua langkah sebelum mengirim.
-                                </p>
-                            </div>
-                        )}
+                <Card className="border-none bg-slate-50/50 shadow-none dark:bg-slate-900/20">
+                    <CardContent className="pt-6">
+                        <WizardProgressBar steps={wizardSteps} currentStep={4} />
                     </CardContent>
                 </Card>
 
-                {/* ── Step 1 Summary: Info Dasar ────────────── */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
+                {/* ── Validation Alerts ─────────────────────── */}
+                {validationErrors.length > 0 ? (
+                    <Card className="border-red-200 bg-red-50/50 dark:border-red-950 dark:bg-red-950/20">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="flex items-center gap-2 text-lg text-red-700 dark:text-red-400">
+                                <AlertTriangle className="h-5 w-5 shrink-0" />
+                                Kelengkapan Dokumen Belum Terpenuhi
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ul className="list-inside list-disc space-y-1.5 text-sm text-red-600 dark:text-red-300">
+                                {validationErrors.map((err, i) => (
+                                    <li key={i}>{err}</li>
+                                ))}
+                            </ul>
+                            <p className="mt-3 text-xs text-muted-foreground">
+                                Silakan kembali ke langkah-langkah sebelumnya untuk melengkapi data yang kurang.
+                            </p>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <Card className="border-emerald-200 bg-emerald-50/50 dark:border-emerald-950 dark:bg-emerald-950/20">
+                        <CardContent className="flex items-center gap-3 py-4">
+                            <CheckCircle className="h-6 w-6 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                            <div className="space-y-0.5">
+                                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                                    Dokumen Lengkap &amp; Siap Kirim
+                                </p>
+                                <p className="text-xs text-emerald-700 dark:text-emerald-400">
+                                    Semua persyaratan pengisian naskah utama dan metadata dasar telah dipenuhi.
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* ── Step 1 Summary: Target Jurnal ─────────── */}
+                <Card className="overflow-hidden border-slate-200 shadow-sm dark:border-slate-800">
+                    <CardHeader className="bg-slate-50/40 dark:bg-slate-900/40">
+                        <CardTitle className="flex items-center gap-2 text-lg font-bold">
                             <BookOpen className="h-5 w-5 text-blue-500" />
-                            Langkah 1 — Informasi Dasar
+                            Langkah 1 — Jurnal Target
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-6">
                         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Jurnal
+                                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    Nama Jurnal
                                 </dt>
-                                <dd className="mt-1 text-sm font-semibold">{assessment.journal.title}</dd>
+                                <dd className="mt-1 text-sm font-bold text-foreground">
+                                    {submission.journal?.title || submission.journal?.name || '—'}
+                                </dd>
                             </div>
                             <div>
-                                <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                     ISSN / E-ISSN
                                 </dt>
-                                <dd className="mt-1 text-sm">
-                                    {assessment.journal.issn}
-                                    {assessment.journal.e_issn && ` / ${assessment.journal.e_issn}`}
+                                <dd className="mt-1 text-sm text-foreground">
+                                    {submission.journal?.issn || '—'}
+                                    {submission.journal?.e_issn && ` / ${submission.journal.e_issn}`}
                                 </dd>
                             </div>
-                            {assessment.journal.university && (
-                                <div>
-                                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                        Universitas
-                                    </dt>
-                                    <dd className="mt-1 text-sm">{assessment.journal.university.name}</dd>
-                                </div>
-                            )}
-                            {assessment.journal.scientific_field && (
-                                <div>
-                                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                        Bidang Ilmu
-                                    </dt>
-                                    <dd className="mt-1 text-sm">{assessment.journal.scientific_field.name}</dd>
-                                </div>
-                            )}
-                            <div>
-                                <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Tanggal Assessment
-                                </dt>
-                                <dd className="mt-1 flex items-center gap-1.5 text-sm">
-                                    <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                                    {new Date(assessment.assessment_date).toLocaleDateString('id-ID', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                    })}
-                                </dd>
-                            </div>
-                            {assessment.period && (
-                                <div>
-                                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                        Periode
-                                    </dt>
-                                    <dd className="mt-1 text-sm">{assessment.period}</dd>
-                                </div>
-                            )}
                         </dl>
-
-                        {assessment.notes && (
-                            <>
-                                <Separator className="my-4" />
-                                <div>
-                                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                        Catatan
-                                    </dt>
-                                    <dd className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-                                        {assessment.notes}
-                                    </dd>
-                                </div>
-                            </>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* ── Step 2 Summary: Kategori & Kontributor ── */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            <Users className="h-5 w-5 text-violet-500" />
-                            Langkah 2 — Kategori &amp; Kontributor
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {assessment.kategori_diusulkan && (
-                            <div className="mb-4">
-                                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Kategori Diusulkan
-                                </span>
-                                <div className="mt-1">
-                                    <Badge variant="outline" className="px-3 py-1 text-sm">
-                                        {assessment.kategori_diusulkan}
-                                    </Badge>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                            {[
-                                { label: 'Editor', value: assessment.jumlah_editor },
-                                { label: 'Reviewer', value: assessment.jumlah_reviewer },
-                                { label: 'Author', value: assessment.jumlah_author },
-                                { label: 'Institusi Editor', value: assessment.jumlah_institusi_editor },
-                                { label: 'Institusi Reviewer', value: assessment.jumlah_institusi_reviewer },
-                                { label: 'Institusi Author', value: assessment.jumlah_institusi_author },
-                            ].map((item) => (
-                                <div key={item.label} className="rounded-lg border bg-muted/30 p-3">
-                                    <div className="text-xs text-muted-foreground">{item.label}</div>
-                                    <div className="text-xl font-bold">{item.value ?? '—'}</div>
-                                </div>
-                            ))}
+                        <div className="mt-4 flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300">
+                            <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            <span>Pernyataan persetujuan lisensi dan etika pengajuan telah disetujui.</span>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* ── Step 3 Summary: Data Terbitan ────────── */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
+                {/* ── Step 2 Summary: Berkas Unggahan ───────── */}
+                <Card className="overflow-hidden border-slate-200 shadow-sm dark:border-slate-800">
+                    <CardHeader className="bg-slate-50/40 dark:bg-slate-900/40">
+                        <CardTitle className="flex items-center gap-2 text-lg font-bold">
                             <FileText className="h-5 w-5 text-amber-500" />
-                            Langkah 3 — Data Terbitan Jurnal
+                            Langkah 2 — Berkas Naskah
                         </CardTitle>
-                        <CardDescription>
-                            {assessment.journalMetadata?.length ?? 0} terbitan terdaftar
-                        </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        {assessment.journalMetadata && assessment.journalMetadata.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                    <thead>
-                                        <tr className="border-b text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                            <th className="pb-2 pr-4">Vol / No</th>
-                                            <th className="pb-2 pr-4">Bulan / Tahun</th>
-                                            <th className="pb-2 pr-4">Negara Editor</th>
-                                            <th className="pb-2 pr-4">Inst. Editor</th>
-                                            <th className="pb-2 pr-4">Negara Reviewer</th>
-                                            <th className="pb-2">Inst. Reviewer</th>
+                    <CardContent className="pt-6">
+                        {submission.files && submission.files.length > 0 ? (
+                            <div className="space-y-3">
+                                {submission.files.map((file) => (
+                                    <div
+                                        key={file.id}
+                                        className="flex items-center justify-between gap-4 rounded-lg border border-slate-100 bg-slate-50/30 p-4 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/20 dark:hover:bg-slate-900/45"
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <FileText className="h-8 w-8 shrink-0 text-slate-400" />
+                                            <div className="min-w-0">
+                                                <p className="truncate text-sm font-semibold text-foreground">
+                                                    {file.file_path.split('/').pop()}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Ukuran: {formatBytes(file.file_size)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Badge
+                                                variant={file.file_type === 'ManuscriptMain' ? 'default' : 'secondary'}
+                                                className="shrink-0"
+                                            >
+                                                {file.file_type === 'ManuscriptMain' ? 'Manuskrip Utama' : 'File Pendukung'}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground border-2 border-dashed border-slate-200 rounded-lg dark:border-slate-800">
+                                <FileText className="h-10 w-10 text-slate-300 mb-2" />
+                                <span className="text-sm italic">Belum ada berkas naskah yang diunggah.</span>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* ── Step 3 Summary: Metadata Naskah ───────── */}
+                <Card className="overflow-hidden border-slate-200 shadow-sm dark:border-slate-800">
+                    <CardHeader className="bg-slate-50/40 dark:bg-slate-900/40">
+                        <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                            <Tag className="h-5 w-5 text-indigo-500" />
+                            Langkah 3 — Informasi &amp; Metadata
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-6">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div className="sm:col-span-2">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    Judul Artikel
+                                </span>
+                                <h2 className="mt-1 text-base font-bold text-foreground leading-snug">
+                                    {submission.title || <span className="text-red-500 italic">Judul belum diisi</span>}
+                                </h2>
+                            </div>
+                            <div>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                                    <Globe className="h-3.5 w-3.5 text-muted-foreground" /> Bahasa Pengantar
+                                </span>
+                                <p className="mt-1 text-sm font-medium">
+                                    {submission.language === 'en' ? 'English (en)' : 'Bahasa Indonesia (id)'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <Separator />
+
+                        <div>
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                Abstrak
+                            </span>
+                            <div className="mt-2 text-sm text-foreground leading-relaxed whitespace-pre-line bg-slate-50/30 border border-slate-100 rounded-md p-4 dark:border-slate-800 dark:bg-slate-900/20">
+                                {submission.abstract || (
+                                    <span className="text-red-500 italic">Abstrak naskah belum diisi</span>
+                                )}
+                            </div>
+                        </div>
+
+                        {parsedKeywords.length > 0 && (
+                            <div>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
+                                    Kata Kunci (Keywords)
+                                </span>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {parsedKeywords.map((kw, i) => (
+                                        <Badge key={i} variant="outline" className="px-2.5 py-1 text-xs">
+                                            {kw}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* ── Step 4 Summary: Kontributor ───────────── */}
+                <Card className="overflow-hidden border-slate-200 shadow-sm dark:border-slate-800">
+                    <CardHeader className="bg-slate-50/40 dark:bg-slate-900/40">
+                        <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                            <Users className="h-5 w-5 text-violet-500" />
+                            Langkah 4 — Penulis Pendamping (Co-Authors)
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        {submission.contributors && submission.contributors.length > 0 ? (
+                            <div className="overflow-hidden border border-slate-100 rounded-lg dark:border-slate-800">
+                                <table className="w-full text-left text-sm border-collapse">
+                                    <thead className="bg-slate-50 dark:bg-slate-900/40">
+                                        <tr className="border-b border-slate-100 text-xs font-semibold uppercase text-muted-foreground dark:border-slate-800">
+                                            <th className="px-4 py-3">Nama</th>
+                                            <th className="px-4 py-3">Email</th>
+                                            <th className="px-4 py-3">Afiliasi</th>
+                                            <th className="px-4 py-3 text-right">Peran</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y">
-                                        {assessment.journalMetadata.map((m, i) => (
-                                            <tr key={m.id ?? i} className="text-sm">
-                                                <td className="py-2 pr-4 font-medium">
-                                                    Vol. {m.volume} No. {m.number}
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                        {submission.contributors.map((contrib) => (
+                                            <tr key={contrib.id} className="hover:bg-slate-50/30">
+                                                <td className="px-4 py-3.5 font-medium">{contrib.name}</td>
+                                                <td className="px-4 py-3.5 text-muted-foreground">{contrib.email}</td>
+                                                <td className="px-4 py-3.5 text-muted-foreground">{contrib.affiliation || '—'}</td>
+                                                <td className="px-4 py-3.5 text-right">
+                                                    {contrib.is_corresponding ? (
+                                                        <Badge variant="default" className="gap-1">
+                                                            <UserCheck className="h-3 w-3" /> Penulis Korespondensi
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge variant="outline">Penulis Pendamping</Badge>
+                                                    )}
                                                 </td>
-                                                <td className="py-2 pr-4">
-                                                    {MONTH_NAMES[m.month - 1]} {m.year}
-                                                </td>
-                                                <td className="py-2 pr-4">{m.jumlah_negara_editor}</td>
-                                                <td className="py-2 pr-4">{m.jumlah_institusi_editor}</td>
-                                                <td className="py-2 pr-4">{m.jumlah_negara_reviewer}</td>
-                                                <td className="py-2">{m.jumlah_institusi_reviewer}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
                         ) : (
-                            <p className="text-sm italic text-muted-foreground">Belum ada data terbitan.</p>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* ── Step 4 Summary: Evaluasi ─────────────── */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            <CheckCircle className="h-5 w-5 text-emerald-500" />
-                            Langkah 4 — Evaluasi Indikator
-                        </CardTitle>
-                        <CardDescription>
-                            {answeredIndicators} dari {totalIndicators} indikator dijawab
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {Object.keys(responsesByCategory).length > 0 ? (
-                            Object.entries(responsesByCategory).map(([category, responses]) => (
-                                <div key={category}>
-                                    <h3 className="mb-2 text-sm font-semibold">{category}</h3>
-                                    <div className="space-y-2">
-                                        {responses.map((response, idx) => (
-                                            <div
-                                                key={response.id}
-                                                className="flex items-start justify-between gap-4 rounded-lg border bg-muted/20 px-4 py-2.5"
-                                            >
-                                                <div className="flex min-w-0 flex-1 items-start gap-2">
-                                                    <Badge variant="outline" className="shrink-0 text-[10px]">
-                                                        {response.evaluation_indicator.code}
-                                                    </Badge>
-                                                    <p className="truncate text-sm">
-                                                        {response.evaluation_indicator.question}
-                                                    </p>
-                                                </div>
-                                                <div className="shrink-0">{renderAnswer(response)}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-sm italic text-muted-foreground">Belum ada jawaban evaluasi.</p>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* ── Step 4b: Temuan / Issues (optional) ──── */}
-                {assessment.issues && assessment.issues.length > 0 && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <AlertTriangle className="h-5 w-5 text-amber-500" />
-                                Temuan / Issues
-                            </CardTitle>
-                            <CardDescription>
-                                {assessment.issues.length} temuan tercatat
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                {assessment.issues.map((issue) => (
-                                    <div
-                                        key={issue.id}
-                                        className="rounded-lg border bg-muted/20 p-4"
-                                    >
-                                        <div className="mb-1 flex items-center gap-2">
-                                            <h4 className="text-sm font-semibold">{issue.title}</h4>
-                                            <Badge variant={ISSUE_PRIORITY_LABELS[issue.priority]?.variant ?? 'outline'}>
-                                                {ISSUE_PRIORITY_LABELS[issue.priority]?.label ?? issue.priority}
-                                            </Badge>
-                                            <Badge variant="outline">
-                                                {ISSUE_CATEGORY_LABELS[issue.category] ?? issue.category}
-                                            </Badge>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">{issue.description}</p>
-                                    </div>
-                                ))}
+                            <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground border-2 border-dashed border-slate-200 rounded-lg dark:border-slate-800">
+                                <Users className="h-10 w-10 text-slate-300 mb-2" />
+                                <span className="text-sm italic">Belum ada penulis pendamping yang didaftarkan.</span>
                             </div>
-                        </CardContent>
-                    </Card>
-                )}
+                        )}
+                    </CardContent>
+                </Card>
 
                 {/* ── Confirmation Checkbox & Submit ────────── */}
-                <Card className="border-2 border-blue-200 dark:border-blue-900">
+                <Card className="border-2 border-blue-200 dark:border-blue-900 bg-blue-50/20">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-lg">
                             <Send className="h-5 w-5 text-blue-500" />
-                            Konfirmasi Pengajuan
+                            Pernyataan Konfirmasi
                         </CardTitle>
                         <CardDescription>
-                            Setelah dikirim, assessment <strong>tidak dapat diedit</strong> lagi.
+                            Setelah naskah dikirimkan, Anda <strong>tidak dapat lagi mengubah</strong> data berkas dan metadata naskah.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-4">
+                        <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-white dark:bg-slate-900/50 dark:border-slate-800 p-4">
                             <Checkbox
                                 id="confirm-submission"
                                 checked={confirmed}
                                 onCheckedChange={(checked) => setConfirmed(checked === true)}
-                                disabled={!allStepsComplete}
+                                disabled={!isValid}
                             />
-                            <Label htmlFor="confirm-submission" className="cursor-pointer text-sm leading-relaxed">
-                                Saya telah memeriksa seluruh data di atas dan menyatakan bahwa informasi yang saya
-                                berikan adalah benar. Saya memahami bahwa assessment yang sudah dikirim{' '}
-                                <strong>tidak dapat diubah</strong>.
+                            <Label htmlFor="confirm-submission" className="cursor-pointer text-sm leading-relaxed text-foreground select-none">
+                                Saya bersaksi bahwa saya telah meninjau keseluruhan data pengajuan naskah ilmiah di atas. Semua informasi yang diisi serta berkas manuskrip yang dilampirkan adalah benar dan orisinal milik tim penulis.
                             </Label>
                         </div>
 
-                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between pt-2">
                             <Button
                                 variant="outline"
-                                onClick={() => router.visit(route('user.assessments.edit', assessment.id))}
+                                onClick={() => router.visit(route('user.profil.index'))}
                             >
                                 <ArrowLeft className="mr-2 h-4 w-4" />
-                                Kembali ke Edit
+                                Kembali ke Profil
                             </Button>
 
                             <Button
                                 size="lg"
                                 disabled={!canSubmit}
                                 onClick={handleFinalSubmit}
-                                className="gap-2"
+                                className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md text-white border-none"
                             >
                                 {submitting ? (
                                     <>
                                         <svg
-                                            className="h-4 w-4 animate-spin"
+                                            className="h-4 w-4 animate-spin text-white"
                                             xmlns="http://www.w3.org/2000/svg"
                                             fill="none"
                                             viewBox="0 0 24 24"
@@ -594,7 +450,7 @@ export default function Step5Confirm({
                                 ) : (
                                     <>
                                         <Send className="h-4 w-4" />
-                                        Kirim Assessment
+                                        Kirim Naskah Ilmiah
                                     </>
                                 )}
                             </Button>

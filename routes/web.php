@@ -484,9 +484,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Submission Wizard (Step 5: Confirm & Submit)
         Route::prefix('submission-wizard')->name('submission-wizard.')->group(function () {
-            Route::get('{assessment}/confirm', [SubmissionWizardController::class, 'confirm'])
+            Route::get('{submission}/confirm', [SubmissionWizardController::class, 'confirm'])
                 ->name('confirm');
-            Route::post('{assessment}/final-submit', [SubmissionWizardController::class, 'finalSubmit'])
+            Route::post('{submission}/final-submit', [SubmissionWizardController::class, 'finalSubmit'])
                 ->name('final-submit');
         });
 

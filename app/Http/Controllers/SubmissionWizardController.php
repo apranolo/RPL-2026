@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FinalSubmitRequest;
 use App\Models\Submission;
 use App\Models\SubmissionContributor;
 use Illuminate\Http\Request;
@@ -45,26 +46,12 @@ class SubmissionWizardController extends Controller
      *
      * @route POST /user/submission-wizard/{submission}/final-submit
      */
-    public function finalSubmit(Request $request, Submission $submission)
+    public function finalSubmit(FinalSubmitRequest $request, Submission $submission)
     {
-        // Ensure the submission belongs to the current user
-        if ($submission->author_id !== $request->user()->id) {
-            abort(403, 'Unauthorized action.');
-        }
-
         // Only draft submissions can be submitted
         if ($submission->status !== 'Draft') {
             return redirect()->route('user.profil.index')
                 ->withErrors(['error' => 'Submission yang sudah dikirim tidak dapat diubah.']);
-        }
-
-        // Simple validation to ensure files and basic info exists before final submit
-        if (empty($submission->title) || empty($submission->abstract)) {
-            return back()->withErrors(['error' => 'Judul dan abstrak naskah wajib diisi sebelum mengirim.']);
-        }
-
-        if (!$submission->files()->where('file_type', 'ManuscriptMain')->exists()) {
-            return back()->withErrors(['error' => 'Berkas manuskrip utama wajib diunggah sebelum mengirim.']);
         }
 
         $submission->update([
