@@ -1,15 +1,24 @@
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
-import { toast } from 'sonner';
-import { Transition } from '@headlessui/react';
+/**
+ * Reviewer Profile Management Page
+ *
+ * @description Halaman untuk reviewer mengelola data keahlian (minat penelitian) dan biografi singkat.
+ * @route GET /reviewer/profile
+ * @features Input tag keahlian dinamis, editor biografi, dan visualisasi statistik track record penugasan.
+ */
+
+import InputError from '@/components/input-error';
+import { SkillTagInput } from '@/components/SkillTagInput';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { SkillTagInput } from '@/components/SkillTagInput';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Transition } from '@headlessui/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { Award, CheckCircle2, Clock, FileText, ShieldAlert } from 'lucide-react';
+import { FormEventHandler } from 'react';
+import { toast } from 'sonner';
 
 interface ReviewerProfileData {
     id?: number;
@@ -61,8 +70,8 @@ export default function ReviewerProfile({ profile, statistics }: ReviewerProfile
     };
 
     // Calculate completion rate percentage
-    const completionRate = statistics.total_reviews > 0 
-        ? Math.round((statistics.completed_reviews / statistics.total_reviews) * 100) 
+    const completionRate = statistics.total_reviews > 0
+        ? Math.round((statistics.completed_reviews / statistics.total_reviews) * 100)
         : 0;
 
     return (
@@ -154,8 +163,8 @@ export default function ReviewerProfile({ profile, statistics }: ReviewerProfile
                                 <span className="font-bold text-primary">{completionRate}%</span>
                             </div>
                             <div className="h-2.5 w-full rounded-full bg-secondary/80 overflow-hidden">
-                                <div 
-                                    className="h-full rounded-full bg-primary transition-all duration-500 ease-out" 
+                                <div
+                                    className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                                     style={{ width: `${completionRate}%` }}
                                 />
                             </div>
@@ -164,7 +173,7 @@ export default function ReviewerProfile({ profile, statistics }: ReviewerProfile
                 </Card>
 
                 {/* Profile Form */}
-                <div className="rounded-xl border border-sidebar-border/60 bg-card p-6 shadow-sm">
+                <div className="rounded-lg border border-sidebar-border/60 bg-card p-6 shadow-sm">
                     <div className="flex items-center gap-3 border-b border-sidebar-border/50 pb-4 mb-6">
                         <Award className="h-5 w-5 text-primary" />
                         <div>
@@ -189,9 +198,7 @@ export default function ReviewerProfile({ profile, statistics }: ReviewerProfile
                                 onChange={(tags) => setData('research_interests', tags)}
                                 placeholder="Masukkan keahlian lalu tekan Enter atau koma..."
                             />
-                            {errors.research_interests && (
-                                <p className="text-xs text-destructive mt-1">{errors.research_interests}</p>
-                            )}
+                            <InputError message={errors.research_interests} />
                         </div>
 
                         {/* Biography */}
@@ -210,9 +217,7 @@ export default function ReviewerProfile({ profile, statistics }: ReviewerProfile
                                 rows={6}
                                 className="resize-none"
                             />
-                            {errors.biography && (
-                                <p className="text-xs text-destructive mt-1">{errors.biography}</p>
-                            )}
+                            <InputError message={errors.biography} />
                         </div>
 
                         {/* Form Footer Action */}
