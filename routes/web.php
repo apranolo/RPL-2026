@@ -34,6 +34,8 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Editorial\DeskController;
+use App\Http\Controllers\Editorial\DecisionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -594,6 +596,15 @@ Route::middleware(['auth'])->group(function () {
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
 });
+Route::get('/editorial/desk/{registration}/review', [DeskController::class, 'show'])
+    ->name('editorial.desk.review');
 
+Route::post('/editorial/desk/{registration}/assign-editor', [DeskController::class, 'assignEditor'])
+    ->name('editorial.desk.assign-editor');
+
+Route::post('/editorial/desk/{registration}/desk-review', [DecisionController::class, 'deskReview'])
+    ->name('editorial.desk.desk-review');
+    
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
