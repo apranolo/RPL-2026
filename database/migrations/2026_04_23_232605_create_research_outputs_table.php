@@ -13,19 +13,24 @@ return new class extends Migration
     {
         Schema::create('research_outputs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('proposal_id')->constrained('proposals')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('kategori', [
-                'jurnal',
-                'buku',
-                'hki',
-                'prosiding',
-                'produk',
+            $table->foreignId('contract_id')->constrained('contracts')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->enum('jenis_luaran', [
+                'Jurnal',
+                'Buku',
+                'HKI',
+                'Produk',
             ]);
-            $table->string('judul');
-            $table->string('file_path')->nullable();
-            $table->enum('status', ['draft', 'submitted', 'approved', 'rejected'])->default('draft');
+            $table->string('judul_luaran');
+            $table->integer('tahun_capaian')->nullable();
+            $table->string('file_sertifikat_atau_cover')->nullable();
+            $table->enum('status_verifikasi', ['Draft', 'Menunggu_Verifikasi', 'Terverifikasi_LPPM', 'Ditolak'])->default('Draft');
             $table->text('keterangan')->nullable();
+            
+            // Polymorphic relation
+            $table->nullableMorphs('outputable');
+            
+            $table->softDeletes();
             $table->timestamps();
         });
     }
