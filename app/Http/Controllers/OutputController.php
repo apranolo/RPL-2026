@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ResearchOutput;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -36,13 +37,14 @@ class OutputController extends Controller
         $this->authorize('update', $output);
 
         $validated = $request->validate([
-            'proposal_id' => 'required',
+            'contract_id' => 'required',
             'user_id' => 'required',
-            'kategori' => 'required|string|max:255',
-            'judul' => 'required|string|max:255',
-            'file_path' => 'nullable|string|max:255',
-            'status' => 'required|string|max:100',
+            'jenis_luaran' => 'required|string|max:255',
+            'judul_luaran' => 'required|string|max:255',
+            'file_sertifikat_atau_cover' => 'nullable|string|max:255',
+            'status_verifikasi' => 'required|string|max:100',
             'keterangan' => 'nullable|string',
+            'tahun_capaian' => 'nullable|integer',
         ]);
 
         $output->update($validated);
@@ -59,3 +61,4 @@ class OutputController extends Controller
         return redirect()->route('outputs.index')->with('message', 'Output deleted successfully');
     }
 }
+
