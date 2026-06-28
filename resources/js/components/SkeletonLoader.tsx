@@ -30,8 +30,8 @@ export function SkeletonLoader({ rows = 3, className = '' }: SkeletonLoaderProps
         <div className={`space-y-3 ${className}`}>
             {Array.from({ length: rows }).map((_, i) => (
                 <div key={i} className="animate-pulse space-y-2">
-                    <div className="h-4 w-3/4 rounded bg-gray-200" />
-                    <div className="h-3 w-1/2 rounded bg-gray-100" />
+                    <div className="h-4 w-3/4 rounded-lg bg-slate-200" />
+                    <div className="h-3 w-1/2 rounded-lg bg-slate-200" />
                 </div>
             ))}
         </div>
@@ -51,7 +51,7 @@ export function SkeletonTable({ columns = 4, rows = 5, className = '' }: Skeleto
                     <tr className="border-b">
                         {Array.from({ length: columns }).map((_, i) => (
                             <th key={i} className="p-3 text-left">
-                                <div className="h-4 w-full rounded bg-gray-200" />
+                                <div className="h-4 w-full rounded-lg bg-slate-200" />
                             </th>
                         ))}
                     </tr>
@@ -61,7 +61,7 @@ export function SkeletonTable({ columns = 4, rows = 5, className = '' }: Skeleto
                         <tr key={rowIdx} className="border-b">
                             {Array.from({ length: columns }).map((_, colIdx) => (
                                 <td key={`${rowIdx}-${colIdx}`} className="p-3">
-                                    <div className="h-4 w-full rounded bg-gray-100" />
+                                    <div className="h-4 w-full rounded-lg bg-slate-200" />
                                 </td>
                             ))}
                         </tr>
@@ -82,9 +82,9 @@ export function SkeletonCard({ count = 3, className = '' }: SkeletonCardProps) {
         <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 ${className}`}>
             {Array.from({ length: count }).map((_, i) => (
                 <div key={i} className="animate-pulse rounded-lg border p-4">
-                    <div className="mb-3 h-40 rounded bg-gray-200" />
-                    <div className="mb-2 h-4 rounded bg-gray-200" />
-                    <div className="h-4 w-3/4 rounded bg-gray-100" />
+                    <div className="mb-3 h-40 rounded-lg bg-slate-200" />
+                    <div className="mb-2 h-4 rounded-lg bg-slate-200" />
+                    <div className="h-4 w-3/4 rounded-lg bg-slate-200" />
                 </div>
             ))}
         </div>
@@ -97,7 +97,7 @@ export function SkeletonCard({ count = 3, className = '' }: SkeletonCardProps) {
  * @example <SkeletonText width="w-2/3" />
  */
 export function SkeletonText({ width = 'w-full' }: { width?: string }) {
-    return <div className={`h-4 animate-pulse rounded bg-gray-200 ${width}`} />;
+    return <div className={`h-4 animate-pulse rounded-lg bg-slate-200 ${width}`} />;
 }
 
 /**
@@ -113,7 +113,7 @@ export function SkeletonAvatar({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' | 'x
         xl: 'w-24 h-24',
     };
 
-    return <div className={`${sizeClasses[size]} animate-pulse rounded-full bg-gray-200`} />;
+    return <div className={`${sizeClasses[size]} animate-pulse rounded-full bg-slate-200`} />;
 }
 
 /**
@@ -126,10 +126,10 @@ export function SkeletonList({ rows = 5 }: { rows?: number }) {
         <div className="space-y-3">
             {Array.from({ length: rows }).map((_, i) => (
                 <div key={i} className="flex animate-pulse items-center gap-4 p-3">
-                    <div className="h-10 w-10 rounded-full bg-gray-200" />
+                    <div className="h-10 w-10 rounded-full bg-slate-200" />
                     <div className="flex-1 space-y-2">
-                        <div className="h-4 w-3/4 rounded bg-gray-200" />
-                        <div className="h-3 w-1/2 rounded bg-gray-100" />
+                        <div className="h-4 w-3/4 rounded-lg bg-slate-200" />
+                        <div className="h-3 w-1/2 rounded-lg bg-slate-200" />
                     </div>
                 </div>
             ))}
@@ -147,11 +147,11 @@ export function SkeletonForm({ fields = 3 }: { fields?: number }) {
         <div className="animate-pulse space-y-4">
             {Array.from({ length: fields }).map((_, i) => (
                 <div key={i} className="space-y-2">
-                    <div className="h-4 w-1/4 rounded bg-gray-200" />
-                    <div className="h-10 w-full rounded bg-gray-100" />
+                    <div className="h-4 w-1/4 rounded-lg bg-slate-200" />
+                    <div className="h-10 w-full rounded-lg bg-slate-200" />
                 </div>
             ))}
-            <div className="h-10 w-1/4 rounded bg-gray-200" />
+            <div className="h-10 w-1/4 rounded-lg bg-slate-200" />
         </div>
     );
 }
@@ -166,29 +166,29 @@ export function SkeletonDashboard() {
         <div className="animate-pulse space-y-6">
             {/* Header */}
             <div className="space-y-2">
-                <div className="h-8 w-1/3 rounded bg-gray-200" />
-                <div className="h-4 w-1/2 rounded bg-gray-100" />
+                <div className="h-8 w-1/3 rounded-lg bg-slate-200" />
+                <div className="h-4 w-1/2 rounded-lg bg-slate-200" />
             </div>
 
             {/* Stats Row */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, i) => (
                     <div key={i} className="rounded-lg border p-4">
-                        <div className="mb-2 h-4 rounded bg-gray-200" />
-                        <div className="h-8 rounded bg-gray-100" />
+                        <div className="mb-2 h-4 rounded-lg bg-slate-200" />
+                        <div className="h-8 rounded-lg bg-slate-200" />
                     </div>
                 ))}
             </div>
 
             {/* Chart */}
             <div className="rounded-lg border p-4">
-                <div className="mb-4 h-4 w-1/4 rounded bg-gray-200" />
-                <div className="h-64 rounded bg-gray-100" />
+                <div className="mb-4 h-4 w-1/4 rounded-lg bg-slate-200" />
+                <div className="h-64 rounded-lg bg-slate-200" />
             </div>
 
             {/* Table */}
             <div className="rounded-lg border p-4">
-                <div className="mb-4 h-4 w-1/4 rounded bg-gray-200" />
+                <div className="mb-4 h-4 w-1/4 rounded-lg bg-slate-200" />
                 <SkeletonTable columns={5} rows={4} />
             </div>
         </div>

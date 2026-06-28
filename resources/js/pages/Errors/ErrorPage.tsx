@@ -93,13 +93,13 @@ export default function ErrorPage() {
                 />
             </Head>
 
-            <div className="flex min-h-screen flex-col bg-[#F5F5F3] text-[#1b1b18]" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
+            <div className="flex min-h-screen flex-col bg-background text-foreground" style={{ fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
                 {/* Navbar */}
-                <nav className="w-full bg-[#0A5C36] px-6 py-4 lg:px-10">
+                <nav className="w-full bg-primary px-6 py-4 lg:px-10">
                     <div className="mx-auto flex max-w-7xl items-center">
                         <Link href="/" className="flex items-center gap-2" style={{ fontFamily: '"El Messiri", sans-serif' }}>
-                            <BookOpen className="h-5 w-5 text-white" />
-                            <span className="text-xl font-bold text-white">Journal MU</span>
+                            <BookOpen className="h-5 w-5 text-primary-foreground" />
+                            <span className="text-xl font-bold text-primary-foreground">Journal MU</span>
                         </Link>
                     </div>
                 </nav>
@@ -109,22 +109,22 @@ export default function ErrorPage() {
                     <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2">
                         {/* Left: Error code card */}
                         <div className="flex items-center justify-center">
-                            <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-[#F0F0EE] px-12 py-20 text-center shadow-sm">
+                            <div className="w-full max-w-lg rounded-lg border border-border bg-card px-12 py-20 text-center shadow-sm">
                                 <p
-                                    className="text-[clamp(6rem,14vw,9rem)] leading-none font-bold text-[#0A5C36]"
+                                    className="text-[clamp(6rem,14vw,9rem)] leading-none font-bold text-primary"
                                     style={{ fontFamily: '"El Messiri", sans-serif' }}
                                 >
                                     {safeCode}
                                 </p>
-                                <div className="mx-auto mt-4 h-px w-24 bg-gray-300" />
-                                <p className="mt-4 text-xs font-medium tracking-[0.2em] text-gray-400 uppercase">{config.label}</p>
+                                <div className="mx-auto mt-4 h-px w-24 bg-border" />
+                                <p className="mt-4 text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase">{config.label}</p>
                             </div>
                         </div>
 
                         {/* Right: Description */}
                         <div className="flex flex-col gap-6">
                             <h1
-                                className="text-[clamp(2rem,5vw,3rem)] leading-tight font-bold text-[#0A5C36]"
+                                className="text-[clamp(2rem,5vw,3rem)] leading-tight font-bold text-primary"
                                 style={{ fontFamily: '"El Messiri", sans-serif' }}
                             >
                                 {titleLines.map((line, i) => (
@@ -135,13 +135,13 @@ export default function ErrorPage() {
                                 ))}
                             </h1>
 
-                            <p className="max-w-md text-base leading-relaxed text-gray-600">{config.description}</p>
+                            <p className="max-w-md text-base leading-relaxed text-muted-foreground">{config.description}</p>
 
                             <div>
                                 {config.action.type === 'home' ? (
                                     <Link
                                         href="/"
-                                        className="inline-flex items-center gap-2 rounded-lg bg-[#0A5C36] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#084d2d] active:scale-95"
+                                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 active:scale-95"
                                     >
                                         <Home className="h-4 w-4" />
                                         {config.action.text}
@@ -149,7 +149,7 @@ export default function ErrorPage() {
                                 ) : (
                                     <button
                                         onClick={() => window.history.back()}
-                                        className="inline-flex items-center gap-2 rounded-lg bg-[#0A5C36] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#084d2d] active:scale-95"
+                                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 active:scale-95"
                                     >
                                         <RefreshCw className="h-4 w-4" />
                                         {config.action.text}
@@ -157,69 +157,69 @@ export default function ErrorPage() {
                                 )}
                             </div>
 
-                            <hr className="border-gray-200" />
+                            <hr className="border-border" />
                         </div>
                     </div>
                 </main>
 
                 {/* Footer */}
-                <footer className="w-full bg-[#E8E8E5] px-6 py-10 lg:px-10">
+                <footer className="w-full bg-secondary px-6 py-10 lg:px-10">
                     <div className="mx-auto max-w-7xl">
                         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
                             <div className="flex flex-col gap-3">
-                                <Link href="/" className="text-xl font-bold text-[#0A5C36]" style={{ fontFamily: '"El Messiri", sans-serif' }}>
+                                <Link href="/" className="text-xl font-bold text-primary" style={{ fontFamily: '"El Messiri", sans-serif' }}>
                                     Journal MU
                                 </Link>
-                                <p className="max-w-xs text-sm leading-relaxed text-gray-500">
+                                <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
                                     Memajukan batas ilmu pengetahuan melalui publikasi penelitian berkualitas tinggi.
                                 </p>
                             </div>
 
                             <div className="flex flex-col gap-3">
-                                <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase">Policies</p>
+                                <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Policies</p>
                                 <div className="flex flex-col gap-2">
-                                    <Link href="#" className="text-sm text-gray-500 underline-offset-2 hover:text-[#0A5C36] hover:underline">
+                                    <Link href="#" className="text-sm text-muted-foreground underline-offset-2 hover:text-primary hover:underline">
                                         Open Access Policy
                                     </Link>
-                                    <Link href="#" className="text-sm text-gray-500 underline-offset-2 hover:text-[#0A5C36] hover:underline">
+                                    <Link href="#" className="text-sm text-muted-foreground underline-offset-2 hover:text-primary hover:underline">
                                         Privacy Policy
                                     </Link>
-                                    <Link href="#" className="text-sm text-gray-500 underline-offset-2 hover:text-[#0A5C36] hover:underline">
+                                    <Link href="#" className="text-sm text-muted-foreground underline-offset-2 hover:text-primary hover:underline">
                                         Terms of Service
                                     </Link>
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-3">
-                                <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase">Resources</p>
+                                <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Resources</p>
                                 <div className="flex flex-col gap-2">
-                                    <Link href="#" className="text-sm text-gray-500 underline-offset-2 hover:text-[#0A5C36] hover:underline">
+                                    <Link href="#" className="text-sm text-muted-foreground underline-offset-2 hover:text-primary hover:underline">
                                         Institutional Access
                                     </Link>
-                                    <Link href="#" className="text-sm text-gray-500 underline-offset-2 hover:text-[#0A5C36] hover:underline">
+                                    <Link href="#" className="text-sm text-muted-foreground underline-offset-2 hover:text-primary hover:underline">
                                         Contact Support
                                     </Link>
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-3">
-                                <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase">Social</p>
+                                <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Social</p>
                                 <div className="flex items-center gap-4">
-                                    <a href="#" className="text-gray-400 transition hover:text-[#0A5C36]" aria-label="Website">
+                                    <a href="#" className="text-muted-foreground transition hover:text-primary" aria-label="Website">
                                         <Globe className="h-5 w-5" />
                                     </a>
-                                    <a href="#" className="text-gray-400 transition hover:text-[#0A5C36]" aria-label="Email">
+                                    <a href="#" className="text-muted-foreground transition hover:text-primary" aria-label="Email">
                                         <Mail className="h-5 w-5" />
                                     </a>
-                                    <a href="#" className="text-gray-400 transition hover:text-[#0A5C36]" aria-label="Share">
+                                    <a href="#" className="text-muted-foreground transition hover:text-primary" aria-label="Share">
                                         <Share2 className="h-5 w-5" />
                                     </a>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-8 border-t border-gray-300 pt-6">
-                            <p className="text-xs text-gray-400">
+                        <div className="mt-8 border-t border-border pt-6">
+                            <p className="text-xs text-muted-foreground">
                                 © 2024 Journal MU. All rights reserved. Institutional Partner of Global Research Network.
                             </p>
                         </div>

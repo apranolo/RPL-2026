@@ -43,7 +43,7 @@ export function canAccess({ menu, userPermissions = [], userRole, userRoles = []
     }
 
     // Check super admin - can access everything
-    if (userRole === 'super-admin' || userRoles.includes('super-admin')) {
+    if (userRole === 'Super Admin' || userRoles.includes('Super Admin')) {
         return true;
     }
 
