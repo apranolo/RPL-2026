@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
+use App\Http\Controllers\Admin\OutputVerifyCtrl;
 use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
@@ -277,6 +278,14 @@ Route::middleware(['auth'])->group(function () {
                 ->name('destroy');
             Route::post('{pembinaan}/toggle-status', [AdminPembinaanController::class, 'toggleStatus'])
                 ->name('toggle-status');
+        });
+
+        // Output Verification (Admin)
+        Route::prefix('output-verify')->name('output-verify.')->group(function () {
+            Route::get('/', [OutputVerifyCtrl::class, 'index'])
+                ->name('index');
+            Route::post('{output}', [OutputVerifyCtrl::class, 'verify'])
+                ->name('verify');
         });
 
     });
