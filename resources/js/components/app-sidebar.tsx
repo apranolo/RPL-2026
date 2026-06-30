@@ -130,6 +130,11 @@ export function AppSidebar() {
                     { title: 'Indeksasi', href: route('admin-kampus.pembinaan.indeksasi') },
                 ],
             },
+            {
+                title: 'Citations',
+                href: route('admin-kampus.citations.index'),
+                icon: BookOpen,
+            }
         ];
 
         // Add Reviewer menu only if user has reviewer role

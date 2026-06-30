@@ -35,6 +35,7 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\CitationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -427,6 +428,16 @@ Route::middleware(['auth'])->group(function () {
                 'destroy' => 'events.destroy',
             ]);
 
+        // Citations
+        Route::prefix('citations')->name('citations.')->group(function () {
+            Route::get('/', [CitationController::class, 'index'])
+                ->name('index');
+            Route::post('sync', [CitationController::class, 'sync'])
+                ->name('sync');
+            Route::get('{author}', [CitationController::class, 'show'])
+                ->whereNumber('author')
+                ->name('show');
+        });
     });
 
     /*
