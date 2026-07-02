@@ -1,9 +1,8 @@
 <?php
 
 namespace Database\Seeders;
-use App\Models\ResearchSchema;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\ResearchSchema;
 use Illuminate\Database\Seeder;
 
 class ResearchSchemaSeeder extends Seeder
@@ -15,12 +14,12 @@ class ResearchSchemaSeeder extends Seeder
     {
         ResearchSchema::create([
             'name' => 'Penelitian Dasar',
-            'description' => 'Penelitian dasar'
+            'description' => 'Penelitian dasar',
         ]);
 
         ResearchSchema::create([
             'name' => 'Penelitian Terapan',
-            'description' => 'Penelitian terapan'
+            'description' => 'Penelitian terapan',
         ]);
     }
 }
