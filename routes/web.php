@@ -543,6 +543,20 @@ Route::middleware(['auth'])->group(function () {
                 ->name('attachments.download');
         });
     });
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Finance & Funding Routes
+    |--------------------------------------------------------------------------
+    | Akses untuk Keuangan dan Admin Kampus
+    */
+    Route::middleware(['role:Keuangan|' . Role::ADMIN_KAMPUS])->group(function () {
+        
+        // Rute untuk menampilkan halaman log perubahan termin
+        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
+            ->name('finance.funding.logs.index');
+            
+    });
 
     /*
     |--------------------------------------------------------------------------
