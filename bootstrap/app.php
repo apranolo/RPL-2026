@@ -42,6 +42,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->respond(function (\Symfony\Component\HttpFoundation\Response $response, \Throwable $e, \Illuminate\Http\Request $request) {
+            if (in_array($response->getStatusCode(), [500, 503, 404, 403])) {
+                return \Inertia\Inertia::render('Errors/ErrorPage', [
+                    'code' => $response->getStatusCode(),
+                ])->toResponse($request)->setStatusCode($response->getStatusCode());
+            }
+
+            return $response;
+        });
     })->create()
     ->usePublicPath(realpath(__DIR__.'/../'));
