@@ -85,7 +85,7 @@ export default function Summary() {
           </div>
         </div>
 
-        {/* Table Section */}
+        {}
         <div className="relative">
           <ReviewMatrixTable reviewers={reviewers} criteria={criteria} cells={cells} />
         </div>
