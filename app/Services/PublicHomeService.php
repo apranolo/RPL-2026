@@ -105,7 +105,7 @@ class PublicHomeService
             foreach ($platforms as $platform) {
                 $stats[strtolower(str_replace(' ', '_', $platform))] = Journal::where('is_active', true)
                     ->whereNotNull('indexations')
-                    ->whereNotNull('indexations->' . $platform)
+                    ->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.\"$platform\"')")
                     ->count();
             }
 
@@ -122,9 +122,7 @@ class PublicHomeService
             return ScientificField::withCount(['journals' => function ($query) {
                 $query->where('is_active', true);
             }])
-                ->whereHas('journals', function ($query) {
-                    $query->where('is_active', true);
-                })
+                ->having('journals_count', '>', 0)
                 ->orderByDesc('journals_count')
                 ->take(12)
                 ->get(['id', 'name']);

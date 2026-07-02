@@ -12,6 +12,7 @@ class EditorialAssignment extends Model
     protected $fillable = [
         'submission_id',
         'editor_id',
+        'role',
         'status', // active, completed, cancelled
         'assigned_at',
         'completed_at',

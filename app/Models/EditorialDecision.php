@@ -12,6 +12,7 @@ class EditorialDecision extends Model
     protected $fillable = [
         'submission_id',
         'editor_id',
+        'round',
         'decision', // accept, reject, revision
         'comments',
         'decided_at',

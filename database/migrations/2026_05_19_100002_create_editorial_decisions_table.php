@@ -15,7 +15,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
             $table->foreignId('editor_id')->constrained('users')->cascadeOnDelete();
-            $table->enum('decision', ['accept', 'reject', 'revision']);
+
+            $table->unsignedInteger('round')->default(1);
+
+            $table->enum('decision', [
+                'Accept_For_Review',
+                'Desk_Reject',
+                'Accept_Submission',
+                'Revisions_Required',
+                'Reject_Submission',
+            ]);
+
             $table->text('comments')->nullable();
             $table->timestamp('decided_at')->useCurrent();
             $table->timestamps();

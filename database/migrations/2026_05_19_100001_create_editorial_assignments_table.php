@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
             $table->foreignId('editor_id')->constrained('users')->cascadeOnDelete();
+            $table->enum('role', ['Pengelola Jurnal', 'Reviewer'])->default('Pengelola Jurnal');
             $table->enum('status', ['active', 'completed', 'cancelled'])->default('active');
             $table->timestamp('assigned_at')->useCurrent();
             $table->timestamp('completed_at')->nullable();

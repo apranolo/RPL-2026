@@ -17,20 +17,29 @@ abstract class TestCase extends BaseTestCase
      */
     protected function seedRoles(): void
     {
-        Role::firstOrCreate(['name' => Role::SUPER_ADMIN], [
-            'display_name' => 'Super Administrator',
-            'description' => 'Super Administrator with full access',
-        ]);
+        Role::firstOrCreate(
+            ['name' => Role::SUPER_ADMIN],
+            [
+                'display_name' => 'Super Administrator',
+                'description' => 'Super Administrator with full access',
+            ]
+        );
 
-        Role::firstOrCreate(['name' => Role::ADMIN_KAMPUS], [
-            'display_name' => 'Administrator Kampus',
-            'description' => 'University Administrator',
-        ]);
+        Role::firstOrCreate(
+            ['name' => Role::ADMIN_KAMPUS],
+            [
+                'display_name' => 'Administrator Kampus',
+                'description' => 'University Administrator',
+            ]
+        );
 
-        Role::firstOrCreate(['name' => Role::USER], [
-            'display_name' => 'Pengelola Jurnal',
-            'description' => 'Journal Manager',
-        ]);
+        Role::firstOrCreate(
+            ['name' => Role::USER],
+            [
+                'display_name' => 'Pengelola Jurnal',
+                'description' => 'Journal Manager',
+            ]
+        );
     }
 
     /**
@@ -128,7 +137,7 @@ abstract class TestCase extends BaseTestCase
                         foreach ($sintaDistribution as $rank => $percentage) {
                             $cumulative += $percentage;
                             if ($roll <= $cumulative) {
-                                $sintaRank = 'sinta_' . $rank;
+                                $sintaRank = 'sinta_'.$rank;
                                 break;
                             }
                         }
