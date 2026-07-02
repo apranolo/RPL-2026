@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
@@ -551,6 +552,20 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('proposal')->name('proposal.')->group(function () {
             //
         });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Editor Routes (v1.1 - Submission Editorial)
+    |--------------------------------------------------------------------------
+    */
+    // NOTE: Group ini akan diperbaiki lebih lanjut oleh ADITYA GAUTAMA
+    Route::middleware(['role:Editor'])->prefix('editorial')->name('editorial.')->group(function () {
+
+        // Activity Log per submission
+        Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
+            ->name('activity-logs.index');
+
     });
 
     /*
