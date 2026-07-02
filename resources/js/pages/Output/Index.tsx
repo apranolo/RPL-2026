@@ -14,6 +14,11 @@ interface ResearchOutput {
         id: number;
         name: string;
     };
+    id_contract?: number;
+    doi?: string | null;
+    no_paten?: string | null;
+    isbn?: string | null;
+    tautan_publikasi?: string | null;
 }
 
 interface Props extends PageProps {
