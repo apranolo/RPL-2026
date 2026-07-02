@@ -31,6 +31,7 @@ use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\DiscussionController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -569,6 +570,23 @@ Route::middleware(['auth'])->group(function () {
                 ->name('index');
         });
 
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Submission Discussion Routes (v1.1)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('discussion')->name('discussion.')->group(function () {
+        Route::get('/', [DiscussionController::class, 'index'])
+            ->name('index');
+
+        Route::post('/', [DiscussionController::class, 'store'])
+            ->name('store');
+
+        Route::post('/{discussion}/message', [DiscussionController::class, 'reply'])
+            ->name('message.store');
     });
 
     /*
