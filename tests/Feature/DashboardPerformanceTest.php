@@ -70,27 +70,22 @@ describe('Cache Performance', function () {
 
         // Cold cache - count queries
         Cache::flush();
-        DB::flushQueryLog();
         DB::enableQueryLog();
         $this->actingAs($this->user)->get('/dashboard');
-        $coldQueries = DB::getQueryLog();
+        $coldQueries = count(DB::getQueryLog());
         DB::disableQueryLog();
 
         // Warm cache - count queries
-        DB::flushQueryLog();
         DB::enableQueryLog();
         $this->actingAs($this->user)->get('/dashboard');
-        $warmQueries = DB::getQueryLog();
+        $warmQueries = count(DB::getQueryLog());
         DB::disableQueryLog();
 
-        // Warm cache should have fewer queries than cold cache
-        expect(count($warmQueries))->toBeLessThan(count($coldQueries));
+        // Warm cache should have significantly fewer queries
+        expect($warmQueries)->toBeLessThan($coldQueries / 2);
 
-        // The main journals list query should not run on warm cache
-        $warmJournalsQueries = collect($warmQueries)->filter(function ($query) {
-            return str_contains($query['query'], 'select * from `journals` where `user_id`');
-        });
-        expect($warmJournalsQueries)->toBeEmpty();
+        // Warm cache should have minimal queries (auth + cache check)
+        expect($warmQueries)->toBeLessThan(10);
     });
 });
 
@@ -105,7 +100,7 @@ describe('Large Dataset Handling', function () {
                 'university_id' => $this->university->id,
                 'scientific_field_id' => $fields->random()->id,
                 'indexations' => $i % 2 === 0 ? ['Scopus' => true] : null,
-                'sinta_rank' => $i % 3 === 0 ? 'sinta_'.(($i % 6) + 1) : 'non_sinta',
+                'sinta_rank' => $i % 3 === 0 ? (string) (($i % 6) + 1) : null,
             ]);
         }
 
@@ -135,7 +130,7 @@ describe('Large Dataset Handling', function () {
 
         for ($i = 0; $i < 100; $i++) {
             $indexations = null;
-            $sintaRank = 'non_sinta';
+            $sintaRank = null;
             $fieldId = $i < 50 ? $field1->id : $field2->id;
 
             if ($i < 50) {
@@ -143,7 +138,7 @@ describe('Large Dataset Handling', function () {
             }
 
             if ($i < 30) {
-                $sintaRank = 'sinta_1';
+                $sintaRank = '1';
             }
 
             Journal::factory()->create([
@@ -175,7 +170,7 @@ describe('Large Dataset Handling', function () {
             'university_id' => $this->university->id,
             'scientific_field_id' => $this->scientificField->id,
             'indexations' => ['Scopus' => true, 'DOAJ' => true],
-            'sinta_rank' => 'sinta_1',
+            'sinta_rank' => '1',
         ]);
 
         $response = $this->actingAs($this->user)->get('/dashboard');
@@ -192,17 +187,14 @@ describe('Large Dataset Handling', function () {
 
     test('handles edge case: maximum diversity in attributes', function () {
         // Create journals with maximum variety
-        $fields = ScientificField::factory()->count(10)->create();
+        $fields = ScientificField::factory()->count(20)->create();
         $platforms = ['Scopus', 'Web of Science', 'DOAJ', 'Google Scholar', 'PubMed', 'IEEE', 'Springer'];
 
         for ($i = 0; $i < 100; $i++) {
             $indexations = [];
-            $numPlatforms = rand(0, 3);
-            if ($numPlatforms > 0) {
-                $selectedPlatforms = array_rand(array_flip($platforms), $numPlatforms);
-                foreach ((array) $selectedPlatforms as $platform) {
-                    $indexations[$platform] = true;
-                }
+            $selectedPlatforms = array_rand(array_flip($platforms), rand(0, 3));
+            foreach ((array) $selectedPlatforms as $platform) {
+                $indexations[$platform] = true;
             }
 
             Journal::factory()->create([
@@ -210,7 +202,7 @@ describe('Large Dataset Handling', function () {
                 'university_id' => $this->university->id,
                 'scientific_field_id' => $fields->random()->id,
                 'indexations' => ! empty($indexations) ? $indexations : null,
-                'sinta_rank' => rand(0, 10) > 5 ? 'sinta_'.rand(1, 6) : 'non_sinta',
+                'sinta_rank' => rand(0, 10) > 5 ? (string) rand(1, 6) : null,
             ]);
         }
 

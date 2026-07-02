@@ -6,7 +6,6 @@
 export const ROLE_NAMES = {
     SUPER_ADMIN: 'Super Admin',
     ADMIN_KAMPUS: 'Admin Kampus',
-    ADMIN_KEUANGAN: 'Admin Keuangan',
     USER: 'User',
 } as const;
 
