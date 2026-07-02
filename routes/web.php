@@ -31,6 +31,9 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Editorial\PlagiarismController;
+use Inertia\Inertia;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -130,6 +133,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // Plagiarism Check (Editorial)
+    Route::get('/plagiarism-check', function () {
+        return Inertia::render('Editorial/Desk/Plagiarism');
+    })->name('plagiarism-check.index');
+
+    Route::post('/plagiarism-check', [PlagiarismController::class, 'store'])
+        ->name('plagiarism-check.store');
     /*
     |--------------------------------------------------------------------------
     | Super Admin Routes
@@ -556,16 +566,3 @@ Route::middleware(['auth'])->group(function () {
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
-
-use App\Http\Controllers\Editorial\PlagiarismController;
-
-Route::post('/plagiarism-check', [
-    PlagiarismController::class,
-    'store'
-]);
-
-use Inertia\Inertia;
-
-Route::get('/plagiarism-check', function () {
-    return Inertia::render('Editorial/Desk/Plagiarism');
-});

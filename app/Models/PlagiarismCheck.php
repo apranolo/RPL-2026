@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlagiarismCheck extends Model
 {
@@ -19,4 +20,12 @@ class PlagiarismCheck extends Model
         'checked_at' => 'datetime',
         'source_breakdown' => 'array',
     ];
+
+    /**
+     * Relasi ke submission version yang diperiksa.
+     */
+    public function submissionVersion(): BelongsTo
+    {
+        return $this->belongsTo(SubmissionVersion::class);
+    }
 }

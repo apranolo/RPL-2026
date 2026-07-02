@@ -3,19 +3,19 @@
 namespace App\Http\Controllers\Editorial;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePlagiarismCheckRequest;
 use App\Models\PlagiarismCheck;
-use Illuminate\Http\Request;
 
 class PlagiarismController extends Controller
 {
-    public function store(Request $request)
+    /**
+     * Simpan hasil cek plagiasi untuk sebuah submission version.
+     */
+    public function store(StorePlagiarismCheckRequest $request)
     {
-        $validated = $request->validate([
-            'submission_version_id' => 'required|integer',
-            'similarity_score' => 'required|numeric|min:0|max:100',
-            'report_file' => 'required|file|mimes:pdf|max:5120',
-            'source_breakdown' => 'nullable|array',
-        ]);
+        $this->authorize('create', PlagiarismCheck::class);
+
+        $validated = $request->validated();
 
         $reportPath = $request->file('report_file')->store('plagiarism-reports', 'public');
 
