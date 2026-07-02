@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('galleys', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('submission_id')->nullable()->constrained('submissions')->cascadeOnDelete();
+            $table->unsignedBigInteger('submission_id')->nullable();
             $table->foreignId('issue_id')->nullable()->constrained('issues')->nullOnDelete();
             $table->string('label', 50); // e.g. PDF, HTML, XML
             $table->string('file_path');

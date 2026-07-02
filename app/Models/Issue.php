@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Issue extends Model
 {
@@ -23,6 +24,7 @@ class Issue extends Model
         'description',
         'publication_date',
         'status',
+        'cover_image_path',
     ];
 
     /**
@@ -35,6 +37,15 @@ class Issue extends Model
         'number' => 'integer',
         'year' => 'integer',
         'publication_date' => 'date',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'cover_image_url',
     ];
 
     /*
@@ -57,5 +68,23 @@ class Issue extends Model
     public function galleys()
     {
         return $this->hasMany(Galley::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get the cover image URL.
+     */
+    public function getCoverImageUrlAttribute(): ?string
+    {
+        if (! $this->cover_image_path) {
+            return null;
+        }
+
+        return Storage::url($this->cover_image_path);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Galley extends Model
 {
@@ -36,10 +37,20 @@ class Galley extends Model
         'sequence' => 'integer',
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'file_url',
+    ];
+
     /*
     |--------------------------------------------------------------------------
     | Relationships
     |--------------------------------------------------------------------------
+    |
     */
 
     /**
@@ -56,5 +67,24 @@ class Galley extends Model
     public function submission()
     {
         return $this->belongsTo(Submission::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    |
+    */
+
+    /**
+     * Get the file URL.
+     */
+    public function getFileUrlAttribute(): ?string
+    {
+        if (! $this->file_path) {
+            return null;
+        }
+
+        return Storage::url($this->file_path);
     }
 }

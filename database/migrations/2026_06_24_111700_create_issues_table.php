@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('publication_date')->nullable();
             $table->enum('status', ['Draft', 'Published'])->default('Draft');
+            $table->string('cover_image_path')->nullable();
             $table->timestamps();
 
             // Mencegah duplikasi volume, nomor, dan tahun issue pada jurnal yang sama
