@@ -1,66 +1,86 @@
-import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
-interface Journal {
-    id: number;
-    name: string;
+/**
+ * @route /reviewer/tasks
+ * @description Dashboard daftar tugas review untuk reviewer
+ * @features Menampilkan daftar review yang ditugaskan ke reviewer saat ini
+ */
+interface AssessmentCriteria {
+  id: number;
+  criterion: string;
+  score: number;
 }
 
-interface Pembinaan {
-    id: number;
-    name: string;
+interface Proposal {
+  id: number;
+  title: string;
 }
 
-interface Registration {
-    id: number;
-    status: string;
-    journal: Journal;
-    pembinaan: Pembinaan;
+interface Review {
+  id: number;
+  proposal: Proposal;
+  status: string;
+  assessmentCriteria: AssessmentCriteria[];
+  created_at: string;
 }
 
-interface Assignment {
-    id: number;
-    status: string;
-    assigned_at: string;
-    registration: Registration;
+interface TasksPagination {
+  data: Review[];
+  current_page: number;
+  last_page: number;
 }
 
 interface Props {
-    assignments: {
-        data: Assignment[];
-        current_page: number;
-        last_page: number;
-    };
+  tasks: TasksPagination;
 }
 
-export default function EvaluationIndex({ assignments }: Props) {
-    return (
-        <AppLayout>
-            <Head title="Daftar Evaluasi" />
-            <div className="p-6">
-                <h1 className="mb-6 text-2xl font-bold">Daftar Proposal yang Perlu Dievaluasi</h1>
+export default function ReviewerIndex({ tasks }: Props) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Daftar Tugas Review</h1>
+          <p className="text-sm text-slate-600">
+            Review proposal yang ditugaskan kepada Anda.
+          </p>
+        </div>
+      </div>
 
-                {assignments.data.length === 0 ? (
-                    <p className="text-gray-500">Tidak ada proposal yang perlu dievaluasi.</p>
-                ) : (
-                    <div className="space-y-4">
-                        {assignments.data.map((assignment) => (
-                            <div key={assignment.id} className="rounded-lg border p-4 shadow-sm">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h2 className="text-lg font-semibold">{assignment.registration?.journal?.name ?? '-'}</h2>
-                                        <p className="text-sm text-gray-500">Program: {assignment.registration?.pembinaan?.name ?? '-'}</p>
-                                        <p className="text-sm text-gray-500">Status: {assignment.status}</p>
-                                        <p className="text-sm text-gray-500">
-                                            Ditugaskan: {new Date(assignment.assigned_at).toLocaleDateString('id-ID')}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </AppLayout>
-    );
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-sm font-medium text-slate-600">Proposal</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-slate-600">Status</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-slate-600">Kriteria</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-slate-600">Tanggal</th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-slate-600">Aksi</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200 bg-white">
+            {tasks.data.map((task) => (
+              <tr key={task.id}>
+                <td className="px-4 py-4 text-sm text-slate-700">{task.proposal.title}</td>
+                <td className="px-4 py-4 text-sm text-slate-700">{task.status}</td>
+                <td className="px-4 py-4 text-sm text-slate-700">
+                  {task.assessmentCriteria.length} kriteria
+                </td>
+                <td className="px-4 py-4 text-sm text-slate-700">
+                  {new Date(task.created_at).toLocaleDateString('id-ID')}
+                </td>
+                <td className="px-4 py-4 text-right text-sm">
+                  <Link
+                    href="#"
+                    className="inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+                  >
+                    Lihat
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }

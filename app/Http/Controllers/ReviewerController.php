@@ -12,6 +12,14 @@ use Inertia\Response;
 class ReviewerController extends Controller
 {
     /**
+     * Display a listing of the reviewer tasks.
+     */
+    public function index(Request $request): Response
+    {
+        return $this->assignments($request);
+    }
+
+    /**
      * Display reviewer's assignments.
      */
     public function assignments(Request $request): Response
@@ -118,7 +126,6 @@ class ReviewerController extends Controller
             'recommendation' => 'nullable|string|max:1000',
         ]);
 
-        // Create review
         PembinaanReview::create([
             'registration_id' => $assignment->registration_id,
             'reviewer_id' => $user->id,
@@ -128,10 +135,7 @@ class ReviewerController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        // Update assignment status to completed
         $assignment->markCompleted();
-
-        // TODO: Send email notification to Admin Kampus and User
 
         return redirect()
             ->route('reviewer.assignments.show', $assignment)
