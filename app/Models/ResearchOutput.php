@@ -26,6 +26,33 @@ class ResearchOutput extends Model
         'Ditolak' => 'Ditolak',
     ];
 
+    protected $appends = ['id_contract', 'doi', 'no_paten', 'isbn', 'tautan_publikasi'];
+
+    public function getIdContractAttribute()
+    {
+        return $this->contract_id;
+    }
+
+    public function getDoiAttribute()
+    {
+        return $this->jenis_luaran === 'Jurnal' && $this->outputable ? $this->outputable->doi : null;
+    }
+
+    public function getNoPatenAttribute()
+    {
+        return $this->jenis_luaran === 'HKI' && $this->outputable ? $this->outputable->patent_number : null;
+    }
+
+    public function getIsbnAttribute()
+    {
+        return $this->jenis_luaran === 'Buku' && $this->outputable ? $this->outputable->isbn : null;
+    }
+
+    public function getTautanPublikasiAttribute()
+    {
+        return $this->jenis_luaran === 'Jurnal' && $this->outputable ? $this->outputable->url : null;
+    }
+
     protected $fillable = [
         'contract_id',
         'user_id',
