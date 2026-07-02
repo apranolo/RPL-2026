@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\TopResearchCtrl;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,9 @@ Route::middleware(['web'])->group(function () {
         // Route::get('/microsoft', [SocialAuthController::class, 'redirectToMicrosoft']);
         // Route::get('/microsoft/callback', [SocialAuthController::class, 'handleMicrosoftCallback']);
     });
+
+    Route::get('/top-lecturers', [TopLecturerCtrl::class, 'getTop']);
+    Route::get('/top-research', [TopResearchCtrl::class, 'getTop']);
 });
 
 /*
