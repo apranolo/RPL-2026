@@ -47,28 +47,22 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Activity Log', href: '#' },
 ];
 
-export default function ActivityLog({
-    submissionId,
-    logs,
-}: Props) {
+export default function ActivityLog({ submissionId, logs }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Activity Log" />
 
             {/* Wrapper utama halaman dengan padding yang responsif */}
-            <div className="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-8">
                 {/* 1. Header Halaman */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
+                <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                             <ClipboardList className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                                Activity Log
-                            </h1>
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Activity Log</h1>
+                            <p className="mt-1 text-sm text-muted-foreground">
                                 Monitor every editorial activity and workflow history for this submission.
                             </p>
                         </div>
@@ -76,12 +70,8 @@ export default function ActivityLog({
 
                     {/* Submission ID Badge */}
                     <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-4 py-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            Submission
-                        </span>
-                        <span className="text-sm font-bold text-foreground">
-                            #{submissionId}
-                        </span>
+                        <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Submission</span>
+                        <span className="text-sm font-bold text-foreground">#{submissionId}</span>
                     </div>
                 </div>
 

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Funding;
-use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class FundingController extends Controller
 {
@@ -28,9 +28,9 @@ class FundingController extends Controller
         $pdf = Pdf::loadView('print.kwitansi', $data);
 
         // Set ukuran kertas (A4 Landscape)
-        $pdf->setPaper('A4', 'landscape'); 
+        $pdf->setPaper('A4', 'landscape');
 
         // Tampilkan PDF di browser
-        return $pdf->stream('Kwitansi_Termin_' . $funding->id . '.pdf');
+        return $pdf->stream('Kwitansi_Termin_'.$funding->id.'.pdf');
     }
 }

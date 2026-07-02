@@ -15,7 +15,7 @@ class FundingLogController extends Controller
 
         // PERBAIKAN GAMBAR 1 (Multi-Tenancy): Filter data jika diakses oleh Admin Kampus
         $user = $request->user();
-        
+
         // Memastikan user login dan memiliki role 'Admin Kampus'
         // Note: Sesuaikan method ->hasRole() atau pengecekan role sesuai package yang kamu gunakan (misal: Spatie)
         if ($user && $user->hasRole('Admin Kampus')) {
@@ -29,7 +29,7 @@ class FundingLogController extends Controller
 
         // PERBAIKAN GAMBAR 1 & 2 (Inertia Mismatch): Mengembalikan render halaman Inertia, bukan JSON mentah
         return Inertia::render('Finance/Funding/Logs', [
-            'logs' => $logs
+            'logs' => $logs,
         ]);
     }
 }
