@@ -3,60 +3,50 @@
 namespace App\Http\Controllers\Revision;
 
 use App\Http\Controllers\Controller;
-use App\Models\Article;
+use App\Models\RevisionRound; // Menggunakan RevisionRound sesuai spesifikasi Modul 5
+use App\Http\Requests\Revision\EditorDecisionRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class EditorRevisionController extends Controller
 {
     /**
      * Memproses keputusan editor terhadap revisi dokumen.
      */
-    public function decide(Request $request, $id): JsonResponse
+    public function decide(EditorDecisionRequest $request, $id): JsonResponse
     {
-        // 1. Validasi input keputusan dan catatan dari Editor
-        $request->validate([
-            'decision' => 'required|in:accept,return_to_review,request_more_revision',
-            'notes' => 'required_if:decision,return_to_review,request_more_revision|string|nullable',
-        ], [
-            'decision.required' => 'Keputusan harus dipilih.',
-            'decision.in' => 'Pilihan keputusan tidak valid.',
-            'notes.required_if' => 'Catatan wajib diisi jika revisi ditolak atau diminta revisi lagi.',
-        ]);
+        // 1. Cari data berdasarkan model RevisionRound
+        $revision = RevisionRound::findOrFail($id);
 
-        // 2. Cari data revisi berdasarkan ID
-        $revision = Article::findOrFail($id);
+        $message = '';
 
-        // 3. Logika percabangan berdasarkan keputusan Editor
+        // 2. Logika pemetaan sesuai spesifikasi Enum status proyek Anda
         switch ($request->decision) {
-            case 'accept':
-                $revision->status = 'accepted';
+            case 'Approved':
+                $revision->status = 'Approved';
                 $revision->editor_notes = $request->notes;
-                $message = 'Revisi berhasil diterima (Accept).';
+                $message = 'Revisi berhasil diterima (Approved).';
                 break;
 
-            case 'return_to_review':
-                $revision->status = 'under_review';
+            case 'Rejected':
+                $revision->status = 'Rejected';
                 $revision->editor_notes = $request->notes;
-                $message = 'Dokumen dikembalikan ke tahap Review.';
+                $message = 'Dokumen ditolak (Rejected).';
                 break;
 
-            case 'request_more_revision':
-                $revision->status = 'need_revision';
+            case 'Awaiting_Revision':
+                $revision->status = 'Awaiting_Revision';
                 $revision->editor_notes = $request->notes;
-                $message = 'Permintaan revisi lagi berhasil dikirim ke penulis.';
+                $message = 'Permintaan revisi dikembalikan ke penulis (Awaiting Revision).';
                 break;
         }
 
-        // 4. Simpan perubahan ke database
+        // 3. Simpan ke database
         $revision->save();
 
-        // 5. Kembalikan respons JSON untuk dibaca oleh frontend React
         return response()->json([
             'success' => true,
             'message' => $message,
             'data' => $revision,
         ], 200);
     }
-    // Trigger re-check GitHub Actions
 }

@@ -1,100 +1,72 @@
-import axios from 'axios';
-import React, { useState } from 'react';
+/**
+ * @route POST /api/revision/editor-decision/{id}
+ * @features Proses keputusan hasil revisi dokumen dari Editor kepada Author
+ * @description Halaman panel keputusan editor untuk menerima, menolak, atau meminta revisi kembali.
+ */
 
-interface EditorDecisionProps {
-    articleId: number | string;
-    onSuccess?: () => void;
+import React from 'react';
+import { useForm } from '@inertiajs/react';
+
+interface Props {
+    articleId: number;
 }
 
-export default function EditorDecision({ articleId, onSuccess }: EditorDecisionProps) {
-    const [decision, setDecision] = useState<string>('');
-    const [notes, setNotes] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+export default function EditorDecision({ articleId }: Props) {
+    // Menggunakan Inertia useForm sesuai instruksi dosen Anda
+    const { data, setData, post, processing, errors } = useForm({
+        decision: '',
+        notes: '',
+    });
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setMessage(null);
-
-        try {
-            // Memanggil method decide() di backend Laravel
-            const response = await axios.post(`/api/revision/editor-decision/${articleId}`, {
-                decision: decision,
-                notes: notes,
-            });
-
-            if (response.data.success) {
-                setMessage({ type: 'success', text: response.data.message });
-                setDecision('');
-                setNotes('');
-                if (onSuccess) onSuccess();
-            }
-        } catch (error: any) {
-            const errorMsg = error.response?.data?.message || 'Terjadi kesalahan sistem.';
-            setMessage({ type: 'error', text: errorMsg });
-        } finally {
-            setLoading(false);
-        }
+        // Mengirimkan form ke endpoint yang sesuai via Inertia
+        post(`/api/revision/editor-decision/${articleId}`);
     };
 
-    const isNotesRequired = decision === 'return_to_review' || decision === 'request_more_revision';
-
     return (
-        <div className="w-full max-w-xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">Panel Keputusan Editor</h3>
+        <div className="p-6 max-w-xl mx-auto">
+            {/* Menggunakan token standard rounded-lg sesuai permintaan */}
+            <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+                <h2 className="text-xl font-bold mb-4">Keputusan Editor Atas Revisi</h2>
+                
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label className="block font-medium mb-2">Pilih Keputusan</label>
+                        <select 
+                            value={data.decision}
+                            onChange={e => setData('decision', e.target.value)}
+                            className="w-full p-2 border rounded-lg"
+                        >
+                            <option value="">-- Pilih --</option>
+                            <option value="Approved">Accept (Approved)</option>
+                            <option value="Rejected">Return to Review (Rejected)</option>
+                            <option value="Awaiting_Revision">Request More Revision</option>
+                        </select>
+                        {errors.decision && <span className="text-red-500 text-sm">{errors.decision}</span>}
+                    </div>
 
-            {message && (
-                <div
-                    className={`mb-4 rounded-lg p-4 text-sm ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}
-                >
-                    {message.text}
-                </div>
-            )}
+                    <div className="mb-6">
+                        <label className="block font-medium mb-2">Catatan Editor</label>
+                        <textarea 
+                            value={data.notes}
+                            onChange={e => setData('notes', e.target.value)}
+                            className="w-full p-2 border rounded-lg"
+                            rows={4}
+                        />
+                        {errors.notes && <span className="text-red-500 text-sm">{errors.notes}</span>}
+                    </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Pilihan Keputusan */}
-                <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">Pilih Keputusan</label>
-                    <select
-                        value={decision}
-                        onChange={(e) => setDecision(e.target.value)}
-                        required
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                    {/* Menggunakan tombol palette Aurora (bg-primary) */}
+                    <button 
+                        type="submit" 
+                        disabled={processing}
+                        className="w-full bg-primary text-white p-3 rounded-lg font-bold disabled:opacity-50"
                     >
-                        <option value="">-- Pilih Keputusan --</option>
-                        <option value="accept">Terima Revisi (Accept)</option>
-                        <option value="return_to_review">Kembalikan ke Tahap Review</option>
-                        <option value="request_more_revision">Minta Revisi Lagi</option>
-                    </select>
-                </div>
-
-                {/* Catatan Editor */}
-                <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                        Catatan Editor {isNotesRequired && <span className="text-red-500">*</span>}
-                    </label>
-                    <textarea
-                        rows={4}
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        required={isNotesRequired}
-                        placeholder={isNotesRequired ? 'Catatan wajib diisi untuk keputusan ini...' : 'Tambahkan catatan opsional jika diterima...'}
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                </div>
-
-                {/* Tombol Aksi */}
-                <button
-                    type="submit"
-                    disabled={loading || !decision}
-                    className={`w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white transition-colors ${
-                        loading || !decision ? 'cursor-not-allowed bg-gray-400' : 'bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300'
-                    }`}
-                >
-                    {loading ? 'Memproses...' : 'Kirim Keputusan'}
-                </button>
-            </form>
+                        {processing ? 'Mengirim...' : 'Simpan Keputusan'}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

@@ -3,6 +3,8 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\Revision\EditorRevisionController;
+use App\Http\Controllers\Copyediting\CopyeditingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +29,7 @@ Route::middleware(['web'])->group(function () {
         // Google OAuth
         Route::get('/google', [SocialAuthController::class, 'redirectToGoogle']);
         Route::get('/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+        Route::post('/copyediting/assign', [CopyeditingController::class, 'assign']);
 
         // Microsoft OAuth (optional)
         // Route::get('/microsoft', [SocialAuthController::class, 'redirectToMicrosoft']);
@@ -44,6 +47,8 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // Auth User Info & Logout
     Route::get('/user', [AuthenticatedSessionController::class, 'user']);
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+
+    Route::post('/revision/editor-decision/{id}', [EditorRevisionController::class, 'decide']);
 
     // TODO: Add other protected routes here
     // Route::apiResource('journals', JournalController::class);
