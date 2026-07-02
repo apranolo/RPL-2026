@@ -11,25 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-    Schema::create('discussion_messages', function (Blueprint $table) {
-    $table->id();
+        Schema::create('discussion_messages', function (Blueprint $table) {
+            $table->id();
 
-    $table->unsignedBigInteger('submission_discussion_id');
-    $table->unsignedBigInteger('user_id');
-    $table->unsignedBigInteger('parent_message_id')->nullable();
+            $table->unsignedBigInteger('submission_discussion_id');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('parent_message_id')->nullable();
 
-    $table->text('message');
+            $table->text('message');
 
-    $table->string('attachment')->nullable();
+            $table->string('attachment')->nullable();
 
-    $table->timestamps();
+            $table->timestamps();
 
-    $table->softDeletes();
+            $table->softDeletes();
 
-    $table->index('submission_discussion_id');
-    $table->index('user_id');
-    $table->index('parent_message_id');
-    });
+            $table->index('submission_discussion_id');
+            $table->index('user_id');
+            $table->index('parent_message_id');
+        });
     }
 
     /**

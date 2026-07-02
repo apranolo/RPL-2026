@@ -10,23 +10,23 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('submission_discussions', function (Blueprint $table) {
-        $table->id();
+    {
+        Schema::create('submission_discussions', function (Blueprint $table) {
+            $table->id();
 
-        $table->unsignedBigInteger('submission_id');
+            $table->unsignedBigInteger('submission_id');
 
-        $table->string('stage')->default('editorial');
+            $table->string('stage')->default('editorial');
 
-        $table->string('subject');
+            $table->string('subject');
 
-        $table->timestamps();
+            $table->timestamps();
 
-        $table->softDeletes();
+            $table->softDeletes();
 
-        $table->index('submission_id');
-    });
-}
+            $table->index('submission_id');
+        });
+    }
 
     /**
      * Reverse the migrations.
