@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\AdminKampus\UserController as AdminKampusUserController
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\OutputController;
