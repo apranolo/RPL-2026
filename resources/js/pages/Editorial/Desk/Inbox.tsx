@@ -1,3 +1,9 @@
+/**
+ * @route user.editorial.desk.inbox
+ * @features Menampilkan tab inbox editorial, jumlah status naskah, dan daftar pengajuan jurnal.
+ * @description Halaman Editorial Inbox digunakan untuk memantau, memfilter, dan mengelola pengajuan naskah berdasarkan status workflow editorial.
+ */
+
 import { InboxTab } from '@/components/InboxTab';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
