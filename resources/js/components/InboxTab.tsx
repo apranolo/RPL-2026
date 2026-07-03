@@ -24,6 +24,7 @@ export function InboxTab({ counts, activeTab }: InboxTabProps) {
         <div className="flex space-x-1 rounded-xl bg-muted p-1">
             {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
+
                 return (
                     <Link
                         key={tab.id}
@@ -34,11 +35,9 @@ export function InboxTab({ counts, activeTab }: InboxTabProps) {
                         )}
                     >
                         <span>{tab.label}</span>
-                        {tab.count > 0 && (
-                            <Badge variant={isActive ? 'default' : 'secondary'} className="ml-2 min-w-[20px] justify-center px-1.5">
-                                {tab.count}
-                            </Badge>
-                        )}
+                        <Badge variant={isActive ? 'default' : 'secondary'} className="ml-2 min-w-[20px] justify-center px-1.5">
+                            {tab.count}
+                        </Badge>
                     </Link>
                 );
             })}
