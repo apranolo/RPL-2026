@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('submission_discussions', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('submission_id');
+            // FK to submissions table.
+            // Constraint will be added after Submission module is merged.
+            $table->foreignId('submission_id');
 
             $table->string('stage')->default('editorial');
 

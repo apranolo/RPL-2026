@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DiscussionMessage;
 use App\Models\SubmissionDiscussion;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class DiscussionController extends Controller
 {
@@ -26,40 +27,47 @@ class DiscussionController extends Controller
         if (! empty($validated['message'])) {
             DiscussionMessage::create([
                 'submission_discussion_id' => $discussion->id,
-                'user_id' => auth()->id() ?? 1,
+                'user_id' => auth()->id(),
                 'message' => $validated['message'],
             ]);
         }
 
-        return response()->json([
-            'message' => 'Discussion created successfully.',
-            'data' => $discussion->load('messages'),
-        ], 201);
+        return redirect()->back()->with(
+            'success',
+            'Discussion created successfully.'
+        );
     }
 
-    public function reply(Request $request)
+    public function reply(Request $request, SubmissionDiscussion $discussion)
     {
         $validated = $request->validate([
-            'submission_discussion_id' => ['required', 'integer'],
-            'user_id' => ['required', 'integer'],
             'message' => ['required', 'string'],
             'attachment' => ['nullable', 'string'],
         ]);
 
-        $message = DiscussionMessage::create($validated);
+        DiscussionMessage::create([
+            'submission_discussion_id' => $discussion->id,
+            'user_id' => auth()->id(),
+            'message' => $validated['message'],
+            'attachment' => $validated['attachment'] ?? null,
+        ]);
 
-        return response()->json([
-            'message' => 'Reply sent successfully.',
-            'data' => $message,
-        ], 201);
+        return redirect()->back()->with(
+            'success',
+            'Reply sent successfully.'
+        );
     }
 
     public function index()
     {
-        $discussions = SubmissionDiscussion::with([
-            'messages',
-        ])->latest()->get();
+    $discussions = SubmissionDiscussion::with([
+        'messages.user',
+    ])
+        ->latest()
+        ->get();
 
-        return response()->json($discussions);
+    return Inertia::render('Discussion/Thread', [
+        'discussions' => $discussions,
+    ]);
     }
 }

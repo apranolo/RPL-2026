@@ -14,9 +14,18 @@ return new class extends Migration
         Schema::create('discussion_messages', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('submission_discussion_id');
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('parent_message_id')->nullable();
+            $table->foreignId('submission_discussion_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->foreignId('parent_message_id')
+                ->nullable()
+                ->constrained('discussion_messages')
+                ->nullOnDelete();
 
             $table->text('message');
 
@@ -26,9 +35,6 @@ return new class extends Migration
 
             $table->softDeletes();
 
-            $table->index('submission_discussion_id');
-            $table->index('user_id');
-            $table->index('parent_message_id');
         });
     }
 
