@@ -49,7 +49,7 @@ export default function Inbox({ counts, activeTab, submissions }: InboxProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Editorial Inbox" />
 
-            <div className="container mx-auto space-y-6 py-6">
+            <div className="container mx-auto space-y-6 px-4 py-6 sm:px-6 lg:px-8">
                 <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <div>
                         <h2 className="text-2xl font-bold tracking-tight">Editorial Inbox</h2>
