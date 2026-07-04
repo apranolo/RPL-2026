@@ -23,6 +23,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
@@ -531,6 +532,10 @@ Route::middleware(['auth'])->group(function () {
                 ->name('attachments.download');
         });
     });
+     Route::prefix('review-assignments')->name('review-assignments.')->group(function () {
+      Route::post('{assignment}/cancel', [ReviewAssignmentController::class, 'cancel'])
+          ->name('cancel');
+  });
 
     /*
     |--------------------------------------------------------------------------
