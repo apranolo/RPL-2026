@@ -12,6 +12,10 @@ class CopyeditingController extends Controller
 {
     public function panel(CopyeditingSubmission $submission)
     {
+        if (auth()->id() !== $submission->copyeditor_id && auth()->id() !== $submission->author_id) {
+            abort(403);
+        }
+
         $submission->load(['article', 'author', 'copyeditor']);
 
         return Inertia::render('User/Copyediting/CopyeditingPanel', [
@@ -21,6 +25,10 @@ class CopyeditingController extends Controller
 
     public function uploadCopyeditedFile(Request $request, CopyeditingSubmission $submission)
     {
+        if (auth()->id() !== $submission->copyeditor_id) {
+            abort(403);
+        }
+
         $request->validate([
             'copyedited_file' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
             'copyeditor_notes' => ['nullable', 'string', 'max:2000'],
@@ -50,6 +58,10 @@ class CopyeditingController extends Controller
 
     public function approvalPage(CopyeditingSubmission $submission)
     {
+        if (auth()->id() !== $submission->author_id) {
+            abort(403);
+        }
+
         $submission->load(['article', 'copyeditor']);
 
         return Inertia::render('User/Copyediting/AuthorApproval', [
@@ -59,6 +71,10 @@ class CopyeditingController extends Controller
 
     public function approve(Request $request, CopyeditingSubmission $submission)
     {
+        if (auth()->id() !== $submission->author_id) {
+            abort(403);
+        }
+
         $request->validate([
             'author_approval_notes' => ['nullable', 'string', 'max:1000'],
         ]);
@@ -80,6 +96,10 @@ class CopyeditingController extends Controller
 
     public function reject(Request $request, CopyeditingSubmission $submission)
     {
+        if (auth()->id() !== $submission->author_id) {
+            abort(403);
+        }
+
         $request->validate([
             'author_approval_notes' => ['required', 'string', 'max:1000'],
         ], [
