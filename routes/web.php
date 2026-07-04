@@ -28,11 +28,12 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
+use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PublicEventController;
-use App\Http\Controllers\PublicJournalController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProposalController;
+use App\Http\Controllers\PublicEventController;
+use App\Http\Controllers\PublicJournalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
@@ -553,9 +554,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
-        Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
-        Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
-        Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
+        Route::delete('/outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
+        Route::get('/outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
+        Route::put('/outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
 
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
@@ -600,7 +601,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Evaluation Routes
         Route::prefix('evaluations')->name('evaluations.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
+            Route::get('/', [EvaluationController::class, 'index'])
                 ->name('index');
         });
 
