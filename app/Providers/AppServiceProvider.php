@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\EvaluationSubCategory::class, \App\Policies\EvaluationSubCategoryPolicy::class);
         Gate::policy(\App\Models\EvaluationIndicator::class, \App\Policies\EvaluationIndicatorPolicy::class);
         Gate::policy(\App\Models\EssayQuestion::class, \App\Policies\EssayQuestionPolicy::class);
+        
 
         // Define additional gates if needed
         Gate::define('manage-universities', function ($user) {

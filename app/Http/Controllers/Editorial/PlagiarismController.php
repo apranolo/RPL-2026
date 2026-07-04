@@ -8,9 +8,6 @@ use App\Models\PlagiarismCheck;
 
 class PlagiarismController extends Controller
 {
-    /**
-     * Simpan hasil cek plagiasi untuk sebuah submission version.
-     */
     public function store(StorePlagiarismCheckRequest $request)
     {
         $this->authorize('create', PlagiarismCheck::class);
@@ -20,7 +17,7 @@ class PlagiarismController extends Controller
         $reportPath = $request->file('report_file')->store('plagiarism-reports', 'public');
 
         PlagiarismCheck::create([
-            'submission_version_id' => $validated['submission_version_id'],
+            'journal_assessment_id' => $validated['journal_assessment_id'],
             'similarity_score' => $validated['similarity_score'],
             'checked_at' => now(),
             'report_file_path' => $reportPath,

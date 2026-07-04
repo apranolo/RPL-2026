@@ -6,43 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('plagiarism_checks', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('submission_version_id')
-                  ->constrained('submission_versions')
+            $table->foreignId('journal_assessment_id')
+                  ->constrained('journal_assessments')
                   ->cascadeOnDelete();
 
-            $table->decimal('similarity_score', 5, 2)
-                  ->nullable();
-
-            $table->timestamp('checked_at')
-                  ->nullable();
-
-            $table->string('report_file_path')
-                  ->nullable();
-
-            $table->json('source_breakdown')
-                  ->nullable();
-
-            $table->enum('status', [
-                'pending',
-                'completed',
-                'failed'
-            ])->default('pending');
-
+            $table->decimal('similarity_score', 5, 2)->nullable();
+            $table->timestamp('checked_at')->nullable();
+            $table->string('report_file_path')->nullable();
+            $table->json('source_breakdown')->nullable();
+            $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('plagiarism_checks');

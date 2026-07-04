@@ -19,10 +19,10 @@ class StorePlagiarismCheckRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      */
-    public function rules(): array
+public function rules(): array
     {
         return [
-            'submission_version_id' => 'required|integer|exists:submission_versions,id',
+            'journal_assessment_id' => 'required|integer|exists:journal_assessments,id',
             'similarity_score' => 'required|numeric|min:0|max:100',
             'report_file' => 'required|file|mimes:pdf|max:5120',
             'source_breakdown' => 'nullable|array',

@@ -1,9 +1,15 @@
+/**
+ * Halaman upload laporan hasil cek plagiasi.
+ * Admin Kampus/Super Admin mengunggah PDF laporan beserta skor kemiripan untuk sebuah journal assessment.
+ *
+ * @module resources/js/pages/Editorial/Desk/Plagiarism
+ */
 import SimilarityBadge from '@/components/SimilarityBadge';
 import { useForm } from '@inertiajs/react';
 
 export default function Plagiarism() {
     const { data, setData, post, processing, errors } = useForm({
-        submission_version_id: '',
+        journal_assessment_id: '',
         similarity_score: '',
         report_file: null as File | null,
     });
@@ -20,14 +26,14 @@ export default function Plagiarism() {
 
             <form onSubmit={submit} className="space-y-4">
                 <div>
-                    <label className="mb-1 block">Submission Version ID</label>
+                    <label className="mb-1 block">Journal Assessment ID</label>
                     <input
                         type="number"
-                        value={data.submission_version_id}
-                        onChange={(e) => setData('submission_version_id', e.target.value)}
+                        value={data.journal_assessment_id}
+                        onChange={(e) => setData('journal_assessment_id', e.target.value)}
                         className="w-full rounded border p-2"
                     />
-                    {errors.submission_version_id && <p className="text-sm text-red-500">{errors.submission_version_id}</p>}
+                    {errors.journal_assessment_id && <p className="text-sm text-red-500">{errors.journal_assessment_id}</p>}
                 </div>
 
                 <div>
