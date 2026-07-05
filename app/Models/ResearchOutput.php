@@ -28,10 +28,20 @@ class ResearchOutput extends Model
         'user_id',
         'kategori',
         'judul',
+        'link_url',
         'file_path',
+        'file_name',
         'status',
         'keterangan',
+        'metadata',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'metadata' => 'array',
+        ];
+    }
 
     // Relasi ke User
     public function user(): BelongsTo
