@@ -600,6 +600,12 @@ Route::middleware(['auth'])->group(function () {
                 ->name('index');
         });
 
+        // Profile Management
+        Route::get('profile', [\App\Http\Controllers\ReviewerProfileController::class, 'show'])
+            ->name('profile.show');
+        Route::post('profile', [\App\Http\Controllers\ReviewerProfileController::class, 'update'])
+            ->name('profile.update');
+
     });
 
     /*
