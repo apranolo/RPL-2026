@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PlagiarismCheck extends Model
 {
     protected $fillable = [
-        'journal_assessment_id',
+        'submission_id',
         'similarity_score',
         'checked_at',
         'report_file_path',
@@ -21,11 +21,8 @@ class PlagiarismCheck extends Model
         'source_breakdown' => 'array',
     ];
 
-    /**
-     * Relasi ke journal assessment yang diperiksa plagiasinya.
-     */
-    public function journalAssessment(): BelongsTo
+    public function submission(): BelongsTo
     {
-        return $this->belongsTo(JournalAssessment::class);
+        return $this->belongsTo(Submission::class);
     }
 }

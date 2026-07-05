@@ -22,7 +22,7 @@ class StorePlagiarismCheckRequest extends FormRequest
 public function rules(): array
     {
         return [
-            'journal_assessment_id' => 'required|integer|exists:journal_assessments,id',
+            'submission_id' => 'required|integer|exists:submissions,id',
             'similarity_score' => 'required|numeric|min:0|max:100',
             'report_file' => 'required|file|mimes:pdf|max:5120',
             'source_breakdown' => 'nullable|array',

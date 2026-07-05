@@ -17,7 +17,7 @@ class PlagiarismController extends Controller
         $reportPath = $request->file('report_file')->store('plagiarism-reports', 'public');
 
         PlagiarismCheck::create([
-            'journal_assessment_id' => $validated['journal_assessment_id'],
+            'submission_id' => $validated['submission_id'],
             'similarity_score' => $validated['similarity_score'],
             'checked_at' => now(),
             'report_file_path' => $reportPath,

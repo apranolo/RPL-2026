@@ -1,74 +1,105 @@
 /**
- * Halaman upload laporan hasil cek plagiasi.
- * Admin Kampus/Super Admin mengunggah PDF laporan beserta skor kemiripan untuk sebuah journal assessment.
+ * Editorial Plagiarism Check Page
  *
- * @module resources/js/pages/Editorial/Desk/Plagiarism
+ * @description Upload laporan hasil cek plagiasi (Turnitin/iThenticate) dan input persentase kemiripan untuk sebuah submission.
+ * @route POST /plagiarism-check
+ * @features Upload PDF report, input similarity score, preview similarity badge
  */
 import SimilarityBadge from '@/components/SimilarityBadge';
-import { useForm } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
+import { Head, useForm } from '@inertiajs/react';
+import { FileCheck2 } from 'lucide-react';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Cek Plagiasi', href: '/plagiarism-check' },
+];
 
 export default function Plagiarism() {
     const { data, setData, post, processing, errors } = useForm({
-        journal_assessment_id: '',
+        submission_id: '',
         similarity_score: '',
         report_file: null as File | null,
     });
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        post('/plagiarism-check');
+        post('/editorial/plagiarism-check');
     };
 
     return (
-        <div className="p-6">
-            <h1 className="mb-6 text-2xl font-bold">Upload Laporan Plagiasi</h1>
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Upload Laporan Plagiasi" />
 
-            <form onSubmit={submit} className="space-y-4">
+            <div className="mx-auto max-w-2xl space-y-6 p-6">
                 <div>
-                    <label className="mb-1 block">Journal Assessment ID</label>
-                    <input
-                        type="number"
-                        value={data.journal_assessment_id}
-                        onChange={(e) => setData('journal_assessment_id', e.target.value)}
-                        className="w-full rounded border p-2"
-                    />
-                    {errors.journal_assessment_id && <p className="text-sm text-red-500">{errors.journal_assessment_id}</p>}
+                    <h1 className="text-3xl font-bold">Upload Laporan Plagiasi</h1>
+                    <p className="text-muted-foreground">Unggah laporan hasil cek plagiasi (Turnitin/iThenticate) untuk sebuah submission.</p>
                 </div>
 
-                <div>
-                    <label className="mb-1 block">Similarity Score</label>
-                    <input
-                        type="number"
-                        value={data.similarity_score}
-                        onChange={(e) => setData('similarity_score', e.target.value)}
-                        className="w-full rounded border p-2"
-                    />
-                    {errors.similarity_score && <p className="text-sm text-red-500">{errors.similarity_score}</p>}
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <FileCheck2 className="h-5 w-5" />
+                            Detail Cek Plagiasi
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={submit} className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="submission_id">Submission ID</Label>
+                                <Input
+                                    id="submission_id"
+                                    type="number"
+                                    value={data.submission_id}
+                                    onChange={(e) => setData('submission_id', e.target.value)}
+                                />
+                                {errors.submission_id && <p className="text-sm text-destructive">{errors.submission_id}</p>}
+                            </div>
 
-                <div>
-                    <label className="mb-1 block">Upload Report PDF</label>
-                    <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={(e) => setData('report_file', e.target.files?.[0] || null)}
-                        className="w-full rounded border p-2"
-                    />
-                    {errors.report_file && <p className="text-sm text-red-500">{errors.report_file}</p>}
-                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="similarity_score">Similarity Score (%)</Label>
+                                <Input
+                                    id="similarity_score"
+                                    type="number"
+                                    min={0}
+                                    max={100}
+                                    value={data.similarity_score}
+                                    onChange={(e) => setData('similarity_score', e.target.value)}
+                                />
+                                {errors.similarity_score && <p className="text-sm text-destructive">{errors.similarity_score}</p>}
+                            </div>
 
-                <button type="submit" disabled={processing} className="rounded bg-blue-500 px-4 py-2 text-white">
-                    Upload
-                </button>
-            </form>
+                            <div className="space-y-2">
+                                <Label htmlFor="report_file">Upload Laporan PDF</Label>
+                                <Input
+                                    id="report_file"
+                                    type="file"
+                                    accept=".pdf"
+                                    onChange={(e) => setData('report_file', e.target.files?.[0] || null)}
+                                />
+                                {errors.report_file && <p className="text-sm text-destructive">{errors.report_file}</p>}
+                            </div>
 
-            {data.similarity_score && (
-                <div className="mt-6">
-                    <p className="mb-2 font-medium">Preview Similarity:</p>
-                    <SimilarityBadge percentage={Number(data.similarity_score)} />
-                </div>
-            )}
-        </div>
+                            <Button type="submit" disabled={processing}>
+                                Upload
+                            </Button>
+                        </form>
+
+                        {data.similarity_score && (
+                            <div className="mt-6 border-t pt-4">
+                                <p className="mb-2 text-sm font-medium text-muted-foreground">Preview Similarity:</p>
+                                <SimilarityBadge percentage={Number(data.similarity_score)} />
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+        </AppLayout>
     );
 }

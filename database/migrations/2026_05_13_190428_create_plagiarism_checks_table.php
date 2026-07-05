@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('plagiarism_checks', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('journal_assessment_id')
-                  ->constrained('journal_assessments')
+            $table->foreignId('submission_id')
+                  ->constrained('submissions')
                   ->cascadeOnDelete();
 
             $table->decimal('similarity_score', 5, 2)->nullable();
