@@ -15,7 +15,24 @@ class ReviewForm extends Model
         'comment',
     ];
 
-    // Relasi balik ke Assignment
+    // --- TAMBAHAN DARI REVIEWER (ACCESSORS & APPENDS) ---
+
+    protected $appends = ['id_review_assignment', 'criterion_name'];
+
+    // Menyelaraskan penamaan ID
+    public function getIdReviewAssignmentAttribute() 
+    {
+        return $this->review_assignment_id;
+    }
+
+    // Menyelaraskan kosa kata (criteria vs criterion)
+    public function getCriterionNameAttribute() 
+    {
+        return $this->criteria_name;
+    }
+
+    // ----------------------------------------------------
+
     public function assignment(): BelongsTo
     {
         return $this->belongsTo(ReviewAssignment::class, 'review_assignment_id');

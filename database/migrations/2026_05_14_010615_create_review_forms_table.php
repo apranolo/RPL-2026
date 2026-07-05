@@ -18,7 +18,7 @@ return new class extends Migration
         $table->foreignId('review_assignment_id')->constrained('review_assignments')->cascadeOnDelete();
         
         // Nama indikator penilaian (misal: "Orisinalitas", "Metodologi")
-        $table->string('criteria_name');
+        $table->string('criterion_name');
         
         // Skor penilaian 1 - 5 (Sesuai PRD)
         $table->tinyInteger('score'); 

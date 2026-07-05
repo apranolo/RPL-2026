@@ -24,13 +24,13 @@ return new class extends Migration
         $table->integer('round')->default(1);
         
         // Status dari undangan review
-        $table->enum('status', ['Invited', 'Accepted', 'Declined', 'Completed', 'Cancelled'])->default('Invited');
+        $table->enum('status', ['Pending', 'Accepted', 'Declined', 'Completed', 'Cancelled'])->default('Pending');
         
         // Batas waktu review (nullable karena mungkin baru diset setelah Accepted)
         $table->date('due_date')->nullable();
         
         // Alasan jika statusnya 'Declined'
-        $table->text('declined_reason')->nullable();
+        $table->text('decline_reason')->nullable();
         
         $table->timestamps();
     });

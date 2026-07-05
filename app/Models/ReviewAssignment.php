@@ -9,7 +9,6 @@ class ReviewAssignment extends Model
 {
     use HasFactory;
 
-    // Mengizinkan penyimpanan data secara massal
     protected $fillable = [
         'submission_id',
         'reviewer_id',
@@ -19,19 +18,47 @@ class ReviewAssignment extends Model
         'declined_reason',
     ];
 
-    // Relasi ke User (Reviewer)
+    // --- TAMBAHAN DARI REVIEWER (ACCESSORS & APPENDS) ---
+    
+    // Memberitahu Laravel untuk menyertakan properti virtual ini saat mereturn JSON ke React
+    protected $appends = ['id_submission', 'id_reviewer', 'reviewer_name', 'decline_reason'];
+
+    // Membuat virtual properti 'id_submission'
+    public function getIdSubmissionAttribute() 
+    {
+        return $this->submission_id;
+    }
+
+    // Membuat virtual properti 'id_reviewer'
+    public function getIdReviewerAttribute() 
+    {
+        return $this->reviewer_id;
+    }
+
+    // Mengambil nama reviewer dari relasi, mereturn string kosong jika belum ada
+    public function getReviewerNameAttribute() 
+    {
+        return $this->reviewer ? $this->reviewer->name : '';
+    }
+
+    // Membuat virtual properti 'decline_reason' (menyesuaikan typo ekspektasi frontend)
+    public function getDeclineReasonAttribute() 
+    {
+        return $this->declined_reason;
+    }
+
+    // ----------------------------------------------------
+
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewer_id');
     }
 
-    // Relasi ke Submission (Naskah)
     public function submission(): BelongsTo
     {
         return $this->belongsTo(Submission::class);
     }
 
-    // Relasi ke Form Penilaian (Satu tugas review punya banyak kriteria penilaian)
     public function forms(): HasMany
     {
         return $this->hasMany(ReviewForm::class);
