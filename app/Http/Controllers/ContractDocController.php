@@ -2,70 +2,63 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreContractDocumentRequest;
 use App\Models\ContractDocument;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\Response;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class ContractDocController extends Controller
 {
-    /**
-     * Store a newly created contract document in storage.
-     */
-    public function store(Request $request)
+    public function create(int $contractId): InertiaResponse
     {
-        try {
-            $validated = $request->validate([
-                'document_name' => 'required|string|max:255',
-                'file' => 'required|file|mimes:pdf|max:10240', // max 10MB
-                'contract_number' => 'nullable|string|max:255',
-                'contract_date' => 'nullable|date',
-                'signed_date' => 'nullable|date',
-                'description' => 'nullable|string',
-            ]);
+        $this->authorize('create', ContractDocument::class);
 
-            $file = $request->file('file');
-            $fileName = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
+        return Inertia::render('Finance/Contract/Upload', [
+            'contractId' => $contractId,
+        ]);
+    }
 
-            $filePath = $file->storeAs(
-                'contract_documents',
-                $fileName,
-                'public'
-            );
+    public function store(StoreContractDocumentRequest $request): RedirectResponse
+    {
+        $this->authorize('create', ContractDocument::class);
 
-            $contractDocument = ContractDocument::create([
-                'user_id' => auth()->id(),
-                'document_name' => $validated['document_name'],
-                'file_path' => $filePath,
-                'file_type' => $file->extension(),
-                'file_size' => $file->getSize(),
-                'contract_number' => $validated['contract_number'] ?? null,
-                'contract_date' => $validated['contract_date'] ?? null,
-                'signed_date' => $validated['signed_date'] ?? null,
-                'status' => 'draft',
-                'description' => $validated['description'] ?? null,
-                'uploaded_by' => auth()->user()->name ?? 'System',
-            ]);
+        $validated = $request->validated();
+        $file = $request->file('document');
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Contract document uploaded successfully',
-                'data' => $contractDocument,
-            ], Response::HTTP_CREATED);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to upload contract document',
-                'error' => $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        if (! $file) {
+            return redirect()->back()->withErrors(['document' => 'Dokumen kontrak tidak ditemukan.']);
         }
+
+        $path = $file->storeAs(
+            'contract_documents',
+            sprintf('%s_%s.pdf', now()->format('YmdHis'), uniqid()),
+            'public'
+        );
+
+        ContractDocument::create([
+            'contract_id' => $validated['contract_id'],
+            'file_name' => $file->getClientOriginalName(),
+            'file_path' => $path,
+            'mime_type' => $file->getClientMimeType() ?? 'application/pdf',
+            'size' => $file->getSize() ?? 0,
+            'uploaded_by' => $request->user()?->id,
+            'uploaded_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Arsip dokumen kontrak berhasil diunggah.');
+    }
+
+    public function download(ContractDocument $document): Response
+    {
+        $this->authorize('download', $document);
+
+        if (! Storage::disk('public')->exists($document->file_path)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->download($document->file_path, $document->file_name);
     }
 }

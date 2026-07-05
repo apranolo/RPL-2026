@@ -2,40 +2,39 @@
 
 namespace App\Models;
 
+use App\Models\Contract;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ContractDocument extends Model
 {
-    use SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'document_name',
+        'contract_id',
+        'file_name',
         'file_path',
-        'file_type',
-        'file_size',
-        'contract_number',
-        'contract_date',
-        'signed_date',
-        'status',
-        'description',
+        'mime_type',
+        'size',
         'uploaded_by',
+        'uploaded_at',
     ];
 
     protected $casts = [
-        'contract_date' => 'datetime',
-        'signed_date' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+        'uploaded_at' => 'datetime',
+        'size' => 'integer',
     ];
 
-    /**
-     * Get the user that uploaded this contract document.
-     */
-    public function user()
+    public function contract(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Contract::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
     }
 }
+

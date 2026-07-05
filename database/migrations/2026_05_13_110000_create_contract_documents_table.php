@@ -13,28 +13,14 @@ return new class extends Migration
     {
         Schema::create('contract_documents', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('document_name');
+            $table->foreignId('contract_id')->constrained()->cascadeOnDelete();
+            $table->string('file_name');
             $table->string('file_path');
-            $table->string('file_type')->default('pdf');
-            $table->bigInteger('file_size')->nullable();
-            $table->string('contract_number')->nullable();
-            $table->dateTime('contract_date')->nullable();
-            $table->dateTime('signed_date')->nullable();
-            $table->string('status')->default('draft'); // draft, signed, archived
-            $table->text('description')->nullable();
-            $table->string('uploaded_by')->nullable();
+            $table->string('mime_type');
+            $table->unsignedBigInteger('size');
+            $table->foreignId('uploaded_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('uploaded_at')->nullable();
             $table->timestamps();
-            $table->softDeletes();
-
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('set null');
-
-            $table->index('user_id');
-            $table->index('status');
-            $table->index('created_at');
         });
     }
 
