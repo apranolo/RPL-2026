@@ -11,13 +11,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, Eye, FileText, Search } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface Evaluation {
     id: number;
@@ -95,6 +97,15 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
     const { flash } = usePage<SharedData>().props;
     const [filters, setFilters] = useState<Filters>(initialFilters || { search: '', status: '', report_type: '' });
 
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
+
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
         { title: 'Laporan Kemajuan', href: route('user.progress.index') },
@@ -144,14 +155,6 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                         <p className="text-muted-foreground">Daftar laporan kemajuan penelitian Anda</p>
                     </div>
                 </div>
-
-                {/* Flash Messages */}
-                {flash?.success && (
-                    <div className="rounded-md bg-green-50 p-4 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">{flash.success}</div>
-                )}
-                {flash?.error && (
-                    <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">{flash.error}</div>
-                )}
 
                 {/* Filters */}
                 <Card>
@@ -240,12 +243,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                             <TableCell>{report.report_period}</TableCell>
                                             <TableCell className="text-center">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <div className="h-2 w-20 overflow-hidden rounded-full bg-secondary">
-                                                        <div
-                                                            className="h-full rounded-full bg-green-500"
-                                                            style={{ width: `${report.progress_percentage}%` }}
-                                                        />
-                                                    </div>
+                                                    <Progress value={report.progress_percentage} className="h-2 w-20 [&>div]:bg-emerald-500" />
                                                     <span className="text-xs">{report.progress_percentage}%</span>
                                                 </div>
                                             </TableCell>

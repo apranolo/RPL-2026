@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('progress_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('proposal_id')->constrained('proposals')->onDelete('cascade');
-            $table->unsignedBigInteger('contract_id')->nullable();
+            $table->foreignId('contract_id')->nullable()->constrained('contracts')->onDelete('set null');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->text('content');
