@@ -408,6 +408,10 @@ Route::middleware(['auth'])->group(function () {
                 'destroy' => 'events.destroy',
             ]);
 
+        // Monev Report
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportCtrl::class, 'index'])
+            ->name('monev.rekap-keseluruhan');
+
     });
 
     /*

@@ -1,3 +1,17 @@
+/**
+ * MonevReport Component
+ *
+ * @description
+ * Halaman Monev Report (Rekap Keseluruhan).
+ * Halaman ini menampilkan ringkasan status progres penelitian dosen,
+ * penyerapan anggaran penelitian, kinerja per fakultas, serta
+ * rincian data laporan penelitian terbaru.
+ *
+ * @component
+ *
+ * @returns The rendered Monev Report component.
+ */
+
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -6,37 +20,27 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Activity, CheckCircle, Clock, FileText, PieChart } from 'lucide-react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'Monev Report',
-        href: '/admin/monev/rekap-keseluruhan',
-    },
-];
-
 interface DataProp {
     ringkasan: {
-        total_program: number;
-        program_selesai: number;
-        program_berjalan: number;
-        program_tertunda: number;
+        total_penelitian: number;
+        penelitian_selesai: number;
+        penelitian_berjalan: number;
+        penelitian_tertunda: number;
     };
     anggaran: {
         total_anggaran: number;
         anggaran_terserap: number;
         persentase_serapan: number;
     };
-    kinerja_wilayah: {
-        wilayah: string;
+    kinerja_fakultas: {
+        fakultas: string;
         skor: number;
         status: string;
     }[];
-    kegiatan_terbaru: {
+    penelitian_terbaru: {
         id: number;
-        nama_kegiatan: string;
+        judul_penelitian: string;
+        nama_dosen: string;
         progres: number;
         status: string;
         tanggal_update: string;
@@ -69,6 +73,19 @@ export default function MonevReport({ data }: Props) {
         }).format(angka);
     };
 
+    // Safely determine current routing context for breadcrumbs
+    const isKampusAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin-kampus');
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/dashboard',
+        },
+        {
+            title: 'Monev Report',
+            href: isKampusAdmin ? '/admin-kampus/monev/rekap-keseluruhan' : '/admin/monev/rekap-keseluruhan',
+        },
+    ];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Rekap Keseluruhan Monev" />
@@ -76,45 +93,45 @@ export default function MonevReport({ data }: Props) {
             <div className="flex flex-col gap-6 p-4 md:p-6">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">Rekap Status Progres Penelitian</h1>
-                    <p className="mt-2 text-muted-foreground">Ringkasan keseluruhan monitoring dan evaluasi program penelitian.</p>
+                    <p className="mt-2 text-muted-foreground">Ringkasan keseluruhan monitoring dan evaluasi laporan kemajuan penelitian.</p>
                 </div>
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Total Program</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Total Penelitian</CardTitle>
                             <FileText className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{data.ringkasan.total_program}</div>
+                            <div className="text-2xl font-bold">{data.ringkasan.total_penelitian}</div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Program Selesai</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Penelitian Selesai</CardTitle>
                             <CheckCircle className="h-4 w-4 text-green-500" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{data.ringkasan.program_selesai}</div>
+                            <div className="text-2xl font-bold">{data.ringkasan.penelitian_selesai}</div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Program Berjalan</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Penelitian Berjalan</CardTitle>
                             <Activity className="h-4 w-4 text-blue-500" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{data.ringkasan.program_berjalan}</div>
+                            <div className="text-2xl font-bold">{data.ringkasan.penelitian_berjalan}</div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Program Tertunda</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Penelitian Tertunda</CardTitle>
                             <Clock className="h-4 w-4 text-red-500" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{data.ringkasan.program_tertunda}</div>
+                            <div className="text-2xl font-bold">{data.ringkasan.penelitian_tertunda}</div>
                         </CardContent>
                     </Card>
                 </div>
@@ -125,7 +142,7 @@ export default function MonevReport({ data }: Props) {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <PieChart className="h-5 w-5" />
-                                Serapan Anggaran
+                                Serapan Anggaran Penelitian
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -143,8 +160,8 @@ export default function MonevReport({ data }: Props) {
                                     <span className="text-xl font-bold">{data.anggaran.persentase_serapan}%</span>
                                 </div>
                                 <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-secondary">
-                                    <div 
-                                        className="h-full bg-primary transition-all" 
+                                    <div
+                                        className="h-full bg-primary transition-all"
                                         style={{ width: `${data.anggaran.persentase_serapan}%` }}
                                     ></div>
                                 </div>
@@ -154,21 +171,21 @@ export default function MonevReport({ data }: Props) {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Kinerja Wilayah</CardTitle>
+                            <CardTitle>Kinerja Fakultas</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Wilayah</TableHead>
-                                        <TableHead className="text-right">Skor</TableHead>
+                                        <TableHead>Fakultas</TableHead>
+                                        <TableHead className="text-right">Skor Rata-rata</TableHead>
                                         <TableHead className="text-right">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {data.kinerja_wilayah.map((item, index) => (
+                                    {data.kinerja_fakultas.map((item, index) => (
                                         <TableRow key={index}>
-                                            <TableCell className="font-medium">{item.wilayah}</TableCell>
+                                            <TableCell className="font-medium">{item.fakultas}</TableCell>
                                             <TableCell className="text-right">{item.skor}</TableCell>
                                             <TableCell className="text-right">{item.status}</TableCell>
                                         </TableRow>
@@ -182,7 +199,7 @@ export default function MonevReport({ data }: Props) {
                 {/* Recent Activities Table */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Kegiatan Terbaru</CardTitle>
+                        <CardTitle>Penelitian Terbaru</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="rounded-md border">
@@ -190,22 +207,26 @@ export default function MonevReport({ data }: Props) {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>ID</TableHead>
-                                        <TableHead>Nama Kegiatan</TableHead>
-                                        <TableHead>Progres</TableHead>
+                                        <TableHead>Judul Penelitian</TableHead>
+                                        <TableHead>Dosen Pengusul</TableHead>
+                                        <TableHead>Progres Laporan</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead className="text-right">Tanggal Update</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {data.kegiatan_terbaru.map((kegiatan) => (
+                                    {data.penelitian_terbaru.map((kegiatan) => (
                                         <TableRow key={kegiatan.id}>
                                             <TableCell className="font-medium">{kegiatan.id}</TableCell>
-                                            <TableCell>{kegiatan.nama_kegiatan}</TableCell>
+                                            <TableCell className="max-w-[300px] truncate" title={kegiatan.judul_penelitian}>
+                                                {kegiatan.judul_penelitian}
+                                            </TableCell>
+                                            <TableCell>{kegiatan.nama_dosen}</TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
                                                     <div className="h-2 w-24 overflow-hidden rounded-full bg-secondary">
-                                                        <div 
-                                                            className="h-full bg-blue-500" 
+                                                        <div
+                                                            className="h-full bg-blue-500"
                                                             style={{ width: `${kegiatan.progres}%` }}
                                                         ></div>
                                                     </div>
