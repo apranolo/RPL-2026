@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('funding_number')->unique();
             $table->string('description')->nullable();
             $table->decimal('amount', 15, 2);
+            $table->decimal('percentage', 5, 2)->default(0);
             $table->enum('status', ['planned', 'requested', 'approved', 'disbursed', 'cancelled'])->default('planned');
 
             $table->date('funding_date')->nullable();
