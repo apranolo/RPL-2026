@@ -30,12 +30,16 @@ use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
+use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Editorial\PlagiarismController;
+use Inertia\Inertia;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -137,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // Dashboard Admin
+// Dashboard Admin
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
     });
@@ -151,7 +155,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:Keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'keuanganDashboard'])->name('dashboard');
     });
-
+    
     /*
     |--------------------------------------------------------------------------
     | Super Admin Routes
@@ -535,17 +539,48 @@ Route::middleware(['auth'])->group(function () {
                 ->name('registrations.create-assessment');
         });
 
+        // Progress Reports (Monitoring & Evaluasi)
+        Route::get('progress', [ProgressController::class, 'index'])
+            ->name('progress.index');
+
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
         Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
         Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
 
         // Proposal
-        Route::prefix('proposal')->name('proposal.')->group(function (){
-
+        Route::prefix('proposal')->name('proposal.')->group(function () {
+            //
         });
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | Editor Routes (v1.1 - Submission Editorial)
+    |--------------------------------------------------------------------------
+    */
+    // NOTE: Group ini akan diperbaiki lebih lanjut oleh ADITYA GAUTAMA
+    Route::middleware(['role:Editor'])->prefix('editorial')->name('editorial.')->group(function () {
+        // Activity Log per submission
+        Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
+            ->name('activity-logs.index');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Editorial - Plagiarism Check Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS.','.Role::PENGELOLA_JURNAL])
+        ->prefix('editorial')
+        ->name('editorial.')
+        ->group(function () {
+            Route::get('plagiarism-check', function () {
+                return Inertia::render('Editorial/Desk/Plagiarism');
+            })->name('plagiarism-check.index');
+            Route::post('plagiarism-check', [PlagiarismController::class, 'store'])
+                ->name('plagiarism-check.store');
+        });
     /*
     |--------------------------------------------------------------------------
     | Reviewer Routes (v1.1)
@@ -572,6 +607,12 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
                 ->name('index');
         });
+
+        // Profile Management
+        Route::get('profile', [\App\Http\Controllers\ReviewerProfileController::class, 'show'])
+            ->name('profile.show');
+        Route::post('profile', [\App\Http\Controllers\ReviewerProfileController::class, 'update'])
+            ->name('profile.update');
 
     });
 
