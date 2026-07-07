@@ -33,7 +33,6 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-
 /*
 |--------------------------------------------------------------------------
 | Public Storage File Serving
