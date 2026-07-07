@@ -302,29 +302,21 @@ export default function Index({ agendas, filters, types = [] }: Props) {
                     <div className="mt-12 flex justify-center">
                         <Pagination>
                             <PaginationContent>
-                                {agendas.links.map((link, index) => {
-                                    if (!link.url && !link.label) return null;
-
-                                    const decodeHtml = (html: string) => {
-                                        const txt = document.createElement('textarea');
-                                        txt.innerHTML = html;
-                                        return txt.value;
-                                    };
-
-                                    const label = decodeHtml(link.label);
-
-                                    return (
-                                        <PaginationItem key={`${link.label}-${index}`}>
-                                            {link.url ? (
-                                                <PaginationLink href={link.url} isActive={link.active}>
-                                                    {label}
+                                {agendas.links.map((link, index) => (
+                                    <PaginationItem key={index}>
+                                        {link.url ? (
+                                            <Link href={link.url}>
+                                                <PaginationLink isActive={link.active}>
+                                                    {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
                                                 </PaginationLink>
-                                            ) : (
-                                                <span className="px-4 py-2 text-sm text-muted-foreground">{label}</span>
-                                            )}
-                                        </PaginationItem>
-                                    );
-                                })}
+                                            </Link>
+                                        ) : (
+                                            <PaginationLink className="cursor-not-allowed opacity-50">
+                                                {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
+                                            </PaginationLink>
+                                        )}
+                                    </PaginationItem>
+                                ))}
                             </PaginationContent>
                         </Pagination>
                     </div>
