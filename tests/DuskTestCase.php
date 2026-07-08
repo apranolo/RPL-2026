@@ -23,6 +23,14 @@ abstract class DuskTestCase extends BaseTestCase
     }
 
     /**
+     * Determine the application's base URL for testing.
+     */
+    protected function baseUrl(): string
+    {
+        return $_ENV['APP_URL'] ?? env('APP_URL') ?? 'http://127.0.0.1:8000';
+    }
+
+    /**
      * Create the RemoteWebDriver instance.
      */
     protected function driver(): RemoteWebDriver
