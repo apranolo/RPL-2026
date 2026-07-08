@@ -22,6 +22,10 @@ return new class extends Migration
                 ->constrained('research_schemas')
                 ->onDelete('cascade');
 
+            $table->string('status_proposal')->default('Draft');
+            $table->text('rejection_reason')->nullable();
+            $table->string('file_dokumen_proposal')->nullable();
+
             $table->timestamps();
         });
     }

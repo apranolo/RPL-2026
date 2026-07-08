@@ -17,12 +17,16 @@ class ProposalFactory extends Factory
      */
     public function definition(): array
     {
+        $status = $this->faker->randomElement(['Draft', 'Submitted', 'Administrasi_Valid', 'Ditolak']);
         return [
             //
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
             'user_id' => \App\Models\User::inRandomOrder()->first()->id ?? 1,
             'research_schema_id' => ResearchSchema::inRandomOrder()->first()->id ?? 1,
+            'status_proposal' => $status,
+            'rejection_reason' => $status === 'Ditolak' ? $this->faker->sentence : null,
+            'file_dokumen_proposal' => 'proposals/dummy_proposal.pdf',
         ];
     }
 }
