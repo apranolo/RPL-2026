@@ -1,6 +1,6 @@
 /**
- * @route
- * @features
+ * @route GET /finance/reports
+ * @features Monitoring administrasi keuangan berdasarkan kontrak hibah dan pencairan termin pendanaan.
  */
 import { FilterBar } from '@/components/FilterBar';
 import { Badge } from '@/components/ui/badge';
@@ -11,22 +11,21 @@ import { Head } from '@inertiajs/react';
 
 interface FinanceData {
     id: number;
-    journal_title: string;
+    contract_title: string;
     university: string;
-    assessor: string;
-    date: string;
+    contract_value: number;
+    disbursed_total: number;
+    remaining_balance: number;
     status: string;
-    status_key: string;
-    revenue: number;
-    expenses: number;
-    profit: number;
+    status_label: string;
+    signed_at?: string;
 }
 
 interface Summary {
-    total_assessments: number;
-    total_revenue: number;
-    total_expenses: number;
-    net_profit: number;
+    total_contracts: number;
+    total_contract_value: number;
+    total_disbursed: number;
+    remaining_balance: number;
     year: number;
     scheme: string;
     data: FinanceData[];
@@ -51,14 +50,15 @@ export default function Index({ summary, filters }: Props) {
         }).format(amount);
     };
 
-    const getStatusBadge = (statusKey: string, label: string) => {
+    const getStatusBadge = (status: string, label: string) => {
         const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
             draft: 'outline',
-            submitted: 'secondary',
-            reviewed: 'default',
+            active: 'default',
+            completed: 'secondary',
+            cancelled: 'destructive',
         };
 
-        return <Badge variant={variants[statusKey] || 'outline'}>{label}</Badge>;
+        return <Badge variant={variants[status] || 'outline'}>{label}</Badge>;
     };
 
     return (
@@ -68,90 +68,79 @@ export default function Index({ summary, filters }: Props) {
             <div className="space-y-6">
                 <div>
                     <h1 className="text-2xl font-bold">Monitoring Administrasi Keuangan</h1>
-                    <p className="text-muted-foreground">Laporan keuangan assessment jurnal tahun {summary.year}</p>
+                    <p className="text-muted-foreground">Ringkasan kontrak hibah dan pencairan dana tahun {summary.year}</p>
                 </div>
 
-                {/* Summary Cards */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Assessment</CardTitle>
+                            <CardTitle className="text-sm font-medium">Total Kontrak</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{summary.total_assessments}</div>
+                            <div className="text-2xl font-bold">{summary.total_contracts}</div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Pendapatan</CardTitle>
+                            <CardTitle className="text-sm font-medium">Nilai Kontrak</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-green-600">{formatCurrency(summary.total_revenue)}</div>
+                            <div className="text-2xl font-bold text-green-600">{formatCurrency(summary.total_contract_value)}</div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Pengeluaran</CardTitle>
+                            <CardTitle className="text-sm font-medium">Total Dicairkan</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-red-600">{formatCurrency(summary.total_expenses)}</div>
+                            <div className="text-2xl font-bold text-blue-600">{formatCurrency(summary.total_disbursed)}</div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Laba Bersih</CardTitle>
+                            <CardTitle className="text-sm font-medium">Sisa Dana Kontrak</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className={`text-2xl font-bold ${summary.net_profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {formatCurrency(summary.net_profit)}
-                            </div>
+                            <div className="text-2xl font-bold text-amber-600">{formatCurrency(summary.remaining_balance)}</div>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Filter Bar */}
                 <FilterBar currentYear={filters.year} currentScheme={filters.scheme} />
 
-                {/* Data Table */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Detail Assessment Keuangan</CardTitle>
-                        <CardDescription>Data assessment jurnal dengan rincian keuangan</CardDescription>
+                        <CardTitle>Detail Kontrak Hibah</CardTitle>
+                        <CardDescription>Data kontrak hibah dengan rincian nilai kontrak dan pencairan termin pendanaan</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Jurnal</TableHead>
-                                    <TableHead>Universitas</TableHead>
-                                    <TableHead>Assessor</TableHead>
-                                    <TableHead>Tanggal</TableHead>
+                                    <TableHead>Judul Kontrak</TableHead>
+                                    <TableHead>Universitas Penerima Hibah</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Pendapatan</TableHead>
-                                    <TableHead className="text-right">Pengeluaran</TableHead>
-                                    <TableHead className="text-right">Laba</TableHead>
+                                    <TableHead className="text-right">Nilai Total Kontrak</TableHead>
+                                    <TableHead className="text-right">Total Dana Dicairkan</TableHead>
+                                    <TableHead className="text-right">Sisa Dana Kontrak</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {summary.data.map((item) => (
                                     <TableRow key={item.id}>
-                                        <TableCell className="font-medium">{item.journal_title}</TableCell>
+                                        <TableCell className="font-medium">{item.contract_title}</TableCell>
                                         <TableCell>{item.university}</TableCell>
-                                        <TableCell>{item.assessor}</TableCell>
-                                        <TableCell>{new Date(item.date).toLocaleDateString('id-ID')}</TableCell>
-                                        <TableCell>{getStatusBadge(item.status_key, item.status)}</TableCell>
-                                        <TableCell className="text-right text-green-600">{formatCurrency(item.revenue)}</TableCell>
-                                        <TableCell className="text-right text-red-600">{formatCurrency(item.expenses)}</TableCell>
-                                        <TableCell className={`text-right ${item.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                            {formatCurrency(item.profit)}
-                                        </TableCell>
+                                        <TableCell>{getStatusBadge(item.status, item.status_label)}</TableCell>
+                                        <TableCell className="text-right text-green-600">{formatCurrency(item.contract_value)}</TableCell>
+                                        <TableCell className="text-right text-blue-600">{formatCurrency(item.disbursed_total)}</TableCell>
+                                        <TableCell className="text-right text-amber-600">{formatCurrency(item.remaining_balance)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
 
                         {summary.data.length === 0 && (
-                            <div className="py-8 text-center text-muted-foreground">Tidak ada data assessment untuk tahun {summary.year}</div>
+                            <div className="py-8 text-center text-muted-foreground">Tidak ada data kontrak untuk tahun {summary.year}</div>
                         )}
                     </CardContent>
                 </Card>

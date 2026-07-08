@@ -22,10 +22,11 @@ export function FilterBar({ currentYear, currentScheme }: FilterBarProps) {
     const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
 
     const schemes = [
-        { value: 'all', label: 'Semua Status' },
+        { value: 'all', label: 'Semua Skema' },
         { value: 'draft', label: 'Draft' },
-        { value: 'submitted', label: 'Submitted' },
-        { value: 'reviewed', label: 'Reviewed' },
+        { value: 'active', label: 'Aktif' },
+        { value: 'completed', label: 'Selesai' },
+        { value: 'cancelled', label: 'Dibatalkan' },
     ];
 
     const handleFilter = () => {

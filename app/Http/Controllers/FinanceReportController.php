@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JournalAssessment;
+use App\Models\Contract;
+use App\Models\Funding;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -10,8 +12,8 @@ class FinanceReportController extends Controller
 {
     public function index(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $scheme = $request->get('scheme', 'all');
+        $year = (int) $request->get('year', now()->year);
+        $scheme = (string) $request->get('scheme', 'all');
 
         $summary = $this->summary($year, $scheme);
 
@@ -26,46 +28,63 @@ class FinanceReportController extends Controller
 
     public function summary($year = null, $scheme = 'all')
     {
-        $year = $year ?? now()->year;
+        $year = $year ? (int) $year : now()->year;
+        $scheme = $scheme ?? 'all';
 
-        $query = JournalAssessment::with(['journal.university', 'user'])
-            ->whereYear('assessment_date', $year)
-            ->when($scheme !== 'all', fn ($query) => $query->where('status', $scheme));
+        $contracts = Contract::query()
+            ->with(['university:id,name,short_name,code'])
+            ->when($year, function (Builder $query) use ($year) {
+                $query->where(function (Builder $subQuery) use ($year) {
+                    $subQuery->whereYear('signed_at', $year)
+                        ->orWhereYear('start_date', $year)
+                        ->orWhereYear('created_at', $year);
+                });
+            })
+            ->when($scheme !== 'all', function (Builder $query) use ($scheme) {
+                $query->where('status', $scheme);
+            })
+            ->withSum([
+                'fundings as disbursed_total' => function (Builder $query) {
+                    $query->where('status', Funding::STATUS_DISBURSED);
+                },
+            ], 'amount')
+            ->withSum('fundings as funding_total', 'amount')
+            ->get();
 
-        $assessments = $query->get();
-
-        $totalRevenue = $assessments->count() * 500000; // Assuming 500k per assessment
-        $totalExpenses = $assessments->count() * 200000; // Assuming 200k expenses per assessment
-        $netProfit = $totalRevenue - $totalExpenses;
+        $totalContractValue = (float) $contracts->sum(fn (Contract $contract) => (float) $contract->contract_value);
+        $totalDisbursed = (float) $contracts->sum(fn (Contract $contract) => (float) ($contract->disbursed_total ?? 0));
+        $remainingBalance = max($totalContractValue - $totalDisbursed, 0);
 
         return [
-            'total_assessments' => $assessments->count(),
-            'total_revenue' => $totalRevenue,
-            'total_expenses' => $totalExpenses,
-            'net_profit' => $netProfit,
+            'total_contracts' => $contracts->count(),
+            'total_contract_value' => $totalContractValue,
+            'total_disbursed' => $totalDisbursed,
+            'remaining_balance' => $remainingBalance,
             'year' => $year,
             'scheme' => $scheme,
-            'data' => $assessments->map(function ($assessment) {
+            'data' => $contracts->map(function (Contract $contract) {
+                $contractValue = (float) $contract->contract_value;
+                $disbursedTotal = (float) ($contract->disbursed_total ?? 0);
+
                 return [
-                    'id' => $assessment->id,
-                    'journal_title' => $assessment->journal->title ?? 'N/A',
-                    'university' => $assessment->journal->university->name ?? 'N/A',
-                    'assessor' => $assessment->user->name ?? 'N/A',
-                    'date' => $assessment->assessment_date,
-                    'status' => $assessment->status_label,
-                    'status_key' => $assessment->status,
-                    'revenue' => 500000,
-                    'expenses' => 200000,
-                    'profit' => 300000,
+                    'id' => $contract->id,
+                    'contract_title' => $contract->title ?? 'N/A',
+                    'university' => $contract->university?->name ?? 'N/A',
+                    'contract_value' => $contractValue,
+                    'disbursed_total' => $disbursedTotal,
+                    'remaining_balance' => max($contractValue - $disbursedTotal, 0),
+                    'status' => $contract->status,
+                    'status_label' => Contract::getStatusOptions()[$contract->status] ?? $contract->status,
+                    'signed_at' => $contract->signed_at?->format('Y-m-d'),
                 ];
-            }),
+            })->values(),
         ];
     }
 
     public function filter(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $scheme = $request->get('scheme', 'all');
+        $year = (int) $request->get('year', now()->year);
+        $scheme = (string) $request->get('scheme', 'all');
 
         return response()->json($this->summary($year, $scheme));
     }
