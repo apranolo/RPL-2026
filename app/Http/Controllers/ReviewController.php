@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Review;
 use App\Http\Requests\StoreReviewRequest;
+use App\Models\Review;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use Carbon\Carbon;
 
 class ReviewController extends Controller
 {
     /**
      * Show the assessment form for a specific review.
-     *
-     * @param  \App\Models\Review  $review
-     * @return \Inertia\Response
      */
     public function assessForm(Review $review): Response
     {
@@ -27,7 +24,7 @@ class ReviewController extends Controller
 
         $review->load([
             'proposal.user',
-            'proposal.researchSchema'
+            'proposal.researchSchema',
         ]);
 
         return Inertia::render('Reviewer/FormReview', [
@@ -37,10 +34,6 @@ class ReviewController extends Controller
 
     /**
      * Store proposal review scores (first-time submission).
-     *
-     * @param  \App\Http\Requests\StoreReviewRequest  $request
-     * @param  \App\Models\Review  $review
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function storeAssessment(StoreReviewRequest $request, Review $review): RedirectResponse
     {
@@ -56,13 +49,13 @@ class ReviewController extends Controller
 
         if ($now->lt($startDate)) {
             return back()->withErrors([
-                'timeline' => 'Masa penilaian untuk proposal ini belum dimulai (dimulai tanggal ' . $startDate->format('d-m-Y') . ').'
+                'timeline' => 'Masa penilaian untuk proposal ini belum dimulai (dimulai tanggal '.$startDate->format('d-m-Y').').',
             ]);
         }
 
         if ($now->gt($endDate)) {
             return back()->withErrors([
-                'timeline' => 'Masa penilaian untuk proposal ini sudah berakhir pada tanggal ' . $endDate->format('d-m-Y') . '.'
+                'timeline' => 'Masa penilaian untuk proposal ini sudah berakhir pada tanggal '.$endDate->format('d-m-Y').'.',
             ]);
         }
 
@@ -89,10 +82,6 @@ class ReviewController extends Controller
 
     /**
      * Update proposal review scores.
-     *
-     * @param  \App\Http\Requests\StoreReviewRequest  $request
-     * @param  \App\Models\Review  $review
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateAssessment(StoreReviewRequest $request, Review $review): RedirectResponse
     {
