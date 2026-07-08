@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm, Link } from '@inertiajs/react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -16,7 +16,6 @@ import {
     FileText, 
     CheckCircle, 
     XCircle, 
-    Info, 
     Clock,
     User,
     BookOpen
