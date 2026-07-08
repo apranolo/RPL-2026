@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreReviewScheduleRequest;
+use App\Http\Requests\UpdateReviewScheduleRequest;
 use App\Models\JournalAssessment;
 use App\Models\ReviewSchedule;
 use App\Models\User;
@@ -18,6 +20,12 @@ class ScheduleController extends Controller
         $this->authorize('viewAny', ReviewSchedule::class);
 
         $query = ReviewSchedule::with(['proposal.journal', 'proposal.user', 'reviewer', 'creator']);
+
+        if ($request->user()->isAdminKampus()) {
+            $query->whereHas('proposal.journal', function ($q) use ($request) {
+                $q->where('university_id', $request->user()->university_id);
+            });
+        }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -63,19 +71,11 @@ class ScheduleController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreReviewScheduleRequest $request): RedirectResponse
     {
         $this->authorize('create', ReviewSchedule::class);
 
-        $validated = $request->validate([
-            'journal_assessment_id' => 'required|exists:journal_assessments,id',
-            'reviewer_id' => 'required|exists:users,id',
-            'scheduled_at' => 'required|date',
-            'ended_at' => 'nullable|date|after:scheduled_at',
-            'location' => 'nullable|string|max:255',
-            'meeting_link' => 'nullable|url|max:500',
-            'notes' => 'nullable|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         $validated['status'] = 'scheduled';
         $validated['created_by'] = $request->user()->id;
@@ -118,20 +118,11 @@ class ScheduleController extends Controller
         ]);
     }
 
-    public function update(Request $request, ReviewSchedule $schedule): RedirectResponse
+    public function update(UpdateReviewScheduleRequest $request, ReviewSchedule $schedule)
     {
         $this->authorize('update', $schedule);
 
-        $validated = $request->validate([
-            'journal_assessment_id' => 'required|exists:journal_assessments,id',
-            'reviewer_id' => 'required|exists:users,id',
-            'scheduled_at' => 'required|date',
-            'ended_at' => 'nullable|date|after:scheduled_at',
-            'location' => 'nullable|string|max:255',
-            'meeting_link' => 'nullable|url|max:500',
-            'notes' => 'nullable|string|max:1000',
-            'status' => 'required|in:scheduled,completed,cancelled',
-        ]);
+        $validated = $request->validated();
 
         $validated['updated_by'] = $request->user()->id;
         $schedule->update($validated);

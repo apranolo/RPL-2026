@@ -1,3 +1,10 @@
+/**
+ * @file ScheduleEdit.tsx
+ * @description Komponen form halaman admin untuk mengubah atau memperbarui jadwal penilaian review jurnal (Review Schedule).
+ * @author Candra
+ * @date 2026-07-09
+ */
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

@@ -1,3 +1,11 @@
+
+/**
+ * @file ScheduleShow.tsx
+ * @description Komponen halaman admin untuk menampilkan detail informasi dari jadwal penilaian review jurnal (Review Schedule).
+ * @author Candra
+ * @date 2026-07-09
+ */
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
