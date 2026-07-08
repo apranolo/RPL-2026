@@ -1,4 +1,10 @@
+/**
+ * Log Perubahan Termin Pendanaan
+ *
+ * @author MUHAMAD BURHANUDIN AL BACHTIAR
+ */
 import { Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
 
 interface FundingLog {
     id: number;
@@ -14,7 +20,6 @@ interface FundingLog {
     };
 }
 
-// Menambahkan interface khusus untuk link paginasi dari Laravel
 interface PaginationLink {
     url: string | null;
     label: string;
@@ -29,6 +34,21 @@ interface Props {
 }
 
 export default function Logs({ logs }: Props) {
+    // State untuk menyimpan pengaturan cetak PDF
+    const [paperSize, setPaperSize] = useState('A4');
+    const [orientation, setOrientation] = useState('landscape');
+    const [customWidth, setCustomWidth] = useState(600);
+    const [customHeight, setCustomHeight] = useState(300);
+
+    // Fungsi untuk merakit URL cetak secara dinamis berdasarkan pilihan di atas
+    const getPrintUrl = (id: number) => {
+        let url = `/finance/funding/${id}/print?size=${paperSize}&orientation=${orientation}`;
+        if (paperSize === 'custom') {
+            url += `&width=${customWidth}&height=${customHeight}`;
+        }
+        return url;
+    };
+
     return (
         <>
             <Head title="Log Perubahan Termin" />
@@ -40,6 +60,57 @@ export default function Logs({ logs }: Props) {
                         <h1 className="text-3xl font-extrabold tracking-tight uppercase">Riwayat Termin</h1>
                         <p className="mt-1 text-sm font-medium">LOG PERUBAHAN DAN CETAK KWITANSI PENDANAAN</p>
                     </div>
+                </div>
+
+                {/* Panel Pengaturan Cetak (Control Bar) */}
+                <div className="mb-4 flex flex-wrap items-center gap-4 border-2 border-black bg-gray-50 p-4">
+                    <div className="text-xs font-bold uppercase">⚙️ Pengaturan Kertas:</div>
+
+                    {/* Pilih Ukuran Kertas */}
+                    <select
+                        value={paperSize}
+                        onChange={(e) => setPaperSize(e.target.value)}
+                        className="cursor-pointer border border-black bg-white px-3 py-1 text-xs font-bold uppercase outline-none"
+                    >
+                        <option value="A4">A4</option>
+                        <option value="legal">Legal</option>
+                        <option value="letter">Letter</option>
+                        <option value="custom">Custom (PT)</option>
+                    </select>
+
+                    {/* Pilih Orientasi (Sembunyikan jika mode Custom) */}
+                    {paperSize !== 'custom' && (
+                        <select
+                            value={orientation}
+                            onChange={(e) => setOrientation(e.target.value)}
+                            className="cursor-pointer border border-black bg-white px-3 py-1 text-xs font-bold uppercase outline-none"
+                        >
+                            <option value="landscape">Landscape</option>
+                            <option value="portrait">Portrait</option>
+                        </select>
+                    )}
+
+                    {/* Input untuk mode Custom (Muncul jika ukuran diset ke Custom) */}
+                    {paperSize === 'custom' && (
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold uppercase">W:</span>
+                            <input
+                                type="number"
+                                value={customWidth}
+                                onChange={(e) => setCustomWidth(Number(e.target.value))}
+                                className="w-20 border border-black px-2 py-1 text-xs outline-none"
+                                placeholder="Width"
+                            />
+                            <span className="text-xs font-bold uppercase">H:</span>
+                            <input
+                                type="number"
+                                value={customHeight}
+                                onChange={(e) => setCustomHeight(Number(e.target.value))}
+                                className="w-20 border border-black px-2 py-1 text-xs outline-none"
+                                placeholder="Height"
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Tabel Data */}
@@ -78,7 +149,7 @@ export default function Logs({ logs }: Props) {
                                     </td>
                                     <td className="px-2 py-4 text-right">
                                         <a
-                                            href={`/finance/funding/${log.id}/print`}
+                                            href={getPrintUrl(log.id)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="inline-block bg-black px-4 py-2 text-xs font-bold tracking-wider text-white uppercase transition-all hover:bg-transparent hover:text-black hover:ring-2 hover:ring-black hover:ring-inset"
@@ -104,7 +175,6 @@ export default function Logs({ logs }: Props) {
                 {logs.links && logs.links.length > 3 && (
                     <div className="flex flex-wrap justify-end gap-2">
                         {logs.links.map((link, index) => {
-                            // Jika URL null (misal: tombol 'Previous' di halaman 1), render text biasa
                             if (link.url === null) {
                                 return (
                                     <div
@@ -115,15 +185,12 @@ export default function Logs({ logs }: Props) {
                                 );
                             }
 
-                            // Jika ada URL, render komponen Link Inertia
                             return (
                                 <Link
                                     key={index}
                                     href={link.url}
                                     className={`border border-black px-4 py-2 text-sm font-bold uppercase transition-colors ${
-                                        link.active
-                                            ? 'bg-black text-white' // Style untuk halaman aktif
-                                            : 'bg-white text-black hover:bg-black hover:text-white' // Style untuk halaman lain
+                                        link.active ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />

@@ -81,7 +81,7 @@
     <table class="info-table">
         <tr>
             <td class="label">Instansi / Universitas</td>
-            <td class="value">{{ $funding->university->name ?? 'Tidak Tersedia' }}</td>
+            <td class="value">{{ $funding->contract->university->name ?? 'Tidak Tersedia' }}</td>
         </tr>
         <tr>
             <td class="label">Pembayaran Termin Ke</td>
