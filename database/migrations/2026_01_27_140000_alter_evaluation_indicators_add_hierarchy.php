@@ -38,16 +38,18 @@ return new class extends Migration
             $table->index('sub_category_id');
         });
 
-        // Update column comments to mark old columns as DEPRECATED
-        DB::statement("ALTER TABLE evaluation_indicators 
-            MODIFY category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
+        if (DB::getDriverName() === 'mysql') {
+            // Update column comments to mark old columns as DEPRECATED
+            DB::statement("ALTER TABLE evaluation_indicators 
+                MODIFY category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
 
-        DB::statement("ALTER TABLE evaluation_indicators 
-            MODIFY sub_category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
+            DB::statement("ALTER TABLE evaluation_indicators 
+                MODIFY sub_category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
 
-        // Make category nullable for new indicators created via hierarchy
-        DB::statement('ALTER TABLE evaluation_indicators 
-            MODIFY category VARCHAR(100) NULL');
+            // Make category nullable for new indicators created via hierarchy
+            DB::statement('ALTER TABLE evaluation_indicators 
+                MODIFY category VARCHAR(100) NULL');
+        }
     }
 
     /**
@@ -70,11 +72,13 @@ return new class extends Migration
             $table->dropColumn('sub_category_id');
         });
 
-        // Revert comments to v1.0 state (remove DEPRECATED warnings)
-        DB::statement("ALTER TABLE evaluation_indicators 
-            MODIFY category VARCHAR(100) NOT NULL COMMENT 'Kategori utama, e.g., Kelengkapan Administrasi'");
+        if (DB::getDriverName() === 'mysql') {
+            // Revert comments to v1.0 state (remove DEPRECATED warnings)
+            DB::statement("ALTER TABLE evaluation_indicators 
+                MODIFY category VARCHAR(100) NOT NULL COMMENT 'Kategori utama, e.g., Kelengkapan Administrasi'");
 
-        DB::statement("ALTER TABLE evaluation_indicators 
-            MODIFY sub_category VARCHAR(100) NULL COMMENT 'Sub-kategori (optional)'");
+            DB::statement("ALTER TABLE evaluation_indicators 
+                MODIFY sub_category VARCHAR(100) NULL COMMENT 'Sub-kategori (optional)'");
+        }
     }
 };
