@@ -213,8 +213,12 @@ class PublicJournalController extends Controller
 
         // Get article statistics by year
         $articlesCount = $journal->articles()->count();
+        $yearExpression = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
+            ? "strftime('%Y', publication_date)"
+            : "YEAR(publication_date)";
+
         $articlesByYear = $journal->articles()
-            ->selectRaw('YEAR(publication_date) as year, COUNT(*) as count')
+            ->selectRaw("{$yearExpression} as year, COUNT(*) as count")
             ->groupBy('year')
             ->orderBy('year', 'desc')
             ->limit(5)
@@ -284,13 +288,16 @@ class PublicJournalController extends Controller
         // Get university statistics (cached for 1 hour)
         $universityStats = Cache::remember('browse.universities.stats', 3600, function () {
             return University::where('is_active', true)
+                ->whereHas('journals', function ($query) {
+                    $query->where('is_active', true)
+                        ->where('approval_status', 'approved');
+                })
                 ->withCount([
                     'journals' => function ($query) {
                         $query->where('is_active', true)
                             ->where('approval_status', 'approved');
                     },
                 ])
-                ->having('journals_count', '>', 0)
                 ->orderBy('name')
                 ->get(['id', 'name', 'code', 'short_name']);
         });

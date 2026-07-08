@@ -77,13 +77,18 @@ class AssessmentController extends Controller
             ->sort()
             ->values();
 
+        $yearExpression = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
+            ? "strftime('%Y', assessment_date)"
+            : "YEAR(assessment_date)";
+
         $availableYears = JournalAssessment::whereHas('journal', function ($query) use ($user) {
             $query->where('university_id', $user->university_id);
         })
-            ->selectRaw('DISTINCT YEAR(assessment_date) as year')
+            ->selectRaw("DISTINCT {$yearExpression} as year")
             ->whereNotNull('assessment_date')
             ->orderBy('year', 'desc')
-            ->pluck('year');
+            ->pluck('year')
+            ->map(fn($y) => (int) $y);
 
         return Inertia::render('AdminKampus/Assessments/Index', [
             'assessments' => $assessments,

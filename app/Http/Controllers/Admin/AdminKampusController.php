@@ -311,7 +311,7 @@ class AdminKampusController extends Controller
 
         // Get managed users count
         $managedUsersCount = User::where('university_id', $adminKampu->university_id)
-            ->whereHas('role', fn ($q) => $q->where('name', 'user'))
+            ->whereHas('role', fn ($q) => $q->whereIn('name', ['User', 'user']))
             ->count();
 
         return Inertia::render('Admin/AdminKampus/Show', [
@@ -445,7 +445,7 @@ class AdminKampusController extends Controller
 
         // Check if Admin Kampus has managed users
         $managedUsersCount = User::where('university_id', $adminKampu->university_id)
-            ->whereHas('role', fn ($q) => $q->where('name', 'user'))
+            ->whereHas('role', fn ($q) => $q->whereIn('name', ['User', 'user']))
             ->count();
 
         if ($managedUsersCount > 0) {

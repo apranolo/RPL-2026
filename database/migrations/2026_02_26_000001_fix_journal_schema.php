@@ -20,6 +20,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('journals', function (Blueprint $table) {
+            if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+                $table->dropIndex(['accreditation_expiry_date']);
+            }
+
             $columnsToDrop = array_filter(
                 ['dikti_accreditation_number', 'accreditation_issued_date', 'accreditation_expiry_date'],
                 fn ($col) => Schema::hasColumn('journals', $col)
@@ -45,6 +49,7 @@ return new class extends Migration
             }
             if (! Schema::hasColumn('journals', 'accreditation_expiry_date')) {
                 $table->date('accreditation_expiry_date')->nullable();
+                $table->index('accreditation_expiry_date');
             }
         });
     }

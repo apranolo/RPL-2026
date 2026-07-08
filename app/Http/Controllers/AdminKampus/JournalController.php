@@ -189,8 +189,12 @@ class JournalController extends Controller
             ->map(fn ($name) => ['value' => $name, 'label' => $name])
             ->values();
 
+        $yearExpression = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
+            ? "strftime('%Y', registered_at)"
+            : "YEAR(registered_at)";
+
         $pembinaanYears = \App\Models\PembinaanRegistration::query()
-            ->selectRaw('YEAR(registered_at) as year')
+            ->selectRaw("{$yearExpression} as year")
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year')
