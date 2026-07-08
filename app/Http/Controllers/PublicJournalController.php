@@ -215,7 +215,7 @@ class PublicJournalController extends Controller
         $articlesCount = $journal->articles()->count();
         $yearExpression = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
             ? "strftime('%Y', publication_date)"
-            : "YEAR(publication_date)";
+            : 'YEAR(publication_date)';
 
         $articlesByYear = $journal->articles()
             ->selectRaw("{$yearExpression} as year, COUNT(*) as count")

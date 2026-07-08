@@ -191,7 +191,7 @@ class JournalController extends Controller
 
         $yearExpression = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
             ? "strftime('%Y', registered_at)"
-            : "YEAR(registered_at)";
+            : 'YEAR(registered_at)';
 
         $pembinaanYears = \App\Models\PembinaanRegistration::query()
             ->selectRaw("{$yearExpression} as year")
