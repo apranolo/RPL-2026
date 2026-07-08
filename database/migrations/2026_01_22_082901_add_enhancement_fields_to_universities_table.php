@@ -26,12 +26,10 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('universities', function (Blueprint $table) {
+            $table->dropUnique(['ptm_code']);
             $table->dropColumn([
                 'ptm_code',
                 'accreditation_status',
