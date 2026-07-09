@@ -8,12 +8,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+/**
+ * Kontroler untuk pemantauan dan pelaporan administrasi keuangan.
+ *
+ * @route /finance/reports
+ * @features Ringkasan nilai kontrak, dana yang telah dicairkan, dan sisa saldo.
+ */
 class FinanceReportController extends Controller
 {
     public function index(Request $request)
     {
-        $year = (int) $request->get('year', now()->year);
-        $scheme = (string) $request->get('scheme', 'all');
+        $validated = $request->validate([
+            'year' => ['nullable', 'integer', 'min:2000', 'max:' . now()->year],
+            'scheme' => ['nullable', 'string', 'in:all,' . implode(',', array_keys(Contract::getStatusOptions()))],
+        ]);
+
+        $year = $validated['year'] ?? now()->year;
+        $scheme = $validated['scheme'] ?? 'all';
 
         $summary = $this->summary($year, $scheme);
 
@@ -23,21 +34,29 @@ class FinanceReportController extends Controller
                 'year' => $year,
                 'scheme' => $scheme,
             ],
+            'schemeOptions' => $this->getSchemeOptions(),
         ]);
     }
 
     public function summary($year = null, $scheme = 'all')
     {
         $year = $year ? (int) $year : now()->year;
-        $scheme = $scheme ?? 'all';
+        $scheme = in_array($scheme, array_merge(['all'], array_keys(Contract::getStatusOptions())), true)
+            ? $scheme
+            : 'all';
 
         $contracts = Contract::query()
             ->with(['university:id,name,short_name,code'])
+            ->when(auth()->check() && auth()->user()->isAdminKampus(), function (Builder $query) {
+                $query->where('university_id', auth()->user()->university_id);
+            })
             ->when($year, function (Builder $query) use ($year) {
                 $query->where(function (Builder $subQuery) use ($year) {
                     $subQuery->whereYear('signed_at', $year)
-                        ->orWhereYear('start_date', $year)
-                        ->orWhereYear('created_at', $year);
+                        ->orWhere(function (Builder $inner) use ($year) {
+                            $inner->whereNull('signed_at')
+                                ->whereYear('start_date', $year);
+                        });
                 });
             })
             ->when($scheme !== 'all', function (Builder $query) use ($scheme) {
@@ -48,7 +67,6 @@ class FinanceReportController extends Controller
                     $query->where('status', Funding::STATUS_DISBURSED);
                 },
             ], 'amount')
-            ->withSum('fundings as funding_total', 'amount')
             ->get();
 
         $totalContractValue = (float) $contracts->sum(fn (Contract $contract) => (float) $contract->contract_value);
@@ -83,9 +101,25 @@ class FinanceReportController extends Controller
 
     public function filter(Request $request)
     {
-        $year = (int) $request->get('year', now()->year);
-        $scheme = (string) $request->get('scheme', 'all');
+        $validated = $request->validate([
+            'year' => ['nullable', 'integer', 'min:2000', 'max:' . now()->year],
+            'scheme' => ['nullable', 'string', 'in:all,' . implode(',', array_keys(Contract::getStatusOptions()))],
+        ]);
+
+        $year = $validated['year'] ?? now()->year;
+        $scheme = $validated['scheme'] ?? 'all';
 
         return response()->json($this->summary($year, $scheme));
+    }
+
+    private function getSchemeOptions(): array
+    {
+        return array_merge(
+            [['value' => 'all', 'label' => 'Semua Skema']],
+            collect(Contract::getStatusOptions())
+                ->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])
+                ->values()
+                ->all()
+        );
     }
 }

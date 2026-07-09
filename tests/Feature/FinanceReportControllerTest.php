@@ -3,52 +3,28 @@
 use App\Http\Controllers\FinanceReportController;
 use App\Models\Contract;
 use App\Models\Funding;
+use App\Models\Proposal;
 use App\Models\University;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 it('builds finance report summary from contracts and fundings', function () {
-    Schema::dropIfExists('fundings');
-    Schema::dropIfExists('contracts');
-    Schema::dropIfExists('universities');
+    $university = University::factory()->create([
+        'name' => 'Universitas Tes',
+    ]);
 
-    Schema::create('universities', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->timestamps();
-    });
-
-    Schema::create('contracts', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('university_id')->nullable()->constrained('universities');
-        $table->string('contract_number')->unique();
-        $table->string('title');
-        $table->string('status')->default('active');
-        $table->decimal('contract_value', 12, 2)->default(0);
-        $table->date('signed_at')->nullable();
-        $table->date('start_date')->nullable();
-        $table->date('end_date')->nullable();
-        $table->timestamps();
-    });
-
-    Schema::create('fundings', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('contract_id')->constrained('contracts');
-        $table->string('funding_number');
-        $table->decimal('amount', 12, 2)->default(0);
-        $table->string('status')->default('disbursed');
-        $table->timestamp('paid_at')->nullable();
-        $table->timestamps();
-    });
-
-    $university = University::create(['name' => 'Universitas Tes']);
+    $proposal = Proposal::factory()->create();
 
     $contract = Contract::create([
         'university_id' => $university->id,
+        'proposal_id' => $proposal->id,
         'contract_number' => 'CT-001',
         'title' => 'Kontrak Hibah Penelitian',
         'status' => 'active',
         'contract_value' => 1000000,
+        'party_1' => 'Pihak A',
+        'party_2' => 'Pihak B',
         'signed_at' => '2025-03-01',
         'start_date' => '2025-03-01',
         'end_date' => '2025-12-31',
@@ -57,8 +33,10 @@ it('builds finance report summary from contracts and fundings', function () {
     Funding::create([
         'contract_id' => $contract->id,
         'funding_number' => 'TERMIN-1',
+        'description' => 'Termin pertama',
         'amount' => 400000,
-        'status' => 'disbursed',
+        'percentage' => 40,
+        'status' => Funding::STATUS_DISBURSED,
         'paid_at' => '2025-04-01 00:00:00',
     ]);
 

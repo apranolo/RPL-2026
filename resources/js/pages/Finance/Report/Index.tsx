@@ -36,12 +36,18 @@ interface Filters {
     scheme: string;
 }
 
+interface SchemeOption {
+    value: string;
+    label: string;
+}
+
 interface Props {
     summary: Summary;
     filters: Filters;
+    schemeOptions: SchemeOption[];
 }
 
-export default function Index({ summary, filters }: Props) {
+export default function Index({ summary, filters, schemeOptions }: Props) {
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -106,7 +112,7 @@ export default function Index({ summary, filters }: Props) {
                     </Card>
                 </div>
 
-                <FilterBar currentYear={filters.year} currentScheme={filters.scheme} />
+                <FilterBar currentYear={filters.year} currentScheme={filters.scheme} schemeOptions={schemeOptions} />
 
                 <Card>
                     <CardHeader>

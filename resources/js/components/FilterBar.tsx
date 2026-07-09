@@ -5,12 +5,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
+interface SchemeOption {
+    value: string;
+    label: string;
+}
+
 interface FilterBarProps {
     currentYear?: number;
     currentScheme?: string;
+    schemeOptions?: SchemeOption[];
 }
 
-export function FilterBar({ currentYear, currentScheme }: FilterBarProps) {
+export function FilterBar({ currentYear, currentScheme, schemeOptions = [] }: FilterBarProps) {
     const [year, setYear] = useState(currentYear || new Date().getFullYear());
     const [scheme, setScheme] = useState(currentScheme || 'all');
 
@@ -21,13 +27,15 @@ export function FilterBar({ currentYear, currentScheme }: FilterBarProps) {
 
     const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
 
-    const schemes = [
-        { value: 'all', label: 'Semua Skema' },
-        { value: 'draft', label: 'Draft' },
-        { value: 'active', label: 'Aktif' },
-        { value: 'completed', label: 'Selesai' },
-        { value: 'cancelled', label: 'Dibatalkan' },
-    ];
+    const schemes = schemeOptions.length > 0
+        ? schemeOptions
+        : [
+            { value: 'all', label: 'Semua Skema' },
+            { value: 'draft', label: 'Draft' },
+            { value: 'active', label: 'Aktif' },
+            { value: 'completed', label: 'Selesai' },
+            { value: 'cancelled', label: 'Dibatalkan' },
+        ];
 
     const handleFilter = () => {
         router.get(
@@ -65,7 +73,7 @@ export function FilterBar({ currentYear, currentScheme }: FilterBarProps) {
                 <div className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
                         <Label htmlFor="year">Tahun</Label>
-                        <Select value={year.toString()} onValueChange={(value) => setYear(parseInt(value))}>
+                        <Select id="year" value={year.toString()} onValueChange={(value) => setYear(parseInt(value))}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Pilih tahun" />
                             </SelectTrigger>
@@ -81,7 +89,7 @@ export function FilterBar({ currentYear, currentScheme }: FilterBarProps) {
 
                     <div className="space-y-2">
                         <Label htmlFor="scheme">Skema</Label>
-                        <Select value={scheme} onValueChange={setScheme}>
+                        <Select id="scheme" value={scheme} onValueChange={setScheme}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Pilih skema" />
                             </SelectTrigger>
