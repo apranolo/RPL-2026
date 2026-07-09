@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
-use App\Models\Article;
+use App\Models\Issue;
 use Illuminate\Support\Facades\DB;
 
 class IssueController extends Controller
@@ -13,21 +13,22 @@ class IssueController extends Controller
         DB::beginTransaction();
 
         try {
-            Article::where('journal_id', $journalId)
+            $issueModel = Issue::where('journal_id', $journalId)
                 ->where('volume', $volume)
-                ->where('issue', $issue)
-                ->update([
-                    'publication_date' => now()
-                ]);
+                ->where('number', $issue)
+                ->firstOrFail();
+
+            $issueModel->update([
+                'status' => 'Published',
+                'publication_date' => now(),
+            ]);
 
             DB::commit();
 
             return response()->json([
-                'message' => "Issue Vol $volume No $issue berhasil dipublish"
+                'message' => "Issue Vol {$volume} No {$issue} berhasil dipublish",
             ]);
-
-        } catch (\Exception $e) {
-
+        } catch (\Throwable $e) {
             DB::rollBack();
 
             return response()->json([
