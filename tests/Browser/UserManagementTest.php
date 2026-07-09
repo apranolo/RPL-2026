@@ -217,7 +217,7 @@ class UserManagementTest extends DuskTestCase
                 ->visit('/admin-kampus/users')
                 ->waitForText('User Management', 15)
                 ->assertSee($this->testUser->name)
-                ->click('button[aria-label="View details for '.$this->testUser->name.'"]')
+                ->click('a[href$="/admin-kampus/users/'.$this->testUser->id.'"]')
                 ->waitForText($this->testUser->email, 10)
                 ->assertSee($this->testUser->email);
         });
@@ -231,7 +231,7 @@ class UserManagementTest extends DuskTestCase
                 ->visit('/admin-kampus/users')
                 ->waitForText('User Management', 15)
                 ->assertSee($this->testUser->name)
-                ->click('button[aria-label="Edit '.$this->testUser->name.'"]')
+                ->click('a[href$="/admin-kampus/users/'.$this->testUser->id.'/edit"]')
                 ->waitForText('Personal Information', 10)
                 ->assertSee('Personal Information')
                 ->assertInputValue('input[id="name"]', $this->testUser->name);
@@ -246,7 +246,7 @@ class UserManagementTest extends DuskTestCase
                 ->visit('/admin-kampus/users')
                 ->waitForText('User Management', 15)
                 ->assertSee($this->testUser->name)
-                ->click('button[aria-label="Edit '.$this->testUser->name.'"]')
+                ->click('a[href$="/admin-kampus/users/'.$this->testUser->id.'/edit"]')
                 ->waitFor('input[id="name"]', 10)
                 ->clear('input[id="name"]')
                 ->type('input[id="name"]', 'Updated User Name')
@@ -267,7 +267,7 @@ class UserManagementTest extends DuskTestCase
                 ->visit('/admin-kampus/users')
                 ->waitForText('User Management', 15)
                 ->assertSee($this->testUser->name)
-                ->click('button[aria-label="View details for '.$this->testUser->name.'"]')
+                ->click('a[href$="/admin-kampus/users/'.$this->testUser->id.'"]')
                 ->waitForText($this->testUser->name, 10)
                 ->assertSee($this->testUser->name);
 
@@ -299,7 +299,7 @@ class UserManagementTest extends DuskTestCase
         // Verify user exists
         $this->assertDatabaseHas('users', ['email' => 'delete.me@uad.ac.id']);
 
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser) use ($deleteUser) {
             // Navigate from index - search for the delete user first
             $browser->loginAs($this->adminKampus)
                 ->visit('/admin-kampus/users')
@@ -313,7 +313,7 @@ class UserManagementTest extends DuskTestCase
             $browser->script('window.confirm = function() { return true; };');
 
             // Click the View Details button specifically for "Delete Me User"
-            $browser->click('button[aria-label="View details for Delete Me User"]')
+            $browser->click('a[href$="/admin-kampus/users/'.$deleteUser->id.'"]')
                 ->waitForText('Delete Me User', 10);
 
             // Click delete button
@@ -355,7 +355,7 @@ class UserManagementTest extends DuskTestCase
                 ->assertSee('Test User UAD');
 
             // Navigate to user detail page specifically for Test User UAD
-            $browser->click('button[aria-label="View details for Test User UAD"]')
+            $browser->click('a[href$="/admin-kampus/users/'.$this->testUser->id.'"]')
                 ->waitForText($this->testUser->email, 10)
                 ->assertSee($this->testUser->email);
 
@@ -441,6 +441,7 @@ class UserManagementTest extends DuskTestCase
                 ->type('input[id="email"]', $this->testUser->email)
                 ->type('input[id="password"]', 'password123')
                 ->type('input[id="password_confirmation"]', 'password123')
+                ->click('#role-'.$this->userRole->id)
                 ->press('Create User')
                 ->waitForText('The email has already been taken.', 10);
 

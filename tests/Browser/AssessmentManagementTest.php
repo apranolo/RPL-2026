@@ -39,6 +39,7 @@ class AssessmentManagementTest extends DuskTestCase
             'user_id' => $user->id,
             'university_id' => $university->id,
             'title' => 'My Journal',
+            'is_active' => true,
         ]);
 
         // Seed indicators
@@ -85,6 +86,7 @@ class AssessmentManagementTest extends DuskTestCase
         $journal = Journal::factory()->create([
             'user_id' => $user->id,
             'university_id' => $university->id,
+            'is_active' => true,
         ]);
 
         EvaluationIndicator::create([

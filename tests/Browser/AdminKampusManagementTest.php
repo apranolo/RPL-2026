@@ -434,11 +434,11 @@ class AdminKampusManagementTest extends DuskTestCase
                 ->waitForText('Create New Admin Kampus')
                 ->pause(1500)
                 // Verify the form can be loaded and email field exists
-                ->assertPresent('input[id="email"]')
-                ->click('input[id="email"]')
-                ->type('input[id="email"]', 'existing@uad.ac.id')
+                ->assertPresent('#email')
+                ->click('#email')
+                ->type('#email', 'existing@uad.ac.id')
                 // Verify the email is typed correctly
-                ->assertInputValue('input[id="email"]', 'existing@uad.ac.id');
+                ->assertInputValue('#email', 'existing@uad.ac.id');
         });
 
         // Verify that the existing email is still in database

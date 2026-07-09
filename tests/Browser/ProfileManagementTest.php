@@ -293,19 +293,18 @@ class ProfileManagementTest extends DuskTestCase
         });
     }
 
-    /**
-     * @test Submitting empty name shows a validation error.
-     */
     public function test_profil_edit_validates_required_name(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/user/profil/edit')
                 ->waitForText('Edit Profil', 10)
-                ->script("document.getElementById('name').removeAttribute('required');");
+                ->script([
+                    "document.getElementById('name').removeAttribute('required');",
+                    "const input = document.getElementById('name'); input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));",
+                ]);
 
-            $browser->clear('name')
-                ->press('Simpan Perubahan')
+            $browser->press('Simpan Perubahan')
                 ->waitFor('.text-red-600, [class*="error"], .text-destructive', 10);
 
             $browser->assertPresent('.text-red-600, [class*="error"], .text-destructive');
