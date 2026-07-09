@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
-use App\Models\Article;
 use App\Models\Issue;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -54,7 +53,7 @@ class IssueController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => "Issue Vol {$volume} No {$issue} berhasil dipublish.",
+                'message' => "Issue Vol {$volume} No {$issue} berhasil dipublish",
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
