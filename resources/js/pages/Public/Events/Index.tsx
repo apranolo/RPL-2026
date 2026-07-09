@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PublicLayout from '@/layouts/public-layout';
 import { PaginatedData } from '@/types';
+
 import { Head, Link, router } from '@inertiajs/react';
 import { CalendarDays, Clock, MapPin, Search } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
