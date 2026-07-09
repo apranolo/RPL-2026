@@ -507,12 +507,6 @@ Route::middleware(['auth'])->group(function () {
             [IssueController::class, 'publish']
         )->name('journals.issues.publish');
 
-        //Back Issues
-        Route::get(
-            '/production/{journalId}/back-issues',
-            [IssueController::class, 'backIssues']
-        )->name('production.issue.back-issues');
-
         // Assessments Management
         Route::prefix('assessments')->name('assessments.')->group(function () {
             Route::get('/', [AssessmentController::class, 'index'])
