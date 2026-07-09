@@ -30,6 +30,9 @@ return new class extends Migration
     {
         Schema::table('universities', function (Blueprint $table) {
             $table->dropUnique(['ptm_code']);
+        });
+
+        Schema::table('universities', function (Blueprint $table) {
             $table->dropColumn([
                 'ptm_code',
                 'accreditation_status',

@@ -21,6 +21,8 @@ class AssessmentManagementTest extends DuskTestCase
         Browser::macro('captureResponse', function () {
             // Helper to capture content if needed for debug
             file_put_contents('debug.html', $this->driver->getPageSource());
+
+            return $this;
         });
     }
 
