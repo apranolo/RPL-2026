@@ -56,12 +56,13 @@ class AssessmentManagementTest extends DuskTestCase
             $browser->loginAs($user)
                 ->visit('/user/assessments/create')
                 ->captureResponse()
+                ->waitForText('Buat Assessment Baru', 10)
                 ->assertSee('Buat Assessment Baru')
                 // Shadcn UI Select is not a standard select element.
                 // We need to trigger it.
-                ->waitFor('button[role="combobox"]')
+                ->waitFor('button[role="combobox"]', 10)
                 ->click('button[role="combobox"]') // SelectTrigger is usually a button
-                ->waitForText($journal->title)
+                ->waitForText($journal->title, 10)
                 ->click("div[role='option']:first-child") // Or find by text
                 ->type('assessment_date', '2025-01-01')
                 // Click the label for the radio button
@@ -99,7 +100,8 @@ class AssessmentManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($user, $journal) {
             $browser->loginAs($user)
                 ->visit('/user/assessments/create')
-                ->waitFor('button[role="combobox"]')
+                ->waitForText('Buat Assessment Baru', 10)
+                ->waitFor('button[role="combobox"]', 10)
                 ->click('button[role="combobox"]')
                 ->waitForText($journal->title)
                 ->click("div[role='option']:first-child")

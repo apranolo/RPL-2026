@@ -165,7 +165,7 @@ class DashboardStatisticsTest extends DuskTestCase
             $browser->loginAs($user1)
                 ->visit('/dashboard')
                 ->waitForText('Total Jurnal')
-                ->with('div.grid.gap-4.md\:grid-cols-4', function (Browser $card) {
+                ->with('div.grid.gap-4.md\:grid-cols-4 > div:first-child', function (Browser $card) {
                     $card->assertSee('5')
                         ->assertDontSee('10');
                 })
@@ -299,13 +299,12 @@ class DashboardStatisticsTest extends DuskTestCase
             ]);
 
             $browser->loginAs($user)
-                ->visit('/dashboard')
-                ->waitForText('Total Jurnal')
-                // Find and click theme toggle button
-                ->whenAvailable('button[aria-label*="theme" i]', function ($toggle) {
-                    $toggle->click();
-                })
+                ->visit('/settings/appearance')
+                ->waitForText('Appearance settings', 10)
+                ->press('Dark')
                 ->pause(500) // Wait for theme transition
+                ->visit('/dashboard')
+                ->waitForText('Total Jurnal', 10)
                 // Charts should still be visible after theme change
                 ->assertPresent('.apexcharts-canvas')
                 ->assertSee('Total Jurnal');

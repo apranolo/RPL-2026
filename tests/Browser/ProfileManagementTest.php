@@ -193,10 +193,10 @@ class ProfileManagementTest extends DuskTestCase
                 ->type('password', 'NewPassword456!')
                 ->type('password_confirmation', 'NewPassword456!')
                 ->press('Save password')
-                ->waitFor('.text-destructive, [class*="error"], [class*="Error"]', 10);
+                ->waitFor('.text-red-600, .text-destructive, [class*="error"], [class*="Error"]', 10);
 
             // An error should be shown for current_password field
-            $browser->assertPresent('.text-destructive, [class*="error"]');
+            $browser->assertPresent('.text-red-600, .text-destructive, [class*="error"]');
         });
     }
 
@@ -240,7 +240,7 @@ class ProfileManagementTest extends DuskTestCase
             $browser->loginAs($this->user)
                 ->visit('/user/profil')
                 ->waitForText('Notifikasi', 10)
-                ->click('button[value="notifications"]')
+                ->press('Notifikasi')
                 ->waitForText('Belum Ada Notifikasi', 5);
         });
     }
@@ -306,9 +306,9 @@ class ProfileManagementTest extends DuskTestCase
 
             $browser->clear('name')
                 ->press('Simpan Perubahan')
-                ->waitFor('[class*="error"], .text-destructive', 10);
+                ->waitFor('.text-red-600, [class*="error"], .text-destructive', 10);
 
-            $browser->assertPresent('[class*="error"], .text-destructive');
+            $browser->assertPresent('.text-red-600, [class*="error"], .text-destructive');
         });
     }
 }

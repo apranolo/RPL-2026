@@ -432,9 +432,10 @@ class AdminKampusManagementTest extends DuskTestCase
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus/create')
                 ->waitForText('Create New Admin Kampus')
-                ->pause(1000)
+                ->pause(1500)
                 // Verify the form can be loaded and email field exists
                 ->assertPresent('input[id="email"]')
+                ->click('input[id="email"]')
                 ->type('input[id="email"]', 'existing@uad.ac.id')
                 // Verify the email is typed correctly
                 ->assertInputValue('input[id="email"]', 'existing@uad.ac.id');
