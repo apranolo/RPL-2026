@@ -93,6 +93,37 @@ class User extends Authenticatable
     }
 
     /**
+     * Get journal roles of this user
+     */
+    public function userRoles()
+    {
+        return $this->hasMany(UserRole::class, 'user_id');
+    }
+
+    /**
+     * Check if user has a role in a specific journal
+     */
+    public function hasJournalRole(string $roleName, $journalId = null): bool
+    {
+        return $this->userRoles()
+            ->where('role_name', $roleName)
+            ->where('id_journal', $journalId)
+            ->where('status', 'Active')
+            ->exists();
+    }
+
+    /**
+     * Check if user has a role in any journal
+     */
+    public function hasRoleInAnyJournal(string $roleName): bool
+    {
+        return $this->userRoles()
+            ->where('role_name', $roleName)
+            ->where('status', 'Active')
+            ->exists();
+    }
+
+    /**
      * Get the university of this user
      */
     public function university()
