@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
-class ReviewAssignment extends Model
+class ReviewerAssignment extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -22,6 +22,7 @@ class ReviewAssignment extends Model
         'assigned_by',
         'assigned_at',
         'status',
+        'reason',
         'updated_by',
         'deleted_by',
     ];
