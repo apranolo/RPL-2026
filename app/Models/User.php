@@ -13,6 +13,44 @@ class User extends Authenticatable
     use HasFactory, Notifiable, SoftDeletes;
 
     /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::updating(function ($user) {
+            if ($user->isDirty('role_id')) {
+                $oldRoleId = $user->getOriginal('role_id');
+                if ($oldRoleId) {
+                    $user->roles()->detach($oldRoleId);
+                }
+            }
+        });
+
+        static::saved(function ($user) {
+            // Sync primary role_id to user_roles
+            if ($user->role_id) {
+                $user->roles()->syncWithoutDetaching([$user->role_id => [
+                    'assigned_at' => now(),
+                    'assigned_by' => auth()->id() ?? $user->approved_by,
+                ]]);
+            }
+
+            // Sync is_reviewer flag to Reviewer role
+            $reviewerRole = Role::where('name', Role::REVIEWER)->first();
+            if ($reviewerRole) {
+                if ($user->is_reviewer) {
+                    $user->roles()->syncWithoutDetaching([$reviewerRole->id => [
+                        'assigned_at' => now(),
+                        'assigned_by' => auth()->id() ?? $user->approved_by,
+                    ]]);
+                } else {
+                    $user->roles()->detach($reviewerRole->id);
+                }
+            }
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
