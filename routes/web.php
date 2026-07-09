@@ -31,6 +31,7 @@ use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\FundingController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -146,6 +147,10 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard Keuangan
     Route::middleware(['role:Keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'keuanganDashboard'])->name('dashboard');
+
+        // Funding termin (Keuangan) - input termin pencairan
+        Route::get('fundings/create', [FundingController::class, 'create'])->name('fundings.create');
+        Route::post('fundings/termin', [FundingController::class, 'storeTermin'])->name('fundings.storeTermin');
     });
 
     /*

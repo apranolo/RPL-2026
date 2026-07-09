@@ -100,10 +100,10 @@ Pembagian tugas ini difokuskan 100% pada **Pengembangan Fitur (Development)**, b
 | Buat view detail draft kontrak penelitian | `resources/js/pages/Finance/Contract/Show.tsx` | - | GILANG JA'FAR PRASETYA | generate() |
 | Buat method controller ubah status kontrak | `app/Http/Controllers/ContractController.php` | `updateStatus()`| GILANG JA'FAR PRASETYA | - |
 | Buat badge component status (Aktif/Selesai) | `resources/js/components/StatusBadge.tsx` | - | GILANG JA'FAR PRASETYA | - |
-| Buat method controller input termin pencairan | `app/Http/Controllers/FundingController.php` | `storeTermin()` | AKMAL PUTRA RAIHAN | Model Funding |
-| Buat view form pencairan dana termin (Keuangan) | `resources/js/pages/Finance/Funding/Create.tsx` | - | AKMAL PUTRA RAIHAN | storeTermin() |
-| Buat request class validasi nominal dana | `app/Http/Requests/StoreFundingRequest.php` | `rules()` | AKMAL PUTRA RAIHAN | - |
-| Buat method service hitung sisa dana kontrak | `app/Services/FundingService.php` | `calculateSisa()`| AKMAL PUTRA RAIHAN | - |
+| Buat method controller input termin pencairan | `app/Http/Controllers/FundingController.php` | `storeTermin()` | Akmal Putra Raihan | Model Funding |
+| Buat view form pencairan dana termin (Keuangan) | `resources/js/pages/Finance/Funding/Create.tsx` | - | Akmal Putra Raihan | storeTermin() |
+| Buat request class validasi nominal dana | `app/Http/Requests/StoreFundingRequest.php` | `rules()` | Akmal Putra Raihan | - |
+| Buat method service hitung sisa dana kontrak | `app/Services/FundingService.php` | `calculateSisa()`| Akmal Putra Raihan | - |
 | Buat method controller list pendanaan per Dosen | `app/Http/Controllers/UserFundingController.php`| `index()` | HAYQAL AKBAR RIZKY I. | - |
 | Buat view rincian dana cair untuk sisi Dosen | `resources/js/pages/Proposal/FundingInfo.tsx` | - | HAYQAL AKBAR RIZKY I. | index() |
 | Buat method controller upload bukti transfer dana | `app/Http/Controllers/FundingController.php` | `uploadBukti()` | HAYQAL AKBAR RIZKY I. | - |
