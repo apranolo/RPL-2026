@@ -61,6 +61,12 @@ class Contract extends Model
         'deleted_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'nomor_kontrak',
+        'total_pendanaan_disetujui',
+        'status_kontrak',
+    ];
+
     /*
     |--------------------------------------------------------------------------
     | Relationships
@@ -153,6 +159,30 @@ class Contract extends Model
             self::STATUS_CANCELLED => 'red',
             default => 'gray',
         };
+                        ->orWhere('short_name', 'like', "%{$search}%");
+                });
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors & Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    public function getNomorKontrakAttribute(): ?string
+    {
+        return $this->contract_number;
+    }
+
+    public function getTotalPendanaanDisetujuiAttribute(): ?string
+    {
+        return $this->contract_value;
+    }
+
+    public function getStatusKontrakAttribute(): ?string
+    {
+        return $this->status;
     }
 
     /**
