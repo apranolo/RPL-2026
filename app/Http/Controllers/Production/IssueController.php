@@ -65,4 +65,20 @@ class IssueController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Menampilkan daftar Back Issues (arsip issue yang telah dipublish).
+     */
+    public function backIssues($journalId)
+    {
+        $issues = \App\Models\Issue::with('journal')
+            ->where('journal_id', $journalId)
+            ->where('status', 'Published')
+            ->orderByDesc('publication_date')
+            ->get();
+
+        return Inertia::render('Production/Issue/BackIssues', [
+            'issues' => $issues,
+        ]);
+    }
 }
