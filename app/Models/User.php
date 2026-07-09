@@ -105,6 +105,14 @@ class User extends Authenticatable
      */
     public function hasJournalRole(string $roleName, $journalId = null): bool
     {
+        if ($this->relationLoaded('userRoles')) {
+            return $this->userRoles
+                ->where('role_name', $roleName)
+                ->where('id_journal', $journalId)
+                ->where('status', 'Active')
+                ->isNotEmpty();
+        }
+
         return $this->userRoles()
             ->where('role_name', $roleName)
             ->where('id_journal', $journalId)
@@ -117,6 +125,13 @@ class User extends Authenticatable
      */
     public function hasRoleInAnyJournal(string $roleName): bool
     {
+        if ($this->relationLoaded('userRoles')) {
+            return $this->userRoles
+                ->where('role_name', $roleName)
+                ->where('status', 'Active')
+                ->isNotEmpty();
+        }
+
         return $this->userRoles()
             ->where('role_name', $roleName)
             ->where('status', 'Active')

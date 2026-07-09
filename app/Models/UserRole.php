@@ -12,11 +12,16 @@ class UserRole extends Model
 
     protected $fillable = [
         'user_id',
+        'id_user',
         'id_journal',
         'role_name',
         'status',
         'assigned_at',
         'assigned_by',
+    ];
+
+    protected $casts = [
+        'assigned_at' => 'datetime',
     ];
 
     protected $appends = ['id_user'];

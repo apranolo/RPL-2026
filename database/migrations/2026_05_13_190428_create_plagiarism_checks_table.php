@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('plagiarism_checks', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('submission_id');
+            $table->unsignedBigInteger('submission_id')->index();
 
             $table->decimal('similarity_score', 5, 2)->nullable();
             $table->timestamp('checked_at')->nullable();
