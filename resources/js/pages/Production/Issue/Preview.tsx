@@ -7,6 +7,7 @@ interface Article {
     id: number;
     title: string;
     authors: string[] | string;
+
     pages: string;
     doi: string | null;
     article_url: string | null;
