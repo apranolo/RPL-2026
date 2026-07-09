@@ -28,4 +28,37 @@ class UserRoleControllerTest extends TestCase
             ->where('users.0.name', $user->name)
         );
     }
+
+    public function test_admin_can_revoke_user_role()
+    {
+        $this->seed(RoleSeeder::class);
+
+        $admin = User::factory()->superAdmin()->create([
+            'is_active' => true,
+        ]);
+
+        $targetUser = User::factory()->create();
+        $journal = \App\Models\Journal::factory()->create();
+
+        $userRole = \App\Models\UserRole::create([
+            'user_id' => $targetUser->id,
+            'id_journal' => $journal->id,
+            'role_name' => 'Editor',
+            'status' => 'Active',
+        ]);
+
+        $this->assertDatabaseHas('user_roles', [
+            'id' => $userRole->id,
+        ]);
+
+        $response = $this->actingAs($admin)->delete(route('admin.users.revoke', $userRole->id));
+
+        $response->assertRedirect(route('admin.users.index'));
+        $response->assertSessionHas('success', 'Hak akses peran berhasil dicabut.');
+
+        $this->assertDatabaseMissing('user_roles', [
+            'id' => $userRole->id,
+        ]);
+    }
 }
+

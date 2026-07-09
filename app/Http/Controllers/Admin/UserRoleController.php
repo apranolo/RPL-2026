@@ -35,4 +35,17 @@ class UserRoleController extends Controller
             'users' => $users,
         ]);
     }
+
+    /**
+     * Cabut peran jurnal dari pengguna
+     */
+    public function revoke($id)
+    {
+        $userRole = \App\Models\UserRole::findOrFail($id);
+        $userRole->delete();
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Hak akses peran berhasil dicabut.');
+    }
 }
+
