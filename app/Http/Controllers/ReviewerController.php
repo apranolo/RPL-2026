@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PembinaanReview;
+use App\Models\Review;
 use App\Models\ReviewerAssignment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,13 +27,10 @@ class ReviewerController extends Controller
     {
         $user = $request->user();
 
-        $query = ReviewerAssignment::forReviewer($user->id)
+        $query = Review::where('reviewer_id', $user->id)
             ->with([
-                'registration.pembinaan',
-                'registration.journal.university',
-                'registration.journal.scientificField',
-                'registration.user',
-                'assigner',
+                'proposal',
+                'assessmentCriteria',
             ]);
 
         // Apply filters
@@ -40,7 +38,7 @@ class ReviewerController extends Controller
             $query->where('status', $request->status);
         }
 
-        $assignments = $query->orderBy('assigned_at', 'desc')
+        $assignments = $query->orderBy('created_at', 'desc')
             ->paginate(15)
             ->withQueryString();
 

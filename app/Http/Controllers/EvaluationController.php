@@ -16,8 +16,8 @@ class EvaluationController extends Controller
             ->latest()
             ->paginate(10);
 
-        return Inertia::render('Reviewer/Evaluation/Index', [
-            'assignments' => $assignments,
+        return Inertia::render('Reviewer/Index', [
+            'tasks' => $assignments,
         ]);
     }
 }
