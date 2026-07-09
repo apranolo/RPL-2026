@@ -142,6 +142,20 @@ export function AppSidebar() {
         }
 
         roleNavItems = [...adminKampusItems, ...commonNavItems];
+    } else if (user.role.name === 'Reviewer') {
+        roleNavItems = [
+            {
+                title: 'Penugasan',
+                href: route('reviewer.assignments.index'),
+                icon: ClipboardList,
+            },
+            {
+                title: 'Profil Reviewer',
+                href: route('reviewer.profile.show'),
+                icon: UserCheck,
+            },
+            ...commonNavItems,
+        ];
     } else if (user.role.name === ROLE_NAMES.ADMIN_KEUANGAN) {
         roleNavItems = [
             {
