@@ -8,12 +8,13 @@ import { useState } from 'react';
 
 interface FundingLog {
     id: number;
-    termin: string;
-    nominal: number;
+    termin_number: string; // [PERBAIKAN] Sinkronisasi nama atribut
+    amount: number; // [PERBAIKAN] Sinkronisasi nama atribut
     status: string;
     updated_at: string;
-    project?: {
-        name: string;
+    contract?: {
+        // [PERBAIKAN] Relasi diubah dari project ke contract
+        title: string;
     };
     updated_by?: {
         name: string;
@@ -40,7 +41,7 @@ export default function Logs({ logs }: Props) {
     const [customWidth, setCustomWidth] = useState(600);
     const [customHeight, setCustomHeight] = useState(300);
 
-    // Fungsi untuk merakit URL cetak secara dinamis berdasarkan pilihan di atas
+    // Fungsi untuk merakit URL cetak secara dinamis
     const getPrintUrl = (id: number) => {
         let url = `/finance/funding/${id}/print?size=${paperSize}&orientation=${orientation}`;
         if (paperSize === 'custom') {
@@ -90,7 +91,7 @@ export default function Logs({ logs }: Props) {
                         </select>
                     )}
 
-                    {/* Input untuk mode Custom (Muncul jika ukuran diset ke Custom) */}
+                    {/* Input untuk mode Custom */}
                     {paperSize === 'custom' && (
                         <div className="flex items-center gap-2">
                             <span className="text-xs font-bold uppercase">W:</span>
@@ -131,9 +132,10 @@ export default function Logs({ logs }: Props) {
                         <tbody>
                             {logs.data.map((log) => (
                                 <tr key={log.id} className="border-b border-black transition-colors hover:bg-gray-50">
-                                    <td className="px-2 py-4 font-medium">{log.project?.name ?? '-'}</td>
-                                    <td className="px-2 py-4">{log.termin}</td>
-                                    <td className="px-2 py-4 font-mono text-base">Rp {Number(log.nominal).toLocaleString('id-ID')}</td>
+                                    {/* [PERBAIKAN] Pemanggilan variabel yang sudah disesuaikan */}
+                                    <td className="px-2 py-4 font-medium">{log.contract?.title ?? '-'}</td>
+                                    <td className="px-2 py-4">{log.termin_number}</td>
+                                    <td className="px-2 py-4 font-mono text-base">Rp {Number(log.amount).toLocaleString('id-ID')}</td>
                                     <td className="px-2 py-4">
                                         <span className="border border-black px-2 py-1 text-xs font-bold uppercase">{log.status}</span>
                                     </td>
