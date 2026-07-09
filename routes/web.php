@@ -30,6 +30,7 @@ use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
+use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
@@ -139,7 +140,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-// Dashboard Admin
+    // Dashboard Admin
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
     });
@@ -152,8 +153,13 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard Keuangan
     Route::middleware(['role:Keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'keuanganDashboard'])->name('dashboard');
+
+        Route::prefix('contracts')->name('contracts.')->group(function () {
+            Route::get('{contract}/upload', [ContractDocController::class, 'create'])->name('upload');
+            Route::post('documents', [ContractDocController::class, 'store'])->name('documents.store');
+            Route::get('documents/{document}/download', [ContractDocController::class, 'download'])->name('documents.download');
+        });
     });
-    
     /*
     |--------------------------------------------------------------------------
     | Super Admin Routes
@@ -237,7 +243,9 @@ Route::middleware(['auth'])->group(function () {
             ->name('admin-kampus.toggle-active');
 
         // Users (Pengelola Jurnal) Management
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::get('users', [\App\Http\Controllers\Admin\UserRoleController::class, 'index'])->name('users.index');
+        Route::delete('users/revoke/{id}', [\App\Http\Controllers\Admin\UserRoleController::class, 'revoke'])->name('users.revoke');
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->except(['index']);
         Route::post('users/{user}/toggle-active', [\App\Http\Controllers\Admin\UserController::class, 'toggleActive'])
             ->name('users.toggle-active');
 
