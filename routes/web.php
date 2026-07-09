@@ -489,9 +489,23 @@ Route::middleware(['auth'])->group(function () {
         // OAI-PMH Article Harvest
         Route::post('journals/{journal}/harvest', [UserJournalController::class, 'harvest'])
             ->name('journals.harvest');
-        
-        // Publish Issue dari artikel (berdasarkan Volume & Issue)
-        Route::post('journals/{journal}/issues/publish/{volume}/{issue}', [IssueController::class, 'publish'])->name('journals.issues.publish');
+
+
+        // =====================================================
+        // Issue Preview & Publish
+        // =====================================================
+
+        // Preview Table of Contents sebelum publish
+        Route::get(
+            'journals/{journal}/issues/{volume}/{issue}/preview',
+            [IssueController::class, 'preview']
+        )->name('journals.issues.preview');
+
+        // Publish Issue
+        Route::post(
+            'journals/{journal}/issues/publish/{volume}/{issue}',
+            [IssueController::class, 'publish']
+        )->name('journals.issues.publish');
 
         // Assessments Management
         Route::prefix('assessments')->name('assessments.')->group(function () {
