@@ -304,12 +304,10 @@ class UniversityManagementTest extends DuskTestCase
             // Find and click the delete button (Trash icon) in the first row
             // The button has onClick handler that triggers confirm dialog
             $browser->with('table tbody tr:first-child', function ($row) {
-                $row->click('button:has(svg.text-red-600)');
+                $row->click('button[title="Delete"]');
             })
-                ->pause(500);
-
-            // Accept the browser confirm dialog
-            $browser->acceptDialog()
+                ->waitFor('button.bg-red-600')
+                ->click('button.bg-red-600')
                 ->pause(3000)  // Wait for deletion to complete
                 ->assertPathIs('/admin/universities')
                 ->assertDontSee($university->name);
@@ -362,12 +360,10 @@ class UniversityManagementTest extends DuskTestCase
 
             // Try to delete university with journals
             $browser->with('table tbody tr:first-child', function ($row) {
-                $row->click('button:has(svg.text-red-600)');
+                $row->click('button[title="Delete"]');
             })
-                ->pause(500);
-
-            // Accept the browser confirm dialog
-            $browser->acceptDialog()
+                ->waitFor('button.bg-red-600')
+                ->click('button.bg-red-600')
                 ->pause(3000)  // Wait for response
                 ->assertPathIs('/admin/universities')
                 // Should see error message (university not deleted because has journals)

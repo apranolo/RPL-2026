@@ -111,7 +111,7 @@ class UserManagementTest extends DuskTestCase
                 ->visit('/admin-kampus/users')
                 ->waitForText('User Management', 10)
                 ->assertSee('User Management')
-                ->assertSee('Add User')
+                ->assertSee('Create User')
                 ->assertSee($this->testUser->name);
         });
     }
@@ -149,6 +149,7 @@ class UserManagementTest extends DuskTestCase
                 ->type('input[id="position"]', 'Editor')
                 ->type('input[id="password"]', 'password123')
                 ->type('input[id="password_confirmation"]', 'password123')
+                ->click('#role-'.$this->userRole->id)
                 ->press('Create User')
                 ->waitForLocation('/admin-kampus/users', 10)
                 ->assertSee('User created successfully')
@@ -240,7 +241,13 @@ class UserManagementTest extends DuskTestCase
             // Note: Using JavaScript to click because the button is nested inside an <a> tag.
             // Dusk's standard click() method may fail due to element overlap or event handling.
             // This ensures we click the parent link that contains the "Edit User" button.
-            $browser->script("document.querySelector('button[title=\"Edit User\"]').closest('a').click();");
+            $browser->script("
+                const rows = Array.from(document.querySelectorAll('tr'));
+                const targetRow = rows.find(r => r.textContent.includes('".$this->testUser->name."'));
+                if (targetRow) {
+                    targetRow.querySelector('button[title=\"Edit User\"]').closest('a').click();
+                }
+            ");
             $browser->waitForText('Personal Information')
                 ->assertSee('Personal Information')
                 ->assertInputValue('input[id="name"]', $this->testUser->name);
@@ -262,7 +269,13 @@ class UserManagementTest extends DuskTestCase
             // Note: Using JavaScript to click because the button is nested inside an <a> tag.
             // Dusk's standard click() method may fail due to element overlap or event handling.
             // This ensures we click the parent link that contains the "Edit User" button.
-            $browser->script("document.querySelector('button[title=\"Edit User\"]').closest('a').click();");
+            $browser->script("
+                const rows = Array.from(document.querySelectorAll('tr'));
+                const targetRow = rows.find(r => r.textContent.includes('".$this->testUser->name."'));
+                if (targetRow) {
+                    targetRow.querySelector('button[title=\"Edit User\"]').closest('a').click();
+                }
+            ");
             $browser->waitFor('input[id="name"]', 15)
                 ->clear('input[id="name"]')
                 ->type('input[id="name"]', 'Updated User Name')
@@ -288,7 +301,13 @@ class UserManagementTest extends DuskTestCase
                 ->assertSee($this->testUser->name);
 
             // Use script to click the first eye icon button's parent link
-            $browser->script("document.querySelector('button[title=\"View Details\"]').closest('a').click();");
+            $browser->script("
+                const rows = Array.from(document.querySelectorAll('tr'));
+                const targetRow = rows.find(r => r.textContent.includes('".$this->testUser->name."'));
+                if (targetRow) {
+                    targetRow.querySelector('button[title=\"View Details\"]').closest('a').click();
+                }
+            ");
             $browser->waitForText($this->testUser->name)
                 ->assertSee($this->testUser->name);
 
@@ -334,20 +353,22 @@ class UserManagementTest extends DuskTestCase
             // Note: JavaScript execution is necessary because buttons are nested inside <a> tags,
             // and Dusk's standard click() method may fail due to element overlap or event handling.
             // This helper ensures we click the parent link that wraps the button.
-            $clickButtonByTitle = function (Browser $browser, string $title): void {
-                $browser->script("document.querySelector('button[title=\"{$title}\"]').closest('a').click();");
-            };
+            // Mock window.confirm to auto-confirm deletion
+            $browser->script('window.confirm = function() { return true; };');
 
-            // Use helper to click the first "View Details" button's parent link
-            $clickButtonByTitle($browser, 'View Details');
+            // Click the View Details button specifically for "Delete Me User"
+            $browser->script("
+                const rows = Array.from(document.querySelectorAll('tr'));
+                const targetRow = rows.find(r => r.textContent.includes('Delete Me User'));
+                if (targetRow) {
+                    targetRow.querySelector('button[title=\"View Details\"]').closest('a').click();
+                }
+            ");
             $browser->waitForText('Delete Me User')
                 ->assertSee('Delete Me User');
 
             // Click delete button
             $browser->press('Delete')
-                ->waitForDialog()
-                // Handle browser confirm dialog
-                ->acceptDialog()
                 ->waitForLocation('/admin-kampus/users'); // Wait for deletion to complete
         });
 
@@ -384,15 +405,19 @@ class UserManagementTest extends DuskTestCase
                 ->waitForText('Test User UAD')
                 ->assertSee('Test User UAD');
 
-            // Navigate to user detail page
-            $browser->script("document.querySelector('button[title=\"View Details\"]').closest('a').click();");
+            // Navigate to user detail page specifically for Test User UAD
+            $browser->script("
+                const rows = Array.from(document.querySelectorAll('tr'));
+                const targetRow = rows.find(r => r.textContent.includes('".$this->testUser->name."'));
+                if (targetRow) {
+                    targetRow.querySelector('button[title=\"View Details\"]').closest('a').click();
+                }
+            ");
             $browser->waitForText($this->testUser->email)
                 ->assertSee($this->testUser->email);
 
-            // Attempt to delete user with journals
-            $browser->press('Delete')
-                ->waitForDialog()
-                ->acceptDialog();
+            // Attempt to delete user with journals - verify delete button is disabled
+            $browser->assertPresent('button[title="Cannot delete user with journals"]:disabled');
 
             // Should show error message or stay on same page
             // Verify user still exists in database

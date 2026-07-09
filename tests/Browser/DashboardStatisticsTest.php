@@ -165,8 +165,10 @@ class DashboardStatisticsTest extends DuskTestCase
             $browser->loginAs($user1)
                 ->visit('/dashboard')
                 ->waitForText('Total Jurnal')
-                ->assertSee('5') // Only user 1 journals
-                ->assertDontSee('10') // User 2 journals not visible
+                ->with('div.grid.gap-4.md\:grid-cols-4', function (Browser $card) {
+                    $card->assertSee('5')
+                        ->assertDontSee('10');
+                })
                 ->assertSee('Jurnal Terindeks Scopus')
                 ->assertSee('5'); // All 5 are Scopus indexed
         });
@@ -213,7 +215,6 @@ class DashboardStatisticsTest extends DuskTestCase
                 ->waitForText('Distribusi Bidang Ilmu')
                 // Verify chart cards are present
                 ->assertPresent('.apexcharts-canvas')
-                ->assertSeeIn('.apexcharts-canvas', '') // Charts should be rendered
                 ->pause(1000); // Allow charts to fully render
         });
     }
@@ -233,11 +234,8 @@ class DashboardStatisticsTest extends DuskTestCase
 
             $browser->loginAs($user)
                 ->visit('/dashboard')
-                ->waitForText('Total Jurnal')
-                ->assertSee('0')
-                ->assertSee('Tidak ada data indeksasi')
-                ->assertSee('Tidak ada data akreditasi')
-                ->assertSee('Tidak ada data bidang ilmu');
+                ->waitForText('Belum Ada Jurnal')
+                ->assertSee('Anda belum mengelola jurnal. Mulai dengan menambahkan jurnal baru.');
         });
     }
 
@@ -259,8 +257,8 @@ class DashboardStatisticsTest extends DuskTestCase
             // Initial state: 0 journals
             $browser->loginAs($user)
                 ->visit('/dashboard')
-                ->waitForText('Total Jurnal')
-                ->assertSee('0');
+                ->waitForText('Belum Ada Jurnal')
+                ->assertSee('Anda belum mengelola jurnal. Mulai dengan menambahkan jurnal baru.');
 
             // Create journal
             Journal::factory()->create([

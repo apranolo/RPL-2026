@@ -29,8 +29,17 @@ class AssessmentManagementTest extends DuskTestCase
     public function test_user_can_create_assessment()
     {
         $role = Role::create(['name' => 'User', 'display_name' => 'User']);
-        $user = User::factory()->create(['name' => 'Test User', 'role_id' => $role->id]);
-        $journal = Journal::factory()->create(['user_id' => $user->id, 'title' => 'My Journal']);
+        $university = \App\Models\University::factory()->create();
+        $user = User::factory()->create([
+            'name' => 'Test User',
+            'role_id' => $role->id,
+            'university_id' => $university->id,
+        ]);
+        $journal = Journal::factory()->create([
+            'user_id' => $user->id,
+            'university_id' => $university->id,
+            'title' => 'My Journal',
+        ]);
 
         // Seed indicators
         EvaluationIndicator::create([
@@ -67,8 +76,15 @@ class AssessmentManagementTest extends DuskTestCase
     public function test_user_can_upload_attachment()
     {
         $role = Role::firstOrCreate(['name' => 'User'], ['display_name' => 'User']);
-        $user = User::factory()->create(['role_id' => $role->id]);
-        $journal = Journal::factory()->create(['user_id' => $user->id]);
+        $university = \App\Models\University::factory()->create();
+        $user = User::factory()->create([
+            'role_id' => $role->id,
+            'university_id' => $university->id,
+        ]);
+        $journal = Journal::factory()->create([
+            'user_id' => $user->id,
+            'university_id' => $university->id,
+        ]);
 
         EvaluationIndicator::create([
             'category' => 'Bukti',
