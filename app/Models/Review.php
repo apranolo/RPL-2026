@@ -14,6 +14,10 @@ class Review extends Model
         'reviewer_id',
         'status',
         'notes',
+        'start_date',
+        'end_date',
+        'total_score',
+        'recommendation',
     ];
 
     public function proposal()

@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PembinaanReview;
 use App\Models\Review;
-use App\Models\ReviewerAssignment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,29 +19,17 @@ class ReviewerController extends Controller
     }
 
     /**
-     * Display reviewer's assignments.
+     * Display reviewer's assignments based on Review records.
      */
     public function assignments(Request $request): Response
     {
-        $user = $request->user();
-
-        $query = Review::where('reviewer_id', $user->id)
-            ->with([
-                'proposal',
-                'assessmentCriteria',
-            ]);
-
-        // Apply filters
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $assignments = $query->orderBy('created_at', 'desc')
+        $reviews = $this->reviewerReviewsQuery($request)
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString();
 
-        return Inertia::render('Reviewer/Assignments/Index', [
-            'assignments' => $assignments,
+        return Inertia::render('Reviewer/index', [
+            'tasks' => $reviews,
             'filters' => [
                 'status' => $request->status,
             ],
@@ -51,105 +37,78 @@ class ReviewerController extends Controller
     }
 
     /**
-     * Show assignment detail with registration information.
+     * Show a review detail using Review model.
      */
-    public function show(ReviewerAssignment $assignment): Response
+    public function show(Request $request, int $reviewId): Response
     {
-        $this->authorize('view', $assignment);
+        $review = $this->findOwnReview($request, $reviewId);
+        $review->load(['proposal', 'assessmentCriteria']);
 
-        $assignment->load([
-            'registration.pembinaan.accreditationTemplate',
-            'registration.journal.university',
-            'registration.journal.scientificField',
-            'registration.journal.user',
-            'registration.user',
-            'registration.attachments.uploader',
-            'assigner',
-        ]);
-
-        // Check if review already submitted
-        $existingReview = PembinaanReview::where('registration_id', $assignment->registration_id)
-            ->where('reviewer_id', $assignment->reviewer_id)
-            ->first();
-
-        return Inertia::render('Reviewer/Assignments/Show', [
-            'assignment' => $assignment,
-            'existingReview' => $existingReview,
+        return Inertia::render('Reviewer/index', [
+            'tasks' => $this->reviewerReviewsQuery($request)
+                ->latest('created_at')
+                ->paginate(15)
+                ->withQueryString(),
+            'selectedReview' => $review,
         ]);
     }
 
     /**
-     * Show review submission form.
+     * Show review submission form using Review model.
      */
-    public function reviewForm(ReviewerAssignment $assignment): Response
+    public function reviewForm(Request $request, int $reviewId): Response
     {
-        $user = request()->user();
+        $review = $this->findOwnReview($request, $reviewId);
+        $review->load(['proposal', 'assessmentCriteria']);
 
-        // Authorize via policy
-        $this->authorize('submitReview', [
-            PembinaanReview::class,
-            $user->id,
-            $assignment->registration_id,
-        ]);
-
-        $assignment->load([
-            'registration.pembinaan.accreditationTemplate',
-            'registration.journal.university',
-            'registration.journal.scientificField',
-            'registration.attachments',
-        ]);
-
-        return Inertia::render('Reviewer/Assignments/Review', [
-            'assignment' => $assignment,
+        return Inertia::render('Reviewer/index', [
+            'tasks' => $this->reviewerReviewsQuery($request)
+                ->latest('created_at')
+                ->paginate(15)
+                ->withQueryString(),
+            'selectedReview' => $review,
         ]);
     }
 
     /**
-     * Submit review for an assignment.
+     * Submit or update a review record.
      */
-    public function submitReview(Request $request, ReviewerAssignment $assignment): RedirectResponse
+    public function submitReview(Request $request, int $reviewId): RedirectResponse
     {
-        $user = $request->user();
-
-        // Authorize via policy
-        $this->authorize('submitReview', [
-            PembinaanReview::class,
-            $user->id,
-            $assignment->registration_id,
-        ]);
+        $review = $this->findOwnReview($request, $reviewId);
 
         $validated = $request->validate([
-            'score' => 'required|numeric|min:0|max:100',
-            'feedback' => 'required|string|max:2000',
+            'score' => 'nullable|numeric|min:0|max:100',
+            'total_score' => 'nullable|numeric|min:0|max:100',
+            'feedback' => 'nullable|string|max:2000',
+            'notes' => 'nullable|string|max:2000',
+            'status' => 'nullable|string|max:50',
             'recommendation' => 'nullable|string|max:1000',
         ]);
 
-        PembinaanReview::create([
-            'registration_id' => $assignment->registration_id,
-            'reviewer_id' => $user->id,
-            'score' => $validated['score'],
-            'feedback' => $validated['feedback'],
-            'recommendation' => $validated['recommendation'],
-            'reviewed_at' => now(),
-        ]);
-
-        $assignment->markCompleted();
+        $review->fill([
+            'status' => $validated['status'] ?? 'completed',
+            'notes' => $validated['notes'] ?? $validated['feedback'] ?? $review->notes,
+            'total_score' => $validated['total_score'] ?? $validated['score'] ?? $review->total_score,
+            'recommendation' => $validated['recommendation'] ?? $review->recommendation,
+            'end_date' => now(),
+        ])->save();
 
         return redirect()
-            ->route('reviewer.assignments.show', $assignment)
-            ->with('success', 'Review submitted successfully.');
+            ->route('reviewer.assignments.index')
+            ->with('success', 'Review updated successfully.');
     }
 
     /**
-     * Download attachment from registration.
+     * Download attachment from review record.
      */
-    public function downloadAttachment(ReviewerAssignment $assignment, $attachmentId): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function downloadAttachment(Request $request, int $reviewId, int $attachmentId): \Symfony\Component\HttpFoundation\StreamedResponse
     {
-        $this->authorize('view', $assignment);
+        $review = $this->findOwnReview($request, $reviewId);
 
-        $attachment = $assignment->registration->attachments()->findOrFail($attachmentId);
+        $attachment = $review->proposal?->attachments()?->findOrFail($attachmentId);
 
-        if (! $attachment->fileExists()) {
+        if (! $attachment || ! $attachment->fileExists()) {
             abort(404, 'File not found.');
         }
 
@@ -157,5 +116,24 @@ class ReviewerController extends Controller
             $attachment->file_path,
             $attachment->file_name
         );
+    }
+
+    private function reviewerReviewsQuery(Request $request)
+    {
+        $query = Review::query()
+            ->where('reviewer_id', $request->user()->id)
+            ->with(['proposal', 'assessmentCriteria']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        return $query;
+    }
+
+    private function findOwnReview(Request $request, int $reviewId): Review
+    {
+        return Review::where('reviewer_id', $request->user()->id)
+            ->findOrFail($reviewId);
     }
 }
