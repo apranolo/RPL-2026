@@ -40,6 +40,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Editorial\PlagiarismController;
 use Inertia\Inertia;
+use App\Http\Controllers\Editorial\DeskController;
+use App\Http\Controllers\Editorial\DecisionController;
 
 
 /*
@@ -581,6 +583,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
             ->name('activity-logs.index');
     });
+    Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
+    Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
+    Route::get('/editorial/decision/history/{submissionId}', [DecisionController::class, 'history'])->name('editorial.decision.history');
+});
 
     /*
     |--------------------------------------------------------------------------
