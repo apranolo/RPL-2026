@@ -22,6 +22,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Production\GalleyController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProposalController;
@@ -579,6 +580,22 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
                 ->name('index');
         });
+
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Production - Galley
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware(['auth'])->group(function () {
+
+        Route::post('/production/articles/{articleId}/galleys', [GalleyController::class, 'store'])
+            ->name('production.galleys.store');
+
+        Route::post('/production/articles/{articleId}/assign-issue', [GalleyController::class, 'assignToIssue'])
+            ->name('production.galleys.assignIssue');
 
     });
 
