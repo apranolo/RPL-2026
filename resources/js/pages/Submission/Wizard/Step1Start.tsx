@@ -1,4 +1,30 @@
+import AppLayout from '@/layouts/app-layout';
+
 import { Head, useForm } from '@inertiajs/react';
+
+import type { BreadcrumbItem } from '@/types';
+
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+
+import { Button } from '@/components/ui/button';
+
+import { Checkbox } from '@/components/ui/checkbox';
+
+import { Label } from '@/components/ui/label';
+
+import {
+    Select,
+    SelectContent,
+    SelectItem, 
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 interface Journal {
     id: number;
@@ -9,14 +35,25 @@ interface Props {
     journals: Journal[];
 }
 
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Submission',
+        href: '/submission/step-1',
+    },
+    {
+        title: 'Step 1',
+        href: '/submission/step-1',
+    },
+];
+
 export default function Step1Start({ journals }: Props) {
     const { data, setData, post, processing, errors } = useForm<{
-        journal_id: string;
-        agreement: boolean;
-    }>({
-        journal_id: '',
-        agreement: false,
-    });
+    journal_id: string;
+    agreement: boolean;
+}>({
+    journal_id: '',
+    agreement: false,
+});
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,88 +62,103 @@ export default function Step1Start({ journals }: Props) {
     };
 
     return (
-        <>
-            <Head title="Submission Step 1" />
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Submission - Step 1" />
 
-            <div className="max-w-3xl mx-auto p-6">
-                <div className="bg-white shadow-md rounded-xl p-6">
-                    <h1 className="text-2xl font-bold mb-2">
-                        Wizard Submission - Step 1
-                    </h1>
+            <div className="mx-auto max-w-3xl p-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>
+                            Wizard Submission - Step 1
+                        </CardTitle>
 
-                    <p className="text-gray-600 mb-6">
-                        Pilih jurnal tujuan dan setujui syarat serta lisensi
-                        sebelum melanjutkan proses submission.
-                    </p>
+                        <CardDescription>
+                            Pilih jurnal tujuan dan setujui syarat serta
+                            lisensi sebelum melanjutkan proses submission.
+                        </CardDescription>
+                    </CardHeader>
 
-                    <form onSubmit={handleSubmit}>
-                        {/* Pilihan Jurnal */}
-                        <div className="mb-5">
-                            <label className="block font-medium mb-2">
-                                Pilih Jurnal
-                            </label>
+                    <CardContent>
+                        <form
+                            onSubmit={handleSubmit}
+                            className="space-y-6"
+                        >
+                            {/* Pilih Jurnal */}
+                            <div className="space-y-2">
+                                <Label htmlFor="journal">
+                                    Pilih Jurnal
+                                </Label>
 
-                            <select
-                                value={data.journal_id}
-                                onChange={(e) =>
-                                    setData('journal_id', e.target.value)
-                                }
-                                className="w-full border rounded-lg p-3"
-                            >
-                                <option value="">-- Pilih Jurnal --</option>
-
-                                {journals.map((journal) => (
-                                    <option key={journal.id} value={journal.id}>
-                                        {journal.title}
-                                    </option>
-                                ))}
-                            </select>
-
-                            {errors.journal_id && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {errors.journal_id}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* Persetujuan */}
-                        <div className="mb-6">
-                            <label className="flex items-start gap-2">
-                                <input
-                                    type="checkbox"
-                                    checked={data.agreement}
-                                    onChange={(e) =>
-                                        setData('agreement', e.target.checked)
+                                <Select
+                                    value={data.journal_id}
+                                    onValueChange={(value) =>
+                                        setData('journal_id', value)
                                     }
-                                    className="mt-1"
+                                >
+                                    <SelectTrigger id="journal">
+                                        <SelectValue placeholder="Pilih Jurnal" />
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+                                        {journals.map((journal) => (
+                                            <SelectItem
+                                                key={journal.id}
+                                                value={journal.id.toString()}
+                                            >
+                                                {journal.title}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                {errors.journal_id && (
+                                    <p className="text-sm text-red-500">
+                                        {errors.journal_id}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Persetujuan */}
+                            <div className="flex items-start space-x-3">
+                                <Checkbox
+                                    id="agreement"
+                                    checked={data.agreement}
+                                    onCheckedChange={(checked) =>
+                                        setData(
+                                            'agreement',
+                                            checked === true
+                                        )
+                                    }
                                 />
 
-                                <span className="text-sm text-gray-700">
-                                    Saya menyetujui syarat, ketentuan,
-                                    dan lisensi submission jurnal.
-                                </span>
-                            </label>
+                                <div className="space-y-1">
+                                    <Label htmlFor="agreement">
+                                        Saya menyetujui syarat,
+                                        ketentuan, dan lisensi
+                                        submission jurnal.
+                                    </Label>
 
-                            {errors.agreement && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {errors.agreement}
-                                </p>
-                            )}
-                        </div>
+                                    {errors.agreement && (
+                                        <p className="text-sm text-red-500">
+                                            {errors.agreement}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
 
-                        {/* Button */}
-                        <div className="flex justify-end">
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
-                            >
-                                Lanjut Step 2
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                            {/* Button */}
+                            <div className="flex justify-end">
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                >
+                                    Lanjut Step 2
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
-        </>
+        </AppLayout>
     );
 }
