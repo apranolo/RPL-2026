@@ -5,11 +5,49 @@ namespace App\Http\Controllers\Production;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Issue;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class IssueController extends Controller
 {
+    /**
+     * Display a listing of the issues (Draft and Published) for a journal.
+     */
+    public function index(Request $request, $journalId = null)
+    {
+        if (!$journalId) {
+            $journal = $request->user()->journals()->first();
+            if (!$journal) {
+                return redirect()->route('dashboard')->with('error', 'Anda belum memiliki jurnal.');
+            }
+            $journalId = $journal->id;
+        } else {
+            $journal = \App\Models\Journal::findOrFail($journalId);
+        }
+
+        $query = Issue::with('journal')
+            ->withCount('galleys')
+            ->where('journal_id', $journalId);
+
+        if ($status = $request->query('status')) {
+            if (in_array($status, ['Draft', 'Published'])) {
+                $query->where('status', $status);
+            }
+        }
+
+        $issues = $query->orderByDesc('year')
+            ->orderByDesc('volume')
+            ->orderByDesc('number')
+            ->get();
+
+        return Inertia::render('Production/Issue/Index', [
+            'journal' => $journal,
+            'issues' => $issues,
+            'filters' => $request->only(['status']),
+        ]);
+    }
+
     /**
      * Preview Issue
      */
