@@ -304,12 +304,17 @@ export default function Index({ agendas, filters, types = [] }: Props) {
                             <PaginationContent>
                                 {agendas.links.map((link, index) => (
                                     <PaginationItem key={index}>
-                                        <PaginationLink
-                                            href={link.url || '#'}
-                                            isActive={link.active}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                            className={!link.url ? 'pointer-events-none opacity-50' : ''}
-                                        />
+                                        {link.url ? (
+                                            <Link href={link.url}>
+                                                <PaginationLink isActive={link.active}>
+                                                    {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
+                                                </PaginationLink>
+                                            </Link>
+                                        ) : (
+                                            <PaginationLink className="cursor-not-allowed opacity-50">
+                                                {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
+                                            </PaginationLink>
+                                        )}
                                     </PaginationItem>
                                 ))}
                             </PaginationContent>
