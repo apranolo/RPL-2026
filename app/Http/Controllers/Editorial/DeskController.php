@@ -13,6 +13,8 @@ class DeskController extends Controller
         
         $submission = Submission::with(['files', 'author', 'editorialDecisions'])->findOrFail($id);
 
+        // Tambahkan baris ini untuk membatasi akses:
+        $this->authorize('view', $submission);
         
         return Inertia::render('Editorial/Desk/Show', [
             'submission' => $submission

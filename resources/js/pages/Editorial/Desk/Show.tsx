@@ -1,3 +1,9 @@
+/**
+ * @file Show.tsx
+ * @description Halaman detail submission untuk Editor.
+ * @author Muhammad Irfan Habibi
+ */
+
 import InlinePdfViewer from '@/components/InlinePdfViewer';
 import AppLayout from '@/layouts/app-layout';
 import { PageProps } from '@/types';

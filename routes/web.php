@@ -585,8 +585,8 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
     Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
-    Route::get('/editorial/decision/history/{submissionId}', [DecisionController::class, 'history'])->name('editorial.decision.history');
-});
+    
+    });
 
     /*
     |--------------------------------------------------------------------------

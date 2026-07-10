@@ -1,3 +1,9 @@
+/**
+ * @file InlinePdfViewer.tsx
+ * @description Komponen untuk merender file PDF secara inline menggunakan iframe.
+ * @author Muhammad Irfan Habibi
+ */
+
 interface Props {
     fileUrl: string;
     title?: string;
