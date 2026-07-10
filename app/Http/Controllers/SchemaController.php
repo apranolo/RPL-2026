@@ -24,6 +24,9 @@ class SchemaController extends Controller
      */
     public function index(Request $request): Response
     {
+        // Check authorization
+        $this->authorize('viewAny', ResearchSchema::class);
+
         $query = ResearchSchema::query();
 
         if ($request->filled('search')) {
@@ -60,6 +63,9 @@ class SchemaController extends Controller
      */
     public function create(): Response
     {
+        // Check authorization
+        $this->authorize('create', ResearchSchema::class);
+
         return Inertia::render('Admin/Schema/Create');
     }
 
@@ -70,6 +76,9 @@ class SchemaController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Check authorization
+        $this->authorize('create', ResearchSchema::class);
+
         $validated = $request->validate([
             'name'        => 'required|string|max:255|unique:research_schemas,name',
             'description' => 'nullable|string|max:1000',
@@ -94,6 +103,9 @@ class SchemaController extends Controller
      */
     public function edit(ResearchSchema $schema): Response
     {
+        // Check authorization
+        $this->authorize('update', $schema);
+
         return Inertia::render('Admin/Schema/Edit', [
             'schema' => [
                 'id'          => $schema->id,
@@ -110,6 +122,9 @@ class SchemaController extends Controller
      */
     public function update(Request $request, ResearchSchema $schema): RedirectResponse
     {
+        // Check authorization
+        $this->authorize('update', $schema);
+
         $validated = $request->validate([
             'name'        => 'required|string|max:255|unique:research_schemas,name,' . $schema->id,
             'description' => 'nullable|string|max:1000',
@@ -134,6 +149,9 @@ class SchemaController extends Controller
      */
     public function destroy(ResearchSchema $schema): RedirectResponse
     {
+        // Check authorization
+        $this->authorize('delete', $schema);
+
         // Prevent deletion if schema has associated proposals
         if ($schema->proposals()->count() > 0) {
             return back()->with('error', "Skema '{$schema->name}' tidak dapat dihapus karena masih memiliki proposal terkait.");
