@@ -15,7 +15,7 @@ return new class extends Migration
         $table->id();
         
         // Relasi ke tabel submissions (Tugas Dzaky di Tab 2)
-        $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
+        $table->unsignedBigInteger('submission_id');
         
         // Relasi ke tabel users milik Kelas B (Harus presisi menunjuk ke 'users')
         $table->foreignId('reviewer_id')->constrained('users')->cascadeOnDelete();

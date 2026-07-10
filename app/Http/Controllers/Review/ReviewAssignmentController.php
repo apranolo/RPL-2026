@@ -11,6 +11,11 @@ class ReviewAssignmentController extends Controller
      */
     public function invite(Request $request)
     {
+        // PERBAIKAN 5: Pengecekan Otorisasi (Hanya Editor yang boleh)
+        if (!auth()->user()->hasRole('Editor')) {
+            abort(403, 'Akses ditolak: Hanya Editor yang berhak mengundang Reviewer.');
+        }
+
         // 1. Validasi Input Keamanan
         $validated = $request->validate([
             'submission_id' => 'required|exists:submissions,id',
@@ -29,11 +34,12 @@ class ReviewAssignmentController extends Controller
         }
 
         // 3. Simpan Data (SLA 7 Hari)
+        // PERBAIKAN 4: Ganti 'Invited' menjadi 'Pending' agar tidak SQL Crash
         ReviewAssignment::create([
             'submission_id' => $validated['submission_id'],
             'reviewer_id'   => $validated['reviewer_id'],
             'round'         => 1,
-            'status'        => 'Invited',
+            'status'        => 'Pending', // <--- SUDAH DIPERBAIKI
             'due_date'      => now()->addDays(7), 
         ]);
 

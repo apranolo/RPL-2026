@@ -10,14 +10,15 @@ class ReviewForm extends Model
 
     protected $fillable = [
         'review_assignment_id',
-        'criteria_name',
+        'criterion_name',
         'score',
         'comment',
     ];
 
     // --- TAMBAHAN DARI REVIEWER (ACCESSORS & APPENDS) ---
 
-    protected $appends = ['id_review_assignment', 'criterion_name'];
+    // HAPUS 'criterion_name' DARI SINI
+    protected $appends = ['id_review_assignment'];
 
     // Menyelaraskan penamaan ID
     public function getIdReviewAssignmentAttribute() 
@@ -25,12 +26,7 @@ class ReviewForm extends Model
         return $this->review_assignment_id;
     }
 
-    // Menyelaraskan kosa kata (criteria vs criterion)
-    public function getCriterionNameAttribute() 
-    {
-        return $this->criteria_name;
-    }
-
+    // FUNGSI getCriterionNameAttribute SUDAH DIHAPUS TOTAL KARENA BIKIN ERROR
     // ----------------------------------------------------
 
     public function assignment(): BelongsTo

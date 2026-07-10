@@ -15,38 +15,29 @@ class ReviewAssignment extends Model
         'round',
         'status',
         'due_date',
-        'declined_reason',
+        'decline_reason',
     ];
 
     // --- TAMBAHAN DARI REVIEWER (ACCESSORS & APPENDS) ---
     
-    // Memberitahu Laravel untuk menyertakan properti virtual ini saat mereturn JSON ke React
-    protected $appends = ['id_submission', 'id_reviewer', 'reviewer_name', 'decline_reason'];
+    // HAPUS 'decline_reason' DARI SINI
+    protected $appends = ['id_submission', 'id_reviewer', 'reviewer_name'];
 
-    // Membuat virtual properti 'id_submission'
     public function getIdSubmissionAttribute() 
     {
         return $this->submission_id;
     }
 
-    // Membuat virtual properti 'id_reviewer'
     public function getIdReviewerAttribute() 
     {
         return $this->reviewer_id;
     }
 
-    // Mengambil nama reviewer dari relasi, mereturn string kosong jika belum ada
     public function getReviewerNameAttribute() 
     {
         return $this->reviewer ? $this->reviewer->name : '';
     }
-
-    // Membuat virtual properti 'decline_reason' (menyesuaikan typo ekspektasi frontend)
-    public function getDeclineReasonAttribute() 
-    {
-        return $this->declined_reason;
-    }
-
+    // FUNGSI getDeclineReasonAttribute SUDAH DIHAPUS TOTAL
     // ----------------------------------------------------
 
     public function reviewer(): BelongsTo
