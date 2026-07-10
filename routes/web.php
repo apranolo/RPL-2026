@@ -24,6 +24,7 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
+use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
@@ -660,6 +661,22 @@ Route::middleware(['auth'])->group(function () {
 
     });
 
+    | Submission Discussion Routes (v1.1)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('discussion')->name('discussion.')->group(function () {
+        Route::get('/', [DiscussionController::class, 'index'])
+            ->name('index');
+
+        Route::post('/', [DiscussionController::class, 'store'])
+            ->name('store');
+
+        Route::post('/{discussion}/message', [DiscussionController::class, 'reply'])
+            ->name('message.store');
+    });
+
+
     /*
     |--------------------------------------------------------------------------
     | Shared Routes (All Roles)
@@ -684,5 +701,6 @@ Route::middleware(['auth'])->group(function () {
     // });
 });
 
+    
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
