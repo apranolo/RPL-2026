@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage; // Memuat library Storage untuk menyimpan file
 
-class SubmissionController extends Controller
+class SubmissionWizardController extends Controller
 {
     // ==========================================
     // STEP 1 - VIEW PAGE (Menampilkan Halaman)
