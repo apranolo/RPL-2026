@@ -1,3 +1,13 @@
+/**
+ * AuthorApproval Component
+ *
+ * @description Halaman konfirmasi persetujuan Author atas hasil copyediting.
+ * @features
+ * - Menampilkan perbandingan file original dan file copyedited
+ * - Menampilkan catatan dari Copyeditor
+ * - Form persetujuan atau penolakan hasil copyediting
+ * @route GET /user/copyediting/{submission}/approval
+ */
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';

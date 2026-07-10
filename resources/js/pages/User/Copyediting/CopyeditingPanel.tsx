@@ -1,3 +1,13 @@
+/**
+ * CopyeditingPanel Component
+ *
+ * @description Panel tiga kolom untuk proses copyediting naskah jurnal.
+ * @features
+ * - Kolom 1: Menampilkan file original dari Author
+ * - Kolom 2: Upload dan tampilkan file hasil copyediting
+ * - Kolom 3: Catatan komunikasi antara Copyeditor dan Author
+ * @route GET /user/copyediting/{submission}/panel
+ */
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
