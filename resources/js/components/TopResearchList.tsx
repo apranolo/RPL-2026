@@ -12,9 +12,9 @@ interface Props {
 }
 
 const MEDAL_STYLES: Record<number, string> = {
-    0: 'bg-gradient-to-br from-yellow-300 to-amber-500 text-white shadow-amber-200',
-    1: 'bg-gradient-to-br from-slate-300 to-slate-500 text-white shadow-slate-200',
-    2: 'bg-gradient-to-br from-orange-300 to-orange-600 text-white shadow-orange-200',
+    0: 'bg-gradient-to-br from-yellow-300 to-yellow-500 text-[#0d1117] shadow-yellow-400/30',
+    1: 'bg-gradient-to-br from-slate-400 to-slate-600 text-white shadow-slate-400/20',
+    2: 'bg-gradient-to-br from-amber-600 to-orange-700 text-white shadow-orange-400/20',
 };
 
 export default function TopResearchList({ data }: Props) {
@@ -42,36 +42,36 @@ export default function TopResearchList({ data }: Props) {
     }, [data]);
 
     return (
-        <div className="flex flex-col h-full rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="flex flex-col h-full rounded-2xl border border-white/10 bg-[#0d1117] shadow-lg overflow-hidden">
 
             {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
-                <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600">
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10 bg-gradient-to-r from-[#0d1a2a] to-[#0d1117]">
+                <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-green-500/20 text-green-400">
                     <BookOpen size={18} strokeWidth={2.2} />
                 </span>
                 <div>
-                    <p className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">Leaderboard</p>
-                    <h3 className="text-sm font-bold text-slate-800">Top 5 Penelitian Teraktif</h3>
+                    <p className="text-xs font-semibold text-green-400 uppercase tracking-widest">Leaderboard</p>
+                    <h3 className="text-sm font-bold text-white">Top 5 Penelitian Teraktif</h3>
                 </div>
             </div>
 
             {/* Body */}
-            <div className="flex-1 divide-y divide-slate-100">
+            <div className="flex-1 divide-y divide-white/5">
 
                 {/* Skeleton Loading */}
                 {loading && [1, 2, 3, 4, 5].map(i => (
                     <div key={i} className="flex items-start gap-3 px-5 py-4 animate-pulse">
-                        <div className="w-8 h-8 rounded-full bg-slate-200 flex-shrink-0 mt-0.5" />
+                        <div className="w-8 h-8 rounded-full bg-white/10 flex-shrink-0 mt-0.5" />
                         <div className="flex-1 space-y-2 pt-1">
-                            <div className="h-3 bg-slate-200 rounded w-4/5" />
-                            <div className="h-2.5 bg-slate-100 rounded w-2/5" />
+                            <div className="h-3 bg-white/10 rounded w-4/5" />
+                            <div className="h-2.5 bg-white/5 rounded w-2/5" />
                         </div>
                     </div>
                 ))}
 
                 {/* Error State */}
                 {error && (
-                    <div className="flex flex-col items-center justify-center h-full py-10 text-slate-400">
+                    <div className="flex flex-col items-center justify-center h-full py-10 text-white/30">
                         <BookOpen size={32} className="mb-2 opacity-40" />
                         <p className="text-sm">Gagal memuat data.</p>
                     </div>
@@ -79,7 +79,7 @@ export default function TopResearchList({ data }: Props) {
 
                 {/* Empty State */}
                 {!loading && !error && researchList.length === 0 && (
-                    <div className="flex flex-col items-center justify-center h-full py-10 text-slate-400">
+                    <div className="flex flex-col items-center justify-center h-full py-10 text-white/30">
                         <BookOpen size={32} className="mb-2 opacity-40" />
                         <p className="text-sm">Belum ada penelitian aktif.</p>
                     </div>
@@ -89,26 +89,26 @@ export default function TopResearchList({ data }: Props) {
                 {!loading && !error && researchList.map((research, index) => (
                     <div
                         key={research.id}
-                        className="flex items-start gap-3 px-5 py-4 hover:bg-indigo-50/40 transition-colors duration-150"
+                        className="flex items-start gap-3 px-5 py-4 hover:bg-green-500/10 transition-colors duration-150"
                     >
                         {/* Rank Badge */}
-                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-sm mt-0.5 ${MEDAL_STYLES[index] ?? 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
+                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-sm mt-0.5 ${MEDAL_STYLES[index] ?? 'bg-white/10 text-white/50 border border-white/10'}`}>
                             {index + 1}
                         </div>
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2" title={research.title}>
+                            <p className="text-sm font-semibold text-white leading-snug line-clamp-2" title={research.title}>
                                 {research.title}
                             </p>
-                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                <Flame size={11} className="text-indigo-400" />
+                            <p className="text-xs text-white/40 mt-1 flex items-center gap-1">
+                                <Flame size={11} className="text-green-400" />
                                 {research.citations} Luaran Penelitian
                             </p>
                         </div>
 
                         {/* Score Badge */}
-                        <span className="flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 self-center">
+                        <span className="flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-full bg-green-500/15 text-green-400 border border-green-500/20 self-center">
                             {research.citations}
                         </span>
                     </div>
