@@ -158,6 +158,14 @@ class Journal extends Model
     }
 
     /**
+     * Get user roles for this journal
+     */
+    public function userRoles()
+    {
+        return $this->hasMany(UserRole::class, 'id_journal');
+    }
+
+    /**
      * Get the scientific field of this journal
      */
     public function scientificField()
