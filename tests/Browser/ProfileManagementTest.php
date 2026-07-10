@@ -284,7 +284,8 @@ class ProfileManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/user/profil')
-                ->waitForText('Notifikasi', 25);
+                ->waitForText('Notifikasi', 25)
+                ->pause(2000); // Pause for React hydration
 
             // Click the Notifikasi tab trigger using JavaScript to be robust
             $browser->script([

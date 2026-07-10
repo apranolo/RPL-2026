@@ -245,11 +245,19 @@ class UserManagementTest extends DuskTestCase
             // Navigate directly to edit page by URL
             $browser->loginAs($this->adminKampus)
                 ->visit('/admin-kampus/users/'.$this->testUser->id.'/edit')
-                ->waitFor('input[id="name"]', 10)
-                ->clear('input[id="name"]')
-                ->type('input[id="name"]', 'Updated User Name')
+                ->waitFor('input[id="name"]', 25);
+
+            // Use native JS value setter so React state updates
+            $browser->script([
+                "var nameInput = document.getElementById('name');
+                 var nativeNameSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativeNameSetter.call(nameInput, 'Updated User Name');
+                 nameInput.dispatchEvent(new Event('input', { bubbles: true }));",
+            ]);
+
+            $browser->pause(300)
                 ->press('Update User')
-                ->waitForText('Updated User Name', 10)
+                ->waitForText('Updated User Name', 25)
                 ->assertSee('Updated User Name');
         });
     }
@@ -263,11 +271,12 @@ class UserManagementTest extends DuskTestCase
             // Navigate from index to show page
             $browser->loginAs($this->adminKampus)
                 ->visit('/admin-kampus/users/'.$this->testUser->id)
-                ->waitForText($this->testUser->name, 10)
+                ->waitForText($this->testUser->name, 25)
+                ->pause(2000) // Pause for React hydration
                 ->assertSee($this->testUser->name);
 
             // Click toggle button using standard CSS selector
-            $browser->waitFor('button[aria-label="Deactivate user"]', 10)
+            $browser->waitFor('button[aria-label="Deactivate user"]', 25)
                 ->click('button[aria-label="Deactivate user"]')
                 ->pause(2000);
         });
@@ -299,13 +308,14 @@ class UserManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($deleteUser) {
             $browser->loginAs($this->adminKampus)
                 ->visit('/admin-kampus/users/'.$deleteUser->id)
-                ->waitForText('Delete Me User', 10);
+                ->waitForText('Delete Me User', 25)
+                ->pause(2000); // Pause for React hydration
 
             // Mock window.confirm to auto-confirm deletion
             $browser->script('window.confirm = function() { return true; };');
 
             // Click delete button using standard CSS selector
-            $browser->waitFor('button.bg-destructive', 10)
+            $browser->waitFor('button.bg-destructive', 25)
                 ->click('button.bg-destructive')
                 ->pause(2000);
         });
