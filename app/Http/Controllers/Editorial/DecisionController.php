@@ -24,31 +24,30 @@ class DecisionController extends Controller
         try {
             /*
             |--------------------------------------------------------------------------
-            | Editorial Workflow Placeholder
+            | Editorial Workflow Scaffold
             |--------------------------------------------------------------------------
             |
-            | This feature is waiting for the Editorial module to be merged.
+            | Waiting for Submission module (Modul 2 Kelas G) to be merged into
+            | development. After the Submission model becomes available, this
+            | workflow will:
             |
-            | Planned implementation:
-            | - Save editor decision
+            | - Save final editorial decision
             | - Save editorial notes
-            | - Update assessment status
+            | - Update submission status
             | - Store decision history
             | - Dispatch notifications
             |
-            | Example:
-            |
-            | $assessment->update([
-            |     'editorial_status' => $validated['decision'],
-            |     'editorial_notes'  => $validated['notes'],
-            |     'editorial_by'     => auth()->id(),
-            |     'editorial_at'     => now(),
-            | ]);
-            |
             */
 
-            // Prevent "unused variable" warning until implementation exists.
-            unset($assessment);
+            // Keep validated payload available for future implementation.
+            $payload = [
+                'assessment_id' => $assessment->id,
+                'decision'      => $validated['decision'],
+                'notes'         => $validated['notes'],
+            ];
+
+            // Placeholder to indicate payload has been prepared.
+            unset($payload);
 
             DB::commit();
 

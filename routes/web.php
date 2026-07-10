@@ -39,6 +39,7 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Editorial\PlagiarismController;
+use App\Http\Controllers\Editorial\DecisionController;
 use Inertia\Inertia;
 
 
@@ -570,17 +571,30 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    /*
+ /*
     |--------------------------------------------------------------------------
     | Editor Routes (v1.1 - Submission Editorial)
     |--------------------------------------------------------------------------
     */
     // NOTE: Group ini akan diperbaiki lebih lanjut oleh ADITYA GAUTAMA
-    Route::middleware(['role:Editor'])->prefix('editorial')->name('editorial.')->group(function () {
-        // Activity Log per submission
-        Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
-            ->name('activity-logs.index');
-    });
+    Route::middleware(['role:Editor'])
+        ->prefix('editorial')
+        ->name('editorial.')
+        ->group(function () {
+
+            // Activity Log per submission
+            Route::get(
+                'submissions/{submission}/activity-logs',
+                [ActivityLogController::class, 'index']
+            )->name('activity-logs.index');
+
+            // Final Editorial Decision
+            Route::post(
+                'assessments/{assessment}/final-decision',
+                [DecisionController::class, 'finalDecision']
+            )->name('final-decision');
+
+        });
 
     /*
     |--------------------------------------------------------------------------
