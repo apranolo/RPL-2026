@@ -147,13 +147,19 @@ export default function ReviewHistory({ dosen, pembinaanReviews, journalAssessme
                                                             </div>
                                                         )}
                                                     </CardContent>
-                                                    <CardFooter className="mt-auto pt-4">
+                                                    <CardFooter className="mt-auto grid grid-cols-2 gap-2 pt-4">
                                                         <Button variant="outline" size="sm" asChild className="w-full">
                                                             {/* Ganti rute di bawah ini sesuai dengan halaman detail review yang ada */}
                                                             <Link href="#">
                                                                 <Eye className="mr-2 h-4 w-4" />
-                                                                Lihat Detail
+                                                                Detail
                                                             </Link>
+                                                        </Button>
+                                                        <Button variant="default" size="sm" asChild className="w-full">
+                                                            <a href={route('review.print', { type: 'pembinaan', id: review.id })} target="_blank" rel="noopener noreferrer">
+                                                                <FileText className="mr-2 h-4 w-4" />
+                                                                Cetak BA
+                                                            </a>
                                                         </Button>
                                                     </CardFooter>
                                                 </Card>
@@ -251,13 +257,19 @@ export default function ReviewHistory({ dosen, pembinaanReviews, journalAssessme
                                                             )}
                                                         </div>
                                                     </CardContent>
-                                                    <CardFooter className="mt-auto pt-4">
+                                                    <CardFooter className="mt-auto grid grid-cols-2 gap-2 pt-4">
                                                         <Button variant="outline" size="sm" asChild className="w-full">
                                                             {/* Ganti rute di bawah ini sesuai dengan halaman detail penilaian yang ada */}
                                                             <Link href="#">
                                                                 <Eye className="mr-2 h-4 w-4" />
-                                                                Lihat Detail
+                                                                Detail
                                                             </Link>
+                                                        </Button>
+                                                        <Button variant="default" size="sm" asChild className="w-full">
+                                                            <a href={route('review.print', { type: 'assessment', id: assessment.id })} target="_blank" rel="noopener noreferrer">
+                                                                <FileText className="mr-2 h-4 w-4" />
+                                                                Cetak BA
+                                                            </a>
                                                         </Button>
                                                     </CardFooter>
                                                 </Card>

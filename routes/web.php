@@ -546,6 +546,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
 
+    // Print Berita Acara Review
+    Route::get('/review/print/{type}/{id}', [\App\Http\Controllers\ReviewDocumentController::class, 'print'])
+        ->name('review.print');
+
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {
     //     Route::get('/', [ProfileController::class, 'edit'])->name('edit');
