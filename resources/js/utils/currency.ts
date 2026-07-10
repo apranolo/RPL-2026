@@ -1,3 +1,4 @@
+/** @author KHANSA KAMILAH LICTJELITA */
 export const formatRp = (value: number | string, showSymbol: boolean = true): string => {
     const numericValue = typeof value === 'string' ? parseFloat(value) : value;
     

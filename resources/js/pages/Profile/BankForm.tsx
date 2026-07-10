@@ -1,5 +1,8 @@
+/** @author KHANSA KAMILAH LICTJELITA */
 import React from 'react';
 import { useForm } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
+import { Button } from '@/components/ui/button';
 
 export default function BankForm() {
     const { data, setData, post, processing, errors } = useForm({
@@ -16,8 +19,9 @@ export default function BankForm() {
     };
 
     return (
-        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
-            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+        <AppLayout>
+            <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
+                <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                 Informasi Rekening Bank
             </h2>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 mb-6">
@@ -74,15 +78,15 @@ export default function BankForm() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <button 
+                    <Button 
                         type="submit" 
                         disabled={processing}
-                        className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
                     >
                         Simpan
-                    </button>
+                    </Button>
                 </div>
             </form>
         </div>
+        </AppLayout>
     );
 }
