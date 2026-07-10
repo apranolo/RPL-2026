@@ -154,6 +154,16 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:Keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'keuanganDashboard'])->name('dashboard');
 
+    // Finance Reports
+    Route::prefix('finance')->name('finance.')->group(function () {
+        Route::get('reports', [\App\Http\Controllers\FinanceReportController::class, 'index'])
+            ->name('reports.index');
+        Route::get('reports/summary', [\App\Http\Controllers\FinanceReportController::class, 'summary'])
+            ->name('reports.summary');
+        Route::post('reports/filter', [\App\Http\Controllers\FinanceReportController::class, 'filter'])
+            ->name('reports.filter');
+    });
+
         Route::prefix('contracts')->name('contracts.')->group(function () {
             Route::get('{contract}/upload', [ContractDocController::class, 'create'])->name('upload');
             Route::post('documents', [ContractDocController::class, 'store'])->name('documents.store');
