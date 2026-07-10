@@ -1,19 +1,75 @@
+/**
+ * @file ReviewHistory.tsx
+ * @description Halaman riwayat review dosen yang menampilkan riwayat review selesai dan jadwal/penugasan review.
+ * @module Proposal/ReviewHistory
+ */
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type JournalAssessment, type PaginatedData, type PembinaanReview, type User } from '@/types';
+import { type BreadcrumbItem, type PaginatedData, type User } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { Award, BookOpen, Calendar, ChevronLeft, ChevronRight, ClipboardList, Eye, FileText, User as UserIcon } from 'lucide-react';
 
-interface Props {
-    dosen: User | null;
-    pembinaanReviews: PaginatedData<PembinaanReview>;
-    journalAssessments: PaginatedData<JournalAssessment>;
+export interface Review {
+    id: number;
+    registration_id: number;
+    reviewer_id: number;
+    score?: number;
+    feedback?: string;
+    recommendation?: string;
+    reviewed_at: string;
+    score_label?: string;
+    registration?: {
+        pembinaan?: {
+            name: string;
+            category: string;
+        };
+        journal?: {
+            title: string;
+        };
+        user?: {
+            name: string;
+        };
+    };
+    reviewer?: User;
 }
 
-export default function ReviewHistory({ dosen, pembinaanReviews, journalAssessments }: Props) {
+export interface ReviewSchedule {
+    id: number;
+    reviewer_id: number;
+    registration_id: number;
+    assigned_at: string;
+    status: 'assigned' | 'in_progress' | 'completed';
+    status_label: string;
+    status_color: string;
+    registration?: {
+        pembinaan?: {
+            name: string;
+            category: string;
+        };
+        journal?: {
+            title: string;
+            university?: {
+                name: string;
+            };
+        };
+        user?: {
+            name: string;
+        };
+    };
+    reviewer?: User;
+}
+
+interface Props {
+    dosen: User | null;
+    reviews: PaginatedData<Review>;
+    reviewSchedules: PaginatedData<ReviewSchedule>;
+}
+
+export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Dashboard',
@@ -38,6 +94,15 @@ export default function ReviewHistory({ dosen, pembinaanReviews, journalAssessme
         if (score >= 80) return 'default'; // primary / success equivalent
         if (score >= 60) return 'warning';
         return 'destructive';
+    };
+
+    const getStatusBadgeVariant = (status: string) => {
+        switch (status) {
+            case 'completed': return 'default';
+            case 'in_progress': return 'warning';
+            case 'assigned': return 'secondary';
+            default: return 'outline';
+        }
     };
 
     return (
@@ -65,44 +130,44 @@ export default function ReviewHistory({ dosen, pembinaanReviews, journalAssessme
 
                     {/* Tabs */}
                     <div className="space-y-6">
-                        <Tabs defaultValue="pembinaan" className="w-full space-y-6">
+                        <Tabs defaultValue="reviews" className="w-full space-y-6">
                             <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
                                 <TabsList className="inline-flex w-max min-w-full sm:grid sm:grid-cols-2">
-                                    <TabsTrigger value="pembinaan" className="gap-2">
+                                    <TabsTrigger value="reviews" className="gap-2">
                                         <Award className="h-4 w-4" />
-                                        Review Pembinaan
-                                        {pembinaanReviews.total > 0 && (
+                                        Riwayat Review Selesai
+                                        {reviews.total > 0 && (
                                             <Badge variant="secondary" className="ml-1">
-                                                {pembinaanReviews.total}
+                                                {reviews.total}
                                             </Badge>
                                         )}
                                     </TabsTrigger>
-                                    <TabsTrigger value="journal" className="gap-2">
-                                        <BookOpen className="h-4 w-4" />
-                                        Review Penilaian Jurnal
-                                        {journalAssessments.total > 0 && (
+                                    <TabsTrigger value="schedules" className="gap-2">
+                                        <Calendar className="h-4 w-4" />
+                                        Jadwal / Penugasan Review
+                                        {reviewSchedules.total > 0 && (
                                             <Badge variant="secondary" className="ml-1">
-                                                {journalAssessments.total}
+                                                {reviewSchedules.total}
                                             </Badge>
                                         )}
                                     </TabsTrigger>
                                 </TabsList>
                             </div>
 
-                            {/* Pembinaan Reviews Tab */}
-                            <TabsContent value="pembinaan" className="space-y-4">
-                                {pembinaanReviews.data.length === 0 ? (
+                            {/* Reviews Tab */}
+                            <TabsContent value="reviews" className="space-y-4">
+                                {reviews.data.length === 0 ? (
                                     <Card>
                                         <CardContent className="flex flex-col items-center justify-center py-12">
                                             <Award className="mb-4 h-12 w-12 text-muted-foreground" />
                                             <h3 className="mb-2 text-lg font-semibold">Tidak Ada Riwayat</h3>
-                                            <p className="text-sm text-muted-foreground">Belum ada riwayat review pembinaan.</p>
+                                            <p className="text-sm text-muted-foreground">Belum ada riwayat review selesai.</p>
                                         </CardContent>
                                     </Card>
                                 ) : (
                                     <>
                                         <div className="grid gap-4 md:grid-cols-2">
-                                            {pembinaanReviews.data.map((review) => (
+                                            {reviews.data.map((review) => (
                                                 <Card key={review.id} className="flex flex-col">
                                                     <CardHeader>
                                                         <div className="flex items-start justify-between gap-2">
@@ -149,8 +214,7 @@ export default function ReviewHistory({ dosen, pembinaanReviews, journalAssessme
                                                     </CardContent>
                                                     <CardFooter className="mt-auto grid grid-cols-2 gap-2 pt-4">
                                                         <Button variant="outline" size="sm" asChild className="w-full">
-                                                            {/* Ganti rute di bawah ini sesuai dengan halaman detail review yang ada */}
-                                                            <Link href="#">
+                                                            <Link href={route('reviewer.assignments.show', review.registration_id)}>
                                                                 <Eye className="mr-2 h-4 w-4" />
                                                                 Detail
                                                             </Link>
@@ -166,28 +230,28 @@ export default function ReviewHistory({ dosen, pembinaanReviews, journalAssessme
                                             ))}
                                         </div>
 
-                                        {/* Pagination for Pembinaan */}
-                                        {pembinaanReviews.total > pembinaanReviews.per_page && (
+                                        {/* Pagination for Reviews */}
+                                        {reviews.total > reviews.per_page && (
                                             <div className="flex items-center justify-between">
                                                 <div className="text-sm text-muted-foreground">
-                                                    Menampilkan {pembinaanReviews.from} hingga {pembinaanReviews.to} dari {pembinaanReviews.total} review
+                                                    Menampilkan {reviews.from} hingga {reviews.to} dari {reviews.total} review
                                                 </div>
                                                 <div className="flex gap-2">
-                                                    {pembinaanReviews.prev_page_url && (
+                                                    {reviews.prev_page_url && (
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            onClick={() => router.get(pembinaanReviews.prev_page_url!)}
+                                                            onClick={() => router.get(reviews.prev_page_url!)}
                                                         >
                                                             <ChevronLeft className="h-4 w-4" />
                                                             Sebelumnya
                                                         </Button>
                                                     )}
-                                                    {pembinaanReviews.next_page_url && (
+                                                    {reviews.next_page_url && (
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            onClick={() => router.get(pembinaanReviews.next_page_url!)}
+                                                            onClick={() => router.get(reviews.next_page_url!)}
                                                         >
                                                             Selanjutnya
                                                             <ChevronRight className="h-4 w-4" />
@@ -200,104 +264,95 @@ export default function ReviewHistory({ dosen, pembinaanReviews, journalAssessme
                                 )}
                             </TabsContent>
 
-                            {/* Journal Assessments Tab */}
-                            <TabsContent value="journal" className="space-y-4">
-                                {journalAssessments.data.length === 0 ? (
+                            {/* Review Schedules Tab */}
+                            <TabsContent value="schedules" className="space-y-4">
+                                {reviewSchedules.data.length === 0 ? (
                                     <Card>
                                         <CardContent className="flex flex-col items-center justify-center py-12">
                                             <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
-                                            <h3 className="mb-2 text-lg font-semibold">Tidak Ada Riwayat</h3>
-                                            <p className="text-sm text-muted-foreground">Belum ada riwayat penilaian jurnal.</p>
+                                            <h3 className="mb-2 text-lg font-semibold">Tidak Ada Jadwal</h3>
+                                            <p className="text-sm text-muted-foreground">Belum ada jadwal atau penugasan review.</p>
                                         </CardContent>
                                     </Card>
                                 ) : (
                                     <>
                                         <div className="grid gap-4 md:grid-cols-2">
-                                            {journalAssessments.data.map((assessment) => (
-                                                <Card key={assessment.id} className="flex flex-col">
+                                            {reviewSchedules.data.map((schedule) => (
+                                                <Card key={schedule.id} className="flex flex-col">
                                                     <CardHeader>
                                                         <div className="flex items-start justify-between gap-2">
                                                             <div className="flex-1">
                                                                 <CardTitle className="line-clamp-2">
-                                                                    {assessment.journal?.title || 'Jurnal'}
+                                                                    {schedule.registration?.pembinaan?.name || 'Program Pembinaan'}
                                                                 </CardTitle>
                                                                 <CardDescription className="mt-1 flex items-center gap-2">
-                                                                    <Award className="h-3 w-3" />
-                                                                    Penilaian Periode {assessment.period || assessment.assessment_date}
+                                                                    <BookOpen className="h-3 w-3" />
+                                                                    {schedule.registration?.journal?.title || 'Jurnal'}
                                                                 </CardDescription>
                                                             </div>
-                                                            {assessment.total_score !== undefined && (
-                                                                <Badge variant={getScoreBadgeVariant(assessment.percentage) as any} className="text-sm">
-                                                                    Skor: {assessment.total_score}
-                                                                </Badge>
-                                                            )}
+                                                            <Badge variant={getStatusBadgeVariant(schedule.status) as any} className="text-sm">
+                                                                {schedule.status_label}
+                                                            </Badge>
                                                         </div>
                                                     </CardHeader>
                                                     <CardContent className="flex-1 space-y-4">
                                                         <div className="space-y-2 text-sm">
                                                             <div className="flex justify-between">
-                                                                <span className="text-muted-foreground">Tanggal Review:</span>
+                                                                <span className="text-muted-foreground">Tanggal Ditugaskan:</span>
                                                                 <span className="flex items-center gap-1">
                                                                     <Calendar className="h-3 w-3" />
-                                                                    {assessment.reviewed_at ? formatDate(assessment.reviewed_at) : '-'}
+                                                                    {formatDate(schedule.assigned_at)}
                                                                 </span>
                                                             </div>
                                                             <div className="flex justify-between">
                                                                 <span className="text-muted-foreground">Pengusul:</span>
                                                                 <span className="flex items-center gap-1">
                                                                     <UserIcon className="h-3 w-3" />
-                                                                    {assessment.user?.name || '-'}
+                                                                    {schedule.registration?.user?.name || '-'}
                                                                 </span>
                                                             </div>
-                                                            {assessment.percentage !== undefined && (
+                                                            {schedule.registration?.journal?.university?.name && (
                                                                 <div className="flex justify-between">
-                                                                    <span className="text-muted-foreground">Persentase:</span>
-                                                                    <span className="font-medium">{assessment.percentage}%</span>
+                                                                    <span className="text-muted-foreground">Universitas:</span>
+                                                                    <span>{schedule.registration.journal.university.name}</span>
                                                                 </div>
                                                             )}
                                                         </div>
                                                     </CardContent>
-                                                    <CardFooter className="mt-auto grid grid-cols-2 gap-2 pt-4">
+                                                    <CardFooter className="mt-auto pt-4">
                                                         <Button variant="outline" size="sm" asChild className="w-full">
-                                                            {/* Ganti rute di bawah ini sesuai dengan halaman detail penilaian yang ada */}
-                                                            <Link href="#">
+                                                            <Link href={route('reviewer.assignments.show', schedule.id)}>
                                                                 <Eye className="mr-2 h-4 w-4" />
-                                                                Detail
+                                                                Lihat Penugasan
                                                             </Link>
-                                                        </Button>
-                                                        <Button variant="default" size="sm" asChild className="w-full">
-                                                            <a href={route('review.print', { type: 'assessment', id: assessment.id })} target="_blank" rel="noopener noreferrer">
-                                                                <FileText className="mr-2 h-4 w-4" />
-                                                                Cetak BA
-                                                            </a>
                                                         </Button>
                                                     </CardFooter>
                                                 </Card>
                                             ))}
                                         </div>
 
-                                        {/* Pagination for Journal Assessments */}
-                                        {journalAssessments.total > journalAssessments.per_page && (
+                                        {/* Pagination for Review Schedules */}
+                                        {reviewSchedules.total > reviewSchedules.per_page && (
                                             <div className="flex items-center justify-between">
                                                 <div className="text-sm text-muted-foreground">
-                                                    Menampilkan {journalAssessments.from} hingga {journalAssessments.to} dari {journalAssessments.total} penilaian
+                                                    Menampilkan {reviewSchedules.from} hingga {reviewSchedules.to} dari {reviewSchedules.total} jadwal
                                                 </div>
                                                 <div className="flex gap-2">
-                                                    {journalAssessments.prev_page_url && (
+                                                    {reviewSchedules.prev_page_url && (
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            onClick={() => router.get(journalAssessments.prev_page_url!)}
+                                                            onClick={() => router.get(reviewSchedules.prev_page_url!)}
                                                         >
                                                             <ChevronLeft className="h-4 w-4" />
                                                             Sebelumnya
                                                         </Button>
                                                     )}
-                                                    {journalAssessments.next_page_url && (
+                                                    {reviewSchedules.next_page_url && (
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            onClick={() => router.get(journalAssessments.next_page_url!)}
+                                                            onClick={() => router.get(reviewSchedules.next_page_url!)}
                                                         >
                                                             Selanjutnya
                                                             <ChevronRight className="h-4 w-4" />
