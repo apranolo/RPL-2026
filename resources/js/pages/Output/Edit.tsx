@@ -49,7 +49,7 @@ function ExtraFieldInput({
         <div>
             <Label htmlFor={field.name}>
                 {field.label}
-                {field.required && <span className="text-red-500"> *</span>}
+                {field.required && <span className="text-destructive"> *</span>}
             </Label>
             {field.type === 'textarea' ? (
                 <Textarea
@@ -70,7 +70,7 @@ function ExtraFieldInput({
                     className="mt-1"
                 />
             )}
-            {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+            {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
         </div>
     );
 }
@@ -156,9 +156,9 @@ export default function Edit({ output }: { output: Output }) {
                                 </h3>
 
                                 <div>
-                                    <Label htmlFor="judul">
-                                        Judul <span className="text-red-500">*</span>
-                                    </Label>
+<Label htmlFor="judul">
+                                    Judul <span className="text-destructive">*</span>
+                                </Label>
                                     <Input
                                         id="judul"
                                         value={data.judul}
@@ -166,13 +166,13 @@ export default function Edit({ output }: { output: Output }) {
                                         placeholder="Masukkan judul luaran penelitian"
                                         className="mt-1"
                                     />
-                                    {errors.judul && <p className="mt-1 text-sm text-red-600">{errors.judul}</p>}
+                                    {errors.judul && <p className="mt-1 text-sm text-destructive">{errors.judul}</p>}
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="kategori">
-                                        Kategori <span className="text-red-500">*</span>
-                                    </Label>
+<Label htmlFor="kategori">
+                                    Kategori <span className="text-destructive">*</span>
+                                </Label>
                                     <Select value={data.kategori} onValueChange={handleKategoriChange}>
                                         <SelectTrigger className="mt-1">
                                             <SelectValue placeholder="Pilih kategori" />
@@ -221,7 +221,7 @@ export default function Edit({ output }: { output: Output }) {
                                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                                         Tempel tautan publikasi luar (URL seperti Google Scholar, DOAJ, atau website jurnal)
                                     </p>
-                                    {errors.link_url && <p className="mt-1 text-sm text-red-600">{errors.link_url}</p>}
+                                    {errors.link_url && <p className="mt-1 text-sm text-destructive">{errors.link_url}</p>}
                                 </div>
 
                                 <div>
@@ -249,13 +249,13 @@ export default function Edit({ output }: { output: Output }) {
                                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                                         Unggah PDF atau berkas fisik luaran (maks. 10MB)
                                     </p>
-                                    {errors.file && <p className="mt-1 text-sm text-red-600">{errors.file}</p>}
+                                    {errors.file && <p className="mt-1 text-sm text-destructive">{errors.file}</p>}
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="status">
-                                        Status <span className="text-red-500">*</span>
-                                    </Label>
+<Label htmlFor="status">
+                                    Status <span className="text-destructive">*</span>
+                                </Label>
                                     <Select value={data.status} onValueChange={(val) => setData('status', val)}>
                                         <SelectTrigger className="mt-1">
                                             <SelectValue placeholder="Pilih status" />
@@ -279,7 +279,7 @@ export default function Edit({ output }: { output: Output }) {
                                         placeholder="Informasi tambahan tentang luaran penelitian"
                                         className="mt-1"
                                     />
-                                    {errors.keterangan && <p className="mt-1 text-sm text-red-600">{errors.keterangan}</p>}
+                                    {errors.keterangan && <p className="mt-1 text-sm text-destructive">{errors.keterangan}</p>}
                                 </div>
 
                                 <div className="flex flex-col-reverse items-stretch justify-end gap-4 border-t pt-4 sm:flex-row sm:items-center dark:border-gray-700">

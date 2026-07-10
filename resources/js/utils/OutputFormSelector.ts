@@ -1,3 +1,13 @@
+/**
+ * OutputFormSelector.ts
+ *
+ * Utilitas untuk mengelola konfigurasi form dinamis berdasarkan kategori luaran penelitian.
+ * Mendefinisikan field-field tambahan (extra fields) yang ditampilkan untuk setiap kategori:
+ * Jurnal, HKI, Buku, Produk, dan Prosiding.
+ *
+ * @package  resources/js/utils
+ */
+
 export type ExtraField = {
     name: string;
     label: string;
