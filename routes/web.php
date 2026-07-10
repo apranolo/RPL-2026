@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
+use App\Http\Controllers\Admin\AssignController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
@@ -225,6 +226,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reviewers', [\App\Http\Controllers\Admin\ReviewerController::class, 'index'])
             ->name('reviewers.index');
 
+        // Reviewer Assignment Management (v1.1)
+        Route::post('assign', [AssignController::class, 'assign'])
+            ->name('assign.store');
+
+        Route::delete('assign/{id}', [AssignController::class, 'unassign'])
+         ->name('assign.unassign');
+         
         // View all journals (read-only for monitoring)
         Route::get('journals', [\App\Http\Controllers\Admin\JournalController::class, 'index'])
             ->name('journals.index');
@@ -280,6 +288,7 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
+    
     /*
     |--------------------------------------------------------------------------
     | Admin Kampus Routes

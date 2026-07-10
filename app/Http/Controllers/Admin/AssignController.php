@@ -33,4 +33,22 @@ class AssignController extends Controller
         // 3. Mengembalikan response (redirect kembali ke halaman sebelumnya dengan pesan sukses)
         return back()->with('success', 'Reviewer berhasil ditugaskan ke proposal.');
     }
+    /**
+    * Menghapus penunjukan reviewer dari proposal.
+    *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+    */
+    public function unassign(int $id): RedirectResponse
+    {
+    $review = Review::findOrFail($id);
+
+    $review->delete();
+
+    return back()->with(
+        'success',
+        'Penunjukan reviewer berhasil dihapus.'
+    );
+    }
+
 }
