@@ -11,16 +11,10 @@ return new class extends Migration
         Schema::create('editorial_assignments', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('editor_id')
-                ->constrained('users')
-                ->cascadeOnDelete();
-            $table->foreignId('registration_id')
-                ->constrained('pembinaan_registrations')
-                ->cascadeOnDelete();
+            $table->foreignId('editor_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
 
-            $table->foreignId('assigned_by')
-                ->constrained('users')
-                ->cascadeOnDelete();
+            $table->foreignId('assigned_by')->constrained('users')->cascadeOnDelete();
             $table->timestamp('assigned_at')->useCurrent();
 
             $table->enum('status', ['assigned', 'in_progress', 'completed'])->default('assigned');
@@ -32,9 +26,11 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('editor_id');
-            $table->index('registration_id');
+            $table->index('submission_id');
             $table->index('status');
-            $table->unique(['editor_id', 'registration_id'], 'unique_editor_registration');
+            $table->index('assigned_at');
+
+            $table->unique(['editor_id', 'submission_id'], 'unique_editor_submission');
         });
     }
 

@@ -6,18 +6,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Model EditorialAssignment
+ *
+ * Merepresentasikan penugasan Section Editor ke sebuah Submission naskah.
+ *
+ * @property int $id
+ * @property int $editor_id
+ * @property int $submission_id
+ * @property int $assigned_by
+ * @property string $assigned_at
+ * @property string $status
+ */
 class EditorialAssignment extends Model
 {
     use HasFactory, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'editor_id',
-        'registration_id',
+        'submission_id',
         'assigned_by',
         'assigned_at',
         'status',
@@ -26,10 +33,15 @@ class EditorialAssignment extends Model
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * Append virtual attributes for frontend backward compatibility.
+     * Frontend expects id_submission and id_editor,
+     * while the database columns are submission_id and editor_id.
      */
+    protected $appends = [
+        'id_submission',
+        'id_editor',
+    ];
+
     protected $casts = [
         'assigned_at' => 'datetime',
         'created_at'  => 'datetime',
@@ -43,28 +55,43 @@ class EditorialAssignment extends Model
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Get the Section Editor assigned
-     */
     public function editor()
     {
         return $this->belongsTo(User::class, 'editor_id');
     }
 
-    /**
-     * Get the registration this assignment is for
-     */
-    public function registration()
+    public function submission()
     {
-        return $this->belongsTo(PembinaanRegistration::class);
+        return $this->belongsTo(Submission::class);
     }
 
-    /**
-     * Get the user who assigned the editor
-     */
     public function assigner()
     {
         return $this->belongsTo(User::class, 'assigned_by');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors (Backward Compatibility)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Accessor: id_submission → maps to submission_id column.
+     * Required for frontend components that reference id_submission.
+     */
+    public function getIdSubmissionAttribute(): ?int
+    {
+        return $this->submission_id;
+    }
+
+    /**
+     * Accessor: id_editor → maps to editor_id column.
+     * Required for frontend components that reference id_editor.
+     */
+    public function getIdEditorAttribute(): ?int
+    {
+        return $this->editor_id;
     }
 
     /*
@@ -93,14 +120,14 @@ class EditorialAssignment extends Model
         return $query->where('editor_id', $editorId);
     }
 
-    public function scopeForRegistration($query, int $registrationId)
+    public function scopeForSubmission($query, int $submissionId)
     {
-        return $query->where('registration_id', $registrationId);
+        return $query->where('submission_id', $submissionId);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Accessors & Helper Methods
+    | Helpers
     |--------------------------------------------------------------------------
     */
 
@@ -122,35 +149,21 @@ class EditorialAssignment extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'assigned'    => 'Assigned',
+            'assigned' => 'Assigned',
             'in_progress' => 'In Progress',
-            'completed'   => 'Completed',
-            default       => $this->status,
+            'completed' => 'Completed',
+            default => $this->status,
         };
     }
 
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'assigned'    => 'secondary',
+            'assigned' => 'secondary',
             'in_progress' => 'warning',
-            'completed'   => 'success',
-            default       => 'default',
+            'completed' => 'success',
+            default => 'default',
         };
-    }
-
-    public function markInProgress(): bool
-    {
-        $this->status = 'in_progress';
-
-        return $this->save();
-    }
-
-    public function markCompleted(): bool
-    {
-        $this->status = 'completed';
-
-        return $this->save();
     }
 
     /*

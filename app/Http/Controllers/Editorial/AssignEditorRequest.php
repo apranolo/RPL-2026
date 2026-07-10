@@ -1,7 +1,7 @@
 /**
  * @file DeskReview.tsx
  * @description Halaman panel keputusan Desk Review untuk naskah ilmiah.
- *              Editor dapat menerima (Accept_For_Review) atau menolak (Desk_Reject)
+ *              Editor dapat menerima (AcceptForReview) atau menolak (DeskReject)
  *              submission. Catatan penolakan wajib diisi jika submission ditolak.
  * @module Editorial/Desk
  * @author 2300018400
@@ -10,7 +10,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem } from '@/types';
 
 interface Journal {
@@ -48,21 +47,19 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Desk Review', href: '#' },
 ];
 
-type DecisionValue = 'Accept_For_Review' | 'Desk_Reject' | '';
-
 export default function DeskReview({ submission }: Props) {
-    const [decision, setDecision] = useState<DecisionValue>('');
+    const [decision, setDecision] = useState<'approved' | 'rejected' | ''>('');
 
     const { data, setData, post, processing, errors } = useForm({
-        decision: '' as DecisionValue,
+        decision: '' as 'approved' | 'rejected' | '',
         rejection_reason: '',
     });
 
-    const handleDecisionChange = (value: 'Accept_For_Review' | 'Desk_Reject') => {
+    const handleDecisionChange = (value: 'approved' | 'rejected') => {
         setDecision(value);
         setData({
             decision: value,
-            rejection_reason: value === 'Accept_For_Review' ? '' : data.rejection_reason,
+            rejection_reason: value === 'approved' ? '' : data.rejection_reason,
         });
     };
 
@@ -135,12 +132,12 @@ export default function DeskReview({ submission }: Props) {
                                 Keputusan <span className="text-destructive">*</span>
                             </label>
                             <div className="flex gap-3">
-                                {/* Accept_For_Review */}
+                                {/* Accept */}
                                 <button
                                     type="button"
-                                    onClick={() => handleDecisionChange('Accept_For_Review')}
+                                    onClick={() => handleDecisionChange('approved')}
                                     className={`flex-1 rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
-                                        decision === 'Accept_For_Review'
+                                        decision === 'approved'
                                             ? 'border-primary bg-primary/10 text-primary'
                                             : 'border-border bg-background text-foreground hover:bg-muted'
                                     }`}
@@ -148,12 +145,12 @@ export default function DeskReview({ submission }: Props) {
                                     ✓ Terima untuk Review
                                 </button>
 
-                                {/* Desk_Reject */}
+                                {/* Reject */}
                                 <button
                                     type="button"
-                                    onClick={() => handleDecisionChange('Desk_Reject')}
+                                    onClick={() => handleDecisionChange('rejected')}
                                     className={`flex-1 rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
-                                        decision === 'Desk_Reject'
+                                        decision === 'rejected'
                                             ? 'border-destructive bg-destructive/10 text-destructive'
                                             : 'border-border bg-background text-foreground hover:bg-muted'
                                     }`}
@@ -167,8 +164,8 @@ export default function DeskReview({ submission }: Props) {
                             )}
                         </div>
 
-                        {/* Catatan penolakan — wajib jika Desk_Reject */}
-                        {decision === 'Desk_Reject' && (
+                        {/* Catatan penolakan — wajib jika reject */}
+                        {decision === 'rejected' && (
                             <div>
                                 <label
                                     htmlFor="rejection_reason"
@@ -192,12 +189,13 @@ export default function DeskReview({ submission }: Props) {
 
                         {/* Submit */}
                         <div className="flex justify-end pt-2">
-                            <Button
+                            <button
                                 type="submit"
                                 disabled={processing || !decision}
+                                className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                             >
                                 {processing ? 'Menyimpan...' : 'Simpan Keputusan'}
-                            </Button>
+                            </button>
                         </div>
                     </form>
                 )}
@@ -212,15 +210,15 @@ export default function DeskReview({ submission }: Props) {
  */
 function StatusBadge({ status }: { status: string }) {
     const config: Record<string, { label: string; className: string }> = {
-        pending: {
+        pending:  {
             label: 'Pending',
             className: 'bg-slate-100 text-slate-800 border border-slate-200',
         },
-        Accept_For_Review: {
+        approved: {
             label: 'Diterima',
             className: 'bg-emerald-50 text-emerald-800 border border-emerald-200',
         },
-        Desk_Reject: {
+        rejected: {
             label: 'Ditolak',
             className: 'bg-rose-50 text-rose-800 border border-rose-200',
         },

@@ -3,57 +3,72 @@
 namespace App\Http\Controllers\Editorial;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Editorial\AssignEditorRequest;
 use App\Models\EditorialAssignment;
-use App\Models\PembinaanRegistration;
+use App\Models\Role;
+use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * DeskController
+ *
+ * Mengelola tampilan dan penugasan Section Editor
+ * pada tahap Desk Review naskah ilmiah.
+ */
 class DeskController extends Controller
 {
     /**
-     * Tampilkan halaman Desk Review.
+     * Tampilkan halaman Desk Review beserta data submission dan daftar editor.
      *
-     * GET /editorial/desk/{registration}/review
+     * GET /editorial/desk/{submission}/review
      */
-    public function show(PembinaanRegistration $registration): Response
+    public function show(Submission $submission): Response
     {
+        $this->authorize('view', $submission);
+
+        $editors = User::select('id', 'name', 'email')
+            ->whereHas('roles', function ($query) {
+                $query->whereIn('name', [Role::EDITOR, Role::SECTION_EDITOR]);
+            })
+            ->orWhereHas('role', function ($query) {
+                $query->whereIn('name', [Role::EDITOR, Role::SECTION_EDITOR]);
+            })
+            ->get();
+
         return Inertia::render('Editorial/Desk/DeskReview', [
-            'registration' => $registration->load('journal', 'user'),
-            'editors'      => User::select('id', 'name', 'email')->get(),
+            'submission' => $submission->load('journal', 'author'),
+            'editors'    => $editors,
         ]);
     }
 
     /**
-     * Assign a Section Editor to a registration (submission).
+     * Tugaskan Section Editor ke submission.
      *
-     * POST /editorial/desk/{registration}/assign-editor
+     * POST /editorial/desk/{submission}/assign-editor
      */
-    public function assignEditor(Request $request, PembinaanRegistration $registration): RedirectResponse
+    public function assignEditor(AssignEditorRequest $request, Submission $submission): RedirectResponse
     {
-        $validated = $request->validate([
-            'editor_id' => ['required', 'integer', 'exists:users,id'],
-        ]);
+        $this->authorize('update', $submission);
 
-        $alreadyAssigned = EditorialAssignment::where('registration_id', $registration->id)
-            ->where('editor_id', $validated['editor_id'])
+        $alreadyAssigned = EditorialAssignment::where('submission_id', $submission->id)
+            ->where('editor_id', $request->editor_id)
             ->exists();
 
         if ($alreadyAssigned) {
-            throw ValidationException::withMessages([
-                'editor_id' => 'Section Editor ini sudah ditugaskan ke submission tersebut.',
-            ]);
+            return redirect()
+                ->back()
+                ->withErrors(['editor_id' => 'Section Editor ini sudah ditugaskan ke submission tersebut.']);
         }
 
         EditorialAssignment::create([
-            'editor_id'       => $validated['editor_id'],
-            'registration_id' => $registration->id,
-            'assigned_by'     => auth()->id(),
-            'assigned_at'     => now(),
-            'status'          => 'assigned',
+            'editor_id' => $request->editor_id,
+            'submission_id' => $submission->id,
+            'assigned_by' => auth()->id(),
+            'assigned_at' => now(),
+            'status' => 'assigned',
         ]);
 
         return redirect()

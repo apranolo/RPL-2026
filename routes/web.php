@@ -24,6 +24,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProposalController;
+use App\Http\Controllers\Editorial\DecisionController;
+use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
@@ -34,8 +36,6 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Editorial\DeskController;
-use App\Http\Controllers\Editorial\DecisionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -604,7 +604,6 @@ Route::post('/editorial/desk/{registration}/assign-editor', [DeskController::cla
 
 Route::post('/editorial/desk/{registration}/desk-review', [DecisionController::class, 'deskReview'])
     ->name('editorial.desk.desk-review');
-    
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
-
