@@ -1,5 +1,6 @@
 <?php
 
+/** @author KHANSA KAMILAH LICTJELITA */
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
