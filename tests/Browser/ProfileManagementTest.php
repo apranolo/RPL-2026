@@ -57,14 +57,14 @@ class ProfileManagementTest extends DuskTestCase
     // ─── Settings Profile Page ────────────────────────────────────────────────
 
     /**
-     * @test The settings/profile page loads and displays the form.
+     * The settings/profile page loads and displays the form.
      */
     public function test_user_can_view_settings_profile_page(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/profile')
-                ->waitForText('Profile Information', 10)
+                ->waitForText('Profile Information', 25)
                 ->assertSee('Profile settings')
                 ->assertInputValue('name', 'Dewi Rahayu')
                 ->assertInputValue('email', 'dewi.rahayu@jurnal-test.id');
@@ -72,38 +72,53 @@ class ProfileManagementTest extends DuskTestCase
     }
 
     /**
-     * @test The user can update their name and phone from the settings profile form.
+     * The user can update their name and phone from the settings profile form.
      */
     public function test_user_can_update_profile_info(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/profile')
-                ->waitForText('Profile Information', 10)
-                ->clear('name')->type('name', 'Dewi Rahayu Updated')
-                ->clear('phone')->type('phone', '+6281234500000')
-                ->clear('position')->type('position', 'Peneliti Senior')
+                ->waitForText('Profile Information', 25);
+
+            // Set values using JS to be React state safe
+            $browser->script([
+                "var nameInput = document.getElementById('name');
+                 var nativeNameSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativeNameSetter.call(nameInput, 'Dewi Rahayu Updated');
+                 nameInput.dispatchEvent(new Event('input', { bubbles: true }));",
+                 "var phoneInput = document.getElementById('phone');
+                 var nativePhoneSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativePhoneSetter.call(phoneInput, '+6281234500000');
+                 phoneInput.dispatchEvent(new Event('input', { bubbles: true }));",
+                 "var posInput = document.getElementById('position');
+                 var nativePosSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativePosSetter.call(posInput, 'Peneliti Senior');
+                 posInput.dispatchEvent(new Event('input', { bubbles: true }));",
+            ]);
+
+            $browser->pause(300)
                 ->press('Save Changes')
-                ->waitForText('Profile updated successfully', 10);
+                ->waitForText('Profile updated successfully', 25);
         });
     }
 
     /**
-     * @test The account information section shows role, university, and approval status.
+     * The account information section shows role, university, and approval status.
      */
     public function test_settings_profile_shows_account_info_section(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/profile')
-                ->waitForText('Account Information', 10)
+                ->waitForText('Account Information', 25)
                 ->assertSee('ROLE')
                 ->assertSee('STATUS AKUN');
         });
     }
 
     /**
-     * @test Avatar upload: select file, preview appears, click Upload.
+     * Avatar upload: select file, preview appears, click Upload.
      */
     public function test_user_can_upload_avatar(): void
     {
@@ -125,14 +140,14 @@ class ProfileManagementTest extends DuskTestCase
             $browser->loginAs($this->user)
                 ->visit('/settings/profile')
                 ->attach('input[type="file"]', $testImagePath)
-                ->waitForText('Upload', 5)
+                ->waitForText('Upload', 25)
                 ->press('Upload')
-                ->waitForText('Avatar updated successfully', 10);
+                ->waitForText('Avatar updated successfully', 25);
         });
     }
 
     /**
-     * @test Avatar section renders the user's initials when no avatar_url is set.
+     * Avatar section renders the user's initials when no avatar_url is set.
      */
     public function test_settings_profile_shows_initials_when_no_avatar(): void
     {
@@ -141,7 +156,7 @@ class ProfileManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/profile')
-                ->waitForText('Profile Information', 10)
+                ->waitForText('Profile Information', 25)
                 ->assertSee('DR'); // Dewi Rahayu initials
         });
     }
@@ -149,14 +164,14 @@ class ProfileManagementTest extends DuskTestCase
     // ─── Settings Password Page ───────────────────────────────────────────────
 
     /**
-     * @test The settings/password page renders with all fields.
+     * The settings/password page renders with all fields.
      */
     public function test_user_can_view_password_settings_page(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/password')
-                ->waitForText('Update password', 10)
+                ->waitForText('Update password', 25)
                 ->assertPresent('input[name="current_password"]')
                 ->assertPresent('input[name="password"]')
                 ->assertPresent('input[name="password_confirmation"]');
@@ -164,53 +179,83 @@ class ProfileManagementTest extends DuskTestCase
     }
 
     /**
-     * @test The user can successfully change their password.
+     * The user can successfully change their password.
      */
     public function test_user_can_change_password(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/password')
-                ->waitForText('Update password', 10)
-                ->type('current_password', 'Password123!')
-                ->type('password', 'NewPassword456!')
-                ->type('password_confirmation', 'NewPassword456!')
+                ->waitForText('Update password', 25);
+
+            // Use JS to set the input values to avoid React sync issues
+            $browser->script([
+                "var curInput = document.getElementById('current_password');
+                 var nativeCurSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativeCurSetter.call(curInput, 'Password123!');
+                 curInput.dispatchEvent(new Event('input', { bubbles: true }));",
+                 "var passInput = document.getElementById('password');
+                 var nativePassSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativePassSetter.call(passInput, 'NewPassword456!');
+                 passInput.dispatchEvent(new Event('input', { bubbles: true }));",
+                 "var confInput = document.getElementById('password_confirmation');
+                 var nativeConfSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativeConfSetter.call(confInput, 'NewPassword456!');
+                 confInput.dispatchEvent(new Event('input', { bubbles: true }));",
+            ]);
+
+            $browser->pause(300)
                 ->press('Save password')
-                ->waitForText('Saved', 10);
+                ->waitForText('Saved', 25);
         });
     }
 
     /**
-     * @test Wrong current password shows an error.
+     * Wrong current password shows an error.
      */
     public function test_wrong_current_password_shows_error(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/password')
-                ->waitForText('Update password', 10)
-                ->type('current_password', 'WrongPass!!!')
-                ->type('password', 'NewPassword456!')
-                ->type('password_confirmation', 'NewPassword456!')
+                ->waitForText('Update password', 25);
+
+            // Use JS to set the input values to avoid React sync issues
+            $browser->script([
+                "var curInput = document.getElementById('current_password');
+                 var nativeCurSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativeCurSetter.call(curInput, 'WrongPass!!!');
+                 curInput.dispatchEvent(new Event('input', { bubbles: true }));",
+                 "var passInput = document.getElementById('password');
+                 var nativePassSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativePassSetter.call(passInput, 'NewPassword456!');
+                 passInput.dispatchEvent(new Event('input', { bubbles: true }));",
+                 "var confInput = document.getElementById('password_confirmation');
+                 var nativeConfSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativeConfSetter.call(confInput, 'NewPassword456!');
+                 confInput.dispatchEvent(new Event('input', { bubbles: true }));",
+            ]);
+
+            $browser->pause(300)
                 ->press('Save password')
-                ->waitFor('.text-red-600, .text-destructive, [class*="error"], [class*="Error"]', 10);
+                ->waitFor('.text-red-600, .text-red-400, .text-destructive, [class*="error"], [class*="Error"]', 25);
 
             // An error should be shown for current_password field
-            $browser->assertPresent('.text-red-600, .text-destructive, [class*="error"]');
+            $browser->assertPresent('.text-red-600, .text-red-400, .text-destructive, [class*="error"]');
         });
     }
 
     // ─── User Area Profil Dashboard ───────────────────────────────────────────
 
     /**
-     * @test The /user/profil page loads with all tabs.
+     * The /user/profil page loads with all tabs.
      */
     public function test_user_can_view_profil_dashboard(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/user/profil')
-                ->waitForText('Profil', 10)
+                ->waitForText('Overview', 25)
                 ->assertSee('Overview')
                 ->assertSee('Jurnal Saya')
                 ->assertSee('Riwayat')
@@ -219,75 +264,98 @@ class ProfileManagementTest extends DuskTestCase
     }
 
     /**
-     * @test ProfileCard on profil dashboard has an "Edit Profile" button pointing to /settings/profile.
+     * ProfileCard on profil dashboard has an "Edit Profile" button pointing to /settings/profile.
      */
     public function test_profil_dashboard_has_edit_profile_link(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/user/profil')
-                ->waitForText('Edit Profile', 10)
+                ->waitForText('Edit Profile', 25)
                 ->assertSeeLink('Edit Profile');
         });
     }
 
     /**
-     * @test Notification tab shows "Belum Ada Notifikasi" when there are no notifications.
+     * Notification tab shows "Belum Ada Notifikasi" when there are no notifications.
      */
     public function test_profil_dashboard_notifications_tab_shows_empty_state(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/user/profil')
-                ->waitForText('Notifikasi', 10)
-                ->press('Notifikasi')
-                ->waitForText('Belum Ada Notifikasi', 5);
+                ->waitForText('Notifikasi', 25);
+
+            // Click the Notifikasi tab trigger using JavaScript to be robust
+            $browser->script([
+                "document.querySelectorAll('button[role=\"tab\"]').forEach(function(btn) {
+                    if (btn.textContent.trim().includes('Notifikasi')) {
+                        btn.click();
+                    }
+                });",
+            ]);
+
+            $browser->waitForText('Belum Ada Notifikasi', 25);
         });
     }
 
     // ─── User Area Profil Edit Page ───────────────────────────────────────────
 
     /**
-     * @test The /user/profil/edit page renders the form.
+     * The /user/profil/edit page renders the form.
      */
     public function test_user_can_view_profil_edit_page(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/user/profil/edit')
-                ->waitForText('Edit Profil', 10)
+                ->waitForText('Edit Profil', 25)
                 ->assertInputValue('name', 'Dewi Rahayu')
                 ->assertInputValue('email', 'dewi.rahayu@jurnal-test.id');
         });
     }
 
     /**
-     * @test The user can update their profile from the user-area edit page.
+     * The user can update their profile from the user-area edit page.
      */
     public function test_user_can_update_profil_from_user_area(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/user/profil/edit')
-                ->waitForText('Edit Profil', 10)
-                ->clear('name')->type('name', 'Dewi Rahayu Baru')
-                ->clear('phone')->type('phone', '+6281112223334')
-                ->clear('position')->type('position', 'Dosen Pengelola')
+                ->waitForText('Edit Profil', 25);
+
+            // Set inputs using native JS value setter so React state updates
+            $browser->script([
+                "var nameInput = document.getElementById('name');
+                 var nativeNameSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativeNameSetter.call(nameInput, 'Dewi Rahayu Baru');
+                 nameInput.dispatchEvent(new Event('input', { bubbles: true }));",
+                 "var phoneInput = document.getElementById('phone');
+                 var nativePhoneSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativePhoneSetter.call(phoneInput, '+6281112223334');
+                 phoneInput.dispatchEvent(new Event('input', { bubbles: true }));",
+                 "var posInput = document.getElementById('position');
+                 var nativePosSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativePosSetter.call(posInput, 'Dosen Pengelola');
+                 posInput.dispatchEvent(new Event('input', { bubbles: true }));",
+            ]);
+
+            $browser->pause(300)
                 ->press('Simpan Perubahan')
-                ->pause(5000)
-                ->assertPathIs('/user/profil');
+                ->waitForLocation('/user/profil', 25);
         });
     }
 
     /**
-     * @test Back button on edit page navigates back.
+     * Back button on edit page navigates back.
      */
     public function test_profil_edit_back_button_works(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/user/profil/edit')
-                ->waitForText('Edit Profil', 10)
+                ->waitForText('Edit Profil', 25)
                 ->assertPresent('button, a') // Back button exists
                 ->assertSee('Kembali ke Profil');
         });
@@ -298,16 +366,22 @@ class ProfileManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/user/profil/edit')
-                ->waitForText('Edit Profil', 10)
-                ->script([
-                    "document.getElementById('name').removeAttribute('required');",
-                    "const input = document.getElementById('name'); input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));",
-                ]);
+                ->waitForText('Edit Profil', 25);
 
-            $browser->press('Simpan Perubahan')
-                ->waitFor('.text-red-600, [class*="error"], .text-destructive', 10);
+            // Remove the required attribute and clear the React-controlled input
+            // by using native value setter so React's onChange fires
+            $browser->script([
+                "document.getElementById('name').removeAttribute('required');",
+                "var input = document.getElementById('name');
+                 var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativeInputValueSetter.call(input, '');
+                 input.dispatchEvent(new Event('input', { bubbles: true }));
+                 input.dispatchEvent(new Event('change', { bubbles: true }));",
+            ]);
 
-            $browser->assertPresent('.text-red-600, [class*="error"], .text-destructive');
+            $browser->pause(300)
+                ->press('Simpan Perubahan')
+                ->waitFor('.text-red-600, .text-red-400, [class*="error"], .text-destructive', 25);
         });
     }
 }

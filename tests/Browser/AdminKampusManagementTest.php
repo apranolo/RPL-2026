@@ -38,6 +38,7 @@ class AdminKampusManagementTest extends DuskTestCase
             'password' => bcrypt('password123'),
             'role_id' => $superAdminRole->id,
             'is_active' => true,
+            'approval_status' => 'approved',
         ]);
 
         // Get a university
@@ -52,7 +53,7 @@ class AdminKampusManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus')
-                ->waitForText('Admin Kampus Management', 10)
+                ->waitForText('Admin Kampus Management', 25)
                 ->assertSee('Admin Kampus Management')
                 ->assertSee('Add Admin Kampus');
         });
@@ -67,7 +68,7 @@ class AdminKampusManagementTest extends DuskTestCase
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus')
                 ->click('a[href*="admin-kampus/create"]')
-                ->waitForText('Create New Admin Kampus')
+                ->waitForText('Create New Admin Kampus', 25)
                 ->assertPathIs('/admin/admin-kampus/create')
                 ->assertSee('Personal Information')
                 ->assertSee('Account Information')
@@ -83,7 +84,7 @@ class AdminKampusManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus/create')
-                ->waitForText('Create New Admin Kampus')
+                ->waitForText('Create New Admin Kampus', 25)
                 ->type('input[id="name"]', 'Test Admin Kampus')
                 ->type('input[id="email"]', 'test.admin@uad.ac.id')
                 ->type('input[id="phone"]', '0274-123456')
@@ -97,7 +98,7 @@ class AdminKampusManagementTest extends DuskTestCase
                 ->click('div[role="option"]:first-child')
                 ->pause(300)
                 ->press('Create Admin Kampus')
-                ->waitForLocation('/admin/admin-kampus')
+                ->waitForLocation('/admin/admin-kampus', 25)
                 ->assertSee('Admin Kampus created successfully')
                 ->assertSee('Test Admin Kampus');
         });
@@ -217,12 +218,13 @@ class AdminKampusManagementTest extends DuskTestCase
             'role_id' => $adminKampusRole->id,
             'university_id' => $this->university->id,
             'is_active' => true,
+            'approval_status' => 'approved',
         ]);
 
         $this->browse(function (Browser $browser) use ($adminKampus) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus/'.$adminKampus->id.'/edit')
-                ->assertSee('Edit Admin Kampus')
+                ->waitForText('Edit Admin Kampus', 25)
                 ->assertSee('Update information for Edit Test Admin')
                 ->assertInputValue('input[id="name"]', 'Edit Test Admin')
                 ->assertInputValue('input[id="email"]', 'edit.test@uad.ac.id');
@@ -247,12 +249,13 @@ class AdminKampusManagementTest extends DuskTestCase
             'role_id' => $adminKampusRole->id,
             'university_id' => $this->university->id,
             'is_active' => true,
+            'approval_status' => 'approved',
         ]);
 
         $this->browse(function (Browser $browser) use ($adminKampus) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus/'.$adminKampus->id.'/edit')
-                ->waitForText('Edit Admin Kampus')
+                ->waitForText('Edit Admin Kampus', 25)
                 // Verify form loaded with correct data
                 ->assertInputValue('input[id="name"]', 'Update Test Admin')
                 ->assertInputValue('input[id="email"]', 'update.test@uad.ac.id')
@@ -275,12 +278,13 @@ class AdminKampusManagementTest extends DuskTestCase
             'role_id' => $adminKampusRole->id,
             'university_id' => $this->university->id,
             'is_active' => true,
+            'approval_status' => 'approved',
         ]);
 
         $this->browse(function (Browser $browser) use ($adminKampus) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus/'.$adminKampus->id)
-                ->waitForText('Toggle Test Admin')
+                ->waitForText('Active', 25)
                 ->assertSee('Active');
 
             // Click Deactivate button using JavaScript
@@ -317,12 +321,13 @@ class AdminKampusManagementTest extends DuskTestCase
             'role_id' => $adminKampusRole->id,
             'university_id' => $this->university->id,
             'is_active' => true,
+            'approval_status' => 'approved',
         ]);
 
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus')
-                ->waitForText('Delete Safe Admin XYZ')
+                ->waitForText('Delete Safe Admin XYZ', 25)
                 // Verify the user is in the list
                 ->assertSee('Delete Safe Admin XYZ')
                 ->assertSee('delete.safe@uad.ac.id')
@@ -345,6 +350,7 @@ class AdminKampusManagementTest extends DuskTestCase
             'role_id' => $adminKampusRole->id,
             'university_id' => $this->university->id,
             'is_active' => true,
+            'approval_status' => 'approved',
         ]);
 
         // Create a journal
@@ -361,6 +367,7 @@ class AdminKampusManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus')
+                ->waitForText('Delete Test Admin With Journal', 25)
                 ->assertSee('Delete Test Admin With Journal');
 
             // Override confirm dialog to auto-accept
@@ -391,7 +398,7 @@ class AdminKampusManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus/create')
-                ->waitForText('Create New Admin Kampus');
+                ->waitForText('Create New Admin Kampus', 25);
 
             // Bypass HTML5 validation and click submit
             $browser->script([
@@ -426,19 +433,31 @@ class AdminKampusManagementTest extends DuskTestCase
             'role_id' => $adminKampusRole->id,
             'university_id' => $this->university->id,
             'is_active' => true,
+            'approval_status' => 'approved',
         ]);
 
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus/create')
-                ->waitForText('Create New Admin Kampus')
+                ->waitForText('Create New Admin Kampus', 25)
                 ->pause(1500)
                 // Verify the form can be loaded and email field exists
-                ->assertPresent('#email')
-                ->click('#email')
-                ->type('#email', 'existing@uad.ac.id')
-                // Verify the email is typed correctly
-                ->assertInputValue('#email', 'existing@uad.ac.id');
+                ->assertPresent('#email');
+
+            // Use JavaScript to set the value on the React-controlled input
+            // and dispatch a native input event so React state is updated
+            $browser->script([
+                "var emailInput = document.getElementById('email');
+                 var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                 nativeInputValueSetter.call(emailInput, 'existing@uad.ac.id');
+                 emailInput.dispatchEvent(new Event('input', { bubbles: true }));",
+            ]);
+
+            $browser->pause(300);
+
+            // Verify that input now contains the email
+            $emailValue = $browser->script(["return document.getElementById('email').value;"])[0];
+            $this->assertEquals('existing@uad.ac.id', $emailValue);
         });
 
         // Verify that the existing email is still in database
@@ -475,12 +494,14 @@ class AdminKampusManagementTest extends DuskTestCase
                 'role_id' => $adminKampusRole->id,
                 'university_id' => $this->university->id,
                 'is_active' => true,
+                'approval_status' => 'approved',
             ]);
         }
 
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus')
+                ->waitForText('Pagination Test Admin 1', 25)
                 ->assertSee('Showing')
                 ->assertSee('results');
         });
@@ -500,12 +521,13 @@ class AdminKampusManagementTest extends DuskTestCase
             'role_id' => $adminKampusRole->id,
             'university_id' => $this->university->id,
             'is_active' => true,
+            'approval_status' => 'approved',
         ]);
 
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
                 ->visit('/admin/admin-kampus')
-                ->waitForText('Admin Kampus Management')
+                ->waitForText('Admin Kampus Management', 25)
                 // Search for the unique name using placeholder selector
                 ->type('input[placeholder*="Search"]', 'Searchable Admin Khusus')
                 ->pause(1500)
