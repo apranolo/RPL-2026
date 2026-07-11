@@ -21,14 +21,7 @@
  */
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -187,11 +180,7 @@ export default function Index({ emailTemplates }: Props) {
                                         </TableCell>
 
                                         <TableCell className="text-right">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => openEdit(template)}
-                                            >
+                                            <Button variant="outline" size="sm" onClick={() => openEdit(template)}>
                                                 <Pencil className="mr-1 h-3 w-3" />
                                                 Edit
                                             </Button>
@@ -211,25 +200,23 @@ export default function Index({ emailTemplates }: Props) {
             </div>
 
             {/* Modal Edit Template */}
-            <Dialog open={editOpen} onOpenChange={(open) => { if (!open) closeEdit(); }}>
+            <Dialog
+                open={editOpen}
+                onOpenChange={(open) => {
+                    if (!open) closeEdit();
+                }}
+            >
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Edit Email Template</DialogTitle>
-                        <DialogDescription>
-                            Perbarui isi template email. Gunakan variabel yang tersedia di dalam body.
-                        </DialogDescription>
+                        <DialogDescription>Perbarui isi template email. Gunakan variabel yang tersedia di dalam body.</DialogDescription>
                     </DialogHeader>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {/* Nama */}
                         <div className="space-y-1">
                             <Label htmlFor="et-name">Nama Template</Label>
-                            <Input
-                                id="et-name"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                                disabled={processing}
-                            />
+                            <Input id="et-name" value={data.name} onChange={(e) => setData('name', e.target.value)} disabled={processing} />
                             {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                         </div>
 
@@ -248,12 +235,7 @@ export default function Index({ emailTemplates }: Props) {
                         {/* Subject */}
                         <div className="space-y-1">
                             <Label htmlFor="et-subject">Subject Email</Label>
-                            <Input
-                                id="et-subject"
-                                value={data.subject}
-                                onChange={(e) => setData('subject', e.target.value)}
-                                disabled={processing}
-                            />
+                            <Input id="et-subject" value={data.subject} onChange={(e) => setData('subject', e.target.value)} disabled={processing} />
                             {errors.subject && <p className="text-sm text-destructive">{errors.subject}</p>}
                         </div>
 
