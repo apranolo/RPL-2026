@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ReviewerAssignment;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
