@@ -10,16 +10,19 @@ use Inertia\Inertia;
 
 class ReviewController extends Controller
 {
-    public function showManuscript(Article $article)
+    public function showManuscript(Article $article, \App\Services\AnonymizeService $anonymizeService)
     {
-        // Anonimisasi Double-Blind: sembunyikan identitas penulis
-        $manuscript = [
-            'id' => $article->id,
-            'title' => $article->title,
-            'abstract' => $article->abstract,
-            'keywords' => $article->keywords,
-            'file_path' => $article->file_path,
-        ];
+        // Pemeriksaan otorisasi penugasan
+        $isAssigned = \App\Models\ReviewerAssignment::where('id_submission', $article->id)
+            ->where('id_reviewer', auth()->id())
+            ->exists();
+
+        if (!$isAssigned) {
+            abort(403, 'Anda tidak memiliki otorisasi untuk melihat naskah ini.');
+        }
+
+        // Anonimisasi Double-Blind menggunakan AnonymizeService sesuai panduan
+        $manuscript = $anonymizeService->anonymize($article);
 
         $reviewDecision = ReviewDecision::where('id_submission', $article->id)
             ->where('id_reviewer', auth()->id())
@@ -31,18 +34,16 @@ class ReviewController extends Controller
         ]);
     }
 
-    public function submitReview(Request $request, Article $article)
+    public function submitReview(\App\Http\Requests\SubmitReviewRequest $request, Article $article)
     {
-        $request->validate([
-            'recommendation' => 'required|in:Accept,Revise,Reject',
-            'comments' => 'required|string',
-            'comments_private' => 'nullable|string',
-            'score_originality' => 'required|integer|min:1|max:5',
-            'score_methodology' => 'required|integer|min:1|max:5',
-            'score_writing' => 'required|integer|min:1|max:5',
-            'score_relevance' => 'required|integer|min:1|max:5',
-            'score_conclusion' => 'required|integer|min:1|max:5',
-        ]);
+        // Pemeriksaan otorisasi penugasan
+        $isAssigned = \App\Models\ReviewerAssignment::where('id_submission', $article->id)
+            ->where('id_reviewer', auth()->id())
+            ->exists();
+
+        if (!$isAssigned) {
+            abort(403, 'Anda tidak memiliki otorisasi untuk mengirim review pada naskah ini.');
+        }
 
         $aggregate = (
             $request->score_originality +

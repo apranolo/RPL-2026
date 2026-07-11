@@ -1,7 +1,11 @@
+/**
+ * @file FormReview.tsx
+ * @description Halaman form penilaian rubrik bagi Reviewer.
+ * Menampilkan naskah anonim dan mengelola input skor per kriteria.
+ */
 import AppLayout from '@/layouts/app-layout';
 import RubricScoreInput from '@/components/RubricScoreInput';
-import { useState } from 'react';
-import { router } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 
 interface Manuscript {
     id: number;
@@ -29,27 +33,36 @@ interface Props {
 }
 
 export default function FormReview({ manuscript, reviewDecision }: Props) {
-    const [scores, setScores] = useState({
+    const { data, setData, post, processing } = useForm({
         score_originality: reviewDecision?.score_originality ?? 0,
         score_methodology: reviewDecision?.score_methodology ?? 0,
         score_writing: reviewDecision?.score_writing ?? 0,
         score_relevance: reviewDecision?.score_relevance ?? 0,
         score_conclusion: reviewDecision?.score_conclusion ?? 0,
+        recommendation: reviewDecision?.recommendation ?? '',
+        comments: reviewDecision?.comments ?? '',
+        comments_private: reviewDecision?.comments_private ?? '',
     });
-    const [recommendation, setRecommendation] = useState(reviewDecision?.recommendation ?? '');
-    const [comments, setComments] = useState(reviewDecision?.comments ?? '');
-    const [commentsPrivate, setCommentsPrivate] = useState(reviewDecision?.comments_private ?? '');
 
-    const aggregate = Object.values(scores).reduce((a, b) => a + b, 0) / 5;
+    const handleScoreChange = (newScores: any) => {
+        setData((prevData) => ({
+            ...prevData,
+            ...newScores,
+        }));
+    };
 
     function handleSubmit() {
-        router.post(`/review/${manuscript.id}/submit`, {
-            ...scores,
-            recommendation,
-            comments,
-            comments_private: commentsPrivate,
-        });
+        post(`/review/${manuscript.id}/submit`);
     }
+
+    // Ekstrak skor untuk komponen anak
+    const scores = {
+        score_originality: data.score_originality,
+        score_methodology: data.score_methodology,
+        score_writing: data.score_writing,
+        score_relevance: data.score_relevance,
+        score_conclusion: data.score_conclusion,
+    };
 
     return (
         <AppLayout>
@@ -70,11 +83,7 @@ export default function FormReview({ manuscript, reviewDecision }: Props) {
                 {/* Rubrik Penilaian */}
                 <div className="bg-white border rounded-lg p-5 mb-6">
                     <h2 className="text-lg font-semibold mb-4">Rubrik Penilaian (1–5)</h2>
-                    <RubricScoreInput scores={scores} onChange={setScores} />
-                    <div className="mt-4 p-3 bg-gray-50 rounded">
-                        <span className="font-semibold">Skor Agregat: </span>
-                        <span className="text-blue-600 font-bold">{aggregate.toFixed(2)}</span>
-                    </div>
+                    <RubricScoreInput scores={scores} onChange={handleScoreChange} />
                 </div>
 
                 {/* Rekomendasi */}
@@ -82,8 +91,8 @@ export default function FormReview({ manuscript, reviewDecision }: Props) {
                     <h2 className="text-lg font-semibold mb-4">Rekomendasi & Komentar</h2>
                     <select
                         className="w-full border rounded p-2 mb-4"
-                        value={recommendation}
-                        onChange={e => setRecommendation(e.target.value)}
+                        value={data.recommendation}
+                        onChange={e => setData('recommendation', e.target.value)}
                     >
                         <option value="">-- Pilih Rekomendasi --</option>
                         <option value="Accept">Accept</option>
@@ -94,23 +103,26 @@ export default function FormReview({ manuscript, reviewDecision }: Props) {
                         className="w-full border rounded p-2 mb-4"
                         rows={4}
                         placeholder="Komentar untuk penulis..."
-                        value={comments}
-                        onChange={e => setComments(e.target.value)}
+                        value={data.comments}
+                        onChange={e => setData('comments', e.target.value)}
                     />
                     <textarea
                         className="w-full border rounded p-2"
                         rows={3}
                         placeholder="Komentar privat untuk editor..."
-                        value={commentsPrivate}
-                        onChange={e => setCommentsPrivate(e.target.value)}
+                        value={data.comments_private}
+                        onChange={e => setData('comments_private', e.target.value)}
                     />
                 </div>
 
                 <button
                     onClick={handleSubmit}
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                    disabled={processing}
+                    className={`w-full text-white py-2 rounded ${
+                        processing ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
                 >
-                    Kirim Review
+                    {processing ? 'Memproses...' : 'Kirim Review'}
                 </button>
             </div>
         </AppLayout>

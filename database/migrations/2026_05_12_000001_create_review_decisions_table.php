@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('review_decisions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_submission')->nullable();
-            $table->unsignedBigInteger('id_reviewer')->nullable();
+            $table->foreignId('id_submission')->nullable()->constrained('articles')->nullOnDelete();
+            $table->foreignId('id_reviewer')->nullable()->constrained('users')->nullOnDelete();
             $table->enum('recommendation', ['Accept', 'Revise', 'Reject'])->nullable();
             $table->text('comments')->nullable();
             $table->text('comments_private')->nullable();
