@@ -10,26 +10,26 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('author_profiles', function (Blueprint $table) {
+{
+    Schema::create('author_profiles', function (Blueprint $table) {
 
-            $table->id();
+        $table->id();
 
-            $table->foreignId('user_id')
-                ->constrained()
-                ->cascadeOnDelete();
+        $table->foreignId('user_id')
+              ->constrained()
+              ->cascadeOnDelete();
 
-            $table->string('orcid')->nullable();
+        $table->string('orcid')->nullable();
 
-            $table->string('affiliation')->nullable();
+        $table->string('affiliation')->nullable();
 
-            $table->text('bio')->nullable();
+        $table->text('bio')->nullable();
 
-            $table->timestamps();
+        $table->timestamps();
 
-            $table->softDeletes();
-        });
-    }
+        $table->softDeletes();
+    });
+}
 
     /**
      * Reverse the migrations.

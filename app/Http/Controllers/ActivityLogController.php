@@ -19,9 +19,9 @@ class ActivityLogController extends Controller
     {
         // Validasi otorisasi: hanya Editor dan Super Admin yang boleh mengakses
         $user = $request->user();
-
-        // akan diganti dengan role editor dibawah ini jika role sudah didefinisikan
-        // if (! $user || ! $user->roles()->whereIn('name', [Role::EDITOR, Role::SUPER_ADMIN])->exists()) {
+        
+        //akan diganti dengan role editor dibawah ini jika role sudah didefinisikan 
+        //if (! $user || ! $user->roles()->whereIn('name', [Role::EDITOR, Role::SUPER_ADMIN])->exists()) {
         if (! $user || ! $user->roles()->whereIn('name', ['Editor', Role::SUPER_ADMIN])->exists()) {
             abort(403, 'Unauthorized access. Editor or Super Admin role required.');
         }

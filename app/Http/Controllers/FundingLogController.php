@@ -15,9 +15,8 @@ class FundingLogController extends Controller
     {
         $user = $request->user();
 
-        // [PERBAIKAN Kritis]: Ubah eager loading menjadi contract.university
-        // agar data relasi (Judul Kontrak & Nama Universitas) terbaca oleh React
-        $query = Funding::query()->with(['contract.university', 'updated_by']);
+       
+        $query = Funding::query()->with(['contract.university']);
 
         // Filter Otorisasi Multi-Tenancy
         // Memastikan Admin Kampus hanya melihat data log milik kampusnya sendiri

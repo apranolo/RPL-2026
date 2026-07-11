@@ -8,17 +8,14 @@ import { useState } from 'react';
 
 interface FundingLog {
     id: number;
-    termin_number: string; // [PERBAIKAN] Sinkronisasi nama atribut
-    amount: number; // [PERBAIKAN] Sinkronisasi nama atribut
+    termin_number: string;
+    amount: number;
     status: string;
     updated_at: string;
     contract?: {
-        // [PERBAIKAN] Relasi diubah dari project ke contract
         title: string;
     };
-    updated_by?: {
-        name: string;
-    };
+    // updated_by sudah dihapus dari sini
 }
 
 interface PaginationLink {
@@ -119,11 +116,11 @@ export default function Logs({ logs }: Props) {
                     <table className="w-full border-collapse text-left text-sm">
                         <thead>
                             <tr className="border-y-2 border-black text-xs tracking-wider uppercase">
-                                <th className="px-2 py-4">Project</th>
+                                <th className="px-2 py-4">Judul Kontrak</th>
                                 <th className="px-2 py-4">Termin</th>
                                 <th className="px-2 py-4">Nominal</th>
                                 <th className="px-2 py-4">Status</th>
-                                <th className="px-2 py-4">Updated By</th>
+                                {/* Kolom Updated By sudah dihapus dari sini */}
                                 <th className="px-2 py-4">Updated At</th>
                                 <th className="px-2 py-4 text-right">Aksi</th>
                             </tr>
@@ -132,14 +129,13 @@ export default function Logs({ logs }: Props) {
                         <tbody>
                             {logs.data.map((log) => (
                                 <tr key={log.id} className="border-b border-black transition-colors hover:bg-gray-50">
-                                    {/* [PERBAIKAN] Pemanggilan variabel yang sudah disesuaikan */}
                                     <td className="px-2 py-4 font-medium">{log.contract?.title ?? '-'}</td>
                                     <td className="px-2 py-4">{log.termin_number}</td>
                                     <td className="px-2 py-4 font-mono text-base">Rp {Number(log.amount).toLocaleString('id-ID')}</td>
                                     <td className="px-2 py-4">
                                         <span className="border border-black px-2 py-1 text-xs font-bold uppercase">{log.status}</span>
                                     </td>
-                                    <td className="px-2 py-4">{log.updated_by?.name ?? '-'}</td>
+                                    {/* Data Updated By sudah dihapus dari sini */}
                                     <td className="px-2 py-4">
                                         {new Date(log.updated_at).toLocaleString('id-ID', {
                                             day: '2-digit',
@@ -164,7 +160,8 @@ export default function Logs({ logs }: Props) {
 
                             {logs.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="border-b border-black py-8 text-center text-sm font-medium uppercase">
+                                    {/* colSpan diubah menjadi 6 karena jumlah kolom sisa 6 */}
+                                    <td colSpan={6} className="border-b border-black py-8 text-center text-sm font-medium uppercase">
                                         Tidak ada riwayat termin ditemukan.
                                     </td>
                                 </tr>
