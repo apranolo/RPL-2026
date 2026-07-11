@@ -15,12 +15,12 @@ class FundingLogController extends Controller
     {
         $user = $request->user();
 
-       
+        // Eager loading sudah bersih dari updated_by
         $query = Funding::query()->with(['contract.university']);
 
         // Filter Otorisasi Multi-Tenancy
-        // Memastikan Admin Kampus hanya melihat data log milik kampusnya sendiri
-        if ($user->hasRole('Admin Kampus')) {
+        // [PERBAIKAN] Menggunakan helper model User sesuai standardisasi
+        if ($user->isAdminKampus()) {
             $query->whereHas('contract', function ($q) use ($user) {
                 $q->where('university_id', $user->university_id);
             });
