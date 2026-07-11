@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import {
     AlertTriangle,
@@ -86,6 +87,12 @@ export default function Step5Confirm({ submission }: Props) {
     const [confirmed, setConfirmed] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Profil', href: route('user.profil.index') },
+        { title: 'Kirim Naskah (Wizard)', href: '#' },
+    ];
+
     // Progress Bar configuration
     const wizardSteps: WizardStep[] = [
         { label: 'Start', description: 'Pilih Jurnal & Syarat', complete: true },
@@ -138,7 +145,7 @@ export default function Step5Confirm({ submission }: Props) {
     }
 
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Konfirmasi &amp; Kirim Naskah — Wizard Step 5" />
 
             <div className="mx-auto max-w-5xl space-y-8 pb-12">

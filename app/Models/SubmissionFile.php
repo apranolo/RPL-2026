@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SubmissionFile extends Model
 {
@@ -12,8 +13,10 @@ class SubmissionFile extends Model
     protected $fillable = [
         'submission_id',
         'file_path',
-        'file_type',
+        'file_name',
         'file_size',
+        'mime_type',
+        'file_type',
     ];
 
     protected $appends = ['id_submission'];
@@ -23,7 +26,10 @@ class SubmissionFile extends Model
         return $this->submission_id;
     }
 
-    public function submission()
+    /**
+     * Relasi balik ke model induk Submission
+     */
+    public function submission(): BelongsTo
     {
         return $this->belongsTo(Submission::class);
     }

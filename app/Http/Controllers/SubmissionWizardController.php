@@ -21,7 +21,7 @@ class SubmissionWizardController extends Controller
     public function confirm(Request $request, Submission $submission)
     {
         // Ensure the submission belongs to the current user
-        if ($submission->author_id !== $request->user()->id) {
+        if ($submission->author_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -48,6 +48,11 @@ class SubmissionWizardController extends Controller
      */
     public function finalSubmit(FinalSubmitRequest $request, Submission $submission)
     {
+        // Ensure the submission belongs to the current user
+        if ($submission->author_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         // Only draft submissions can be submitted
         if ($submission->status !== 'Draft') {
             return redirect()->route('user.profil.index')

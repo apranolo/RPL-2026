@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('submission_files', function (Blueprint $table) {
+        Schema::create('research_schemas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
-            $table->string('file_path');
-            $table->string('file_type')->default('ManuscriptMain')->comment('ManuscriptMain, Supplementary');
-            $table->integer('file_size')->default(0);
+            $table->string('name');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('submission_files');
+        Schema::dropIfExists('research_schemas');
     }
 };

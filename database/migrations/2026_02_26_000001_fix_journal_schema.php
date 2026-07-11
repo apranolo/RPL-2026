@@ -26,13 +26,6 @@ return new class extends Migration
             );
 
             if (! empty($columnsToDrop)) {
-                if (\Illuminate\Support\Facades\DB::getDriverName() === 'sqlite') {
-                    try {
-                        \Illuminate\Support\Facades\DB::statement('DROP INDEX IF EXISTS journals_accreditation_expiry_date_index');
-                        \Illuminate\Support\Facades\DB::statement('DROP INDEX IF EXISTS journals_accreditation_issued_date_index');
-                        \Illuminate\Support\Facades\DB::statement('DROP INDEX IF EXISTS journals_dikti_accreditation_number_index');
-                    } catch (\Exception $e) {}
-                }
                 $table->dropColumn(array_values($columnsToDrop));
             }
         });

@@ -12,7 +12,7 @@ class FinalSubmitRequest extends FormRequest
     public function authorize(): bool
     {
         $submission = $this->route('submission');
-        return $submission && $submission->author_id === $this->user()->id;
+        return $submission && $submission->author_id === auth()->id();
     }
 
     /**
