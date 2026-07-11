@@ -660,23 +660,65 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/review/invitation/{id}', function ($id) {
+    $assignment = \App\Models\ReviewerAssignment::with([
+        'registration.journal.university',
+        'registration.pembinaan',
+        'assigner',
+    ])->findOrFail($id);
+
     return Inertia::render('Review/Invitation', [
         'assignment' => [
-            'id' => $id,
-            // 'journal_title' => 'Journal MU',
-            // 'article_title' => 'Sample Article',
-            // 'editor_name' => 'Editor Name',
-            // 'deadline' => '2026-06-01',
-            // 'status' => 'pending',
-        ]
+            'id'          => $assignment->id,
+            'status'      => $assignment->status,
+            'assigned_at' => $assignment->assigned_at,
+            'reason'      => $assignment->reason,
+            'assigner'    => $assignment->assigner ? [
+                'id'       => $assignment->assigner->id,
+                'name'     => $assignment->assigner->name,
+                'email'    => $assignment->assigner->email,
+                'position' => $assignment->assigner->position,
+            ] : null,
+            'registration' => $assignment->registration ? [
+                'id'     => $assignment->registration->id,
+                'status' => $assignment->registration->status,
+                'registered_at' => $assignment->registration->registered_at,
+                'journal' => $assignment->registration->journal ? [
+                    'id'              => $assignment->registration->journal->id,
+                    'title'           => $assignment->registration->journal->title,
+                    'issn'            => $assignment->registration->journal->issn,
+                    'e_issn'          => $assignment->registration->journal->e_issn,
+                    'publisher'       => $assignment->registration->journal->publisher,
+                    'sinta_rank'      => $assignment->registration->journal->sinta_rank,
+                    'sinta_rank_label'=> $assignment->registration->journal->sinta_rank_label ?? null,
+                    'university'      => $assignment->registration->journal->university ? [
+                        'id'         => $assignment->registration->journal->university->id,
+                        'name'       => $assignment->registration->journal->university->name,
+                        'short_name' => $assignment->registration->journal->university->short_name,
+                    ] : null,
+                ] : null,
+                'pembinaan' => $assignment->registration->pembinaan ? [
+                    'id'                 => $assignment->registration->pembinaan->id,
+                    'name'               => $assignment->registration->pembinaan->name,
+                    'description'        => $assignment->registration->pembinaan->description,
+                    'category'           => $assignment->registration->pembinaan->category,
+                    'registration_start' => $assignment->registration->pembinaan->registration_start,
+                    'registration_end'   => $assignment->registration->pembinaan->registration_end,
+                    'assessment_start'   => $assignment->registration->pembinaan->assessment_start,
+                    'assessment_end'     => $assignment->registration->pembinaan->assessment_end,
+                ] : null,
+            ] : null,
+        ],
     ]);
-});
+})->middleware('auth')->name('review.invitation');
+
 
 Route::post('/review-assignment/{id}/accept', [ReviewAssignmentController::class, 'accept'])
-    ->name('review.assignment.accept');
+    ->middleware('auth')
+    ->name('review.accept');
 
 Route::post('/review-assignment/{id}/decline', [ReviewAssignmentController::class, 'decline'])
-    ->name('review.assignment.decline');
+    ->middleware('auth')
+    ->name('review.decline');
 
 
 require __DIR__.'/settings.php';

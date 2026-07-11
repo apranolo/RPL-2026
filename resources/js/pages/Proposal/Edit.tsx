@@ -30,7 +30,7 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
 
         put(route('proposal.update', { proposal: proposal.id }), {
             onSuccess: () => {
-                console.log('Berhasil update');
+                // Proposal berhasil diupdate, Inertia akan redirect otomatis
             },
         });
     };

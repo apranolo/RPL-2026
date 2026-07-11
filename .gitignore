@@ -30,4 +30,7 @@ Dockerfile
 /.github/instructions   
 /.agents/workflows
 /docs/guidence rpl 2026/specs/TEMPLATE_VIEW_SPEC.md
-/docs/guidence rpl 2026/specs/TEMPLATE_VIEW_SPEC.md
+
+# Large binary/archive files that should not be committed
+app.zip
+rpl-2026
