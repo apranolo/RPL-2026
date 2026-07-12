@@ -647,6 +647,22 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Finance & Funding Routes
+    |--------------------------------------------------------------------------
+    | Akses untuk Keuangan dan Admin Kampus
+    */
+    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
+
+        // Rute untuk menampilkan halaman log perubahan termin
+        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
+            ->name('finance.funding.logs.index');
+
+        // Rute BARU untuk mencetak kwitansi PDF
+        Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
+            ->name('finance.funding.print-kwitansi');
+
+    });
+
     | Submission Discussion Routes (v1.1)
     |--------------------------------------------------------------------------
     */
@@ -685,6 +701,8 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+
+    Route::post('/user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])->name('user.bank.update');
 });
 
 Route::get('/review/invitation/{id}', function ($id) {
