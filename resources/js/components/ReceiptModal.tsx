@@ -7,12 +7,11 @@ import { UploadCloud } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-interface ReceiptFormData {
+type ReceiptFormData = {
     receipt_file: File | null;
     receipt_number: string;
     disbursement_date: string;
-    [key: string]: File | string | null;
-}
+} & Record<string, any>;
 
 interface Props {
     /** ID of the funding term this receipt belongs to */

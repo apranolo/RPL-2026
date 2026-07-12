@@ -155,18 +155,12 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
             <Head title="Pendanaan" />
 
             {/* Flash Messages */}
-            {flash?.success && (
-                <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-                    {flash.success}
-                </div>
-            )}
+            {flash?.success && <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">{flash.success}</div>}
 
             {/* Page Header */}
             <div className="mb-6">
                 <h1 className="text-3xl font-bold tracking-tight">Rincian Dana Cair</h1>
-                <p className="mt-2 text-gray-600">
-                    Kelola dan pantau pencairan dana penelitian Anda
-                </p>
+                <p className="mt-2 text-gray-600">Kelola dan pantau pencairan dana penelitian Anda</p>
             </div>
 
             {/* Funding Statistics Cards */}
@@ -177,12 +171,8 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                         <CardTitle className="text-sm font-medium text-gray-600">Total Dana Disetujui</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatCurrency(fundingStats.total_approved)}
-                        </div>
-                        <p className="mt-2 text-xs text-gray-500">
-                            Dari {fundingStats.active_contracts} kontrak aktif
-                        </p>
+                        <div className="text-2xl font-bold">{formatCurrency(fundingStats.total_approved)}</div>
+                        <p className="mt-2 text-xs text-gray-500">Dari {fundingStats.active_contracts} kontrak aktif</p>
                     </CardContent>
                 </Card>
 
@@ -192,14 +182,10 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                         <CardTitle className="text-sm font-medium text-green-700">Dana Yang Sudah Cair</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-green-600">
-                            {formatCurrency(fundingStats.total_disbursed)}
-                        </div>
+                        <div className="text-2xl font-bold text-green-600">{formatCurrency(fundingStats.total_disbursed)}</div>
                         <p className="mt-2 text-xs text-green-600">
-                            {fundingStats.total_approved > 0
-                                ? ((fundingStats.total_disbursed / fundingStats.total_approved) * 100).toFixed(1)
-                                : 0}
-                            % dari total
+                            {fundingStats.total_approved > 0 ? ((fundingStats.total_disbursed / fundingStats.total_approved) * 100).toFixed(1) : 0}%
+                            dari total
                         </p>
                     </CardContent>
                 </Card>
@@ -210,12 +196,8 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                         <CardTitle className="text-sm font-medium text-orange-700">Sisa Dana</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-orange-600">
-                            {formatCurrency(fundingStats.total_remaining)}
-                        </div>
-                        <p className="mt-2 text-xs text-orange-600">
-                            Menunggu pencairan
-                        </p>
+                        <div className="text-2xl font-bold text-orange-600">{formatCurrency(fundingStats.total_remaining)}</div>
+                        <p className="mt-2 text-xs text-orange-600">Menunggu pencairan</p>
                     </CardContent>
                 </Card>
 
@@ -225,12 +207,8 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                         <CardTitle className="text-sm font-medium text-gray-600">Kontrak Aktif</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
-                            {fundingStats.active_contracts}
-                        </div>
-                        <p className="mt-2 text-xs text-gray-500">
-                            Sedang berjalan
-                        </p>
+                        <div className="text-2xl font-bold">{fundingStats.active_contracts}</div>
+                        <p className="mt-2 text-xs text-gray-500">Sedang berjalan</p>
                     </CardContent>
                 </Card>
             </div>
@@ -248,9 +226,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3">
                                         <div>
-                                            <h3 className="font-semibold text-gray-900">
-                                                {contract.contract_number}
-                                            </h3>
+                                            <h3 className="font-semibold text-gray-900">{contract.contract_number}</h3>
                                             <p className="text-sm text-gray-500">
                                                 {contract.researcher_name} • {contract.contract_date}
                                             </p>
@@ -262,35 +238,24 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                 <div className="mr-4 flex items-center gap-6 text-right">
                                     <div>
                                         <p className="text-xs font-medium text-gray-600">Dana Disetujui</p>
-                                        <p className="font-semibold text-gray-900">
-                                            {formatCurrency(contract.total_approved_funding)}
-                                        </p>
+                                        <p className="font-semibold text-gray-900">{formatCurrency(contract.total_approved_funding)}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs font-medium text-gray-600">Sudah Cair</p>
-                                        <p className="font-semibold text-green-600">
-                                            {formatCurrency(contract.total_disbursed)}
-                                        </p>
+                                        <p className="font-semibold text-green-600">{formatCurrency(contract.total_disbursed)}</p>
                                     </div>
                                     <div className="w-24">
                                         <p className="text-xs font-medium text-gray-600">Progress</p>
                                         <div className="mt-1 flex items-center gap-2">
-                                            <Progress
-                                                value={contract.disbursement_percentage}
-                                                className="h-2"
-                                            />
-                                            <span className="text-xs font-semibold text-gray-900">
-                                                {contract.disbursement_percentage}%
-                                            </span>
+                                            <Progress value={contract.disbursement_percentage} className="h-2" />
+                                            <span className="text-xs font-semibold text-gray-900">{contract.disbursement_percentage}%</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Status Badge */}
                                 <div className="mr-4">
-                                    <Badge
-                                        variant={contract.contract_status === 'aktif' ? 'default' : 'secondary'}
-                                    >
+                                    <Badge variant={contract.contract_status === 'aktif' ? 'default' : 'secondary'}>
                                         {contract.contract_status_label}
                                     </Badge>
                                 </div>
@@ -309,69 +274,37 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                             {expandedContracts.has(contract.id) && (
                                 <CardContent className="pt-6">
                                     <div>
-                                        <h4 className="mb-4 font-semibold text-gray-900">
-                                            Detail Termin Pencairan
-                                        </h4>
+                                        <h4 className="mb-4 font-semibold text-gray-900">Detail Termin Pencairan</h4>
 
                                         <div className="overflow-x-auto">
                                             <Table>
                                                 <TableHeader>
                                                     <TableRow className="border-gray-200 hover:bg-transparent">
-                                                        <TableHead className="text-xs font-semibold">
-                                                            Termin
-                                                        </TableHead>
-                                                        <TableHead className="text-right text-xs font-semibold">
-                                                            Persentase
-                                                        </TableHead>
-                                                        <TableHead className="text-right text-xs font-semibold">
-                                                            Nominal
-                                                        </TableHead>
-                                                        <TableHead className="text-xs font-semibold">
-                                                            Status
-                                                        </TableHead>
-                                                        <TableHead className="text-xs font-semibold">
-                                                            Tanggal Cair
-                                                        </TableHead>
-                                                        <TableHead className="text-xs font-semibold">
-                                                            No. Kuitansi
-                                                        </TableHead>
-                                                        <TableHead className="text-center text-xs font-semibold">
-                                                            Aksi
-                                                        </TableHead>
+                                                        <TableHead className="text-xs font-semibold">Termin</TableHead>
+                                                        <TableHead className="text-right text-xs font-semibold">Persentase</TableHead>
+                                                        <TableHead className="text-right text-xs font-semibold">Nominal</TableHead>
+                                                        <TableHead className="text-xs font-semibold">Status</TableHead>
+                                                        <TableHead className="text-xs font-semibold">Tanggal Cair</TableHead>
+                                                        <TableHead className="text-xs font-semibold">No. Kuitansi</TableHead>
+                                                        <TableHead className="text-center text-xs font-semibold">Aksi</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
                                                     {contract.funding_terms.map((term) => (
-                                                        <TableRow
-                                                            key={term.id}
-                                                            className="border-gray-100 hover:bg-gray-50"
-                                                        >
-                                                            <TableCell className="font-medium text-gray-900">
-                                                                {term.term_name}
-                                                            </TableCell>
-                                                            <TableCell className="text-right text-gray-700">
-                                                                {term.percentage}%
-                                                            </TableCell>
-                                                            <TableCell className="text-right text-gray-700">
-                                                                {formatCurrency(term.nominal)}
-                                                            </TableCell>
+                                                        <TableRow key={term.id} className="border-gray-100 hover:bg-gray-50">
+                                                            <TableCell className="font-medium text-gray-900">{term.term_name}</TableCell>
+                                                            <TableCell className="text-right text-gray-700">{term.percentage}%</TableCell>
+                                                            <TableCell className="text-right text-gray-700">{formatCurrency(term.nominal)}</TableCell>
                                                             <TableCell>
                                                                 <div className="flex items-center gap-2">
                                                                     <StatusIcon status={term.status} />
-                                                                    <Badge
-                                                                        variant="outline"
-                                                                        className={cn('text-xs', getStatusColor(term.status))}
-                                                                    >
+                                                                    <Badge variant="outline" className={cn('text-xs', getStatusColor(term.status))}>
                                                                         {term.status_label}
                                                                     </Badge>
                                                                 </div>
                                                             </TableCell>
-                                                            <TableCell className="text-sm text-gray-600">
-                                                                {term.disbursement_date || '-'}
-                                                            </TableCell>
-                                                            <TableCell className="text-sm text-gray-600">
-                                                                {term.receipt_number || '-'}
-                                                            </TableCell>
+                                                            <TableCell className="text-sm text-gray-600">{term.disbursement_date || '-'}</TableCell>
+                                                            <TableCell className="text-sm text-gray-600">{term.receipt_number || '-'}</TableCell>
                                                             <TableCell className="text-center">
                                                                 <TooltipProvider>
                                                                     <Tooltip>
@@ -394,9 +327,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                                             )}
                                                                         </TooltipTrigger>
                                                                         <TooltipContent>
-                                                                            {term.receipt_file
-                                                                                ? 'Download bukti'
-                                                                                : 'Bukti tidak tersedia'}
+                                                                            {term.receipt_file ? 'Download bukti' : 'Bukti tidak tersedia'}
                                                                         </TooltipContent>
                                                                     </Tooltip>
                                                                 </TooltipProvider>
@@ -414,10 +345,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                 {contract.funding_terms
                                                     .filter((t) => t.notes)
                                                     .map((term) => (
-                                                        <div
-                                                            key={term.id}
-                                                            className="rounded bg-blue-50 p-2 text-sm text-blue-900"
-                                                        >
+                                                        <div key={term.id} className="rounded bg-blue-50 p-2 text-sm text-blue-900">
                                                             <p className="font-medium">{term.term_name}:</p>
                                                             <p className="text-xs">{term.notes}</p>
                                                         </div>
@@ -433,9 +361,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                     <Card>
                         <CardContent className="pt-6 text-center">
                             <FileText className="mx-auto h-12 w-12 text-gray-300" />
-                            <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                                Belum ada data kontrak
-                            </h3>
+                            <h3 className="mt-4 text-lg font-semibold text-gray-900">Belum ada data kontrak</h3>
                             <p className="mt-2 text-sm text-gray-500">
                                 Data kontrak dan pendanaan akan ditampilkan di sini setelah proposal Anda diterima.
                             </p>
