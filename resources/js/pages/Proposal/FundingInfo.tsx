@@ -1,24 +1,3 @@
-/**
- * FundingInfo Component
- *
- * @description
- * Component untuk menampilkan rincian dana cair bagi dosen/peneliti.
- * Menampilkan informasi tentang:
- * - Ringkasan dana (total disetujui, cair, sisa)
- * - Daftar kontrak penelitian
- * - Detail termin pencairan per kontrak
- * - Progress bar serapan dana
- *
- * @features
- * - Dashboard ringkasan dana
- * - List kontrak dengan pagination
- * - Detail termin pencairan
- * - Progress bar visual
- * - Status badge untuk setiap termin
- * - Download bukti pencairan
- *
- * @route GET /user/funding
- */
 import { Head, usePage } from '@inertiajs/react';
 import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock, Download, FileText } from 'lucide-react';
 import { useState } from 'react';
@@ -34,33 +13,36 @@ import { formatCurrency } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 
-interface FundingTerm {
+type FundingStatus = 'planned' | 'requested' | 'approved' | 'disbursed' | 'cancelled';
+
+interface Funding {
     id: number;
-    term_name: string;
-    order: number;
+    funding_number: string;
+    description: string | null;
+    amount: number;
     percentage: number;
-    nominal: number;
-    status: 'cair' | 'menunggu' | 'ditangguhkan' | 'batal';
+    status: FundingStatus;
     status_label: string;
     status_color: string;
-    disbursement_date: string | null;
-    receipt_number: string | null;
-    receipt_file: string | null;
+    funding_date: string | null;
+    paid_at: string | null;
+    reference_number: string | null;
+    proof_document_path: string | null;
     notes: string | null;
 }
 
 interface Contract {
     id: number;
     contract_number: string;
-    contract_date: string;
-    researcher_name: string;
-    total_approved_funding: number;
-    contract_status: string;
-    contract_status_label: string;
+    title: string | null;
+    start_date: string | null;
+    contract_value: number;
+    status: string;
+    status_label: string;
     total_disbursed: number;
     remaining_funding: number;
     disbursement_percentage: number;
-    funding_terms: FundingTerm[];
+    fundings: Funding[];
     created_at: string;
 }
 
@@ -94,30 +76,28 @@ interface Props {
     };
 }
 
-const StatusIcon = ({ status }: { status: string }) => {
+const StatusIcon = ({ status }: { status: FundingStatus }) => {
     switch (status) {
-        case 'cair':
+        case 'disbursed':
             return <CheckCircle2 className="h-4 w-4 text-green-600" />;
-        case 'menunggu':
+        case 'requested':
+        case 'approved':
             return <Clock className="h-4 w-4 text-yellow-600" />;
-        case 'ditangguhkan':
-            return <AlertCircle className="h-4 w-4 text-orange-600" />;
-        case 'batal':
+        case 'cancelled':
             return <AlertCircle className="h-4 w-4 text-red-600" />;
         default:
             return null;
     }
 };
 
-const getStatusColor = (status: string) => {
+const getStatusColor = (status: FundingStatus) => {
     switch (status) {
-        case 'cair':
+        case 'disbursed':
             return 'bg-green-100 text-green-800';
-        case 'menunggu':
+        case 'requested':
+        case 'approved':
             return 'bg-yellow-100 text-yellow-800';
-        case 'ditangguhkan':
-            return 'bg-orange-100 text-orange-800';
-        case 'batal':
+        case 'cancelled':
             return 'bg-red-100 text-red-800';
         default:
             return 'bg-gray-100 text-gray-800';
@@ -141,13 +121,6 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
             newExpanded.add(contractId);
         }
         setExpandedContracts(newExpanded);
-    };
-
-    const getDisbursementColor = (percentage: number) => {
-        if (percentage >= 100) return 'bg-green-600';
-        if (percentage >= 75) return 'bg-blue-600';
-        if (percentage >= 50) return 'bg-yellow-600';
-        return 'bg-orange-600';
     };
 
     return (
@@ -228,7 +201,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                         <div>
                                             <h3 className="font-semibold text-gray-900">{contract.contract_number}</h3>
                                             <p className="text-sm text-gray-500">
-                                                {contract.researcher_name} • {contract.contract_date}
+                                                {contract.title} • {contract.start_date ?? '-'}
                                             </p>
                                         </div>
                                     </div>
@@ -238,7 +211,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                 <div className="mr-4 flex items-center gap-6 text-right">
                                     <div>
                                         <p className="text-xs font-medium text-gray-600">Dana Disetujui</p>
-                                        <p className="font-semibold text-gray-900">{formatCurrency(contract.total_approved_funding)}</p>
+                                        <p className="font-semibold text-gray-900">{formatCurrency(contract.contract_value)}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs font-medium text-gray-600">Sudah Cair</p>
@@ -255,9 +228,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
 
                                 {/* Status Badge */}
                                 <div className="mr-4">
-                                    <Badge variant={contract.contract_status === 'aktif' ? 'default' : 'secondary'}>
-                                        {contract.contract_status_label}
-                                    </Badge>
+                                    <Badge variant={contract.status === 'active' ? 'default' : 'secondary'}>{contract.status_label}</Badge>
                                 </div>
 
                                 {/* Expand Icon */}
@@ -270,7 +241,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                 </div>
                             </div>
 
-                            {/* Expanded Content - Funding Terms */}
+                            {/* Expanded Content - Fundings */}
                             {expandedContracts.has(contract.id) && (
                                 <CardContent className="pt-6">
                                     <div>
@@ -285,34 +256,39 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                         <TableHead className="text-right text-xs font-semibold">Nominal</TableHead>
                                                         <TableHead className="text-xs font-semibold">Status</TableHead>
                                                         <TableHead className="text-xs font-semibold">Tanggal Cair</TableHead>
-                                                        <TableHead className="text-xs font-semibold">No. Kuitansi</TableHead>
+                                                        <TableHead className="text-xs font-semibold">No. Referensi</TableHead>
                                                         <TableHead className="text-center text-xs font-semibold">Aksi</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
-                                                    {contract.funding_terms.map((term) => (
-                                                        <TableRow key={term.id} className="border-gray-100 hover:bg-gray-50">
-                                                            <TableCell className="font-medium text-gray-900">{term.term_name}</TableCell>
-                                                            <TableCell className="text-right text-gray-700">{term.percentage}%</TableCell>
-                                                            <TableCell className="text-right text-gray-700">{formatCurrency(term.nominal)}</TableCell>
+                                                    {contract.fundings.map((funding) => (
+                                                        <TableRow key={funding.id} className="border-gray-100 hover:bg-gray-50">
+                                                            <TableCell className="font-medium text-gray-900">{funding.funding_number}</TableCell>
+                                                            <TableCell className="text-right text-gray-700">{funding.percentage}%</TableCell>
+                                                            <TableCell className="text-right text-gray-700">
+                                                                {formatCurrency(funding.amount)}
+                                                            </TableCell>
                                                             <TableCell>
                                                                 <div className="flex items-center gap-2">
-                                                                    <StatusIcon status={term.status} />
-                                                                    <Badge variant="outline" className={cn('text-xs', getStatusColor(term.status))}>
-                                                                        {term.status_label}
+                                                                    <StatusIcon status={funding.status} />
+                                                                    <Badge
+                                                                        variant="outline"
+                                                                        className={cn('text-xs', getStatusColor(funding.status))}
+                                                                    >
+                                                                        {funding.status_label}
                                                                     </Badge>
                                                                 </div>
                                                             </TableCell>
-                                                            <TableCell className="text-sm text-gray-600">{term.disbursement_date || '-'}</TableCell>
-                                                            <TableCell className="text-sm text-gray-600">{term.receipt_number || '-'}</TableCell>
+                                                            <TableCell className="text-sm text-gray-600">{funding.paid_at || '-'}</TableCell>
+                                                            <TableCell className="text-sm text-gray-600">{funding.reference_number || '-'}</TableCell>
                                                             <TableCell className="text-center">
                                                                 <TooltipProvider>
                                                                     <Tooltip>
                                                                         <TooltipTrigger asChild>
-                                                                            {term.receipt_file ? (
+                                                                            {funding.proof_document_path ? (
                                                                                 <Button variant="ghost" size="sm" asChild>
                                                                                     <a
-                                                                                        href={`/storage/${term.receipt_file}`}
+                                                                                        href={`/storage/${funding.proof_document_path}`}
                                                                                         download
                                                                                         target="_blank"
                                                                                         rel="noopener noreferrer"
@@ -327,7 +303,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                                             )}
                                                                         </TooltipTrigger>
                                                                         <TooltipContent>
-                                                                            {term.receipt_file ? 'Download bukti' : 'Bukti tidak tersedia'}
+                                                                            {funding.proof_document_path ? 'Download bukti' : 'Bukti tidak tersedia'}
                                                                         </TooltipContent>
                                                                     </Tooltip>
                                                                 </TooltipProvider>
@@ -339,15 +315,15 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                         </div>
 
                                         {/* Notes Section */}
-                                        {contract.funding_terms.some((t) => t.notes) && (
+                                        {contract.fundings.some((f) => f.notes) && (
                                             <div className="mt-4 space-y-2 border-t border-gray-100 pt-4">
                                                 <h5 className="font-medium text-gray-900">Catatan</h5>
-                                                {contract.funding_terms
-                                                    .filter((t) => t.notes)
-                                                    .map((term) => (
-                                                        <div key={term.id} className="rounded bg-blue-50 p-2 text-sm text-blue-900">
-                                                            <p className="font-medium">{term.term_name}:</p>
-                                                            <p className="text-xs">{term.notes}</p>
+                                                {contract.fundings
+                                                    .filter((f) => f.notes)
+                                                    .map((funding) => (
+                                                        <div key={funding.id} className="rounded bg-blue-50 p-2 text-sm text-blue-900">
+                                                            <p className="font-medium">{funding.funding_number}:</p>
+                                                            <p className="text-xs">{funding.notes}</p>
                                                         </div>
                                                     ))}
                                             </div>

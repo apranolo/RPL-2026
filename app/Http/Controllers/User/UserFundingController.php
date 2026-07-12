@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
+use App\Models\Funding;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -14,56 +15,57 @@ class UserFundingController extends Controller
     {
         $user = $request->user();
 
-        // Get contracts for the researcher with funding terms
-        $contracts = Contract::forResearcher($user->id)
-            ->withFundingTerms()
-            ->orderBy('contract_date', 'desc')
+        $baseQuery = Contract::query()
+            ->whereHas('proposal', fn ($q) => $q->where('user_id', $user->id));
+
+        $fundingStats = [
+            'total_approved' => (float) (clone $baseQuery)->sum('contract_value'),
+            'total_disbursed' => (float) Funding::query()
+                ->whereIn('contract_id', (clone $baseQuery)->select('contracts.id'))
+                ->disbursed()
+                ->sum('amount'),
+            'active_contracts' => (clone $baseQuery)->where('status', Contract::STATUS_ACTIVE)->count(),
+        ];
+        $fundingStats['total_remaining'] = $fundingStats['total_approved'] - $fundingStats['total_disbursed'];
+
+        $contracts = $baseQuery
+            ->with(['proposal:id,judul', 'fundings' => fn ($q) => $q->orderBy('funding_number')])
+            ->orderByDesc('created_at')
             ->paginate(10)
             ->withQueryString();
 
-        // Calculate aggregate funding information
-        $fundingStats = [
-            'total_approved' => Contract::forResearcher($user->id)->sum('total_approved_funding'),
-            'total_disbursed' => 0,
-            'total_remaining' => 0,
-            'active_contracts' => Contract::forResearcher($user->id)->active()->count(),
-        ];
+        $formattedContracts = $contracts->through(function (Contract $contract) {
+            $totalDisbursed = $contract->fundings->where('status', Funding::STATUS_DISBURSED)->sum('amount');
+            $disbursementPercentage = $contract->contract_value > 0
+                ? round(($totalDisbursed / $contract->contract_value) * 100, 2)
+                : 0;
 
-        // Calculate disbursement from contracts
-        foreach ($contracts as $contract) {
-            $fundingStats['total_disbursed'] += $contract->getTotalDisbursedAttribute();
-            $fundingStats['total_remaining'] += $contract->getRemainingFundingAttribute();
-        }
-
-        // Format contracts for response
-        $formattedContracts = $contracts->through(function ($contract) {
             return [
                 'id' => $contract->id,
                 'contract_number' => $contract->contract_number,
-                'contract_date' => $contract->contract_date?->format('Y-m-d'),
-                'researcher_name' => $contract->researcher?->name,
-                'total_approved_funding' => (float) $contract->total_approved_funding,
-                'contract_status' => $contract->contract_status,
-                'contract_status_label' => $this->getStatusLabel($contract->contract_status),
-                'total_disbursed' => (float) $contract->getTotalDisbursedAttribute(),
-                'remaining_funding' => (float) $contract->getRemainingFundingAttribute(),
-                'disbursement_percentage' => round($contract->getDisbursementPercentageAttribute(), 2),
-                'funding_terms' => $contract->fundingTerms->map(function ($term) {
-                    return [
-                        'id' => $term->id,
-                        'term_name' => $term->term_name,
-                        'order' => $term->order,
-                        'percentage' => (float) $term->percentage,
-                        'nominal' => (float) $term->nominal,
-                        'status' => $term->status,
-                        'status_label' => $term->getStatusLabelAttribute(),
-                        'status_color' => $term->getStatusColorAttribute(),
-                        'disbursement_date' => $term->disbursement_date?->format('Y-m-d'),
-                        'receipt_number' => $term->receipt_number,
-                        'receipt_file' => $term->receipt_file,
-                        'notes' => $term->notes,
-                    ];
-                })->toArray(),
+                'title' => $contract->title ?? $contract->proposal?->judul,
+                'start_date' => $contract->start_date?->format('Y-m-d'),
+                'contract_value' => (float) $contract->contract_value,
+                'status' => $contract->status,
+                'status_label' => Contract::getStatusOptions()[$contract->status] ?? ucfirst($contract->status),
+                'total_disbursed' => (float) $totalDisbursed,
+                'remaining_funding' => (float) ($contract->contract_value - $totalDisbursed),
+                'disbursement_percentage' => $disbursementPercentage,
+                'fundings' => $contract->fundings->map(fn (Funding $funding) => [
+                    'id' => $funding->id,
+                    'funding_number' => $funding->funding_number,
+                    'description' => $funding->description,
+                    'amount' => (float) $funding->amount,
+                    'percentage' => (float) $funding->percentage,
+                    'status' => $funding->status,
+                    'status_label' => $funding->getStatusLabelAttribute(),
+                    'status_color' => $funding->getStatusColorAttribute(),
+                    'funding_date' => $funding->funding_date?->format('Y-m-d'),
+                    'paid_at' => $funding->paid_at?->format('Y-m-d'),
+                    'reference_number' => $funding->reference_number,
+                    'proof_document_path' => $funding->proof_document_path,
+                    'notes' => $funding->notes,
+                ])->values()->toArray(),
                 'created_at' => $contract->created_at?->format('Y-m-d H:i:s'),
             ];
         });
@@ -73,19 +75,5 @@ class UserFundingController extends Controller
             'fundingStats' => $fundingStats,
             'filters' => $request->only(['search']),
         ]);
-    }
-
-    /**
-     * Get the status label in Indonesian
-     */
-    private function getStatusLabel(string $status): string
-    {
-        $statuses = [
-            'aktif' => 'Aktif',
-            'selesai' => 'Selesai',
-            'ditangguhkan' => 'Ditangguhkan',
-        ];
-
-        return $statuses[$status] ?? ucfirst($status);
     }
 }

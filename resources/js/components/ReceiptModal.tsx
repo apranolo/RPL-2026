@@ -8,18 +8,18 @@ import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 type ReceiptFormData = {
-    receipt_file: File | null;
-    receipt_number: string;
-    disbursement_date: string;
+    proof_document: File | null;
+    reference_number: string;
+    paid_at: string;
 } & Record<string, any>;
 
 interface Props {
-    /** ID of the funding term this receipt belongs to */
-    fundingTermId: number;
-    /** Term name shown in the modal description, e.g. "Tahap 1" */
-    termName: string;
-    receiptNumber?: string | null;
-    disbursementDate?: string | null;
+    /** ID of the funding (termin) this receipt belongs to */
+    fundingId: number;
+    /** Funding number shown in the modal description, e.g. "TRM-2026-001" */
+    fundingNumber: string;
+    referenceNumber?: string | null;
+    paidAt?: string | null;
     trigger?: React.ReactNode;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
@@ -27,20 +27,20 @@ interface Props {
 
 const ACCEPTED_EXTENSIONS = '.pdf,.jpg,.jpeg,.png';
 
-export default function ReceiptModal({ fundingTermId, termName, receiptNumber, disbursementDate, trigger, open, onOpenChange }: Props) {
+export default function ReceiptModal({ fundingId, fundingNumber, referenceNumber, paidAt, trigger, open, onOpenChange }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState<string | null>(null);
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm<ReceiptFormData>({
-        receipt_file: null,
-        receipt_number: receiptNumber ?? '',
-        disbursement_date: disbursementDate ?? '',
+        proof_document: null,
+        reference_number: referenceNumber ?? '',
+        paid_at: paidAt ?? '',
     });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] ?? null;
         setFileName(file?.name ?? null);
-        setData('receipt_file', file);
+        setData('proof_document', file);
     };
 
     const handleOpenChange = (nextOpen: boolean) => {
@@ -56,7 +56,7 @@ export default function ReceiptModal({ fundingTermId, termName, receiptNumber, d
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        post(route('funding.upload-bukti', fundingTermId), {
+        post(route('funding.upload-bukti', fundingId), {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
@@ -75,44 +75,39 @@ export default function ReceiptModal({ fundingTermId, termName, receiptNumber, d
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Unggah Bukti Transfer</DialogTitle>
-                    <DialogDescription>Unggah bukti transfer dana untuk termin &quot;{termName}&quot;.</DialogDescription>
+                    <DialogDescription>Unggah bukti transfer dana untuk termin &quot;{fundingNumber}&quot;.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="receipt_file">File Bukti Transfer</Label>
-                        <Input id="receipt_file" ref={fileInputRef} type="file" accept={ACCEPTED_EXTENSIONS} onChange={handleFileChange} />
+                        <Label htmlFor="proof_document">File Bukti Transfer</Label>
+                        <Input id="proof_document" ref={fileInputRef} type="file" accept={ACCEPTED_EXTENSIONS} onChange={handleFileChange} />
                         {fileName && <p className="text-xs text-muted-foreground">{fileName}</p>}
                         <p className="text-xs text-muted-foreground">PDF, JPG, atau PNG. Maks 5 MB.</p>
-                        {errors.receipt_file && <span className="text-sm text-red-500">{errors.receipt_file}</span>}
+                        {errors.proof_document && <span className="text-sm text-red-500">{errors.proof_document}</span>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="receipt_number">No. Kuitansi</Label>
+                        <Label htmlFor="reference_number">No. Referensi</Label>
                         <Input
-                            id="receipt_number"
-                            value={data.receipt_number}
-                            onChange={(e) => setData('receipt_number', e.target.value)}
+                            id="reference_number"
+                            value={data.reference_number}
+                            onChange={(e) => setData('reference_number', e.target.value)}
                             placeholder="Opsional"
                         />
-                        {errors.receipt_number && <span className="text-sm text-red-500">{errors.receipt_number}</span>}
+                        {errors.reference_number && <span className="text-sm text-red-500">{errors.reference_number}</span>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="disbursement_date">Tanggal Cair</Label>
-                        <Input
-                            id="disbursement_date"
-                            type="date"
-                            value={data.disbursement_date}
-                            onChange={(e) => setData('disbursement_date', e.target.value)}
-                        />
-                        {errors.disbursement_date && <span className="text-sm text-red-500">{errors.disbursement_date}</span>}
+                        <Label htmlFor="paid_at">Tanggal Cair</Label>
+                        <Input id="paid_at" type="date" value={data.paid_at} onChange={(e) => setData('paid_at', e.target.value)} />
+                        {errors.paid_at && <span className="text-sm text-red-500">{errors.paid_at}</span>}
                     </div>
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                             Batal
                         </Button>
-                        <Button type="submit" disabled={processing || !data.receipt_file}>
+                        <Button type="submit" disabled={processing || !data.proof_document}>
                             <UploadCloud className="mr-2 h-4 w-4" />
                             {processing ? 'Mengunggah...' : 'Unggah'}
                         </Button>
