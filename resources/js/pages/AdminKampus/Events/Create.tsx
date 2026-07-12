@@ -28,7 +28,25 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function EventsCreate() {
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm<{
+        title: string;
+        type: string;
+        description: string;
+        date_start: string;
+        date_end: string;
+        time_start: string;
+        time_end: string;
+        location_type: string;
+        location_venue: string;
+        location_link: string;
+        registration_link: string;
+        price: string;
+        contact_person_name: string;
+        contact_person_phone: string;
+        contact_person_email: string;
+        is_active: boolean;
+        is_featured: boolean;
+    }>({
         title: '',
         type: 'webinar',
         description: '',

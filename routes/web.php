@@ -21,16 +21,24 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
+use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\OutputController;
+use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
+use App\Http\Controllers\ContractDocController;
+use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Editorial\PlagiarismController;
+use Inertia\Inertia;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -130,6 +138,36 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // Dashboard Admin
+    Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
+    });
+
+    // Dashboard Dosen
+    Route::middleware(['role:Dosen'])->prefix('dosen')->name('dosen.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'dosenDashboard'])->name('dashboard');
+    });
+
+    // Dashboard Keuangan
+    Route::middleware(['role:Keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'keuanganDashboard'])->name('dashboard');
+
+    // Finance Reports
+    Route::prefix('finance')->name('finance.')->group(function () {
+        Route::get('reports', [\App\Http\Controllers\FinanceReportController::class, 'index'])
+            ->name('reports.index');
+        Route::get('reports/summary', [\App\Http\Controllers\FinanceReportController::class, 'summary'])
+            ->name('reports.summary');
+        Route::post('reports/filter', [\App\Http\Controllers\FinanceReportController::class, 'filter'])
+            ->name('reports.filter');
+    });
+
+        Route::prefix('contracts')->name('contracts.')->group(function () {
+            Route::get('{contract}/upload', [ContractDocController::class, 'create'])->name('upload');
+            Route::post('documents', [ContractDocController::class, 'store'])->name('documents.store');
+            Route::get('documents/{document}/download', [ContractDocController::class, 'download'])->name('documents.download');
+        });
+    });
     /*
     |--------------------------------------------------------------------------
     | Super Admin Routes
@@ -209,7 +247,9 @@ Route::middleware(['auth'])->group(function () {
             ->name('admin-kampus.toggle-active');
 
         // Users (Pengelola Jurnal) Management
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::get('users', [\App\Http\Controllers\Admin\UserRoleController::class, 'index'])->name('users.index');
+        Route::delete('users/revoke/{id}', [\App\Http\Controllers\Admin\UserRoleController::class, 'revoke'])->name('users.revoke');
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->except(['index']);
         Route::post('users/{user}/toggle-active', [\App\Http\Controllers\Admin\UserController::class, 'toggleActive'])
             ->name('users.toggle-active');
 
@@ -508,8 +548,49 @@ Route::middleware(['auth'])->group(function () {
             Route::post('registrations/{registration}/create-assessment', [UserPembinaanController::class, 'createAssessment'])
                 ->name('registrations.create-assessment');
         });
+
+        // Progress Reports (Monitoring & Evaluasi)
+        Route::get('progress', [ProgressController::class, 'index'])
+            ->name('progress.index');
+
+        Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
+        Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
+        Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
+
+        // Proposal
+        Route::prefix('proposal')->name('proposal.')->group(function () {
+            //
+        });
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | Editor Routes (v1.1 - Submission Editorial)
+    |--------------------------------------------------------------------------
+    */
+    // NOTE: Group ini akan diperbaiki lebih lanjut oleh ADITYA GAUTAMA
+    Route::middleware(['role:Editor'])->prefix('editorial')->name('editorial.')->group(function () {
+        // Activity Log per submission
+        Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
+            ->name('activity-logs.index');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Editorial - Plagiarism Check Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS.','.Role::PENGELOLA_JURNAL])
+        ->prefix('editorial')
+        ->name('editorial.')
+        ->group(function () {
+            Route::get('plagiarism-check', function () {
+                return Inertia::render('Editorial/Desk/Plagiarism');
+            })->name('plagiarism-check.index');
+            Route::post('plagiarism-check', [PlagiarismController::class, 'store'])
+                ->name('plagiarism-check.store');
+        });
     /*
     |--------------------------------------------------------------------------
     | Reviewer Routes (v1.1)
@@ -530,7 +611,38 @@ Route::middleware(['auth'])->group(function () {
             Route::get('{assignment}/attachments/{attachment}', [MainReviewerController::class, 'downloadAttachment'])
                 ->name('attachments.download');
         });
+
+        // Evaluation Routes
+        Route::prefix('evaluations')->name('evaluations.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
+                ->name('index');
+        });
+
+        // Profile Management
+        Route::get('profile', [\App\Http\Controllers\ReviewerProfileController::class, 'show'])
+            ->name('profile.show');
+        Route::post('profile', [\App\Http\Controllers\ReviewerProfileController::class, 'update'])
+            ->name('profile.update');
+
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Submission Discussion Routes (v1.1)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('discussion')->name('discussion.')->group(function () {
+        Route::get('/', [DiscussionController::class, 'index'])
+            ->name('index');
+
+        Route::post('/', [DiscussionController::class, 'store'])
+            ->name('store');
+
+        Route::post('/{discussion}/message', [DiscussionController::class, 'reply'])
+            ->name('message.store');
+    });
+
 
     /*
     |--------------------------------------------------------------------------
@@ -554,5 +666,6 @@ Route::middleware(['auth'])->group(function () {
     // });
 });
 
+    
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
