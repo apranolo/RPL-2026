@@ -2,13 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contract extends Model
 {
     use HasFactory, SoftDeletes;
+
+    public const STATUS_DRAFT = 'draft';
+
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_CANCELLED = 'cancelled';
 
     /**
      * The attributes that are mass assignable.
@@ -16,18 +27,23 @@ class Contract extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'contract_number',
-        'contract_date',
+        'university_id',
+        'pembinaan_id',
         'proposal_id',
-        'researcher_id',
+        'contract_number',
+        'title',
+        'description',
+        'status',
+        'contract_value',
         'party_1',
         'party_2',
-        'total_approved_funding',
-        'contract_status',
-        'financial_document',
+        'start_date',
+        'end_date',
+        'signed_at',
+        'document_path',
+        'notes',
         'created_by',
         'updated_by',
-        'deleted_by',
     ];
 
     /**
@@ -36,19 +52,20 @@ class Contract extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'contract_date' => 'datetime',
-        'total_approved_funding' => 'decimal:2',
+        'contract_value' => 'decimal:2',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'signed_at' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'contracts';
+    protected $appends = [
+        'nomor_kontrak',
+        'total_pendanaan_disetujui',
+        'status_kontrak',
+    ];
 
     /*
     |--------------------------------------------------------------------------
@@ -56,34 +73,37 @@ class Contract extends Model
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Get the researcher/principal investigator
-     */
-    public function researcher()
+    public function university(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'researcher_id');
+        return $this->belongsTo(University::class);
     }
 
-    /**
-     * Get the funding terms/disbursement schedule
-     */
-    public function fundingTerms()
+    public function pembinaan(): BelongsTo
     {
-        return $this->hasMany(FundingTerm::class);
+        return $this->belongsTo(Pembinaan::class);
     }
 
-    /**
-     * Get the user who created this contract
-     */
-    public function creator()
+    public function proposal(): BelongsTo
+    {
+        return $this->belongsTo(Proposal::class);
+    }
+
+    public function fundings(): HasMany
+    {
+        return $this->hasMany(Funding::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ContractDocument::class);
+    }
+
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Get the user who last updated this contract
-     */
-    public function updater()
+    public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
@@ -94,64 +114,70 @@ class Contract extends Model
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Scope to filter contracts by researcher
-     */
-    public function scopeForResearcher($query, $researcherId)
+    public function scopeSearch(Builder $query, ?string $search): Builder
     {
-        return $query->where('researcher_id', $researcherId);
-    }
+        if (! $search) {
+            return $query;
+        }
 
-    /**
-     * Scope to filter active contracts
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('contract_status', 'aktif');
-    }
-
-    /**
-     * Scope to get contracts with their funding terms
-     */
-    public function scopeWithFundingTerms($query)
-    {
-        return $query->with(['fundingTerms' => function ($q) {
-            $q->orderBy('order');
-        }]);
+        return $query->where(function (Builder $q) use ($search) {
+            $q->where('contract_number', 'like', "%{$search}%")
+                ->orWhere('title', 'like', "%{$search}%")
+                ->orWhereHas('university', function (Builder $universityQuery) use ($search) {
+                    $universityQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('short_name', 'like', "%{$search}%");
+                });
+        });
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Accessors
+    | Accessors & Mutators
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Get the total disbursed funding
-     */
-    public function getTotalDisbursedAttribute()
+    public function getNomorKontrakAttribute(): ?string
     {
-        return $this->fundingTerms()
-            ->where('status', 'cair')
-            ->sum('nominal');
+        return $this->contract_number;
+    }
+
+    public function getTotalPendanaanDisetujuiAttribute(): ?string
+    {
+        return $this->contract_value;
+    }
+
+    public function getStatusKontrakAttribute(): ?string
+    {
+        return $this->status;
     }
 
     /**
-     * Get the remaining funding
+     * @return array<string, string>
      */
-    public function getRemainingFundingAttribute()
+    public static function getStatusOptions(): array
     {
-        return $this->total_approved_funding - $this->getTotalDisbursedAttribute();
+        return [
+            self::STATUS_DRAFT => 'Draft',
+            self::STATUS_ACTIVE => 'Aktif',
+            self::STATUS_COMPLETED => 'Selesai',
+            self::STATUS_CANCELLED => 'Dibatalkan',
+        ];
     }
 
-    /**
-     * Get the disbursement percentage
-     */
-    public function getDisbursementPercentageAttribute()
+    protected static function boot()
     {
-        if ($this->total_approved_funding <= 0) {
-            return 0;
-        }
-        return ($this->getTotalDisbursedAttribute() / $this->total_approved_funding) * 100;
+        parent::boot();
+
+        static::creating(function (Contract $contract) {
+            if (auth()->check() && ! $contract->created_by) {
+                $contract->created_by = auth()->id();
+            }
+        });
+
+        static::updating(function (Contract $contract) {
+            if (auth()->check()) {
+                $contract->updated_by = auth()->id();
+            }
+        });
     }
 }
