@@ -376,13 +376,22 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                                 <TooltipProvider>
                                                                     <Tooltip>
                                                                         <TooltipTrigger asChild>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                                disabled={!term.receipt_file}
-                                                                            >
-                                                                                <Download className="h-4 w-4" />
-                                                                            </Button>
+                                                                            {term.receipt_file ? (
+                                                                                <Button variant="ghost" size="sm" asChild>
+                                                                                    <a
+                                                                                        href={`/storage/${term.receipt_file}`}
+                                                                                        download
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                    >
+                                                                                        <Download className="h-4 w-4" />
+                                                                                    </a>
+                                                                                </Button>
+                                                                            ) : (
+                                                                                <Button variant="ghost" size="sm" disabled>
+                                                                                    <Download className="h-4 w-4" />
+                                                                                </Button>
+                                                                            )}
                                                                         </TooltipTrigger>
                                                                         <TooltipContent>
                                                                             {term.receipt_file
