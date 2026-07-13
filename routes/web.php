@@ -28,6 +28,7 @@ use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\Review\ReviewerDashboardController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\ContractDocController;
@@ -605,6 +606,10 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:'.Role::REVIEWER])->prefix('reviewer')->name('reviewer.')->group(function () {
+
+        // Reviewer Dashboard - Daftar tugas review aktif
+        Route::get('dashboard', [ReviewerDashboardController::class, 'index'])
+            ->name('dashboard');
 
         // Assignments Management
         Route::prefix('assignments')->name('assignments.')->group(function () {
