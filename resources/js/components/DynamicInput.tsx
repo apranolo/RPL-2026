@@ -86,8 +86,12 @@ export interface DynamicFieldValue {
     id: string;
     code: string;
     question: string;
+    description: string;
     weight: string;
     answer_type: 'boolean' | 'scale' | 'text' | '';
+    requires_attachment: boolean;
+    sort_order: string;
+    is_active: boolean;
 }
 
 interface DynamicFieldRowProps {
@@ -227,12 +231,16 @@ export function DynamicInput({ items, onChange, errors, maxItems = 20 }: Dynamic
         onChange([
             ...items,
             {
-                id: generateId(),
-                code: '',
-                question: '',
-                weight: '1.00',
-                answer_type: '',
-            },
+    id: generateId(),
+    code: '',
+    question: '',
+    description: '',
+    weight: '1.00',
+    answer_type: '',
+    requires_attachment: false,
+    sort_order: '',
+    is_active: true,
+},
         ]);
     };
 
