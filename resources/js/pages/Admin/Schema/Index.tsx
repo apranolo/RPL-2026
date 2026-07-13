@@ -1,3 +1,8 @@
+/**
+ * @file Index.tsx
+ * @description Halaman utama untuk manajemen (CRUD) Skema Penelitian.
+ * @author RAKA BONDAN PRASETYO
+ */
 import {
     AlertDialog,
     AlertDialogAction,

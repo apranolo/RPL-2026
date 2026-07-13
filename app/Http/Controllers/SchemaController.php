@@ -17,6 +17,8 @@ class SchemaController extends Controller
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Schema::class);
+
         $query = Schema::query();
 
         if ($request->filled('search')) {
@@ -42,6 +44,8 @@ class SchemaController extends Controller
      */
     public function show(Schema $schema): Response
     {
+        $this->authorize('view', $schema);
+
         $schema->load(['proposals.user.university']);
 
         return Inertia::render('Admin/Schema/Show', [
@@ -54,6 +58,8 @@ class SchemaController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Schema::class);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -69,6 +75,8 @@ class SchemaController extends Controller
      */
     public function update(Request $request, Schema $schema)
     {
+        $this->authorize('update', $schema);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -84,6 +92,8 @@ class SchemaController extends Controller
      */
     public function destroy(Schema $schema)
     {
+        $this->authorize('delete', $schema);
+
         // Check if there are proposals using this schema
         if ($schema->proposals()->exists()) {
             return redirect()->back()->with('error', 'Tidak dapat menghapus skema yang sedang digunakan oleh proposal.');

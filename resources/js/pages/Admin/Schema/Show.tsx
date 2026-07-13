@@ -1,3 +1,8 @@
+/**
+ * @file Show.tsx
+ * @description Halaman detail untuk melihat informasi Skema Penelitian beserta daftar proposal yang terkait.
+ * @author RAKA BONDAN PRASETYO
+ */
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
