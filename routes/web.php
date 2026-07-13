@@ -24,6 +24,7 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
+use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
@@ -156,6 +157,16 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard Keuangan
     Route::middleware(['role:Keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'keuanganDashboard'])->name('dashboard');
+
+    // Finance Reports
+    Route::prefix('finance')->name('finance.')->group(function () {
+        Route::get('reports', [\App\Http\Controllers\FinanceReportController::class, 'index'])
+            ->name('reports.index');
+        Route::get('reports/summary', [\App\Http\Controllers\FinanceReportController::class, 'summary'])
+            ->name('reports.summary');
+        Route::post('reports/filter', [\App\Http\Controllers\FinanceReportController::class, 'filter'])
+            ->name('reports.filter');
+    });
 
         Route::prefix('contracts')->name('contracts.')->group(function () {
             Route::get('{contract}/upload', [ContractDocController::class, 'create'])->name('upload');
@@ -641,6 +652,40 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Finance & Funding Routes
+    |--------------------------------------------------------------------------
+    | Akses untuk Keuangan dan Admin Kampus
+    */
+    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
+
+        // Rute untuk menampilkan halaman log perubahan termin
+        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
+            ->name('finance.funding.logs.index');
+
+        // Rute BARU untuk mencetak kwitansi PDF
+        Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
+            ->name('finance.funding.print-kwitansi');
+
+    });
+
+    | Submission Discussion Routes (v1.1)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('discussion')->name('discussion.')->group(function () {
+        Route::get('/', [DiscussionController::class, 'index'])
+            ->name('index');
+
+        Route::post('/', [DiscussionController::class, 'store'])
+            ->name('store');
+
+        Route::post('/{discussion}/message', [DiscussionController::class, 'reply'])
+            ->name('message.store');
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Shared Routes (All Roles)
     |--------------------------------------------------------------------------
     */
@@ -661,6 +706,8 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+
+    Route::post('/user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])->name('user.bank.update');
 });
 
 Route::get('/review/invitation/{id}', function ($id) {
@@ -725,5 +772,6 @@ Route::post('/review-assignment/{id}/decline', [ReviewAssignmentController::clas
     ->name('review.decline');
 
 
+    
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
