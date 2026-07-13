@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Editorial;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Editorial\DeskReviewRequest;
-use App\Models\Submission;
+use App\Models\PembinaanRegistration;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
 
 /**
  * DecisionController
@@ -16,19 +17,36 @@ use Illuminate\Http\RedirectResponse;
 class DecisionController extends Controller
 {
     /**
-     * Proses keputusan Desk Review.
+     * Proses keputusan Desk Review: AcceptForReview atau DeskReject.
      *
-     * POST /editorial/desk/{submission}/desk-review
+     * POST /editorial/desk/{registration}/desk-review
      */
-    public function deskReview(DeskReviewRequest $request, Submission $submission): RedirectResponse
+    public function deskReview(Request $request, PembinaanRegistration $registration): RedirectResponse
     {
-        $this->authorize('update', $submission);
+        // Validasi
+        $validated = $request->validate([
+            'decision' => ['required', 'in:approved,rejected'],
+            // Catatan wajib diisi jika keputusannya reject
+            'rejection_reason' => [
+                'nullable',
+                'string',
+                'max:1000',
+                $request->decision === 'rejected' ? 'required' : 'nullable',
+            ],
+        ], [
+            'decision.required'          => 'Keputusan desk review wajib dipilih.',
+            'decision.in'                => 'Keputusan tidak valid.',
+            'rejection_reason.required'  => 'Catatan penolakan wajib diisi jika submission ditolak.',
+            'rejection_reason.max'       => 'Catatan penolakan maksimal 1000 karakter.',
+        ]);
 
-        if (! $submission->isPending()) {
+        // Pastikan registration masih berstatus pending
+        if ($registration->status !== 'pending') {
             return redirect()
                 ->back()
                 ->with('error', 'Submission ini sudah diproses sebelumnya.');
         }
+
 
         $submission->update([
             'status'           => $request->decision,
@@ -36,11 +54,21 @@ class DecisionController extends Controller
             'reviewed_by'      => auth()->id(),
             'rejection_reason' => $request->decision === 'Desk_Reject'
                 ? $request->rejection_reason
+
+        // Update status registration
+        $registration->update([
+            'status'           => $validated['decision'],
+            'reviewed_at'      => now(),
+            'reviewed_by'      => auth()->id(),
+            'rejection_reason' => $validated['decision'] === 'rejected'
+                ? $validated['rejection_reason']
                 : null,
             'updated_by'       => auth()->id(),
         ]);
 
         $message = $request->decision === 'Accept_For_Review'
+
+        $message = $validated['decision'] === 'approved'
             ? 'Submission berhasil diterima untuk review.'
             : 'Submission ditolak.';
 

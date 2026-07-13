@@ -12,15 +12,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * ⚠️ CATATAN: Model ini dibuat secara lokal untuk keperluan testing.
  * Jangan di-commit ke branch utama. Tunggu model resmi dari Modul 2.
  *
- * @property int $id
- * @property int $journal_id
- * @property int $user_id
- * @property string $title
- * @property string $abstract
- * @property string $keywords
- * @property string $status
+ * @property int         $id
+ * @property int         $journal_id
+ * @property int         $user_id
+ * @property string      $title
+ * @property string      $abstract
+ * @property string      $keywords
+ * @property string      $status
  * @property string|null $rejection_reason
- * @property int|null $reviewed_by
+ * @property int|null    $reviewed_by
  * @property string|null $reviewed_at
  */
 class Submission extends Model
@@ -43,9 +43,9 @@ class Submission extends Model
 
     protected $casts = [
         'reviewed_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime',
+        'deleted_at'  => 'datetime',
     ];
 
     public function journal()

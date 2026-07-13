@@ -40,7 +40,10 @@ class DeskController extends Controller
 
         return Inertia::render('Editorial/Desk/DeskReview', [
             'submission' => $submission->load('journal', 'author'),
+
             'editors'    => $editors,
+
+            'editors' => $editors,
         ]);
     }
 
@@ -64,11 +67,11 @@ class DeskController extends Controller
         }
 
         EditorialAssignment::create([
-            'editor_id' => $request->editor_id,
+            'editor_id'     => $request->editor_id,
             'submission_id' => $submission->id,
-            'assigned_by' => auth()->id(),
-            'assigned_at' => now(),
-            'status' => 'assigned',
+            'assigned_by'   => auth()->id(),
+            'assigned_at'   => now(),
+            'status'        => 'assigned',
         ]);
 
         return redirect()
