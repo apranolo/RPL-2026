@@ -668,6 +668,7 @@ Route::middleware(['auth'])->group(function () {
 
     });
 
+    /*
     | Submission Discussion Routes (v1.1)
     |--------------------------------------------------------------------------
     */
