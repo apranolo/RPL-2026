@@ -14,8 +14,7 @@ class ReviewController extends Controller
     {
         $validated = $request->validated();
 
-        // Simpan assessment (Review)
-        $review = new Review();
+        $review = new Review;
         $review->proposal_id = $validated['proposal_id'];
         $review->reviewer_id = auth()->id(); // Asumsi menggunakan reviewer yang sedang login
         $review->score = $validated['score'];
