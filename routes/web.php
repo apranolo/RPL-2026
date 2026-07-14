@@ -238,9 +238,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
 
-            // View all proposals (read-only for monitoring)
+        // Proposal Verification Management (Super Admin)
         Route::get('proposals', [AdminProposalController::class, 'index'])
             ->name('proposals.index');
+        Route::post('proposals/{proposal}/approve', [AdminProposalController::class, 'approve'])
+            ->name('proposals.approve');
+        Route::post('proposals/{proposal}/reject', [AdminProposalController::class, 'reject'])
+            ->name('proposals.reject');
 
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
