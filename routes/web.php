@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
+use App\Http\Controllers\Admin\MonevScheduleCtrl;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
@@ -277,6 +278,16 @@ Route::middleware(['auth'])->group(function () {
                 ->name('destroy');
             Route::post('{pembinaan}/toggle-status', [AdminPembinaanController::class, 'toggleStatus'])
                 ->name('toggle-status');
+        });
+
+        // Monev Schedule Management
+        Route::prefix('monev-schedules')->name('monev-schedules.')->group(function () {
+            Route::get('/', [MonevScheduleCtrl::class, 'index'])
+                ->name('index');
+            Route::post('/', [MonevScheduleCtrl::class, 'store'])
+                ->name('store');
+            Route::get('pending', [MonevScheduleCtrl::class, 'pending'])
+                ->name('pending');
         });
 
     });
