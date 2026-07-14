@@ -1,83 +1,111 @@
+/**
+ * Proposal/Edit — User (Dosen)
+ *
+ * @description
+ * Halaman form edit proposal penelitian untuk peran User (Dosen).
+ * Kolom diselaraskan dengan skema migrasi: title & description.
+ *
+ * @route GET /proposal/{proposal}/edit
+ */
 import AppLayout from '@/layouts/app/app-sidebar-layout';
+import { type BreadcrumbItem } from '@/types';
 import { useForm } from '@inertiajs/react';
 import React from 'react';
 import { route } from 'ziggy-js';
 
+// ─── Breadcrumbs ─────────────────────────────────────────────────────────────
+
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Proposal', href: '/proposal' },
+    { title: 'Edit Proposal', href: '#' },
+];
+
+// ─── TypeScript ───────────────────────────────────────────────────────────────
+
 type Proposal = {
     id: number;
-    judul: string;
-    deskripsi: string;
+    title: string;
+    description: string;
 };
 
 type ProposalForm = {
-    judul: string;
-    deskripsi: string;
+    title: string;
+    description: string;
 };
 
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function Edit({ proposal }: { proposal: Proposal }) {
-    // Guard (biar nggak crash kalau data aneh)
     const { data, setData, put, processing, errors } = useForm<ProposalForm>({
-        judul: proposal?.judul ?? '',
-        deskripsi: proposal?.deskripsi ?? '',
+        title:       proposal?.title ?? '',
+        description: proposal?.description ?? '',
     });
 
     if (!proposal) {
-        return <div className="p-6">Data tidak ditemukan</div>;
+        return (
+            <AppLayout breadcrumbs={breadcrumbs}>
+                <div className="p-6 text-muted-foreground">Data tidak ditemukan.</div>
+            </AppLayout>
+        );
     }
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        put(route('proposal.update', { proposal: proposal.id }), {
-            onSuccess: () => {
-                console.log('Berhasil update');
-            },
-        });
+        put(route('proposal.update', { proposal: proposal.id }));
     };
 
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <div className="mx-auto max-w-2xl p-6">
-                <div className="rounded-xl bg-white p-6 shadow">
-                    <h1 className="mb-6 text-2xl font-bold">Edit Proposal</h1>
+                <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+                    <h1 className="mb-6 text-2xl font-bold text-foreground">Edit Proposal</h1>
 
                     <form onSubmit={submit} className="space-y-6">
                         {/* Judul */}
                         <div>
-                            <label htmlFor="judul" className="mb-1 block text-sm font-medium">
-                                Judul
+                            <label htmlFor="title" className="mb-1 block text-sm font-medium text-foreground">
+                                Judul Proposal
                             </label>
-
                             <input
-                                id="judul"
+                                id="title"
                                 type="text"
-                                value={data.judul}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('judul', e.target.value)}
-                                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none ${
-                                    errors.judul ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                                value={data.title}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                    setData('title', e.target.value)
+                                }
+                                className={`w-full rounded-lg border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 ${
+                                    errors.title
+                                        ? 'border-destructive focus:ring-destructive/30'
+                                        : 'border-border focus:ring-ring'
                                 }`}
                             />
-
-                            {errors.judul && <p className="mt-1 text-sm text-red-500">{errors.judul}</p>}
+                            {errors.title && (
+                                <p className="mt-1 text-sm text-destructive">{errors.title}</p>
+                            )}
                         </div>
 
                         {/* Deskripsi */}
                         <div>
-                            <label htmlFor="deskripsi" className="mb-1 block text-sm font-medium">
+                            <label htmlFor="description" className="mb-1 block text-sm font-medium text-foreground">
                                 Deskripsi
                             </label>
-
                             <textarea
-                                id="deskripsi"
-                                value={data.deskripsi}
-                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setData('deskripsi', e.target.value)}
+                                id="description"
+                                value={data.description}
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                                    setData('description', e.target.value)
+                                }
                                 rows={4}
-                                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none ${
-                                    errors.deskripsi ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                                className={`w-full rounded-lg border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 ${
+                                    errors.description
+                                        ? 'border-destructive focus:ring-destructive/30'
+                                        : 'border-border focus:ring-ring'
                                 }`}
                             />
-
-                            {errors.deskripsi && <p className="mt-1 text-sm text-red-500">{errors.deskripsi}</p>}
+                            {errors.description && (
+                                <p className="mt-1 text-sm text-destructive">{errors.description}</p>
+                            )}
                         </div>
 
                         {/* Button */}
@@ -85,9 +113,9 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                                className="rounded-lg bg-primary px-5 py-2 text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                             >
-                                {processing ? 'Updating...' : 'Update'}
+                                {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
                             </button>
                         </div>
                     </form>

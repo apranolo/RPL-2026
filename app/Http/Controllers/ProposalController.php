@@ -6,6 +6,12 @@ use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+/**
+ * ProposalController (User-facing)
+ *
+ * Mengelola aksi CRUD proposal untuk peran User (Dosen).
+ * Aksi verifikasi (approve/reject) ditangani oleh Admin\ProposalController.
+ */
 class ProposalController extends Controller
 {
     /**
@@ -54,14 +60,15 @@ class ProposalController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * Kolom diselaraskan dengan migrasi: title & description.
      */
     public function update(Request $request, Proposal $proposal)
     {
         $this->authorize('update', $proposal);
 
         $validated = $request->validate([
-            'judul' => 'required|string|max:255',
-            'deskripsi' => 'required|string',
+            'title'       => 'required|string|max:255',
+            'description' => 'required|string',
         ]);
 
         $proposal->update($validated);

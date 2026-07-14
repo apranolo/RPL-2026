@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
+use App\Http\Controllers\Admin\ProposalController as AdminProposalController;
 use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
@@ -278,6 +279,14 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{pembinaan}/toggle-status', [AdminPembinaanController::class, 'toggleStatus'])
                 ->name('toggle-status');
         });
+
+        // Proposal Verification Management (Super Admin)
+        Route::get('proposals', [AdminProposalController::class, 'index'])
+            ->name('proposals.index');
+        Route::post('proposals/{proposal}/approve', [AdminProposalController::class, 'approve'])
+            ->name('proposals.approve');
+        Route::post('proposals/{proposal}/reject', [AdminProposalController::class, 'reject'])
+            ->name('proposals.reject');
 
     });
 
