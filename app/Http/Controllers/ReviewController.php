@@ -13,7 +13,7 @@ class ReviewController extends Controller
     public function storeAssessment(StoreReviewRequest $request)
     {
         $validated = $request->validated();
-        
+
         // Simpan assessment (Review)
         $review = new Review();
         $review->proposal_id = $validated['proposal_id'];
@@ -32,10 +32,10 @@ class ReviewController extends Controller
     public function updateAssessment(StoreReviewRequest $request, $id)
     {
         $validated = $request->validated();
-        
+
         // Update assessment (Review)
         $review = Review::findOrFail($id);
-        
+
         // Memastikan hanya reviewer yang bersangkutan yang bisa update
         if ($review->reviewer_id !== auth()->id()) {
             abort(403, 'Anda tidak diizinkan mengubah penilaian ini.');
