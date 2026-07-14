@@ -49,6 +49,11 @@ return new class extends Migration
             // Make category nullable for new indicators created via hierarchy
             DB::statement('ALTER TABLE evaluation_indicators 
                 MODIFY category VARCHAR(100) NULL');
+        } else {
+            Schema::table('evaluation_indicators', function (Blueprint $table) {
+                $table->string('category', 100)->nullable()->change();
+                $table->string('sub_category', 100)->nullable()->change();
+            });
         }
     }
 
@@ -79,6 +84,11 @@ return new class extends Migration
 
             DB::statement("ALTER TABLE evaluation_indicators 
                 MODIFY sub_category VARCHAR(100) NULL COMMENT 'Sub-kategori (optional)'");
+        } else {
+            Schema::table('evaluation_indicators', function (Blueprint $table) {
+                $table->string('category', 100)->nullable(false)->change();
+                $table->string('sub_category', 100)->nullable()->change();
+            });
         }
     }
 };
