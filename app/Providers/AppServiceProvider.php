@@ -25,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\Journal::class, \App\Policies\JournalPolicy::class);
         Gate::policy(\App\Models\JournalAssessment::class, \App\Policies\JournalAssessmentPolicy::class);
         Gate::policy(\App\Models\University::class, \App\Policies\UniversityPolicy::class);
+        Gate::policy(\App\Models\ContractDocument::class, \App\Policies\ContractDocumentPolicy::class);
+        Gate::policy(\App\Models\PlagiarismCheck::class, \App\Policies\PlagiarismCheckPolicy::class);
 
         // NEW v1.1: Hierarchical Borang Policies (Super Admin only)
         Gate::policy(\App\Models\AccreditationTemplate::class, \App\Policies\AccreditationTemplatePolicy::class);
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\EvaluationSubCategory::class, \App\Policies\EvaluationSubCategoryPolicy::class);
         Gate::policy(\App\Models\EvaluationIndicator::class, \App\Policies\EvaluationIndicatorPolicy::class);
         Gate::policy(\App\Models\EssayQuestion::class, \App\Policies\EssayQuestionPolicy::class);
+        
 
         // Proposal Verification Policy (Super Admin)
         Gate::policy(\App\Models\Proposal::class, \App\Policies\ProposalPolicy::class);
