@@ -131,8 +131,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('dashboard');
 
     //revisi ded code
-    Route::get('/monev/cetak-rekap', [\App\Http\Controllers\MonevDocumentCtrl::class, 'printRekap'])
-        ->name('monev.printRekap');
+    Route::get('/monev/cetak-rekap', [\App\Http\Controllers\MonevDocumentController::class, 'printRekap'])
+        ->name('monev.printRekap')
+        ->middleware('role:' . Role::SUPER_ADMIN . '|' . Role::ADMIN_KAMPUS . '|' . Role::USER);
     /*
     |--------------------------------------------------------------------------
     | Super Admin Routes

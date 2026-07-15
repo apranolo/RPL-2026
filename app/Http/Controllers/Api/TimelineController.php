@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Evaluation; // Model diperbaiki menjadi Evaluation (atau ProgressReport jika relevan)
+use App\Models\JournalAssessment; 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,21 +24,18 @@ class TimelineController extends Controller
         // -----------------------------------------------------------------
         // 1. Menggunakan Model yang Tepat
         // -----------------------------------------------------------------
-        $baseQuery = Evaluation::query()
+        $baseQuery = JournalAssessment::query()
             ->whereYear('created_at', $year);
 
         // -----------------------------------------------------------------
         // 2. Filter Akses Berdasarkan Role
         // -----------------------------------------------------------------
         if ($user->role->name === 'Admin Kampus') {
-            // Asumsi: Evaluation terhubung ke progressReport, lalu ke user
-            $baseQuery->whereHas('progressReport.user', fn ($q) =>
+            $baseQuery->whereHas('journal', fn ($q) =>
                 $q->where('university_id', $user->university_id)
             );
         } elseif ($user->role->name !== 'Super Admin') {
-            $baseQuery->whereHas('progressReport', fn ($q) =>
-                $q->where('user_id', $user->id)
-            );
+            $baseQuery->where('user_id', $user->id);
         }
 
         // -----------------------------------------------------------------
@@ -50,13 +47,13 @@ class TimelineController extends Controller
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('count', 'month')->toArray();
 
-        // Monthly scores (Asumsi field skor di model Evaluation bernama 'score')
-        $monthlyScores = (clone $baseQuery)->whereNotNull('score')
+        // Monthly scores (menggunakan 'percentage' sebagai nilai skor persentase)
+        $monthlyScores = (clone $baseQuery)->whereNotNull('percentage')
             ->select(
                 DB::raw('MONTH(created_at) as month'),
-                DB::raw('AVG(score) as avg_score'),
-                DB::raw('MAX(score) as max_score'),
-                DB::raw('MIN(score) as min_score')
+                DB::raw('AVG(percentage) as avg_score'),
+                DB::raw('MAX(percentage) as max_score'),
+                DB::raw('MIN(percentage) as min_score')
             )
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->get()->keyBy('month')->toArray();
@@ -106,9 +103,9 @@ class TimelineController extends Controller
                 'reviewed'  => $statusDist['reviewed'] ?? 0,
             ],
             'summary' => [
-                'total_evaluations' => $totalYear, // Kunci array diubah agar sesuai konteks
+                'total_evaluations' => $totalYear, 
                 'avg_score' => $totalYear > 0
-                    ? round((clone $baseQuery)->whereNotNull('score')->avg('score') ?? 0, 1)
+                    ? round((clone $baseQuery)->whereNotNull('percentage')->avg('percentage') ?? 0, 1)
                     : 0,
                 'completion_rate' => $totalYear > 0
                     ? round(((clone $baseQuery)->where('status', 'reviewed')->count() / $totalYear) * 100, 1)

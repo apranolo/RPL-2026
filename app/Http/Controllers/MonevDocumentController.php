@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Evaluation; // Model sudah diganti menjadi Evaluation
+use App\Models\JournalAssessment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class MonevDocumentCtrl extends Controller
+class MonevDocumentController extends Controller
 {
     /**
      * Print rekap evaluasi monev (monitoring & evaluasi).
@@ -27,12 +27,12 @@ class MonevDocumentCtrl extends Controller
 
         // -----------------------------------------------------------------
         // 1. Build base query with necessary eager-loads
-        // Menggunakan Evaluation dan ProgressReport (sesuai modul Monev)
+        // Menggunakan JournalAssessment (sesuai modul Monev)
         // -----------------------------------------------------------------
-        $query = Evaluation::query()
+        $query = JournalAssessment::query()
             ->with([
-                'progressReport.user.university',
-                'reviewer',
+                'journal.university',
+                'user',
             ])
             ->orderByDesc('created_at'); // Menggunakan created_at sebagai standar
 
@@ -40,23 +40,19 @@ class MonevDocumentCtrl extends Controller
         // 2. Scope by role
         // -----------------------------------------------------------------
         if ($user->role->name === 'Admin Kampus') {
-            $query->whereHas('progressReport.user', function ($q) use ($user) {
+            $query->whereHas('journal', function ($q) use ($user) {
                 $q->where('university_id', $user->university_id);
             });
         } elseif ($user->role->name !== 'Super Admin') {
             // Regular user – only own progress reports/evaluations
-            $query->whereHas('progressReport', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
+            $query->where('user_id', $user->id);
         }
 
         // -----------------------------------------------------------------
         // 3. Optional filters from query-string
         // -----------------------------------------------------------------
         if ($request->filled('period')) {
-            $query->whereHas('progressReport', function ($q) use ($request) {
-                $q->where('period', $request->input('period'));
-            });
+            $query->where('period', $request->input('period'));
         }
 
         if ($request->filled('status')) {
@@ -70,17 +66,19 @@ class MonevDocumentCtrl extends Controller
         // -----------------------------------------------------------------
         $statistics = [
             'total'         => $evaluations->count(),
-            'average_score' => $evaluations->avg('score') ?? 0, // Asumsi nama field adalah score
-            'max_score'     => $evaluations->max('score') ?? 0,
-            'min_score'     => $evaluations->min('score') ?? 0,
+            'average_score' => $evaluations->avg('percentage') ?? 0,
+            'max_score'     => $evaluations->max('percentage') ?? 0,
+            'min_score'     => $evaluations->min('percentage') ?? 0,
             'by_status'     => $evaluations->groupBy('status')->map->count(),
+            'by_grade'      => $evaluations->groupBy('grade')->map->count(),
         ];
 
         // -----------------------------------------------------------------
         // 5. Render the print-optimised Blade view
         // -----------------------------------------------------------------
         return view('print.evaluasi', [
-            'evaluations' => $evaluations, // Variabel diubah menyesuaikan model
+            'evaluations' => $evaluations, 
+            'assessments' => $evaluations, // Alias for blade compatibility
             'statistics'  => $statistics,
             'user'        => $user,
             'filters'     => $request->only(['period', 'status']),
