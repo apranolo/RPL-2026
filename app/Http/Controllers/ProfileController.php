@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuthorProfile;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Http\Requests\UpdateProfileRequest;
 
 /**
  * ProfileController
@@ -41,14 +41,10 @@ class ProfileController extends Controller
      *
      * @features Create or update author profile
      */
-    public function update(Request $request): RedirectResponse
+    public function update(UpdateProfileRequest $request): RedirectResponse
     {
         // Validate incoming request
-        $validated = $request->validate([
-            'orcid' => ['nullable', 'string', 'max:255'],
-            'affiliation' => ['nullable', 'string', 'max:255'],
-            'bio' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         // Create new profile or update existing profile
         AuthorProfile::updateOrCreate(
