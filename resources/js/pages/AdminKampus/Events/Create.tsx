@@ -56,8 +56,8 @@ export default function EventsCreate() {
         contact_person_name: '',
         contact_person_phone: '',
         contact_person_email: '',
-        is_active: true,
-        is_featured: false,
+        is_active: true as boolean,
+        is_featured: false as boolean,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
