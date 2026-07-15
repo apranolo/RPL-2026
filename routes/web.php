@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
@@ -289,6 +290,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
 
+        // Rekap Hasil Penilaian (Summary)
+        Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
+            ->name('reviews.summary');
+
+
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             Route::get('/', [AdminPembinaanController::class, 'index'])
@@ -310,6 +316,20 @@ Route::middleware(['auth'])->group(function () {
         });
 
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Decision Routes (Super Admin & Admin Kampus)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])
+        ->prefix('admin')
+        ->name('admin.')
+        ->group(function () {
+            // Penentuan Keputusan Diterima/Ditolak (Decision)
+            Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
+                ->name('decision.decide');
+        });
 
     /*
     |--------------------------------------------------------------------------
