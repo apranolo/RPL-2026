@@ -27,6 +27,7 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
@@ -505,6 +506,11 @@ Route::middleware(['auth'])->group(function () {
             ->name('profil.notifications.read');
         Route::post('profil/notifications/read-all', [ProfilController::class, 'markAllNotificationsAsRead'])
             ->name('profil.notifications.read-all');
+
+        // Editorial Desk
+        Route::prefix('editorial/desk')->name('editorial.desk.')->group(function () {
+            Route::get('inbox', [DeskController::class, 'inbox'])->name('inbox');
+        });
 
         // Journals Management
         Route::resource('journals', UserJournalController::class)
