@@ -36,7 +36,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { CalendarDays, Clock, FileText, MapPin, Plus, UserCheck } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { toast } from 'sonner';
@@ -44,11 +44,11 @@ import { toast } from 'sonner';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
-        href: '/dashboard',
+        href: route('dashboard'),
     },
     {
         title: 'Monev Schedule',
-        href: '/admin/monev-schedules',
+        href: route('admin.monev-schedules.index'),
     },
 ];
 
@@ -117,7 +117,8 @@ interface Props {
 
 export default function Schedule({ schedules, contracts, evaluators, pendingReports = [], activeTab = 'schedules' }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [formData, setFormData] = useState({
+
+    const { data, setData, post, processing, errors, reset } = useForm({
         contract_id: '',
         evaluator_id: '',
         date: '',
@@ -125,38 +126,28 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
         location: '',
     });
 
-    const { flash } = usePage().props as { flash?: { success?: string; error?: string } };
-
-    // Show flash message from redirect
-    if (flash?.success) {
-        toast.success(flash.success);
-    }
-
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        router.post(
-            route('admin.monev-schedules.store'),
-            {
-                contract_id: Number(formData.contract_id),
-                evaluator_id: Number(formData.evaluator_id),
-                date: formData.date,
-                time: formData.time || null,
-                location: formData.location || null,
+        post(route('admin.monev-schedules.store'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setDialogOpen(false);
+                reset();
+                toast.success('Jadwal monev berhasil dibuat.');
             },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setDialogOpen(false);
-                    setFormData({ contract_id: '', evaluator_id: '', date: '', time: '', location: '' });
-                    toast.success('Jadwal monev berhasil dibuat.');
-                },
-                onError: (errors) => {
-                    const firstError = Object.values(errors)[0];
-                    toast.error(typeof firstError === 'string' ? firstError : 'Gagal membuat jadwal.');
-                },
+            onError: () => {
+                toast.error('Gagal membuat jadwal. Periksa kembali form.');
             },
-        );
+        });
+    };
+
+    const handleTabChange = (value: string) => {
+        if (value === 'schedules') {
+            router.get(route('admin.monev-schedules.index'), {}, { preserveState: true });
+        } else if (value === 'pending') {
+            router.get(route('admin.monev-schedules.pending'), {}, { preserveState: true });
+        }
     };
 
     const getStatusBadge = (status: string) => {
@@ -220,7 +211,7 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
                                     <form onSubmit={handleSubmit} className="space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="contract_id">Kontrak</Label>
-                                            <Select value={formData.contract_id} onValueChange={(v) => setFormData({ ...formData, contract_id: v })}>
+                                            <Select value={data.contract_id} onValueChange={(v) => setData('contract_id', v)}>
                                                 <SelectTrigger id="contract_id">
                                                     <SelectValue placeholder="Pilih kontrak..." />
                                                 </SelectTrigger>
@@ -232,10 +223,11 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                            {errors.contract_id && <p className="mt-1 text-sm text-red-600">{errors.contract_id}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="evaluator_id">Evaluator</Label>
-                                            <Select value={formData.evaluator_id} onValueChange={(v) => setFormData({ ...formData, evaluator_id: v })}>
+                                            <Select value={data.evaluator_id} onValueChange={(v) => setData('evaluator_id', v)}>
                                                 <SelectTrigger id="evaluator_id">
                                                     <SelectValue placeholder="Pilih evaluator..." />
                                                 </SelectTrigger>
@@ -247,6 +239,7 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                            {errors.evaluator_id && <p className="mt-1 text-sm text-red-600">{errors.evaluator_id}</p>}
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
@@ -255,18 +248,20 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
                                                     id="date"
                                                     type="date"
                                                     required
-                                                    value={formData.date}
-                                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                                    value={data.date}
+                                                    onChange={(e) => setData('date', e.target.value)}
                                                 />
+                                                {errors.date && <p className="mt-1 text-sm text-red-600">{errors.date}</p>}
                                             </div>
                                             <div className="space-y-2">
                                                 <Label htmlFor="time">Waktu</Label>
                                                 <Input
                                                     id="time"
                                                     type="time"
-                                                    value={formData.time}
-                                                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                                                    value={data.time}
+                                                    onChange={(e) => setData('time', e.target.value)}
                                                 />
+                                                {errors.time && <p className="mt-1 text-sm text-red-600">{errors.time}</p>}
                                             </div>
                                         </div>
                                         <div className="space-y-2">
@@ -275,15 +270,18 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
                                                 id="location"
                                                 type="text"
                                                 placeholder="Misal: Ruang Rapat Lt.3, Zoom Meeting, dll."
-                                                value={formData.location}
-                                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                                value={data.location}
+                                                onChange={(e) => setData('location', e.target.value)}
                                             />
+                                            {errors.location && <p className="mt-1 text-sm text-red-600">{errors.location}</p>}
                                         </div>
                                         <DialogFooter>
                                             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                                                 Batal
                                             </Button>
-                                            <Button type="submit">Simpan Jadwal</Button>
+                                            <Button type="submit" disabled={processing}>
+                                                {processing ? 'Menyimpan...' : 'Simpan Jadwal'}
+                                            </Button>
                                         </DialogFooter>
                                     </form>
                                 </DialogContent>
@@ -292,12 +290,12 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
                     </div>
 
                     {/* Tabs */}
-                    <Tabs defaultValue={activeTab}>
+                    <Tabs value={activeTab} onValueChange={handleTabChange}>
                         <TabsList className="mb-4">
-                            <TabsTrigger value="schedules" onClick={() => router.get(route('admin.monev-schedules.index'), {}, { preserveState: true })}>
+                            <TabsTrigger value="schedules">
                                 Jadwal Monev
                             </TabsTrigger>
-                            <TabsTrigger value="pending" onClick={() => router.get(route('admin.monev-schedules.pending'), {}, { preserveState: true })}>
+                            <TabsTrigger value="pending">
                                 Laporan Pending
                                 {pendingReports.length > 0 && (
                                     <Badge variant="destructive" className="ml-2 text-xs">

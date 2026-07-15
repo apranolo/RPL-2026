@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('monev_schedules', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('contract_id')->nullable();
+            $table->foreignId('contract_id')
+                ->nullable()
+                ->constrained('contracts')
+                ->nullOnDelete();
 
             $table->foreignId('evaluator_id')
                 ->constrained('users')

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\MonevSchedule;
+use App\Http\Requests\Admin\StoreMonevScheduleRequest;
 use App\Models\Contract;
+use App\Models\MonevSchedule;
 use App\Models\ProgressReport;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class MonevScheduleCtrl extends Controller
@@ -17,33 +17,18 @@ class MonevScheduleCtrl extends Controller
      */
     public function index()
     {
-        $schedules = MonevSchedule::with(['contract.proposal.user', 'evaluator'])->get();
-        $contracts = Contract::with('proposal.user')->get();
-        $evaluators = User::where('is_reviewer', true)->get();
-
-        return Inertia::render('Admin/Monev/Schedule', [
-            'schedules' => $schedules,
-            'contracts' => $contracts,
-            'evaluators' => $evaluators,
-            'activeTab' => 'schedules',
-        ]);
+        return Inertia::render('Admin/Monev/Schedule', array_merge(
+            $this->getMonevData(),
+            ['activeTab' => 'schedules'],
+        ));
     }
 
     /**
      * Store a newly created monev schedule.
      */
-    public function store(Request $request)
+    public function store(StoreMonevScheduleRequest $request)
     {
-        $validated = $request->validate([
-            'contract_id' => 'required|integer',
-            'evaluator_id' => 'required|exists:users,id',
-            'date' => 'required|date',
-            'time' => 'nullable|string',
-            'location' => 'nullable|string',
-            'status' => 'nullable|in:scheduled,done,cancelled',
-        ]);
-
-        MonevSchedule::create($validated);
+        MonevSchedule::create($request->validated());
 
         return redirect()->route('admin.monev-schedules.index')
             ->with('success', 'Jadwal monev berhasil dibuat.');
@@ -54,20 +39,50 @@ class MonevScheduleCtrl extends Controller
      */
     public function pending()
     {
-        $pendingReports = ProgressReport::where('status', 'submitted')
-            ->with(['proposal.user', 'user'])
-            ->get();
+        $universityId = auth()->user()->university_id;
 
-        $schedules = MonevSchedule::with(['contract.proposal.user', 'evaluator'])->get();
-        $contracts = Contract::with('proposal.user')->get();
-        $evaluators = User::where('is_reviewer', true)->get();
+        $pendingQuery = ProgressReport::where('status', 'submitted')
+            ->with(['proposal.user', 'user']);
 
-        return Inertia::render('Admin/Monev/Schedule', [
-            'pendingReports' => $pendingReports,
-            'schedules' => $schedules,
-            'contracts' => $contracts,
-            'evaluators' => $evaluators,
-            'activeTab' => 'pending',
-        ]);
+        if ($universityId) {
+            $pendingQuery->whereHas('proposal.user', function ($q) use ($universityId) {
+                $q->where('university_id', $universityId);
+            });
+        }
+
+        return Inertia::render('Admin/Monev/Schedule', array_merge(
+            $this->getMonevData(),
+            [
+                'pendingReports' => $pendingQuery->get(),
+                'activeTab' => 'pending',
+            ],
+        ));
+    }
+
+    /**
+     * Get shared monev data (schedules, contracts, evaluators) with multi-tenancy filtering.
+     */
+    private function getMonevData(): array
+    {
+        $universityId = auth()->user()->university_id;
+
+        $schedulesQuery = MonevSchedule::with(['contract.proposal.user', 'evaluator']);
+        $contractsQuery = Contract::with('proposal.user');
+        $evaluatorsQuery = User::where('is_reviewer', true);
+
+        if ($universityId) {
+            $schedulesQuery->whereHas('contract', function ($q) use ($universityId) {
+                $q->where('university_id', $universityId);
+            })->orWhereNull('contract_id');
+
+            $contractsQuery->where('university_id', $universityId);
+            $evaluatorsQuery->where('university_id', $universityId);
+        }
+
+        return [
+            'schedules' => $schedulesQuery->get(),
+            'contracts' => $contractsQuery->get(),
+            'evaluators' => $evaluatorsQuery->get(),
+        ];
     }
 }

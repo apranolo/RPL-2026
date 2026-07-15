@@ -11,6 +11,8 @@ class Proposal extends Model
     use HasFactory;
 
     protected $fillable = [
+        'title',
+        'description',
         'judul',
         'deskripsi',
         'user_id',
@@ -26,5 +28,15 @@ class Proposal extends Model
     public function researchSchema()
     {
         return $this->belongsTo(ResearchSchema::class);
+    }
+
+    public function contract()
+    {
+        return $this->hasOne(Contract::class);
+    }
+
+    public function progressReports()
+    {
+        return $this->hasMany(ProgressReport::class);
     }
 }
