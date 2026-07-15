@@ -663,6 +663,8 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('evaluations')->name('evaluations.')->group(function () {
             Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
                 ->name('index');
+            Route::get('{report}', [\App\Http\Controllers\EvaluationController::class, 'showProgress'])
+                ->name('show');
         });
 
         // Profile Management
@@ -691,6 +693,7 @@ Route::middleware(['auth'])->group(function () {
 
     });
 
+    /*
     | Submission Discussion Routes (v1.1)
     |--------------------------------------------------------------------------
     */
