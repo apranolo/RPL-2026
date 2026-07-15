@@ -10,16 +10,22 @@ class SubmissionFile extends Model
 {
     use HasFactory;
 
+    /**
+     * Atribut yang dapat diisi secara massal (mass assignable).
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'submission_id',
-        'file_path',
-        'file_name',
-        'file_size',
-        'mime_type',
+        'submission_id', // Menghubungkan ke entitas submission utama
+        'file_path',     // Lokasi penyimpanan file fisik
+        'file_type',     // Kategori Berkas: 'ManuscriptMain' atau 'Supplementary'
     ];
 
     /**
-     * Relasi balik ke model induk Submission
+     * Mendefinisikan relasi inverse ke model Submission.
+     * Setiap file unggahan pasti dimiliki oleh satu entitas submission.
+     *
+     * @return BelongsTo
      */
     public function submission(): BelongsTo
     {

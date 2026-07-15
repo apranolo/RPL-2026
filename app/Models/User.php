@@ -107,11 +107,20 @@ class User extends Authenticatable
         ];
     }
 
-    /*
+   /*
     |--------------------------------------------------------------------------
     | Relationships
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Get all submissions created by this user (Author)
+     * Sesuai dengan spesifikasi relasi PRD Modul 2
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'user_id');
+    }
 
     /**
      * Get the role of this user (backwards compatibility - returns primary role)
