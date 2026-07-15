@@ -1,8 +1,18 @@
+/**
+ * BarChart Component
+ *
+ * @description
+ * Grafik batang interaktif untuk visualisasi serapan dana tahunan.
+ *
+ * @author JurnalMU Team
+ * @filepath /resources/js/components/Charts/BarChart.tsx
+ */
+
 import React from 'react';
 import Chart from 'react-apexcharts';
 
 interface BarChartProps {
-    data: { year: number; total: number }[];
+    data: { year: number; amount: number }[];
 }
 
 export default function BarChart({ data }: BarChartProps) {
@@ -12,7 +22,8 @@ export default function BarChart({ data }: BarChartProps) {
             toolbar: {
                 show: false
             },
-            fontFamily: 'inherit'
+            fontFamily: 'inherit',
+            background: 'transparent'
         },
         xaxis: {
             categories: data.map(item => item.year.toString()),
@@ -69,7 +80,7 @@ export default function BarChart({ data }: BarChartProps) {
     const series = [
         {
             name: 'Total Pendanaan',
-            data: data.map(item => item.total)
+            data: data.map(item => item.amount)
         }
     ];
 
