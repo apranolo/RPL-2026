@@ -1,3 +1,9 @@
+/**
+ * @route /reviewer/evaluations/{report}
+ * @description Halaman detail laporan kemajuan dosen beserta berkas pendukung
+ * @features Linimasa progres, riwayat laporan, tombol isi catatan evaluasi
+ */
+
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
 import { type BreadcrumbItem } from '@/types';
@@ -16,7 +22,7 @@ interface User {
 
 interface Proposal {
     id: number;
-    judul_penelitian: string;
+    judul: string;
     user: User;
 }
 
@@ -115,7 +121,7 @@ export default function EvaluationShow({ report, allReports }: Props) {
                             Detail Laporan Kemajuan
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            {report.proposal?.judul_penelitian ?? '-'}
+                            {report.proposal?.judul ?? '-'}
                         </p>
                     </div>
                     <StatusBadge status={report.status} />
@@ -169,7 +175,7 @@ export default function EvaluationShow({ report, allReports }: Props) {
                             <div>
                                 <h3 className="text-sm font-semibold text-foreground mb-2">Berkas Lampiran</h3>
                                 
-                                   <a href={`/storage/${report.attachment_path}`}
+                                    <a href={`/storage/${report.attachment_path}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center gap-2 rounded-lg border border-primary px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
@@ -199,10 +205,16 @@ export default function EvaluationShow({ report, allReports }: Props) {
                         </div>
 
                         {/* Tombol Aksi */}
-                        <div className="mt-auto pt-4 border-t border-border">
+                        <div className="mt-auto pt-4 border-t border-border flex flex-col gap-2">
+                            <button
+                                onClick={() => router.get(route('reviewer.evaluations.note', report.id))}
+                                className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+                            >
+                                Isi Catatan Evaluasi
+                            </button>
                             <button
                                 onClick={() => router.get(route('reviewer.evaluations.index'))}
-                                className="w-full rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-slate-50 mb-2"
+                                className="w-full rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-slate-50"
                             >
                                 Kembali ke Daftar
                             </button>

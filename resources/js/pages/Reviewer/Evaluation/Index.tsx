@@ -1,3 +1,9 @@
+/**
+ * @route /reviewer/evaluations
+ * @description Halaman daftar laporan kemajuan dosen yang perlu dievaluasi oleh Reviewer
+ * @features Live search judul/nama dosen, progress bar per laporan, navigasi ke detail evaluasi
+ */
+
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
