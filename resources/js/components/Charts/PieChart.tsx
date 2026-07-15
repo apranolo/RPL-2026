@@ -1,3 +1,8 @@
+/**
+ * @file PieChart.tsx
+ * @description Komponen grafik lingkaran (Pie Chart) untuk memvisualisasikan sebaran kategori proposal berdasarkan skema.
+ * @module Dashboard/Reporting/Charts
+ */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApexOptions } from 'apexcharts';
 import { AlertCircle, PieChart as PieChartIcon } from 'lucide-react';
