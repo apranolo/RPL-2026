@@ -47,6 +47,9 @@ return new class extends Migration
 
         // Drop old column and rename new one
         Schema::table('journals', function (Blueprint $table) {
+            if (DB::getDriverName() === 'sqlite') {
+                $table->dropIndex(['sinta_rank']);
+            }
             $table->dropColumn('sinta_rank');
         });
 
