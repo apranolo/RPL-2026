@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('research_schemas', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name'); // schema_name
             $table->text('description')->nullable();
+            $table->decimal('max_funding', 15, 2)->default(0); // Pagu dana maksimal
+            $table->boolean('is_active')->default(true); // Status keaktifan skema
             $table->timestamps();
         });
     }

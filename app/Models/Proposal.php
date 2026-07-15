@@ -11,10 +11,14 @@ class Proposal extends Model
     use HasFactory;
 
     protected $fillable = [
-        'judul',
-        'deskripsi',
         'user_id',
         'research_schema_id',
+        'title',
+        'abstract',
+        'background',
+        'proposal_doc_path',
+        'status',
+        'submitted_at',
     ];
 
     // Relasi ke User (Dosen)
