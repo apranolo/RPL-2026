@@ -4,16 +4,21 @@ import { Head } from '@inertiajs/react';
 
 interface ResearchOutput {
     id: number;
-    judul: string;
-    kategori: string;
-    status: string;
-    file_path: string | null;
+    judul_luaran: string;
+    jenis_luaran: string;
+    status_verifikasi: string;
+    file_sertifikat_atau_cover: string | null;
     keterangan: string | null;
     created_at: string;
     user: {
         id: number;
         name: string;
     };
+    id_contract?: number;
+    doi?: string | null;
+    no_paten?: string | null;
+    isbn?: string | null;
+    tautan_publikasi?: string | null;
 }
 
 interface Props extends PageProps {
@@ -29,21 +34,20 @@ interface Props extends PageProps {
 export default function Index({ outputs }: Props) {
     const getStatusBadge = (status: string) => {
         const colors: Record<string, string> = {
-            draft: 'bg-gray-200 text-gray-800',
-            submitted: 'bg-yellow-200 text-yellow-800',
-            approved: 'bg-green-200 text-green-800',
-            rejected: 'bg-red-200 text-red-800',
+            'Draft': 'bg-gray-200 text-gray-800',
+            'Menunggu_Verifikasi': 'bg-yellow-200 text-yellow-800',
+            'Terverifikasi_LPPM': 'bg-green-200 text-green-800',
+            'Ditolak': 'bg-red-200 text-red-800',
         };
         return colors[status] || 'bg-gray-200 text-gray-800';
     };
 
     const getKategoriBadge = (kategori: string) => {
         const colors: Record<string, string> = {
-            jurnal: 'bg-blue-200 text-blue-800',
-            buku: 'bg-purple-200 text-purple-800',
-            hki: 'bg-green-200 text-green-800',
-            prosiding: 'bg-orange-200 text-orange-800',
-            produk: 'bg-pink-200 text-pink-800',
+            'Jurnal': 'bg-blue-200 text-blue-800',
+            'Buku': 'bg-purple-200 text-purple-800',
+            'HKI': 'bg-green-200 text-green-800',
+            'Produk': 'bg-pink-200 text-pink-800',
         };
         return colors[kategori] || 'bg-gray-200 text-gray-800';
     };
@@ -79,15 +83,15 @@ export default function Index({ outputs }: Props) {
                                 ) : (
                                     outputs.data.map((output) => (
                                         <tr key={output.id}>
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{output.judul}</td>
+                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{output.judul_luaran}</td>
                                             <td className="px-6 py-4 text-sm">
-                                                <span className={`rounded-full px-2 py-1 text-xs ${getKategoriBadge(output.kategori)}`}>
-                                                    {output.kategori.toUpperCase()}
+                                                <span className={`rounded-full px-2 py-1 text-xs ${getKategoriBadge(output.jenis_luaran)}`}>
+                                                    {output.jenis_luaran.toUpperCase()}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm">
-                                                <span className={`rounded-full px-2 py-1 text-xs ${getStatusBadge(output.status)}`}>
-                                                    {output.status}
+                                                <span className={`rounded-full px-2 py-1 text-xs ${getStatusBadge(output.status_verifikasi)}`}>
+                                                    {output.status_verifikasi.replace('_', ' ')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-500">

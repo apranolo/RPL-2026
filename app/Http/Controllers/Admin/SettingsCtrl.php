@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 class SettingsCtrl extends Controller
 {
@@ -35,7 +35,7 @@ class SettingsCtrl extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Settings/Index', [
-            'settings' => $this->getSettings()
+            'settings' => $this->getSettings(),
         ]);
     }
 
@@ -54,7 +54,7 @@ class SettingsCtrl extends Controller
 
         if ($request->hasFile('app_logo')) {
             // Hapus logo lama jika ada
-            if (!empty($settings['app_logo']) && Storage::disk('public')->exists($settings['app_logo'])) {
+            if (! empty($settings['app_logo']) && Storage::disk('public')->exists($settings['app_logo'])) {
                 Storage::disk('public')->delete($settings['app_logo']);
             }
 

@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ReviewerAssignment;
-use App\Http\Controllers\Controller;
+use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -12,13 +11,14 @@ class EvaluationController extends Controller
     // Task 10 - index(): daftar proposal yang perlu dievaluasi
     public function index()
     {
-        $assignments = ReviewerAssignment::with(['registration.journal', 'registration.pembinaan'])
+        $tasks = Review::query()
             ->where('reviewer_id', Auth::id())
-            ->latest()
+            ->with(['proposal', 'assessmentCriteria'])
+            ->latest('created_at')
             ->paginate(10);
 
-        return Inertia::render('Reviewer/Evaluation/Index', [
-            'assignments' => $assignments,
+        return Inertia::render('Reviewer/index', [
+            'tasks' => $tasks,
         ]);
     }
 }
