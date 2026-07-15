@@ -2,20 +2,20 @@
  * OutputReport Component
  *
  * @description
- * Printable recap (rekap) of luaran (outputs) — approved pembinaan registrations.
- * Displays a numbered list of journals grouped with their programme info,
- * plus summary cards for totals per category and per year.
+ * Printable recap (rekap) of luaran (outputs) — verified research outputs.
+ * Displays a numbered list of outputs grouped with their info,
+ * plus summary cards for totals per type and per year.
  *
- * On-screen: filter toolbar (category + year) + Print button are visible.
+ * On-screen: filter toolbar (type + year) + Print button are visible.
  * On print:  only the document header, summary, and table are printed.
  *
  * @route GET /admin/output/report
  *
  * @props
- * - registrations  : flat list of approved PembinaanRegistration with relations
- * - statsByCategory: [{category, label, total}] — from OutputStatsCtrl::getCategory
- * - statsByYear    : [{year, total}]             — from OutputStatsCtrl::getYearly
- * - filters        : {category?, year?}
+ * - outputs        : flat list of verified ResearchOutput with relations
+ * - statsByType    : [{category (type), label, total}]
+ * - statsByYear    : [{year, total}]
+ * - filters        : {type?, year?}
  * - generatedAt    : ISO timestamp string
  *
  * @author JurnalMU Team
@@ -39,31 +39,23 @@ interface University {
     short_name?: string;
 }
 
-interface Journal {
+interface User {
     id: number;
-    title: string;
-    issn: string;
-    e_issn?: string;
-    sinta_rank?: string;
-    sinta_rank_label?: string;
+    name: string;
     university: University;
 }
 
-interface PembinaanInfo {
+interface Output {
     id: number;
-    name: string;
-    category: 'akreditasi' | 'indeksasi';
+    title: string;
+    type: 'Jurnal' | 'Buku' | 'HKI' | 'Produk';
+    year: string;
+    status: string;
+    user: User;
+    created_at: string; // ISO
 }
 
-interface Registration {
-    id: number;
-    journal: Journal;
-    pembinaan: PembinaanInfo;
-    registered_at: string; // ISO
-    status: 'approved';
-}
-
-interface CategoryStat {
+interface TypeStat {
     category: string;
     label: string;
     total: number;
@@ -75,13 +67,13 @@ interface YearlyStat {
 }
 
 interface Filters {
-    category?: string;
+    type?: string;
     year?: string;
 }
 
 interface Props {
-    registrations: Registration[];
-    statsByCategory: CategoryStat[];
+    outputs: Output[];
+    statsByType: TypeStat[];
     statsByYear: YearlyStat[];
     filters: Filters;
     generatedAt: string;
@@ -99,11 +91,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 /* ─────────────────────────────────────────────
    Helpers
 ───────────────────────────────────────────── */
-const CATEGORY_LABELS: Record<string, string> = {
-    akreditasi: 'Akreditasi',
-    indeksasi: 'Indeksasi',
-};
-
 function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('id-ID', {
         day: 'numeric',
@@ -120,25 +107,25 @@ function formatDateShort(iso: string): string {
     });
 }
 
-function categoryBadgeVariant(category: string): 'default' | 'secondary' | 'outline' {
-    if (category === 'akreditasi') return 'default';
-    if (category === 'indeksasi') return 'secondary';
+function typeBadgeVariant(type: string): 'default' | 'secondary' | 'outline' {
+    if (type === 'Jurnal') return 'default';
+    if (type === 'Buku') return 'secondary';
     return 'outline';
 }
 
 /* ─────────────────────────────────────────────
    Year list helper — unique years from data
 ───────────────────────────────────────────── */
-function uniqueYears(registrations: Registration[]): number[] {
-    const set = new Set(registrations.map((r) => new Date(r.registered_at).getFullYear()));
+function uniqueYears(outputs: Output[]): number[] {
+    const set = new Set(outputs.map((o) => Number(o.year)));
     return Array.from(set).sort((a, b) => a - b);
 }
 
 /* ─────────────────────────────────────────────
    Component
 ───────────────────────────────────────────── */
-export default function OutputReport({ registrations, statsByCategory, statsByYear, filters, generatedAt }: Props) {
-    const grandTotal = statsByCategory.reduce((s, c) => s + c.total, 0);
+export default function OutputReport({ outputs, statsByType, statsByYear, filters, generatedAt }: Props) {
+    const grandTotal = statsByType.reduce((s, c) => s + c.total, 0);
 
     /* Filter handlers */
     const applyFilter = (patch: Partial<Filters>) => {
@@ -154,10 +141,10 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
         router.get(route('admin.output.report'));
     };
 
-    const hasActiveFilters = Boolean(filters.category || filters.year);
+    const hasActiveFilters = Boolean(filters.type || filters.year);
 
     /* Available years from statsByYear + local data */
-    const yearOptions = statsByYear.length > 0 ? statsByYear.map((s) => s.year) : uniqueYears(registrations);
+    const yearOptions = statsByYear.length > 0 ? statsByYear.map((s) => s.year) : uniqueYears(outputs);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -191,7 +178,7 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                             <div>
                                 <h1 className="text-3xl font-bold tracking-tight">Rekap Luaran</h1>
                                 <p className="mt-1 text-muted-foreground">
-                                    Daftar luaran program pembinaan jurnal (status: disetujui)
+                                    Daftar luaran dosen (status: terverifikasi)
                                 </p>
                             </div>
 
@@ -201,7 +188,7 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                                     variant="outline"
                                     onClick={() => {
                                         const url = new URL(route('admin.output.export'), window.location.origin);
-                                        if (filters.category) url.searchParams.set('category', filters.category);
+                                        if (filters.type) url.searchParams.set('type', filters.type);
                                         if (filters.year) url.searchParams.set('year', filters.year);
                                         window.location.href = url.toString();
                                     }}
@@ -226,13 +213,13 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                     {/* ── Print document header (hidden on screen) ── */}
                     <div className="print-only mb-6 text-center">
                         <h1 className="text-xl font-bold uppercase tracking-widest">
-                            Rekap Luaran Program Pembinaan Jurnal
+                            Rekap Luaran Dosen
                         </h1>
-                        {(filters.category || filters.year) && (
+                        {(filters.type || filters.year) && (
                             <p className="mt-1 text-sm">
-                                {filters.category ? `Kategori: ${CATEGORY_LABELS[filters.category] ?? filters.category}` : ''}
-                                {filters.category && filters.year ? ' · ' : ''}
-                                {filters.year ? `Tahun: ${filters.year}` : ''}
+                                {filters.type ? `Jenis Luaran: ${filters.type}` : ''}
+                                {filters.type && filters.year ? ' · ' : ''}
+                                {filters.year ? `Tahun Capaian: ${filters.year}` : ''}
                             </p>
                         )}
                         <p className="mt-1 text-xs text-gray-500">
@@ -249,27 +236,29 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                                 Filter
                             </div>
 
-                            {/* Category filter */}
+                            {/* Type filter */}
                             <div className="flex flex-col gap-1">
-                                <span className="text-xs text-muted-foreground">Kategori</span>
+                                <span className="text-xs text-muted-foreground">Jenis Luaran</span>
                                 <Select
-                                    value={filters.category || 'all'}
-                                    onValueChange={(v) => applyFilter({ category: v === 'all' ? '' : v })}
+                                    value={filters.type || 'all'}
+                                    onValueChange={(v) => applyFilter({ type: v === 'all' ? '' : v })}
                                 >
-                                    <SelectTrigger id="filter-category" className="w-44">
-                                        <SelectValue placeholder="Semua Kategori" />
+                                    <SelectTrigger id="filter-type" className="w-44">
+                                        <SelectValue placeholder="Semua Jenis" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">Semua Kategori</SelectItem>
-                                        <SelectItem value="akreditasi">Akreditasi</SelectItem>
-                                        <SelectItem value="indeksasi">Indeksasi</SelectItem>
+                                        <SelectItem value="all">Semua Jenis</SelectItem>
+                                        <SelectItem value="Jurnal">Jurnal</SelectItem>
+                                        <SelectItem value="Buku">Buku</SelectItem>
+                                        <SelectItem value="HKI">HKI</SelectItem>
+                                        <SelectItem value="Produk">Produk</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
                             {/* Year filter */}
                             <div className="flex flex-col gap-1">
-                                <span className="text-xs text-muted-foreground">Tahun</span>
+                                <span className="text-xs text-muted-foreground">Tahun Capaian</span>
                                 <Select
                                     value={filters.year || 'all'}
                                     onValueChange={(v) => applyFilter({ year: v === 'all' ? '' : v })}
@@ -315,12 +304,12 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                             </CardHeader>
                             <CardContent>
                                 <div className="text-3xl font-bold">{grandTotal}</div>
-                                <p className="mt-1 text-xs text-muted-foreground">jurnal disetujui</p>
+                                <p className="mt-1 text-xs text-muted-foreground">luaran terverifikasi</p>
                             </CardContent>
                         </Card>
 
-                        {/* Per category */}
-                        {statsByCategory.map((stat) => (
+                        {/* Per type */}
+                        {statsByType.map((stat) => (
                             <Card key={stat.category}>
                                 <CardHeader className="pb-2">
                                     <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -366,7 +355,7 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                             <thead>
                                 <tr>
                                     <th style={{ border: '1px solid #999', padding: '4pt 6pt', background: '#f0f0f0', textAlign: 'left' }}>
-                                        Kategori
+                                        Jenis Luaran
                                     </th>
                                     <th style={{ border: '1px solid #999', padding: '4pt 6pt', background: '#f0f0f0', textAlign: 'center' }}>
                                         Jumlah Luaran
@@ -377,7 +366,7 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                                 </tr>
                             </thead>
                             <tbody>
-                                {statsByCategory.map((s) => (
+                                {statsByType.map((s) => (
                                     <tr key={s.category}>
                                         <td style={{ border: '1px solid #999', padding: '4pt 6pt' }}>{s.label}</td>
                                         <td style={{ border: '1px solid #999', padding: '4pt 6pt', textAlign: 'center' }}>{s.total}</td>
@@ -402,17 +391,17 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                         <LayoutList className="h-5 w-5 text-muted-foreground" />
                         <h2 className="text-lg font-semibold">Daftar Luaran</h2>
                         <Badge variant="secondary" className="ml-1">
-                            {registrations.length} entri
+                            {outputs.length} entri
                         </Badge>
                     </div>
 
                     {/* ── Main list table ── */}
-                    {registrations.length === 0 ? (
+                    {outputs.length === 0 ? (
                         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center text-muted-foreground">
                             <LayoutList className="mb-3 h-12 w-12 opacity-30" />
                             <p className="font-medium">Tidak ada data luaran</p>
                             <p className="mt-1 text-sm">
-                                {hasActiveFilters ? 'Coba ubah atau hapus filter yang aktif.' : 'Belum ada registrasi yang disetujui.'}
+                                {hasActiveFilters ? 'Coba ubah atau hapus filter yang aktif.' : 'Belum ada luaran yang terverifikasi.'}
                             </p>
                         </div>
                     ) : (
@@ -422,19 +411,18 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead className="w-10 text-center">No.</TableHead>
-                                            <TableHead>Nama Jurnal</TableHead>
-                                            <TableHead className="w-32">ISSN / E-ISSN</TableHead>
-                                            <TableHead>Perguruan Tinggi</TableHead>
-                                            <TableHead>Program Pembinaan</TableHead>
-                                            <TableHead className="w-28 text-center">Kategori</TableHead>
+                                            <TableHead>Judul Luaran</TableHead>
+                                            <TableHead className="w-28 text-center">Jenis Luaran</TableHead>
                                             <TableHead className="w-24 text-center">Tahun</TableHead>
-                                            <TableHead className="w-32">Tgl. Daftar</TableHead>
+                                            <TableHead>Dosen Pengusul</TableHead>
+                                            <TableHead>Perguruan Tinggi</TableHead>
+                                            <TableHead className="w-28 text-center">Status</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {registrations.map((reg, idx) => (
+                                        {outputs.map((out, idx) => (
                                             <TableRow
-                                                key={reg.id}
+                                                key={out.id}
                                                 className="print:border-b print:border-gray-300"
                                             >
                                                 {/* No */}
@@ -442,55 +430,38 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                                                     {idx + 1}
                                                 </TableCell>
 
-                                                {/* Journal */}
+                                                {/* Title */}
                                                 <TableCell>
                                                     <div className="font-medium leading-snug">
-                                                        {reg.journal.title}
+                                                        {out.title}
                                                     </div>
-                                                    {reg.journal.sinta_rank_label && (
-                                                        <div className="mt-0.5 text-xs text-muted-foreground">
-                                                            {reg.journal.sinta_rank_label}
-                                                        </div>
-                                                    )}
                                                 </TableCell>
 
-                                                {/* ISSN */}
-                                                <TableCell className="text-sm">
-                                                    <div>{reg.journal.issn}</div>
-                                                    {reg.journal.e_issn && (
-                                                        <div className="text-xs text-muted-foreground">
-                                                            e: {reg.journal.e_issn}
-                                                        </div>
-                                                    )}
-                                                </TableCell>
-
-                                                {/* University */}
-                                                <TableCell className="text-sm">
-                                                    {reg.journal.university.short_name ||
-                                                        reg.journal.university.name}
-                                                </TableCell>
-
-                                                {/* Programme */}
-                                                <TableCell className="text-sm">
-                                                    {reg.pembinaan.name}
-                                                </TableCell>
-
-                                                {/* Category */}
+                                                {/* Type */}
                                                 <TableCell className="text-center">
-                                                    <Badge variant={categoryBadgeVariant(reg.pembinaan.category)}>
-                                                        {CATEGORY_LABELS[reg.pembinaan.category] ??
-                                                            reg.pembinaan.category}
+                                                    <Badge variant={typeBadgeVariant(out.type)}>
+                                                        {out.type}
                                                     </Badge>
                                                 </TableCell>
 
                                                 {/* Year */}
                                                 <TableCell className="text-center text-sm font-medium">
-                                                    {new Date(reg.registered_at).getFullYear()}
+                                                    {out.year}
                                                 </TableCell>
 
-                                                {/* Date */}
-                                                <TableCell className="text-sm text-muted-foreground">
-                                                    {formatDateShort(reg.registered_at)}
+                                                {/* User */}
+                                                <TableCell className="text-sm">
+                                                    {out.user?.name || '-'}
+                                                </TableCell>
+                                                
+                                                {/* University */}
+                                                <TableCell className="text-sm">
+                                                    {out.user?.university?.short_name || out.user?.university?.name || '-'}
+                                                </TableCell>
+
+                                                {/* Status */}
+                                                <TableCell className="text-center text-sm font-medium text-green-600 dark:text-green-500">
+                                                    Terverifikasi
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -509,12 +480,10 @@ export default function OutputReport({ registrations, statsByCategory, statsByYe
                     {/* ── On-screen info bar ── */}
                     <div className="no-print mt-4 flex items-center justify-between border-t pt-4 text-sm text-muted-foreground">
                         <span>
-                            Menampilkan <span className="font-medium">{registrations.length}</span> luaran
+                            Menampilkan <span className="font-medium">{outputs.length}</span> luaran
                             {hasActiveFilters && (
                                 <span>
-                                    {filters.category
-                                        ? ` · Kategori: ${CATEGORY_LABELS[filters.category] ?? filters.category}`
-                                        : ''}
+                                    {filters.type ? ` · Jenis: ${filters.type}` : ''}
                                     {filters.year ? ` · Tahun: ${filters.year}` : ''}
                                 </span>
                             )}

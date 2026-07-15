@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\OutputStatsCtrl;
+use App\Http\Controllers\Api\OutputStatsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
@@ -52,7 +52,7 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
 
     // Output Statistics
     Route::prefix('stats/outputs')->group(function () {
-        Route::get('/by-category', [OutputStatsCtrl::class, 'getCategory']);
-        Route::get('/yearly',      [OutputStatsCtrl::class, 'getYearly']);
+        Route::get('/by-category', [OutputStatsController::class, 'getCategory']);
+        Route::get('/yearly',      [OutputStatsController::class, 'getYearly']);
     });
 });

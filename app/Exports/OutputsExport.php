@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\PembinaanRegistration;
+use App\Models\ResearchOutput;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -33,14 +33,16 @@ class OutputsExport implements
     /**
      * Optional filters applied to the export.
      *
-     * @param  string|null  $category  'akreditasi'|'indeksasi'|null
-     * @param  string|null  $year      e.g. '2025'|null
+     * @param  string|null  $type          'Jurnal'|'Buku'|'HKI'|'Produk'|null
+     * @param  string|null  $year          e.g. '2025'|null
      * @param  int|null     $universityId  Filter by a specific university
+     * @param  int|null     $userId        Filter by a specific user (for multi-tenancy)
      */
     public function __construct(
-        private readonly ?string $category = null,
+        private readonly ?string $type = null,
         private readonly ?string $year = null,
         private readonly ?int $universityId = null,
+        private readonly ?int $userId = null,
     ) {}
 
     /*
@@ -72,29 +74,20 @@ class OutputsExport implements
     */
 
     /**
-     * Returns the approved pembinaan registrations with all necessary relations.
-     * Applies optional category, year, and university filters.
+     * Returns the verified research outputs with all necessary relations.
+     * Applies optional type, year, university, and user filters.
      */
     public function collection(): Collection
     {
-        return PembinaanRegistration::with([
-                'journal:id,title,issn,e_issn,sinta_rank,sinta_rank_label,university_id',
-                'journal.university:id,name,short_name',
-                'pembinaan:id,name,category',
-            ])
-            ->whereNull('pembinaan_registrations.deleted_at')
-            ->where('pembinaan_registrations.status', 'approved')
-            ->whereHas('pembinaan', function ($q) {
-                $q->whereNull('deleted_at');
-                if ($this->category) {
-                    $q->where('category', $this->category);
-                }
-            })
-            ->when($this->year, fn ($q) => $q->whereYear('registered_at', $this->year))
-            ->when($this->universityId, fn ($q) => $q->whereHas('journal', function ($jq) {
-                $jq->where('university_id', $this->universityId);
+        return ResearchOutput::with(['user.university'])
+            ->where('status', 'verified')
+            ->when($this->type, fn ($q) => $q->where('type', $this->type))
+            ->when($this->year, fn ($q) => $q->where('year', $this->year))
+            ->when($this->universityId, fn ($q) => $q->whereHas('user', function ($uq) {
+                $uq->where('university_id', $this->universityId);
             }))
-            ->orderBy('registered_at', 'asc')
+            ->when($this->userId, fn ($q) => $q->where('user_id', $this->userId))
+            ->orderBy('created_at', 'asc')
             ->get();
     }
 
@@ -108,15 +101,12 @@ class OutputsExport implements
     {
         return [
             'No.',
-            'Nama Jurnal',
-            'ISSN',
-            'E-ISSN',
-            'Peringkat SINTA',
+            'Judul Luaran',
+            'Jenis Luaran',
+            'Tahun Capaian',
+            'Dosen Pengusul',
             'Perguruan Tinggi',
-            'Program Pembinaan',
-            'Kategori',
-            'Tahun',
-            'Tanggal Daftar',
+            'Status Verifikasi',
         ];
     }
 
@@ -126,7 +116,7 @@ class OutputsExport implements
     |--------------------------------------------------------------------------
     */
 
-    /** @param  PembinaanRegistration  $row */
+    /** @param  ResearchOutput  $row */
     public function map($row): array
     {
         static $no = 0;
@@ -134,19 +124,12 @@ class OutputsExport implements
 
         return [
             $no,
-            $row->journal->title ?? '-',
-            $row->journal->issn  ?? '-',
-            $row->journal->e_issn ?? '-',
-            $row->journal->sinta_rank_label ?? 'Non Sinta',
-            $row->journal->university->name ?? '-',
-            $row->pembinaan->name ?? '-',
-            ucfirst($row->pembinaan->category ?? '-'),
-            $row->registered_at
-                ? (int) $row->registered_at->format('Y')
-                : '-',
-            $row->registered_at
-                ? $row->registered_at->format('d/m/Y')
-                : '-',
+            $row->title,
+            $row->type,
+            $row->year,
+            $row->user->name ?? '-',
+            $row->user->university->name ?? '-',
+            ucfirst($row->status),
         ];
     }
 
@@ -159,8 +142,7 @@ class OutputsExport implements
     public function columnFormats(): array
     {
         return [
-            'I' => '@', // Year as text — prevents auto date conversion
-            'J' => '@', // Date string as text
+            'D' => '@', // Year as text — prevents auto date conversion
         ];
     }
 
@@ -193,22 +175,22 @@ class OutputsExport implements
 
     public function registerEvents(): array
     {
-        $category    = $this->category;
-        $year        = $this->year;
+        $type         = $this->type;
+        $year         = $this->year;
         $universityId = $this->universityId;
 
         return [
-            AfterSheet::class => function (AfterSheet $event) use ($category, $year, $universityId) {
+            AfterSheet::class => function (AfterSheet $event) use ($type, $year, $universityId) {
                 $sheet = $event->sheet->getDelegate();
                 $lastDataRow = $sheet->getHighestRow();
-                $lastCol     = 'J'; // Column J = last data column
+                $lastCol     = 'G'; // Column G = last data column
 
                 /* ── 1. Insert 4 header rows above the data ────────────── */
                 $sheet->insertNewRowBefore(1, 4);
 
                 // Row 1: Document title
                 $sheet->mergeCells("A1:{$lastCol}1");
-                $sheet->setCellValue('A1', 'LAPORAN REKAP LUARAN PROGRAM PEMBINAAN JURNAL');
+                $sheet->setCellValue('A1', 'LAPORAN REKAP LUARAN DOSEN');
                 $sheet->getStyle('A1')->applyFromArray([
                     'font'      => ['bold' => true, 'size' => 14, 'color' => ['argb' => 'FF1E3A5F']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -216,15 +198,15 @@ class OutputsExport implements
 
                 // Row 2: Subtitle / filter info
                 $filterParts = [];
-                if ($category) {
-                    $filterParts[] = 'Kategori: ' . ucfirst($category);
+                if ($type) {
+                    $filterParts[] = 'Jenis Luaran: ' . $type;
                 }
                 if ($year) {
-                    $filterParts[] = 'Tahun: ' . $year;
+                    $filterParts[] = 'Tahun Capaian: ' . $year;
                 }
                 $subtitle = count($filterParts) > 0
                     ? implode('  ·  ', $filterParts)
-                    : 'Semua Kategori & Tahun';
+                    : 'Semua Jenis & Tahun';
 
                 $sheet->mergeCells("A2:{$lastCol}2");
                 $sheet->setCellValue('A2', $subtitle);
@@ -277,8 +259,8 @@ class OutputsExport implements
                         }
                     }
 
-                    // Centre-align columns: No, Kategori, Tahun, Tgl. Daftar
-                    foreach (['A', 'H', 'I', 'J'] as $col) {
+                    // Centre-align columns: No, Jenis, Tahun, Status
+                    foreach (['A', 'C', 'D', 'G'] as $col) {
                         $sheet->getStyle("{$col}6:{$col}{$totalRows}")
                             ->getAlignment()
                             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -296,9 +278,9 @@ class OutputsExport implements
                 ]);
 
                 /* ── 5. Column widths (manual override for key cols) ── */
-                $sheet->getColumnDimension('B')->setWidth(45); // Nama Jurnal
-                $sheet->getColumnDimension('F')->setWidth(40); // Perguruan Tinggi
-                $sheet->getColumnDimension('G')->setWidth(35); // Program Pembinaan
+                $sheet->getColumnDimension('B')->setWidth(45); // Judul Luaran
+                $sheet->getColumnDimension('E')->setWidth(35); // Dosen Pengusul
+                $sheet->getColumnDimension('F')->setWidth(35); // Perguruan Tinggi
 
                 /* ── 6. Freeze panes below heading ────────────────────── */
                 $sheet->freezePane('A6');
@@ -320,7 +302,7 @@ class OutputsExport implements
                     ->setFooter(0.3);
 
                 $sheet->getHeaderFooter()
-                    ->setOddHeader('&C&"Arial,Bold"&14Rekap Luaran Program Pembinaan Jurnal')
+                    ->setOddHeader('&C&"Arial,Bold"&14Rekap Luaran Dosen')
                     ->setOddFooter('&LDicetak: &D &T&R&P / &N');
             },
         ];
