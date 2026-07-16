@@ -40,6 +40,7 @@ use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\ProfileController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -703,6 +704,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /*
+    |--------------------------------------------------------------------------
     | Submission Discussion Routes (v1.1)
     |--------------------------------------------------------------------------
     */
@@ -737,6 +739,21 @@ Route::middleware(['auth'])->group(function () {
         ->name('resources');
 
     Route::resource('proposal', ProposalController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Author Profile Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('profile')->name('profile.')->group(function () {
+
+        Route::get('/', [ProfileController::class, 'show'])
+            ->name('show');
+
+        Route::post('/', [ProfileController::class, 'update'])
+            ->name('update');
+    });
 
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {
