@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 
 interface FileUploaderProps {
     uploadUrl: string; // e.g. /user/proposal/1/documents
-    proposalId: number;
     existingDocuments?: ProposalDocument[];
     onSuccess?: (doc: ProposalDocument) => void;
     accept?: string; // HTML input accept attribute, e.g. ".pdf,.doc,.docx,.xls,.xlsx,.zip"
@@ -37,7 +36,6 @@ const DOCUMENT_TYPES = [
 
 export function FileUploader({
     uploadUrl,
-    proposalId,
     existingDocuments = [],
     onSuccess,
     accept = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.jpg,.jpeg,.png',
@@ -47,6 +45,11 @@ export function FileUploader({
     const [dragActive, setDragActive] = useState(false);
     const [documents, setDocuments] = useState<ProposalDocument[]>(existingDocuments);
     const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
+
+    // Sync documents if existingDocuments prop changes
+    React.useEffect(() => {
+        setDocuments(existingDocuments);
+    }, [existingDocuments]);
 
     // Metadata states for the file to be uploaded next
     const [selectedDocType, setSelectedDocType] = useState('Proposal');
@@ -122,13 +125,7 @@ export function FileUploader({
     const startUpload = async (fileObj: UploadingFile) => {
         const cancelTokenSource = axios.CancelToken.source();
 
-        setUploadingFiles((prev) =>
-            prev.map((item) =>
-                item.id === fileObj.id
-                    ? { ...item, status: 'uploading', cancelTokenSource }
-                    : item
-            )
-        );
+        setUploadingFiles((prev) => prev.map((item) => (item.id === fileObj.id ? { ...item, status: 'uploading', cancelTokenSource } : item)));
 
         const formData = new FormData();
         formData.append('file', fileObj.file);
@@ -146,13 +143,7 @@ export function FileUploader({
                 onUploadProgress: (progressEvent) => {
                     const total = progressEvent.total ?? fileObj.file.size;
                     const percentCompleted = Math.round((progressEvent.loaded * 100) / total);
-                    setUploadingFiles((prev) =>
-                        prev.map((item) =>
-                            item.id === fileObj.id
-                                ? { ...item, progress: percentCompleted }
-                                : item
-                        )
-                    );
+                    setUploadingFiles((prev) => prev.map((item) => (item.id === fileObj.id ? { ...item, progress: percentCompleted } : item)));
                 },
             });
 
@@ -164,7 +155,6 @@ export function FileUploader({
 
             toast.success(`File "${fileObj.file.name}" berhasil diunggah.`);
             if (onSuccess) onSuccess(newDoc);
-
         } catch (error) {
             if (axios.isCancel(error)) {
                 toast.info(`Unggahan "${fileObj.file.name}" dibatalkan.`);
@@ -182,13 +172,7 @@ export function FileUploader({
                 errorMsg = err.response.data.message;
             }
 
-            setUploadingFiles((prev) =>
-                prev.map((item) =>
-                    item.id === fileObj.id
-                        ? { ...item, status: 'error', errorMsg }
-                        : item
-                )
-            );
+            setUploadingFiles((prev) => prev.map((item) => (item.id === fileObj.id ? { ...item, status: 'error', errorMsg } : item)));
             toast.error(`File "${fileObj.file.name}" gagal diunggah: ${errorMsg}`);
         }
     };
@@ -205,13 +189,7 @@ export function FileUploader({
     const retryUpload = (id: string) => {
         const fileObj = uploadingFiles.find((f) => f.id === id);
         if (fileObj) {
-            setUploadingFiles((prev) =>
-                prev.map((item) =>
-                    item.id === id
-                        ? { ...item, status: 'idle', progress: 0, errorMsg: null }
-                        : item
-                )
-            );
+            setUploadingFiles((prev) => prev.map((item) => (item.id === id ? { ...item, status: 'idle', progress: 0, errorMsg: null } : item)));
             startUpload({ ...fileObj, status: 'idle', progress: 0, errorMsg: null });
         }
     };
@@ -226,7 +204,7 @@ export function FileUploader({
             </div>
 
             {/* Input metadata panel */}
-            <div className="grid gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-900 md:grid-cols-2">
+            <div className="grid gap-4 rounded-lg bg-gray-50 p-4 md:grid-cols-2 dark:bg-gray-900">
                 <div className="space-y-1.5">
                     <label htmlFor="docType" className="text-xs font-semibold text-gray-600 dark:text-gray-300">
                         Tipe Dokumen
@@ -235,7 +213,7 @@ export function FileUploader({
                         id="docType"
                         value={selectedDocType}
                         onChange={(e) => setSelectedDocType(e.target.value)}
-                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100"
+                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs focus:border-primary focus:ring-1 focus:ring-primary focus:outline-hidden dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100"
                     >
                         {DOCUMENT_TYPES.map((type) => (
                             <option key={type.value} value={type.value}>
@@ -255,7 +233,7 @@ export function FileUploader({
                         placeholder="Misal: File RAB final format PDF atau Excel"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs placeholder:text-gray-400 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100"
+                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs placeholder:text-gray-400 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-hidden dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100"
                     />
                 </div>
             </div>
@@ -276,25 +254,16 @@ export function FileUploader({
                     }
                 }}
                 className={[
-                    'relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors outline-hidden',
+                    'relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 outline-hidden transition-colors',
                     dragActive
                         ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                        : 'border-gray-300 hover:border-primary bg-gray-50/50 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-primary dark:bg-gray-900/30 dark:hover:bg-gray-900/50',
+                        : 'border-gray-300 bg-gray-50/50 hover:border-primary hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900/30 dark:hover:border-primary dark:hover:bg-gray-900/50',
                 ].join(' ')}
             >
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    accept={accept}
-                    onChange={handleFileInput}
-                    className="hidden"
-                />
+                <input ref={fileInputRef} type="file" multiple accept={accept} onChange={handleFileInput} className="hidden" />
 
                 <UploadCloud className="mb-3 h-10 w-10 text-gray-400 dark:text-gray-500" />
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Tarik &amp; letakkan file di sini atau klik untuk memilih
-                </p>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tarik &amp; letakkan file di sini atau klik untuk memilih</p>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Maksimal {maxSizeMb} MB per file · Format: PDF, Word, Excel, PPT, Zip, Gambar
                 </p>
@@ -303,7 +272,7 @@ export function FileUploader({
             {/* Uploading Files list */}
             {uploadingFiles.length > 0 && (
                 <div className="space-y-3">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                    <h4 className="text-xs font-bold tracking-wider text-gray-400 uppercase dark:text-gray-500">
                         Sedang Diunggah ({uploadingFiles.length})
                     </h4>
                     <div className="space-y-3">
@@ -315,32 +284,20 @@ export function FileUploader({
                                 <div className="rounded-lg bg-primary/10 p-2 text-primary">
                                     <FileText className="h-5 w-5" />
                                 </div>
-                                <div className="flex-1 space-y-1.5 min-w-0">
+                                <div className="min-w-0 flex-1 space-y-1.5">
                                     <div className="flex items-center justify-between gap-4">
-                                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
-                                            {fileObj.file.name}
-                                        </p>
+                                        <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-200">{fileObj.file.name}</p>
                                         {fileObj.status === 'uploading' && (
-                                            <span className="text-xs text-gray-500 font-medium">
-                                                {fileObj.progress}%
-                                            </span>
+                                            <span className="text-xs font-medium text-gray-500">{fileObj.progress}%</span>
                                         )}
-                                        {fileObj.status === 'error' && (
-                                            <Badge variant="destructive">Gagal</Badge>
-                                        )}
+                                        {fileObj.status === 'error' && <Badge variant="destructive">Gagal</Badge>}
                                     </div>
                                     <div className="flex items-center gap-2 text-xs text-gray-500">
                                         <Badge variant="secondary">{fileObj.documentType}</Badge>
-                                        {fileObj.description && (
-                                            <span className="truncate max-w-[200px]">
-                                                · {fileObj.description}
-                                            </span>
-                                        )}
+                                        {fileObj.description && <span className="max-w-[200px] truncate">· {fileObj.description}</span>}
                                     </div>
 
-                                    {fileObj.status === 'uploading' && (
-                                        <Progress value={fileObj.progress} className="h-1.5" />
-                                    )}
+                                    {fileObj.status === 'uploading' && <Progress value={fileObj.progress} className="h-1.5" />}
 
                                     {fileObj.status === 'error' && (
                                         <p className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
@@ -383,7 +340,7 @@ export function FileUploader({
 
             {/* Uploaded Documents List */}
             <div className="space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                <h4 className="text-xs font-bold tracking-wider text-gray-400 uppercase dark:text-gray-500">
                     Dokumen Terunggah ({documents.length})
                 </h4>
 
@@ -397,24 +354,18 @@ export function FileUploader({
                         {documents.map((doc) => (
                             <div
                                 key={doc.id}
-                                className="flex items-center gap-4 p-4 bg-white dark:bg-gray-950 hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors"
+                                className="flex items-center gap-4 bg-white p-4 transition-colors hover:bg-gray-50/50 dark:bg-gray-950 dark:hover:bg-gray-900/30"
                             >
                                 <div className="rounded-lg bg-green-50 p-2 text-green-600 dark:bg-green-950/30 dark:text-green-400">
                                     <CheckCircle2 className="h-5 w-5" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
-                                        {doc.file_name}
-                                    </p>
+                                    <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-200">{doc.file_name}</p>
                                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
                                         <Badge variant="secondary" className="px-1.5 py-0">
                                             {doc.document_type || 'Dokumen'}
                                         </Badge>
-                                        {doc.description && (
-                                            <span className="truncate max-w-[250px] text-gray-400">
-                                                · {doc.description}
-                                            </span>
-                                        )}
+                                        {doc.description && <span className="max-w-[250px] truncate text-gray-400">· {doc.description}</span>}
                                     </div>
                                 </div>
                             </div>

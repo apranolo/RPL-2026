@@ -31,7 +31,7 @@ class ProposalDocument extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'file_size'  => 'integer',
+        'file_size' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

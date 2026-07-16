@@ -78,7 +78,7 @@ class DashboardController extends Controller
 
         return Cache::remember($cacheKey, 3600, function () {
             $schemas = DB::table('research_schemas')->get();
-            
+
             $total = DB::table('proposals')->count();
             $categories = [];
 

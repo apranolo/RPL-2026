@@ -35,31 +35,31 @@ class SchemaControllerTest extends TestCase
 
         // Arrange: Create roles
         $this->superAdminRole = Role::create([
-            'name'         => 'Super Admin',
+            'name' => 'Super Admin',
             'display_name' => 'Super Administrator',
-            'description'  => 'Super Administrator with full access',
+            'description' => 'Super Administrator with full access',
         ]);
 
         $this->userRole = Role::create([
-            'name'         => 'User',
+            'name' => 'User',
             'display_name' => 'Regular User',
-            'description'  => 'Regular User/Journal Manager',
+            'description' => 'Regular User/Journal Manager',
         ]);
 
         // Arrange: Create users
         $this->superAdmin = User::create([
-            'name'      => 'Super Admin',
-            'email'     => 'superadmin@test.com',
-            'password'  => bcrypt('password'),
-            'role_id'   => $this->superAdminRole->id,
+            'name' => 'Super Admin',
+            'email' => 'superadmin@test.com',
+            'password' => bcrypt('password'),
+            'role_id' => $this->superAdminRole->id,
             'is_active' => true,
         ]);
 
         $this->regularUser = User::create([
-            'name'      => 'Regular User',
-            'email'     => 'user@test.com',
-            'password'  => bcrypt('password'),
-            'role_id'   => $this->userRole->id,
+            'name' => 'Regular User',
+            'email' => 'user@test.com',
+            'password' => bcrypt('password'),
+            'role_id' => $this->userRole->id,
             'is_active' => true,
         ]);
     }
@@ -180,7 +180,7 @@ class SchemaControllerTest extends TestCase
     {
         // Arrange: Data skema baru
         $data = [
-            'name'        => 'Penelitian Dasar',
+            'name' => 'Penelitian Dasar',
             'description' => 'Skema untuk penelitian dasar',
         ];
 
@@ -194,7 +194,7 @@ class SchemaControllerTest extends TestCase
 
         // Assert: Data tersimpan di database
         $this->assertDatabaseHas('research_schemas', [
-            'name'        => 'Penelitian Dasar',
+            'name' => 'Penelitian Dasar',
             'description' => 'Skema untuk penelitian dasar',
         ]);
     }
@@ -266,7 +266,7 @@ class SchemaControllerTest extends TestCase
         // Act: Submit deskripsi yang melebihi 1000 karakter
         $response = $this->actingAs($this->superAdmin)
             ->post(route('admin.schema.store'), [
-                'name'        => 'Skema Valid',
+                'name' => 'Skema Valid',
                 'description' => str_repeat('a', 1001),
             ]);
 
@@ -339,7 +339,7 @@ class SchemaControllerTest extends TestCase
         $schema = ResearchSchema::create(['name' => 'Penelitian Dasar', 'description' => 'Deskripsi Lama']);
 
         $data = [
-            'name'        => 'Penelitian Dasar (Diperbarui)',
+            'name' => 'Penelitian Dasar (Diperbarui)',
             'description' => 'Deskripsi Baru',
         ];
 
@@ -353,8 +353,8 @@ class SchemaControllerTest extends TestCase
 
         // Assert: Data terupdate di database
         $this->assertDatabaseHas('research_schemas', [
-            'id'          => $schema->id,
-            'name'        => 'Penelitian Dasar (Diperbarui)',
+            'id' => $schema->id,
+            'name' => 'Penelitian Dasar (Diperbarui)',
             'description' => 'Deskripsi Baru',
         ]);
     }
@@ -370,14 +370,14 @@ class SchemaControllerTest extends TestCase
         // Act: Update dengan nama yang sama
         $response = $this->actingAs($this->superAdmin)
             ->put(route('admin.schema.update', $schema), [
-                'name'        => 'Penelitian Dasar', // Nama sama, bukan duplikat
+                'name' => 'Penelitian Dasar', // Nama sama, bukan duplikat
                 'description' => 'Deskripsi Diperbarui',
             ]);
 
         // Assert: Berhasil tanpa error unique
         $response->assertRedirect(route('admin.schema.index'));
         $this->assertDatabaseHas('research_schemas', [
-            'id'          => $schema->id,
+            'id' => $schema->id,
             'description' => 'Deskripsi Diperbarui',
         ]);
     }
@@ -450,9 +450,9 @@ class SchemaControllerTest extends TestCase
 
         Proposal::create([
             'research_schema_id' => $schema->id,
-            'user_id'            => $this->superAdmin->id,
-            'title'              => 'Proposal Test',
-            'status'             => 'draft',
+            'user_id' => $this->superAdmin->id,
+            'title' => 'Proposal Test',
+            'status' => 'draft',
         ]);
 
         // Act: Coba hapus skema
