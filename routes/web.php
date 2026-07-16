@@ -606,10 +606,19 @@ Route::middleware(['auth'])->group(function () {
         });
 
     });
-    Route::prefix('review-assignments')->name('review-assignments.')->group(function () {
-        Route::post('{assignment}/cancel', [ReviewAssignmentController::class, 'cancel'])
-            ->name('cancel');
-    });
+   Route::middleware(['role:'.Role::PENGELOLA_JURNAL])->prefix('review-assignments')->name('review-assignments.')->group(function () {
+    /**
+     * Cancel a review assignment invitation.
+     *
+     * Restricted to Pengelola Jurnal (journal editor role) since only the
+     * journal manager overseeing the submission should be able to cancel
+     * a reviewer's invitation. Route already sits inside the outer
+     * ['auth'] middleware group (see line ~139), so unauthenticated users
+     * cannot reach it either way.
+     */
+    Route::post('{assignment}/cancel', [ReviewAssignmentController::class, 'cancel'])
+        ->name('cancel');
+});
 
     /*
     |--------------------------------------------------------------------------
