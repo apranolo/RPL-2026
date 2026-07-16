@@ -587,6 +587,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
     
     });
+    Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
+    Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
+    
+    Route::post('/editorial/desk/{id}/plagiarism', [PlagiarismController::class, 'store'])->name('editorial.desk.plagiarism');
+    Route::post('/editorial/desk/{id}/assign-editor', [DeskController::class, 'assignEditor'])->name('editorial.desk.assign-editor');
+    Route::post('/editorial/desk/{id}/desk-review', [DeskController::class, 'deskReview'])->name('editorial.desk.review');
+    Route::post('/editorial/desk/{id}/final-decision', [DecisionController::class, 'finalDecision'])->name('editorial.desk.final-decision');
+    });
 
     /*
     |--------------------------------------------------------------------------

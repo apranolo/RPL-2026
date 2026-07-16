@@ -9,15 +9,17 @@ use Inertia\Inertia;
 class DeskController extends Controller
 {
     public function show($id)
-    {
-        
-        $submission = Submission::with(['files', 'author', 'editorialDecisions'])->findOrFail($id);
+{
+    $submission = Submission::with(['files', 'author', 'editorialDecisions'])->findOrFail($id);
 
-        // Tambahkan baris ini untuk membatasi akses:
-        $this->authorize('view', $submission);
-        
-        return Inertia::render('Editorial/Desk/Show', [
-            'submission' => $submission
-        ]);
+    $user = auth()->user();
+    
+    if (!$user || (!$user->hasRole('Editor') && !$user->hasRole('Super Admin'))) {
+        abort(403, 'Anda tidak memiliki akses untuk melihat naskah ini.');
     }
+    
+    return Inertia::render('Editorial/Desk/Show', [
+        'submission' => $submission
+    ]);
+}
 }
