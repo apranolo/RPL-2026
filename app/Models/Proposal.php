@@ -42,7 +42,6 @@ class Proposal extends Model
         'research_schema_id',
         'status_proposal',
         'rejection_reason',
-        'file_dokumen_proposal',
     ];
 
     // ─── Relationships ───────────────────────────────────────────────────────
