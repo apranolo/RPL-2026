@@ -56,11 +56,11 @@ export default function SchemaShow({ schema }: Props) {
         },
         {
             title: 'Skema Penelitian',
-            href: '/admin/schemas',
+            href: '/admin/schema',
         },
         {
             title: schema.name,
-            href: `/admin/schemas/${schema.id}`,
+            href: `/admin/schema/${schema.id}`,
         },
     ];
 
@@ -76,7 +76,7 @@ export default function SchemaShow({ schema }: Props) {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="space-y-1">
                             <Link
-                                href={route('admin.schemas.index')}
+                                href={route('admin.schema.index')}
                                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors mb-2"
                             >
                                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -94,7 +94,7 @@ export default function SchemaShow({ schema }: Props) {
                             variant="outline"
                             className="h-10 hover:bg-neutral-50 dark:hover:bg-neutral-900 font-semibold"
                         >
-                            <Link href={route('admin.schemas.index')}>
+                            <Link href={route('admin.schema.index')}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Kembali
                             </Link>

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Schema;
+use App\Http\Resources\SchemaResource;
+use App\Models\ResearchSchema;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,9 +18,9 @@ class SchemaController extends Controller
      */
     public function index(Request $request): Response
     {
-        $this->authorize('viewAny', Schema::class);
+        $this->authorize('viewAny', ResearchSchema::class);
 
-        $query = Schema::query();
+        $query = ResearchSchema::query();
 
         if ($request->filled('search')) {
             $query->where('name', 'like', "%{$request->search}%")
@@ -29,7 +30,7 @@ class SchemaController extends Controller
         $schemas = $query->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Admin/Schema/Index', [
-            'schemas' => $schemas,
+            'schemas' => SchemaResource::collection($schemas),
             'filters' => [
                 'search' => $request->search ?? '',
             ],
@@ -39,17 +40,17 @@ class SchemaController extends Controller
     /**
      * Display the specified Schema.
      *
-     * @param  \App\Models\Schema  $schema
+     * @param  \App\Models\ResearchSchema  $schema
      * @return \Inertia\Response
      */
-    public function show(Schema $schema): Response
+    public function show(ResearchSchema $schema): Response
     {
         $this->authorize('view', $schema);
 
         $schema->load(['proposals.user.university']);
 
         return Inertia::render('Admin/Schema/Show', [
-            'schema' => $schema,
+            'schema' => new SchemaResource($schema),
         ]);
     }
 
@@ -58,14 +59,14 @@ class SchemaController extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorize('create', Schema::class);
+        $this->authorize('create', ResearchSchema::class);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
-        Schema::create($validated);
+        ResearchSchema::create($validated);
 
         return redirect()->back()->with('success', 'Skema Penelitian berhasil ditambahkan.');
     }
@@ -73,7 +74,7 @@ class SchemaController extends Controller
     /**
      * Update the specified Schema.
      */
-    public function update(Request $request, Schema $schema)
+    public function update(Request $request, ResearchSchema $schema)
     {
         $this->authorize('update', $schema);
 
@@ -90,7 +91,7 @@ class SchemaController extends Controller
     /**
      * Remove the specified Schema.
      */
-    public function destroy(Schema $schema)
+    public function destroy(ResearchSchema $schema)
     {
         $this->authorize('delete', $schema);
 

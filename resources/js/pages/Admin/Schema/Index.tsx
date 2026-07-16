@@ -42,7 +42,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Skema Penelitian',
-        href: '/admin/schemas',
+        href: '/admin/schema',
     },
 ];
 
@@ -96,7 +96,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         router.get(
-            route('admin.schemas.index'),
+            route('admin.schema.index'),
             { search },
             { preserveState: true }
         );
@@ -112,7 +112,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     // Submit new schema
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        createForm.post(route('admin.schemas.store'), {
+        createForm.post(route('admin.schema.store'), {
             onSuccess: () => {
                 setIsCreateOpen(false);
                 createForm.reset();
@@ -136,7 +136,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
         e.preventDefault();
         if (!selectedSchema) return;
 
-        editForm.put(route('admin.schemas.update', selectedSchema.id), {
+        editForm.put(route('admin.schema.update', selectedSchema.id), {
             onSuccess: () => {
                 setIsEditOpen(false);
                 setSelectedSchema(null);
@@ -155,7 +155,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const handleDeleteConfirm = () => {
         if (!selectedSchema) return;
 
-        router.delete(route('admin.schemas.destroy', selectedSchema.id), {
+        router.delete(route('admin.schema.destroy', selectedSchema.id), {
             onSuccess: () => {
                 setIsDeleteOpen(false);
                 setSelectedSchema(null);
@@ -217,7 +217,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                         variant="ghost"
                                         onClick={() => {
                                             setSearch('');
-                                            router.get(route('admin.schemas.index'));
+                                            router.get(route('admin.schema.index'));
                                         }}
                                         className="h-10 text-muted-foreground hover:text-foreground"
                                     >
@@ -272,7 +272,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            onClick={() => router.get(route('admin.schemas.show', schema.id))}
+                                                            onClick={() => router.get(route('admin.schema.show', schema.id))}
                                                             className="h-8 w-8 text-neutral-500 hover:text-blue-600 hover:bg-blue-500/10"
                                                             title="Detail"
                                                         >
@@ -320,7 +320,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                 <Button
                                                     variant="outline"
                                                     size="icon"
-                                                    onClick={() => router.get(route('admin.schemas.show', schema.id))}
+                                                    onClick={() => router.get(route('admin.schema.show', schema.id))}
                                                     className="h-8 w-8 hover:bg-blue-500/10 hover:text-blue-600 text-neutral-500"
                                                     title="Detail"
                                                 >

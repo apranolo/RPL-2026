@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\Schema;
+use App\Models\ResearchSchema;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -21,7 +21,7 @@ class SchemaPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Schema $schema): bool
+    public function view(User $user, ResearchSchema $schema): bool
     {
         return $user->isSuperAdmin();
     }
@@ -37,7 +37,7 @@ class SchemaPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Schema $schema): bool
+    public function update(User $user, ResearchSchema $schema): bool
     {
         return $user->isSuperAdmin();
     }
@@ -45,7 +45,7 @@ class SchemaPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Schema $schema): bool
+    public function delete(User $user, ResearchSchema $schema): bool
     {
         return $user->isSuperAdmin();
     }
