@@ -2,7 +2,20 @@
 ## Submission System Terintegrasi — Kelas G
 ### Berbasis Open Journal Systems (OJS)
 
-Dokumen ini berisi spesifikasi kebutuhan untuk 7 modul utama Submission System yang terintegrasi dengan proyek JurnalMu, disusun menggunakan standar format analisis kebutuhan.
+Dokumen ini berisi spesifikasi kebutuhan untuk 7 modul utama Submission System yang terintegrasi dengan proyek JurnalMu. Dokumen ini telah diselaraskan secara komprehensif dengan spesifikasi teknis komponen UI dan Controller yang tercantum pada file penugasan.
+
+---
+
+### Manajemen Hak Akses (RBAC) Jurnal
+Sistem dirancang sedemikian rupa dengan kapabilitas *Multi-Tenant* (Satu instalasi melayani banyak Jurnal). Berikut arsitektur hierarki peran (Role) pengguna:
+- **Super Admin**: Memiliki kontrol absolut untuk menambah, menghapus instalasi Jurnal baru di dalam sistem, serta merubah konfigurasi sistem secara luas.
+- **Journal Manager (Admin Jurnal)**: Mengelola pengaturan spesifik suatu jurnal tertentu. Mereka ditugaskan di `Admin/UserRoleController` untuk mengundang atau mencabut hak pengguna di dalam jurnal yang dikelolanya (`RevokeRoleModal.tsx`).
+- **Editor-in-Chief / Editor**: Mengendalikan penuh alur editorial naskah. Memegang wewenang untuk menolak sejak awal (*Desk Reject*) atau menyetujui artikel untuk dipublikasi (*Accept*).
+- **Section Editor**: Mengelola naskah pada topik keahlian tertentu, menunjuk *Reviewer*, merekomendasikan keputusan namun keputusan akhir berada di tangan *Editor*.
+- **Reviewer**: Anggota pakar independen (*Double-Blind*) yang diundang untuk mengevaluasi kualitas riset naskah.
+- **Copyeditor**: Menyunting tata bahasa, ejaan, dan gaya selingkung setelah naskah berstatus "Accept".
+- **Production Editor**: Mendistribusikan tata letak, _galleys_, menerbitkan terbitan jurnal (Issues) dan Table of Contents.
+- **Author**: Penulis yang men-*submit* naskah penelitian.
 
 ---
 
@@ -17,39 +30,35 @@ Modul fondasi yang menyediakan sistem autentikasi dan otorisasi berbasis peran (
 - `id_journal` (Foreign Key ke tabel `journals`, Nullable — NULL berarti role global)
 - `role_name` (Enum: Author, Editor, SectionEditor, Reviewer, Copyeditor, ProductionEditor, Admin)
 - `status` (Enum: Active, Invited, Declined; Default: Active)
-- `invited_at` (Timestamp, Nullable)
-- `accepted_at` (Timestamp, Nullable)
-
-Untuk Profil Author:
-- `orcid_id` (String, Nullable, Unique)
-- `affiliation` (String, Required)
-- `research_interests` (Text, Nullable)
-- `biography` (Text, Nullable)
+- Untuk Profil Author: `orcid_id`, `affiliation`, `research_interests`, `biography`.
 
 **3. Business Rules**
-- Setiap pengguna yang baru mendaftar mendapat peran **Author** secara default.
-- Peran Editor, Reviewer, dan lainnya hanya dapat diberikan oleh **Admin** melalui sistem undangan.
-- Reviewer yang menolak undangan (Declined) tetap tercatat dalam log dan dapat diundang kembali di submission lain.
-- Admin tidak dapat menghapus peran yang sedang aktif terkait dengan submission yang sedang berjalan.
+- Pengguna yang baru mendaftar (`Auth/RegisterController`) mendapat peran **Author** secara default.
+- Peran spesifik (Reviewer, Editor) diundang (`invite()`) oleh Journal Manager. Pengguna berhak menolak atau menyetujui (`RoleInvitationController@respond`).
+- Akses route dijaga oleh lapisan pengamanan `RoleMiddleware.php`.
 
 **4. Functional Requirements**
-- **Create**: Admin membuat undangan peran baru ke pengguna terdaftar. Pengguna baru mendaftar sebagai Author.
-- **Read**: Halaman manajemen pengguna & peran untuk Admin. Halaman profil pribadi untuk semua peran.
-- **Update**: Pengguna memperbarui profil (afiliasi, ORCID, bio). Admin mengubah status aktif/nonaktif peran.
-- **Delete**: Admin mencabut peran dengan soft-delete (peran dinonaktifkan, bukan dihapus).
+- **Create**: Journal Manager membuat undangan ke pengguna terdaftar.
+- **Read**: Halaman manajemen pengguna & peran untuk Admin Jurnal. Halaman profil pribadi.
+- **Update**: Pengguna memperbarui profil afiliasi dan CV via `ProfileController@update` dan `ReviewerProfileController@update`.
+- **Delete**: Pencabutan peran *revoke* secara *soft-delete* oleh Admin Jurnal (`Admin/UserRoleController@revoke`).
 
 **5. Validation Rules**
-- *Format ORCID*: Jika diisi, wajib mengikuti format `XXXX-XXXX-XXXX-XXXX`. Pesan: "Format ORCID tidak valid."
-- *Required fields (Profil Author)*: Nama Lengkap dan Afiliasi wajib diisi sebelum dapat melakukan submission. Pesan: "Lengkapi profil Anda sebelum submit naskah."
-- *Role Conflict*: Satu pengguna tidak dapat menjadi Author sekaligus Reviewer pada submission yang sama.
+- *Format ORCID*: Format harus `XXXX-XXXX-XXXX-XXXX` divalidasi pada `UpdateProfileRequest`.
+- *Required fields*: Nama dan Afiliasi harus terisi sebelum sistem mengizinkan proses kirim naskah.
 
 **6. User Interface Requirements**
-- **Admin**: Tabel manajemen pengguna dengan kolom Nama, Email, Peran Aktif, dan tombol aksi (Invite Role, Revoke).
-- **User**: Halaman profil dengan form edit, badge peran yang dimiliki, dan tombol accept/decline undangan peran.
+- **Admin**: 
+  - Tabel user dan hak akses (`resources/js/pages/Admin/Users/Index.tsx`): *Data grid* komprehensif seluruh anggota ekosistem jurnal. Berfungsi meninjau siapa bertugas sebagai apa.
+  - Form undangan (*Invite Role*) (`resources/js/pages/Admin/Users/InviteRole.tsx`): Formulir asinkronus pencarian akun email yang langsung terkirim penawarannya. Berfungsi melakukan rekrutmen staf editorial / *reviewer*.
+  - Dialog pemecatan/pencabutan peran (`resources/js/components/RevokeRoleModal.tsx`): Jendela *pop-up* persetujuan penonaktifan peran yang dilindungi fungsi konfirmasi (misal: harus mengetik "CONFIRM"). Berfungsi mencegak insiden klik salah hapus peran krusial.
+- **User**: 
+  - Lencana peran majemuk (`resources/js/components/RoleBadge.tsx`): Label stiker kecil di antarmuka profil yang bisa tertumpuk (misalnya label biru "Author" dan hijau "Editor"). Berfungsi mengidentifikasi identitas tumpuk di satu akun.
+- **Author**: Halaman profil spesifik penulis (`resources/js/pages/Profile/AuthorProfile.tsx`), berisi kotak isian *ORCID ID* dan penaut biografi singkat (CV). Berfungsi sebagai pusat penarikan metadata otomatis saat submit naskah nanti.
+- **Reviewer**: Form pengelolaan kompetensi (`resources/js/components/SkillTagInput.tsx`) pada halaman `Profile/ReviewerProfile.tsx`. Berupa kotak isian *tagging* mirip label hastag Twitter (dapat ditambah/dihapus dengan tombol "X"). Berfungsi memperjelas radar jangkauan bidang keilmuan *Reviewer*.
 
 **7. Integration Requirements**
-- Menjadi fondasi sistem otorisasi untuk semua 6 modul lainnya.
-- Data profil Author otomatis ditarik sebagai metadata kontributor saat proses submission (Modul 2).
+- Data profil otomatis ditarik sebagai default Metadata saat masuk di tahapan Wizard (Modul 2).
 
 ---
 
@@ -59,373 +68,211 @@ Untuk Profil Author:
 Modul antarmuka utama bagi penulis (Author) untuk mengirimkan naskah ilmiah melalui proses multi-langkah (wizard) yang terstruktur, memastikan semua metadata dan dokumen terkumpul secara lengkap sebelum masuk ke meja editor.
 
 **2. Data Requirements**
-
-Tabel `submissions`:
-- `id_submission` (Primary Key)
-- `id_author` (Foreign Key ke `users`, Required)
-- `id_journal` (Foreign Key ke `journals`, Required)
-- `title` (String, Max 500, Required)
-- `abstract` (Text, Required, Max 3000 karakter)
-- `keywords` (String/JSON, Required)
-- `language` (String, Default: `id`)
-- `status` (Enum: Draft, Submitted, InReview, Revision, Accepted, Rejected, Published; Default: Draft)
-- `submitted_at` (Timestamp, Nullable)
-- `current_round` (Integer, Default: 1)
-
-Tabel `submission_files`:
-- `id_file` (Primary Key)
-- `id_submission` (Foreign Key)
-- `file_type` (Enum: ManuscriptMain, SupplementaryFile, RevisionFile, Galley)
-- `file_path` (String, Required)
-- `original_name` (String)
-- `round` (Integer, Default: 1)
-
-Tabel `submission_contributors`:
-- `id_contributor` (Primary Key)
-- `id_submission` (Foreign Key)
-- `full_name` (String, Required)
-- `email` (String, Required)
-- `affiliation` (String, Required)
-- `orcid_id` (String, Nullable)
-- `is_corresponding` (Boolean, Default: false)
+- Tabel `submissions`: Memuat rincian `title`, `abstract`, `keywords`, dll.
+- Tabel `submission_files`: Menyimpan file lampiran dan kategori (`ManuscriptMain`, `Supplementary`).
+- Tabel `submission_contributors`: Daftar penulis dan status korespondensi.
 
 **3. Business Rules**
-- Hanya pengguna dengan peran **Author** yang dapat membuat submission baru.
-- Submission hanya dapat diedit/dilanjutkan wizard-nya jika status masih **Draft**.
-- Setelah dikonfirmasi submit, status berubah menjadi **Submitted** dan naskah masuk antrian Editor.
-- Author wajib menyertakan minimal satu Co-Author (diri sendiri otomatis terdaftar sebagai *Corresponding Author*).
-- File naskah utama wajib berformat `.docx` atau `.pdf` dengan ukuran maksimal 20MB.
+- Proses terpecah jadi 5 langkah (*Start, Upload, Metadata, Contributors, Confirm*).
+- Sebelum tahap kelima selesai, naskah tertahan dalam status **Draft**.
+- Author tidak bisa mengubah naskah pasca-submit; kontrol kemudian berada di Modul 3.
 
 **4. Functional Requirements**
-- **Create**: Wizard 5-langkah: Start → Upload → Metadata → Contributors → Confirm.
-- **Read**: Halaman daftar semua submission milik Author (Dashboard Author) dengan status tracking.
-- **Update**: Author melanjutkan draft yang belum selesai. Author mengunggah revisi saat diminta Editor.
-- **Delete**: Author dapat membatalkan (soft-delete) submission yang masih berstatus Draft.
+- **Create**: Aliran proses 5-Langkah yang dikendalikan oleh `SubmissionWizardController` (Mulai dari `start()`, `saveStep1()`, hingga `finalSubmit()`).
+- **Read**: Halaman `SubmissionController@index` (Dashboard Author) & `show()` (Detail naskah).
+- **Update**: Penambahan anggota tim (`saveStep4()`) atau penggantian file sebelum Finalisasi.
+- **Delete**: Soft-delete Draft yang dihentikan secara prematur (`cancel()`).
 
 **5. Validation Rules**
-- *Required*: Judul, Abstrak, Kata Kunci, File Naskah, minimal 1 kontributor. Pesan: "Field [nama] wajib diisi."
-- *File Upload*: Naskah utama wajib `.docx` atau `.pdf`, maks 20MB. Pesan: "Format file tidak valid atau ukuran melebihi 20MB."
-- *Abstract Length*: Abstrak minimal 150 karakter, maksimal 3000 karakter.
-- *Keywords*: Minimal 3 kata kunci, maksimal 10 kata kunci.
+- Validasi pamungkas sebelum eksekusi submit ditangani di `FinalSubmitRequest` memastikan semua 5 syarat lengkap (termasuk maks upload 20MB DOCX/PDF).
 
 **6. User Interface Requirements**
-- Wizard dengan progress bar di bagian atas (menampilkan step yang aktif dan yang sudah selesai).
-- Tombol "Save Draft" tersedia di setiap step agar Author tidak kehilangan progress.
-- Halaman Dashboard Author menampilkan status submission dalam bentuk timeline/badge berwarna.
+- Baris indikator kelajuan tahapan (`resources/js/components/WizardProgressBar.tsx`): Sebuah jejak roti horizontal di sisi atas form (*Step 1, 2, 3...*) di mana tahapan sukses akan dicentang hijau. Berfungsi memandu navigasi spasiat agar pengguna tak tersesat dalam alur panjang.
+- Input kata kunci interaktif (`resources/js/components/KeywordInput.tsx`) di halaman `Wizard/Step3Metadata.tsx`: Kolom input di mana kata berubah menjadi *chip/badge* setelah ditekan *Enter*. Berfungsi menjaga struktur format metadata agar tak bercampur berantakan (dipisah koma otomatis).
+- Penyisipan tim penulis tambahan (`resources/js/components/ContributorForm.tsx`): Form baris yang dapat dikloning dan ditumpuk ke bawah (Add Contributor) secara tak terhingga pada langkah ke-4. Berfungsi memuat daftar ko-penulis pendamping tanpa batasan.
+- Lencana status submisi (`resources/js/components/SubmissionStatusBadge.tsx`): Komponen grafis yang membubuhkan warna status (`In Review` = oranye, `Published` = hijau) di Dashboard. Berfungsi mempercepat identifikasi nasib sebuah karya ilmiah.
+- Linimasa riwayat status (`resources/js/components/SubmissionTimeline.tsx`): Papan infografis jejak langkah (seperti pelacakan *tracking* paket kurir e-commerce). Berfungsi menerangkan transparansi historis kapan naskah dikirim, kapan dinilai, dan kapan direvisi secara detik demi detik.
 
 **7. Integration Requirements**
-- Data submission yang berstatus Submitted secara otomatis muncul di inbox Editor (Modul 3).
-- File revisi yang diunggah Author terhubung dengan putaran review yang aktif (Modul 4 & 5).
+- Submit berhasil akan masuk ke Inbox Editor di `Editorial/DeskController`.
 
 ---
 
 ### Modul 3: Editorial Desk & Assignment
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul pusat kendali bagi Editor-in-Chief dan Section Editor dalam menerima, mengevaluasi awal, dan mendistribusikan naskah masuk kepada reviewer yang tepat.
+Pusat kendali bagi *Editor-in-Chief* dan *Section Editor* untuk menerima (triage), memproses pra-evaluasi, menugaskan Reviewer, dan mengeluarkan putusan persetujuan/penolakan.
 
 **2. Data Requirements**
-
-Tabel `editorial_assignments`:
-- `id_assignment` (Primary Key)
-- `id_submission` (Foreign Key)
-- `id_editor` (Foreign Key ke `users`)
-- `role` (Enum: Editor, SectionEditor)
-- `assigned_at` (Timestamp)
-
-Tabel `editorial_decisions`:
-- `id_decision` (Primary Key)
-- `id_submission` (Foreign Key)
-- `id_editor` (Foreign Key)
-- `decision` (Enum: AcceptForReview, DeskReject, RequestRevision, Accept, Reject)
-- `decision_note` (Text, Nullable)
-- `round` (Integer, Default: 1)
-- `decided_at` (Timestamp)
-
-Tabel `plagiarism_checks`:
-- `id_check` (Primary Key)
-- `id_submission` (Foreign Key)
-- `similarity_percentage` (Decimal, Nullable)
-- `report_file_path` (String, Nullable)
-- `checked_by` (Foreign Key ke `users`)
-- `checked_at` (Timestamp)
+- `editorial_assignments`: Relasi naskah dengan *Editor*.
+- `editorial_decisions`: Arsip rekam jejak setiap putusan.
+- `plagiarism_checks`: File hasil *Turnitin / iThenticate* dan angka indeks plagiarisme.
 
 **3. Business Rules**
-- Hanya **Editor-in-Chief** yang dapat melakukan keputusan *Desk Reject*.
-- *Section Editor* yang ditugaskan berhak menugaskan reviewer dan membuat keputusan rekomendasi, namun keputusan final (Accept/Reject) tetap di tangan Editor.
-- Setiap keputusan editorial wajib disertai catatan/alasan.
-- Setelah keputusan dibuat, Author secara otomatis mendapat notifikasi.
+- Editor Utama memiliki kapabilitas *Desk Reject* (Tolak naskah di awal tanpa review eksternal).
+- *Section Editor* hanya merekomendasikan putusan, disahkan menjadi Final Decision oleh *Editor Utama*.
+- Komunikasi tertutup antar-editor dapat terjadi.
 
 **4. Functional Requirements**
-- **Create**: Penugasan Section Editor ke submission. Pembuatan keputusan editorial.
-- **Read**: Inbox naskah baru, daftar naskah aktif per status, riwayat keputusan per submission.
-- **Update**: Mengganti Section Editor yang ditugaskan.
-- **Delete**: Tidak ada penghapusan permanen. Keputusan bersifat append-only (log).
+- **Create**: Menugaskan Section Editor via `Editorial/DeskController@assignEditor` atau upload Cek Plagiarisme via `Editorial/PlagiarismController@store`.
+- **Read**: Membuka dashboard inbox editor (`inbox()`). Meninjau file naskah nirkabel secara langsung (`show()`).
+- **Update**: Pembuatan Putusan Desk Review (`decisionController@deskReview`), Putusan Akhir (`finalDecision()`), atau putaran ronde ulang (`updateRound()`).
+- **Discuss**: Editor & Author saling berbalas melalui sistem tiket `EditorialDiscussionController`.
 
 **5. Validation Rules**
-- *Required Note*: Catatan keputusan wajib diisi minimal 50 karakter jika keputusan adalah DeskReject atau Reject.
-- *Assignment Conflict*: Editor tidak bisa menugaskan dirinya sendiri sebagai reviewer pada submission yang sama.
+- `EditorialDecisionRequest` memastikan *Decision Note* wajib terisi minimal 50 karakter apabila Editor memilih 'Reject'.
 
 **6. User Interface Requirements**
-- **Editor Dashboard**: Inbox dibagi dalam tab: Unassigned, Active, Awaiting Decision, Archived.
-- Tampilan detail submission dengan PDF viewer inline untuk membaca naskah.
-- Panel samping untuk rekap riwayat keputusan dan assignment.
+- Antarmuka navigasi Inbox ber-tab (`resources/js/components/InboxTab.tsx` di `Desk/Inbox.tsx`): Papan tata kelola dengan 4 tab layar utama (*Unassigned, Active, Awaiting Decision, Archived*) disertai gelembung angka naskah. Berfungsi mengisolasi perhatian Editor secara fokus berdasar fase antrean pekerjaan.
+- Penampil dokumen naskah nirkabel / tertanam (`resources/js/components/InlinePdfViewer.tsx`): Modul layar PDF di dalam halaman detail naskah (*embed iframe/pdf.js*). Berfungsi supaya Editor dapat membaca dan menyaring awal naskah (*Desk Review*) secara kilat tanpa menyampah memori *download* komputernya.
+- Modal pengalokasian pimpinan rubrik (`resources/js/components/AssignEditorModal.tsx`): Layar konfirmasi pembagian tugas untuk para pimpinan komite (Section Editor). Berfungsi memastikan naskah masuk ke meja pakar yang sesuai klaster ilmunya.
+- Lencana analisis plagiasi (`resources/js/components/SimilarityBadge.tsx`): Indikator warna mencolok (misal: Merah Darah jika *Turnitin* > 25%) di laman `Desk/Plagiarism.tsx`. Berfungsi sebagai asisten peringatan dini terhadap bahaya pelanggaran hak cipta intelektual.
+- Panel histori jejak putusan (`resources/js/components/DecisionHistoryPanel.tsx`): Jendela samping (sidebar/drawer) yang merekam kapan saja ronde revisi telah terjadi di ranah keredaksian. Berfungsi memperkuat argumen putusan akhir editor.
+- Modul antarmuka pesan chat / diskusi (*Thread*) (`resources/js/components/DiscussionThread.tsx`): Forum komunikasi internal tertutup berbasis kotak percakapan layaknya forum modern. Berfungsi merekam rapat dewan redaksi seputar satu naskah.
 
 **7. Integration Requirements**
-- Keputusan AcceptForReview memicu pembuatan antrian penugasan reviewer di Modul 4.
-- Keputusan final Accept memindahkan submission ke alur Copyediting (Modul 5).
+- Putusan *Accept For Review* mengirim artikel tersebut secara logis ke Modul 4.
 
 ---
 
 ### Modul 4: Peer Review System
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul inti yang mengelola seluruh proses peninjauan naskah oleh pakar sejawat (peer reviewer), dari pengiriman undangan hingga pemberian rekomendasi akhir, dengan dukungan sistem Double-Blind Review.
+Modul inti peninjauan pakar dengan skema **Double-Blind Review** yang ketat, mengisolasi identitas dan membimbing proses skoring kualitatif dan kuantitatif.
 
 **2. Data Requirements**
-
-Tabel `review_assignments`:
-- `id_review` (Primary Key)
-- `id_submission` (Foreign Key)
-- `id_reviewer` (Foreign Key ke `users`)
-- `round` (Integer, Default: 1)
-- `status` (Enum: Invited, Accepted, Declined, Completed, Cancelled; Default: Invited)
-- `invited_at` (Timestamp)
-- `due_date` (Date, Required)
-- `accepted_at` (Timestamp, Nullable)
-- `declined_reason` (Text, Nullable)
-
-Tabel `review_forms`:
-- `id_form_entry` (Primary Key)
-- `id_review` (Foreign Key)
-- `criterion_name` (String)
-- `score` (Integer, Range 1-5)
-- `comment` (Text, Nullable)
-
-Tabel `review_decisions`:
-- `id_review_decision` (Primary Key)
-- `id_review` (Foreign Key)
-- `recommendation` (Enum: Accept, MinorRevision, MajorRevision, Reject)
-- `overall_comment` (Text, Required)
-- `confidential_note` (Text, Nullable — hanya terlihat Editor, bukan Author)
-- `submitted_at` (Timestamp)
+- `review_assignments`: Menampung tenggat waktu (due_date) dan persetujuan penugasan.
+- `review_forms`: Entri terpisah berdasar parameter kriteria yang ditanyakan.
+- `review_decisions`: Ringkasan rekomendasi & komentar konfidensial *Reviewer*.
 
 **3. Business Rules**
-- Sistem menggunakan **Double-Blind Review**: dokumen naskah yang dikirim ke Reviewer sudah dianonimkan (nama Author dihilangkan). Reviewer tidak mengetahui identitas Author, dan Author tidak mengetahui identitas Reviewer.
-- Reviewer wajib merespons undangan (Accept/Decline) dalam **7 hari**. Jika tidak, status otomatis menjadi Cancelled.
-- Reviewer tidak dapat submit rekomendasi jika belum mengisi semua kriteria penilaian.
-- Editor dapat melihat `confidential_note`, namun Author hanya melihat `overall_comment`.
+- **Double-Blind Review**: File naskah dianonimisasi oleh mesin otomatis (metadata identitas dihapus) sebelum diluncurkan ke Reviewer.
+- Reviewer membalas undangan dalam 7 hari; apabila nihil akan otomatis kedaluwarsa.
+- Reviewer tidak dapat men-*submit* hingga semua skor kriteria terisi genap.
 
 **4. Functional Requirements**
-- **Create**: Editor membuat undangan review. Reviewer mengisi form penilaian dan rekomendasi.
-- **Read**: Reviewer melihat daftar undangan dan naskah (versi anonim). Editor melihat rekap hasil semua reviewer per submission.
-- **Update**: Reviewer menyimpan draft penilaian sebelum submit final. Editor memperpanjang due date.
-- **Delete**: Editor membatalkan undangan (Cancel) jika reviewer tidak merespons.
+- **Create**: Editor meng-invite reviewer via `ReviewAssignmentController@invite`.
+- **Update**: Reviewer bisa memutus menerima/menolak di `ReviewAssignmentController@respond`. Reviewer mengisi penilaian `ReviewController@showManuscript` s/d `submitRecommendation()`. Editor berhak menambah perpanjangan waktu `extendDue()`.
+- **Read**: Dashboard Reviewer mengekstraksi data to-do-list (`ReviewerDashboardController@index`). Editor memantau komparasi via `ReviewSummaryController@index`.
+- **Delete**: Membatalkan penugasan reviewer mandek (`cancel()`).
 
 **5. Validation Rules**
-- *Required Score*: Semua kriteria penilaian wajib diisi. Pesan: "Harap isi semua skor penilaian sebelum submit."
-- *Score Range*: Skor tiap kriteria antara 1–5. Pesan: "Skor harus berada di rentang 1 hingga 5."
-- *Required Comment*: `overall_comment` wajib diisi minimal 100 karakter.
-- *Due Date*: Form review tidak bisa di-submit setelah due date terlewat.
+- Reviewer dijaga oleh `ReviewSubmissionRequest` untuk memastikan total kriteria disi komplit dengan skala angka 1-5, dan `overall_comment` tak boleh hampa.
 
 **6. User Interface Requirements**
-- **Reviewer Dashboard**: Daftar undangan (Accept/Decline), daftar tugas review aktif, form penilaian dengan auto-kalkulasi skor agregat real-time.
-- **Editor View**: Matriks perbandingan rekomendasi multi-reviewer side-by-side.
-- File naskah ditampilkan via inline PDF viewer tanpa metadata identitas.
+- Kartu identitas kandidat peninjau (`resources/js/components/ReviewerCandidateCard.tsx`): Blok kotak desain *Bento/Card* yang tidak hanya menampilkan nama, tapi menyertakan irisan *tag* keahlian dan statistik rekam jejak jumlah naskah yang pernah ia baca di `Review/InviteReviewer.tsx`. Berfungsi mencarikan jodoh pakar peninjau (*Reviewer*) yang akurat untuk manuskrip yang spesifik.
+- Modal konfirmasi penolakan / pembatalan (`resources/js/components/CancelReviewModal.tsx`): Jendela *pop-up* isian teks saat seseorang menolak perintah peninjauan. Berfungsi meminta kewajiban pelaporan alasan (Sakit/Bentrok/Tidak relevan).
+- Form rubrik penskoran interaktif (`resources/js/components/RubricScoreInput.tsx`): Lembar kuesioner bersistem poin yang saat diklik barisnya akan bereaksi secara matematis mengkalkulasi skoring akhir secara otomatis (*real-time*). Berfungsi mempercepat entri angka evaluasi teknis.
+- Tabel matriks komparasi hasil lintas *Reviewer* (`resources/js/components/ReviewMatrixTable.tsx`): Tampilan antarmuka yang membenturkan dan menderetkan secara berdampingan (*side-by-side*) apa hasil ulasan Reviewer A dan Reviewer B di halaman `Review/Summary.tsx`. Berfungsi mempermudah Editor Utama saat mencari titik penengah simpulan beda pendapat pakar.
+- Lencana indikator putaran ronde perbaikan (`resources/js/components/ReviewRoundBadge.tsx`): Penanda stiker sederhana ("Ronde 1", "Ronde 2", dst) pada kartu manuskrip. Berfungsi menunjukan seberapa alot pergulatan persetujuan manuskrip tersebut.
 
 **7. Integration Requirements**
-- Setelah semua reviewer submit, Editor di Modul 3 mendapat notifikasi untuk membuat keputusan final.
-- Rekomendasi Revision memicu Author di Modul 5 untuk mengunggah revisi.
+- Sistem `AnonymizeService.php` berjalan secara latar belakang (*background*).
+- Rekomendasi di-*forward* ke Editor untuk di-Tinjau di Modul 5.
 
 ---
 
 ### Modul 5: Revision & Copyediting Workflow
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul yang mengelola proses pasca-review: komunikasi revisi antara Author dan Editor, serta tahap penyuntingan (copyediting) oleh Copyeditor untuk memastikan naskah siap produksi.
+Manajemen siklus revisi dari *Author* ke *Editor* beserta fasilitas penjenjangan versi file (*Versioning*). Setelah disetujui penuh, artikel berlanjut ke tahap *Copyediting*.
 
 **2. Data Requirements**
-
-Tabel `revision_rounds`:
-- `id_round` (Primary Key)
-- `id_submission` (Foreign Key)
-- `round_number` (Integer)
-- `revision_due_date` (Date, Nullable)
-- `revision_note` (Text — catatan revisi dari Editor untuk Author)
-- `status` (Enum: AwaitingRevision, Submitted, ReviewedByEditor)
-
-Tabel `copyediting_tasks`:
-- `id_task` (Primary Key)
-- `id_submission` (Foreign Key)
-- `id_copyeditor` (Foreign Key ke `users`, Nullable)
-- `status` (Enum: Pending, InProgress, AwaitingAuthorConfirm, Completed)
-- `editor_note` (Text, Nullable)
-- `copyeditor_note` (Text, Nullable)
-
-Tabel `submission_discussions`:
-- `id_discussion` (Primary Key)
-- `id_submission` (Foreign Key)
-- `stage` (Enum: Submission, Review, Copyediting, Production)
-- `initiated_by` (Foreign Key ke `users`)
-- `subject` (String, Required)
-- `created_at` (Timestamp)
-
-Tabel `discussion_messages`:
-- `id_message` (Primary Key)
-- `id_discussion` (Foreign Key)
-- `sender_id` (Foreign Key ke `users`)
-- `body` (Text, Required)
-- `attachment_path` (String, Nullable)
-- `sent_at` (Timestamp)
+- `revision_rounds`: Informasi due date perbaikan author.
+- `copyediting_tasks`: Rekam aktivitas staf koreksi ejaan (*Copyeditor*).
+- `submission_discussions`: Wadah tiket diskusi (*Message Bubble*).
 
 **3. Business Rules**
-- Author wajib mengunggah file revisi sebelum batas waktu yang ditetapkan Editor.
-- Setiap ronde revisi menghasilkan versi file baru — file lama tidak dihapus (versioning).
-- Setelah Author submit revisi, Editor meninjau dan menentukan: langsung Accept, kembali ke Reviewer, atau minta revisi lagi.
-- Tahap Copyediting hanya dimulai setelah Editor membuat keputusan **Accept**.
-- Author wajib menyetujui hasil copyediting sebelum naskah masuk ke tahap Production.
+- Tiap perputaran revisi dari Author melahirkan versi dokumen baru (tidak ada data lama yang dihapus / *Overwritten*).
+- Artikel lolos ke fase *Copyediting* hanya setelah di-*Accept* oleh putusan editorial pasca-revisi.
+- Terbitan tertunda sampai *Author* secara sadar merestui (konfirmasi setuju) dengan hasil penyuntingan (Klausul Finalisasi Copyedit).
 
 **4. Functional Requirements**
-- **Create**: Author mengunggah file revisi. Copyeditor mengunggah versi yang sudah disunting.
-- **Read**: Timeline riwayat semua versi file per ronde. Thread diskusi per tahap.
-- **Update**: Editor memperpanjang batas waktu revisi. Copyeditor mengedit catatan.
-- **Delete**: Tidak ada penghapusan file (semua versi dipertahankan sebagai arsip).
+- **Create**: Author upload perbaikan file (`RevisionController@uploadRevision`). Editor membuka diskusi anyar (`DiscussionController@store`). Copyeditor mengunggah hasil sunting (`CopyeditingController@uploadCopyedited`).
+- **Read**: Melihat utas versi histori naskah (`versionHistory()`).
+- **Update**: Editor menerima atau memutarkan lagi naskah (`EditorRevisionController@decide`). Penyetujuan penulis (`authorApprove()`).
 
 **5. Validation Rules**
-- *File Required*: Author wajib mengunggah minimal satu file revisi sebelum submit revisi. Pesan: "Unggah file revisi terlebih dahulu."
-- *Format File*: File revisi wajib `.docx` atau `.pdf`. Pesan: "Format file tidak didukung."
-- *Revision Due Date*: Jika melewati batas waktu, form upload revisi dinonaktifkan dan status berubah otomatis.
+- File lampiran revisi mutlak PDF/DOCX sebelum menekan Simpan.
+- Pengecekan pada request kelas `StoreDiscussionRequest` saat mengutarakan balasan pada forum.
 
 **6. User Interface Requirements**
-- **Author**: Panel revisi menampilkan catatan Editor dari Reviewer, kolom upload file revisi, dan tombol submit revisi.
-- **Copyeditor**: Panel tiga kolom (File Original | File Copyedited | Catatan) untuk memudahkan proses sunting.
-- **Diskusi**: UI Thread-style mirip email (Subject, Pesan, Attachment, Reply).
+- Panel panduan ulasan peninjau (`resources/js/components/RevisionNotePanel.tsx`): Kotak sorotan bacaan tempat Author dapat membaca keseluruhan reviu kritis pakar (tanpa identitas anonim). Berfungsi sebagai penunjuk jalan perbaikan makalah.
+- Penampil hierarki sejarah lampiran dokumen (`resources/js/components/DocumentVersionList.tsx`): Daftar susunan tautan unduh berdasarkan jejak waktu. Mengamankan keutuhan arsip dari putaran awal hingga final. Berfungsi agar tim tidak kehilangan rekam berkas perputaran iterasi ronde yang lampau.
+- Meja kerja sunting tiga kolom (`resources/js/pages/Copyediting/CopyeditorPanel.tsx`): Antarmuka layar super lebar yang terpisah vertikal: Layar A (Teks Ori), Layar B (Teks Baru), Layar C (Catatan). Berfungsi sebagai meja operasi *layout/copyediting* bahasa yang ergonomis.
+- Gelembung pesan forum obrolan (`resources/js/components/MessageBubble.tsx`): Kotak pesan dialog percakapan ala *WhatsApp* / surel tertanam yang menyematkan metadata pengirim di laman `Discussion/Thread.tsx`. Berfungsi untuk mencatatkan keluhan, sanggahan perbaikan, maupun komunikasi informal selama proses iterasi revisi.
 
 **7. Integration Requirements**
-- File revisi final yang disetujui Editor diteruskan ke Modul 6 (Production) sebagai bahan Galley.
-- Setiap aksi (revisi submit, copyediting selesai) memicu notifikasi di Modul 7.
+- Saling terkait dengan infrastruktur perputaran notifikasi email saat perputaran pesan baru (Modul 7).
 
 ---
 
 ### Modul 6: Production & Issue Management
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul pengelolaan artikel yang telah melewati seluruh tahap editorial dan siap diterbitkan. Modul ini mengelola pembuatan terbitan (Issue), penempatan artikel, dan proses publikasi akhir.
+Modul operasional penerbitan, pendistribusian artikel secara kronologis menjadi wujud Terbitan (Issue), pengaturan halaman PDF Akhir (_Galleys_), hingga penguncian Table of Contents.
 
 **2. Data Requirements**
-
-Tabel `issues`:
-- `id_issue` (Primary Key)
-- `id_journal` (Foreign Key ke `journals`)
-- `volume` (Integer, Required)
-- `number` (Integer, Required)
-- `year` (Year, Required)
-- `title` (String, Nullable — untuk Issue tematik)
-- `description` (Text, Nullable)
-- `published_at` (Timestamp, Nullable — NULL berarti belum terbit)
-- `status` (Enum: Draft, Published; Default: Draft)
-
-Tabel `galleys`:
-- `id_galley` (Primary Key)
-- `id_submission` (Foreign Key)
-- `id_issue` (Foreign Key, Nullable — NULL berarti belum dijadwalkan)
-- `label` (String, e.g., "PDF", "HTML", "XML")
-- `file_path` (String, Required)
-- `page_from` (Integer, Nullable)
-- `page_to` (Integer, Nullable)
-- `doi` (String, Nullable, Unique)
-- `sequence` (Integer — urutan dalam Issue)
+- `issues`: Metadata terbitan (Volume, Nomor, Tahun, Deskripsi).
+- `galleys`: Pengarsipan layout terpublikasi final dari satu naskah (Format File HTML/XML/PDF, DOI, Halaman, Sequence posisi urutan).
 
 **3. Business Rules**
-- Hanya **Production Editor** dan **Admin** yang dapat membuat dan mengelola Issues.
-- Artikel hanya dapat masuk ke Issue jika statusnya telah **Accepted** dan proses Copyediting telah **Completed**.
-- Satu artikel hanya dapat masuk ke satu Issue.
-- Saat sebuah Issue di-*publish*, semua artikel di dalamnya statusnya berubah menjadi **Published** secara serentak.
-- DOI harus bersifat unik di seluruh sistem jika diisi.
+- Pembuatan Issue dilakukan secara khusus oleh **Production Editor / Admin**.
+- Naskah antre masuk Issue hanya bagi naskah beraliran status *Completed* dari Copyediting.
+- Eksekusi *Publish Issue* bersifat serentak: Seluruh manuskrip di dalamnya langsung disebar kepada dunia (*Published* status).
 
 **4. Functional Requirements**
-- **Create**: Membuat Issue baru. Menambahkan Galley file untuk artikel. Menjadwalkan artikel ke Issue.
-- **Read**: Tampilan daftar Issue (Published & Draft). Tampilan preview Issue sebelum publish.
-- **Update**: Mengubah metadata Issue. Mengubah urutan artikel dalam Issue. Mengubah nomor halaman.
-- **Delete**: Menghapus Issue yang masih Draft (jika belum ada artikel di dalamnya).
+- **Create**: Men-setup bundel Issue baru di `IssueController@store` dan menyimpan PDF akhir per manuskrip di `GalleyController@store`.
+- **Read**: Menyajikan *Queue List* antrean publikasi (`ProductionQueueController@index`) dan Halaman Katalog Issue Publik.
+- **Update**: Menyusun tata letak halaman `GalleyController@updateMeta` (penetapan DOI/Halaman). Pengaturan daftar urutan isi manuskrip dalam issue (`assignToIssue()`). Menerbitkan Edisi Jurnal (`publish()`).
+- **Delete**: *Destruct* bundel Issue jika dan hanya jika belum ada manuskrip bersarang (`IssueController@destroy`).
 
 **5. Validation Rules**
-- *Unique Issue*: Kombinasi Volume + Number + Tahun + Jurnal harus unik. Pesan: "Issue dengan volume dan nomor tersebut sudah ada."
-- *Unique DOI*: DOI tidak boleh duplikat. Pesan: "DOI sudah terdaftar pada artikel lain."
-- *Publish Requirement*: Issue tidak bisa di-publish jika tidak memiliki minimal 1 artikel.
+- Constraint pada tabel: `StoreIssueRequest` mengharamkan kesamaan kombinasi kombinasi _[Volume + Nomor + Tahun]_ di database jurnal yang sama.
+- Validasi Keunikan DOI per baris manuskrip (`updateMeta`).
 
 **6. User Interface Requirements**
-- **Issue Table of Contents Editor**: Tampilan drag-and-drop untuk mengatur urutan artikel dalam sebuah Issue.
-- Tombol "Preview Issue" untuk melihat tampilan publik sebelum publish.
-- Tombol "Publish Issue" dengan dialog konfirmasi dan checklist akhir.
+- Pengatur urutan hierarki daftar isi jurnal (`resources/js/components/ArticleSequencer.tsx` & `TOCEditor.tsx`): Antarmuka list dinamis yang memungkinkan admin menyeret dan menjatuhkan (*Drag and Drop*) baris artikel ke atas atau bawah. Berfungsi menata letak estetis indeks Table of Contents (Daftar Isi) sebuah buku terbitan sebelum dibekukan.
+- Kartu Edisi Jurnal (`resources/js/components/IssueCard.tsx`): Antarmuka visual blok kartu pameran yang disisipi Cover Gambar Issue (Edisi), Volume, Nomor, Tahun. Berfungsi merapikan dan menjadikan arsip *Back Issues* menarik dipandang audiens.
+- Kotak dialog daftar periksa rilis (*Checklist*) (`resources/js/components/PublishChecklist.tsx`): Sebuah modul *pop-up* krusial berlapis ganda (mensyaratkan centang manual pada checkbox seperti *"Apakah DOI sudah final?"*) sesaat sebelum rilis. Berfungsi mencegah terbitnya edisi yang masih bolong kelengkapannya atau diakibatkan klik tanpa sadar.
+- Halaman tata Kelola Metadata Cetak (*Pagination*) (`resources/js/pages/Production/Galley/SetMeta.tsx`): Lembar formulir presisi untuk menetapkan angka penomoran halaman (Hal 10-15) dan pengait URL DOI untuk Galley PDF akhirnya. Berfungsi men-standardisasi sitasi dokumen di jagat daring internasional.
 
 **7. Integration Requirements**
-- Artikel yang Published otomatis muncul di portal publik JurnalMu (Kelas B).
-- DOI yang diisi teregistrasi dan muncul di halaman detail artikel publik.
+- Menyediakan pipa transmisi langsung (`Api/PublishedArticleController`) agar sistem publik (Kelas B) bisa membaca dan mem-fetch artikel PDF diterbitkan ini secara REST.
 
 ---
 
 ### Modul 7: Notifikasi, Komunikasi & Diskusi Internal
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul infrastruktur komunikasi yang memastikan semua pemangku peran mendapat informasi yang tepat pada waktu yang tepat, baik melalui notifikasi in-app maupun email otomatis.
+Jantung relai notifikasi sistem dan mekanisme otomasi pengiriman surel email yang dimanajemen secara independen pada *background tasks*.
 
 **2. Data Requirements**
-
-Tabel `notifications`:
-- `id_notification` (Primary Key)
-- `id_user` (Foreign Key ke `users` — penerima)
-- `type` (String — nama event, e.g., `ReviewInvited`, `DecisionMade`)
-- `data` (JSON — berisi konteks notifikasi: id_submission, judul, nama pengirim)
-- `read_at` (Timestamp, Nullable — NULL berarti belum dibaca)
-- `created_at` (Timestamp)
-
-Tabel `email_templates`:
-- `id_template` (Primary Key)
-- `id_journal` (Foreign Key, Nullable — NULL berarti template global)
-- `event_key` (String, Unique per journal, e.g., `REVIEW_INVITATION`)
-- `subject` (String, Required)
-- `body_html` (Text, Required — mendukung variabel: `{author_name}`, `{submission_title}`, dll)
-
-Tabel `announcements`:
-- `id_announcement` (Primary Key)
-- `id_journal` (Foreign Key)
-- `title` (String, Required)
-- `content` (Text, Required)
-- `published_at` (Timestamp)
-- `expires_at` (Timestamp, Nullable)
-
-Tabel `activity_logs`:
-- `id_log` (Primary Key)
-- `id_submission` (Foreign Key, Nullable)
-- `id_user` (Foreign Key)
-- `action` (String — e.g., "submitted_revision", "made_decision")
-- `description` (Text)
-- `logged_at` (Timestamp)
+- `notifications`: Menyimpan peringatan *in-app* (`unread` counter).
+- `email_templates`: Konfigurasi *boilerplate* email, berisikan tag format (*shortcodes* seperti `{author_name}`).
+- `announcements`: Pengumuman global dengan masa basi kalender (kedaluwarsa).
+- `activity_logs`: Rangkaian seluruh perubahan data submission dari detik A sampai Z.
 
 **3. Business Rules**
-- Setiap event penting (submit, undangan, keputusan) wajib menghasilkan notifikasi in-app.
-- Email otomatis dikirim menggunakan template yang dapat dikustomisasi per jurnal oleh Admin/Editor.
-- Pengguna dapat menandai notifikasi sebagai sudah dibaca secara satu per satu atau semua sekaligus.
-- Activity Log bersifat append-only (tidak dapat diubah atau dihapus) untuk menjaga integritas audit trail.
-- Announcement tampil di halaman utama portal jurnal dan memiliki fitur kadaluarsa otomatis.
+- Komunikasi tidak boleh *blocking* (membuat website loading lama), setiap email dilontarkan melalui server antrean asinkron (Laravel Queue).
+- Pengguna hanya melihat notifikasi miliknya (Auth Scoped).
+- Activity Log tidak bisa ditarik/dihapus; pencatatan abadi (*append-only*).
 
 **4. Functional Requirements**
-- **Create**: Sistem membuat notifikasi otomatis saat event terjadi. Admin/Editor membuat Announcement.
-- **Read**: Bell notification dengan badge unread count. Halaman "Semua Notifikasi". Halaman Activity Log per submission (untuk Editor).
-- **Update**: Tandai notifikasi sebagai dibaca. Admin mengedit template email.
-- **Delete**: Admin menghapus Announcement yang sudah kadaluarsa.
+- **Create/Send**: Pembuatan log jejak otomatis diawasi sistem Observer (`SubmissionObserver@created`/`updated`). Mendorong ke Antrean eksekusi email (`SendNotificationEmail.php` via Laravel Job). Mengunggah berita pengumuman (`AnnouncementController@store`).
+- **Read**: Daftar lonceng peringatan `NotificationController@index` dan Log aktivitas terpisah `ActivityLogController@index`.
+- **Update**: Membaca notifikasi `markRead()`, `markAllRead()`. Menyunting body pesan email template `Admin/EmailTemplateController@update`.
+- **Delete**: Luruhnya pemberitahuan informasi apabila tanggal melewati kedaluwarsa di sistem.
 
 **5. Validation Rules**
-- *Template Variable*: Sistem memvalidasi bahwa variabel dalam template email (e.g., `{submission_title}`) dikenali. Pesan: "Variabel `{nama_var}` tidak dikenali."
-- *Announcement Date*: Tanggal kadaluarsa Announcement tidak boleh lebih awal dari tanggal publikasi.
+- *Template Check*: Rutinitas verifikasi sistem untuk mendeteksi *Missing Token* saat Administrator membuat Email Template.
+- Penanggalan warta informasi Announcement tak boleh berlalu surut (masa lampau).
 
 **6. User Interface Requirements**
-- **Bell Icon** di Navbar dengan badge angka merah untuk unread count.
-- Dropdown notifikasi menampilkan 5 notifikasi terbaru dengan link langsung ke konteks terkait.
-- Halaman pengaturan email template dengan rich text editor untuk body email.
-- Halaman Activity Log per submission menampilkan timeline kronologis semua aksi.
+- Pusat Ikon Lonceng Notifikasi (`resources/js/components/NotificationBell.tsx`): *Widget* kecil peluit notifikasi *in-app* yang mekar ke bawah (*dropdown list*) jika ditekan, terletak sakral di *Navbar* atas. Berfungsi sebagai interupsi kewaspadaan kepada penggunanya bahwa sebuah penugasan menunggunya.
+- Pengelola format cetak biru surel (`resources/js/pages/Admin/EmailTemplate/Edit.tsx`): Halaman administrasi yang disokong perangkat *Rich Text Editor* untuk menyusun draf email yang elegan. Berfungsi memberikan pimpinan redaksi keleluasaan merangkai diksi persuratan robot (variabel) secara estetis tanpa bersentuhan dengan program *backend*.
+- Lini masa audit jejak tindakan (`resources/js/components/ActivityLogTimeline.tsx`): Diagram rel waktu linier yang berderet secara vertikal menjuntai ke bawah dari paling lawas ke hari ini (`Editorial/ActivityLog.tsx`). Berfungsi sebagai CCTV dokumenter (*Audit Trail*) jika terjadi miskomunikasi, salah klik status, penipuan integritas reviu, maupun penyangkalan aksi di masa lalu.
+- Laci rekapitulasi surat pemberitahuan sistem (`resources/js/pages/Notifications/Index.tsx`): Keranjang besar yang menampung daftar panjang tabel riwayat seluruh *alert* pemberitahuan, berbekal fitur "Tandai Semua Telah Dibaca". Berfungsi sebagai arsip bacaan kembali bagi para *user* yang mendapati kotak notifikasinya kebanjiran informasi.
 
 **7. Integration Requirements**
-- Terintegrasi dengan semua modul lain sebagai consumer event.
-- Menggunakan Laravel Queue (`database` driver) untuk pengiriman email agar tidak memblokir request.
+- `EmailNotificationService.php` berfungsi sebagai agregator yang bisa disuntikkan (*Dependency Injected*) di Controller mana pun yang membutuhkan transmisi surat elektrik.
