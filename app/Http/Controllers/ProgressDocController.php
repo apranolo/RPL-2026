@@ -22,24 +22,12 @@ class ProgressDocController extends Controller
      *
      * @route POST /dosen/progress/{progress}/upload-logbook
      */
-    public function upload(Request $request, ProgressReport $progress): RedirectResponse
+    public function upload(\App\Http\Requests\UploadProgressDocRequest $request, ProgressReport $progress): RedirectResponse
     {
         // Pastikan user yang login adalah pemilik laporan
         $this->authorize('update', $progress);
 
-        $validated = $request->validate([
-            'logbook' => [
-                'required',
-                'file',
-                'mimes:pdf,doc,docx,xls,xlsx',
-                'max:10240', // 10 MB
-            ],
-        ], [
-            'logbook.required'  => 'File logbook wajib diunggah.',
-            'logbook.file'      => 'Unggahan harus berupa file.',
-            'logbook.mimes'     => 'Format file tidak didukung. Gunakan PDF, DOC, DOCX, XLS, atau XLSX.',
-            'logbook.max'       => 'Ukuran file tidak boleh melebihi 10 MB.',
-        ]);
+        $validated = $request->validated();
 
         $file = $validated['logbook'];
 

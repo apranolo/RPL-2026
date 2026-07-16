@@ -12,6 +12,7 @@
  *   - Upload file logbook (PDF/DOC/DOCX/XLS/XLSX)
  *   - Simpan sebagai draft atau langsung submit
  */
+import type { InertiaFormProps } from '@inertiajs/react';
 import RichTextEditor from '@/components/RichTextEditor';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -60,6 +61,8 @@ interface ProgressFormData {
     deskripsi: string;
     catatan: string;
     status: string;
+    dokumen_laporan: File | null;
+    logbook: File | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -197,14 +200,27 @@ export default function ProgressCreate({ user }: Props) {
     const [dokumenLaporan, setDokumenLaporan] = useState<File | null>(null);
     const [logbookFile, setLogbookFile] = useState<File | null>(null);
 
-    const { data, setData, errors, setError, clearErrors } = useForm<ProgressFormData>({
-        judul: '',
-        periode: '',
-        tanggal_laporan: new Date().toISOString().split('T')[0],
-        deskripsi: '',
-        catatan: '',
-        status: 'draft',
-    });
+  const form = useForm<{
+    judul: string;
+    periode: string;
+    tanggal_laporan: string;
+    deskripsi: string;
+    catatan: string;
+    status: string;
+    dokumen_laporan: File | null;
+    logbook: File | null;
+}>({
+    judul: '',
+    periode: '',
+    tanggal_laporan: new Date().toISOString().split('T')[0],
+    deskripsi: '',
+    catatan: '',
+    status: 'draft',
+    dokumen_laporan: null,
+    logbook: null,
+});
+
+const { data, setData, errors, setError, clearErrors, processing } = form;
 
     /* ── Submit ── */
     const handleSubmit = (submitStatus: 'draft' | 'submitted') => {
@@ -213,7 +229,7 @@ export default function ProgressCreate({ user }: Props) {
         // Gabungkan form data (string) + files (File|null) + status saat submit
         router.post(
             route('progress.store'),
-            {
+             {
                 ...data,
                 status: submitStatus,
                 dokumen_laporan: dokumenLaporan,
@@ -276,10 +292,11 @@ export default function ProgressCreate({ user }: Props) {
                             </Label>
                             <Input
                                 id="judul"
+                                name="judul"
                                 value={data.judul}
                                 onChange={(e) => setData('judul', e.target.value)}
                                 placeholder="Contoh: Laporan Kemajuan Penelitian Semester Ganjil 2025"
-                                disabled={processing}
+                                disabled={isProcessing}
                             />
                             {errors.judul && (
                                 <p className="flex items-center gap-1 text-xs text-destructive">
@@ -297,7 +314,7 @@ export default function ProgressCreate({ user }: Props) {
                                 <Select
                                     value={data.periode}
                                     onValueChange={(v) => setData('periode', v)}
-                                    disabled={processing}
+                                    disabled={isProcessing}
                                 >
                                     <SelectTrigger id="periode">
                                         <SelectValue placeholder="Pilih periode..." />
@@ -329,7 +346,7 @@ export default function ProgressCreate({ user }: Props) {
                                     type="date"
                                     value={data.tanggal_laporan}
                                     onChange={(e) => setData('tanggal_laporan', e.target.value)}
-                                    disabled={processing}
+                                    disabled={isProcessing}
                                 />
                                 {errors.tanggal_laporan && (
                                     <p className="flex items-center gap-1 text-xs text-destructive">
@@ -372,7 +389,7 @@ export default function ProgressCreate({ user }: Props) {
                             onChange={(html) => setData('deskripsi', html)}
                             placeholder="Tuliskan deskripsi kemajuan penelitian Anda..."
                             minHeight="min-h-[240px]"
-                            disabled={processing}
+                            disabled={isProcessing}
                         />
                         {errors.deskripsi && (
                             <p className="flex items-center gap-1 text-xs text-destructive">
@@ -401,7 +418,7 @@ export default function ProgressCreate({ user }: Props) {
                             onChange={(html) => setData('catatan', html)}
                             placeholder="Catat aktivitas penelitian harian/mingguan Anda di sini..."
                             minHeight="min-h-[180px]"
-                            disabled={processing}
+                            disabled={isProcessing}
                         />
                         {errors.catatan && (
                             <p className="flex items-center gap-1 text-xs text-destructive">
@@ -506,4 +523,4 @@ export default function ProgressCreate({ user }: Props) {
             </div>
         </AppLayout>
     );
-}
+};

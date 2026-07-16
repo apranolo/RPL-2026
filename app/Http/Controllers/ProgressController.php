@@ -39,18 +39,9 @@ class ProgressController extends Controller
      *
      * @route POST /dosen/progress
      */
-    public function store(Request $request): RedirectResponse
+    public function store(\App\Http\Requests\StoreProgressReportRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'judul'             => 'required|string|max:255',
-            'periode'           => 'required|string|max:50',
-            'tanggal_laporan'   => 'required|date',
-            'deskripsi'         => 'required|string',
-            'catatan'           => 'nullable|string',
-            'status'            => 'nullable|in:draft,submitted',
-            'dokumen_laporan'   => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10 MB
-            'logbook'           => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:10240', // 10 MB
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
 
