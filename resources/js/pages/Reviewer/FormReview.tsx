@@ -13,30 +13,30 @@ import type { BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { type FormEventHandler } from 'react';
 
-interface ProposalData {
+type ProposalData = {
     id: number;
     title: string;
     abstract: string;
-}
+};
 
-interface ExistingReview {
+type ExistingReview = {
     id: number;
     score: number;
     comments: string;
     recommendation: 'accepted' | 'revision' | 'rejected';
-}
+};
 
-interface ReviewFormData {
+type ReviewFormData = {
     proposal_id: number;
     score: number | string;
     comments: string;
     recommendation: 'accepted' | 'revision' | 'rejected' | '';
-}
+};
 
-interface Props {
+type Props = {
     proposal: ProposalData;
     existingReview?: ExistingReview;
-}
+};
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Reviewer', href: route('reviewer.assignments.index') },
@@ -67,14 +67,10 @@ export default function FormReview({ proposal, existingReview }: Props) {
 
             <div className="mx-auto max-w-4xl px-4 py-8">
                 <div className="mb-6 rounded-lg bg-white p-6 shadow dark:bg-neutral-900">
-                    <h1 className="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        Form Penilaian Proposal
-                    </h1>
+                    <h1 className="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100">Form Penilaian Proposal</h1>
 
                     <div className="mb-6 rounded-md bg-gray-50 p-4 dark:bg-neutral-800">
-                        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                            Detail Proposal
-                        </h2>
+                        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Detail Proposal</h2>
                         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                             <span className="font-medium">Judul:</span> {proposal.title}
                         </p>
@@ -95,7 +91,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                 max="100"
                                 value={data.score}
                                 onChange={(e) => setData('score', e.target.value)}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-600 dark:bg-neutral-800 dark:text-gray-100 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:border-neutral-600 dark:bg-neutral-800 dark:text-gray-100"
                             />
                             {errors.score && <div className="mt-1 text-sm text-red-500">{errors.score}</div>}
                         </div>
@@ -107,19 +103,15 @@ export default function FormReview({ proposal, existingReview }: Props) {
                             <select
                                 id="recommendation"
                                 value={data.recommendation}
-                                onChange={(e) =>
-                                    setData('recommendation', e.target.value as ReviewFormData['recommendation'])
-                                }
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-600 dark:bg-neutral-800 dark:text-gray-100 sm:text-sm"
+                                onChange={(e) => setData('recommendation', e.target.value as ReviewFormData['recommendation'])}
+                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:border-neutral-600 dark:bg-neutral-800 dark:text-gray-100"
                             >
                                 <option value="">Pilih Rekomendasi...</option>
                                 <option value="accepted">Diterima</option>
                                 <option value="revision">Revisi</option>
                                 <option value="rejected">Ditolak</option>
                             </select>
-                            {errors.recommendation && (
-                                <div className="mt-1 text-sm text-red-500">{errors.recommendation}</div>
-                            )}
+                            {errors.recommendation && <div className="mt-1 text-sm text-red-500">{errors.recommendation}</div>}
                         </div>
 
                         <div>
@@ -131,7 +123,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                 rows={5}
                                 value={data.comments}
                                 onChange={(e) => setData('comments', e.target.value)}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-600 dark:bg-neutral-800 dark:text-gray-100 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:border-neutral-600 dark:bg-neutral-800 dark:text-gray-100"
                             ></textarea>
                             {errors.comments && <div className="mt-1 text-sm text-red-500">{errors.comments}</div>}
                         </div>
@@ -151,4 +143,3 @@ export default function FormReview({ proposal, existingReview }: Props) {
         </AppLayout>
     );
 }
-

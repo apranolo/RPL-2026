@@ -1,12 +1,13 @@
 <?php
 
 use App\Models\Proposal;
+use App\Models\ResearchSchema;
 use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
 
 beforeEach(function () {
-    // Pastikan role Reviewer ada di database
+    // Pastikan role Reviewer dan User ada di database
     $this->reviewerRole = Role::firstOrCreate(
         ['name' => Role::REVIEWER],
         ['display_name' => 'Reviewer', 'description' => 'Reviewer proposal']
@@ -15,6 +16,12 @@ beforeEach(function () {
     $this->userRole = Role::firstOrCreate(
         ['name' => Role::USER],
         ['display_name' => 'User', 'description' => 'Regular user']
+    );
+
+    // Pastikan ResearchSchema ada (dibutuhkan oleh ProposalFactory FK)
+    $this->researchSchema = ResearchSchema::firstOrCreate(
+        ['name' => 'Skema Penelitian Dasar'],
+        ['description' => 'Skema penelitian dasar untuk testing']
     );
 });
 
@@ -40,6 +47,20 @@ function createRegularUser(): User
     return User::factory()->create(['role_id' => $role->id]);
 }
 
+/**
+ * Helper: buat proposal dengan FK yang valid
+ */
+function createProposal(): Proposal
+{
+    $user = User::factory()->create();
+    $schema = ResearchSchema::first();
+
+    return Proposal::factory()->create([
+        'user_id' => $user->id,
+        'research_schema_id' => $schema->id,
+    ]);
+}
+
 /*
 |--------------------------------------------------------------------------
 | Store Assessment Tests
@@ -48,7 +69,7 @@ function createRegularUser(): User
 
 it('allows a reviewer to store a new assessment', function () {
     $reviewer = createReviewerUser();
-    $proposal = Proposal::factory()->create();
+    $proposal = createProposal();
 
     $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
         'proposal_id' => $proposal->id,
@@ -70,7 +91,7 @@ it('allows a reviewer to store a new assessment', function () {
 
 it('rejects assessment from a non-reviewer user', function () {
     $user = createRegularUser();
-    $proposal = Proposal::factory()->create();
+    $proposal = createProposal();
 
     $response = $this->actingAs($user)->post(route('reviewer.assessment.store'), [
         'proposal_id' => $proposal->id,
@@ -96,7 +117,7 @@ it('validates required fields when storing assessment', function () {
 
 it('validates score must be between 0 and 100', function () {
     $reviewer = createReviewerUser();
-    $proposal = Proposal::factory()->create();
+    $proposal = createProposal();
 
     $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
         'proposal_id' => $proposal->id,
@@ -109,7 +130,7 @@ it('validates score must be between 0 and 100', function () {
 
 it('validates recommendation must be a valid value', function () {
     $reviewer = createReviewerUser();
-    $proposal = Proposal::factory()->create();
+    $proposal = createProposal();
 
     $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
         'proposal_id' => $proposal->id,
@@ -128,7 +149,7 @@ it('validates recommendation must be a valid value', function () {
 
 it('allows a reviewer to update their own assessment', function () {
     $reviewer = createReviewerUser();
-    $proposal = Proposal::factory()->create();
+    $proposal = createProposal();
 
     $review = Review::create([
         'proposal_id' => $proposal->id,
@@ -158,7 +179,7 @@ it('allows a reviewer to update their own assessment', function () {
 it('prevents a reviewer from updating another reviewer assessment', function () {
     $reviewer1 = createReviewerUser();
     $reviewer2 = createReviewerUser();
-    $proposal = Proposal::factory()->create();
+    $proposal = createProposal();
 
     $review = Review::create([
         'proposal_id' => $proposal->id,
