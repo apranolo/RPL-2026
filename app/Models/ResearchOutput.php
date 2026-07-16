@@ -17,10 +17,12 @@ class ResearchOutput extends Model
     ];
 
     const STATUS = [
-        'draft' => 'Draft',
+        'draft'     => 'Draft',
         'submitted' => 'Submitted',
-        'approved' => 'Approved',
-        'rejected' => 'Rejected',
+        'approved'  => 'Approved',
+        'rejected'  => 'Rejected',
+        'published' => 'Published',
+        'patented'  => 'Patented',
     ];
 
     protected $fillable = [

@@ -22,17 +22,19 @@ return new class extends Migration
 
         // ── 2. Perbarui enum status (MySQL tidak mendukung ALTER ENUM via Blueprint) ──
         // Gunakan raw SQL agar bisa mengubah nilai enum secara aman.
-        DB::statement("
-            ALTER TABLE research_outputs
-            MODIFY COLUMN status ENUM(
-                'draft',
-                'submitted',
-                'approved',
-                'rejected',
-                'published',
-                'patented'
-            ) NOT NULL DEFAULT 'draft'
-        ");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("
+                ALTER TABLE research_outputs
+                MODIFY COLUMN status ENUM(
+                    'draft',
+                    'submitted',
+                    'approved',
+                    'rejected',
+                    'published',
+                    'patented'
+                ) NOT NULL DEFAULT 'draft'
+            ");
+        }
     }
 
     public function down(): void
@@ -43,14 +45,16 @@ return new class extends Migration
         });
 
         // Kembalikan enum status ke nilai semula
-        DB::statement("
-            ALTER TABLE research_outputs
-            MODIFY COLUMN status ENUM(
-                'draft',
-                'submitted',
-                'approved',
-                'rejected'
-            ) NOT NULL DEFAULT 'draft'
-        ");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("
+                ALTER TABLE research_outputs
+                MODIFY COLUMN status ENUM(
+                    'draft',
+                    'submitted',
+                    'approved',
+                    'rejected'
+                ) NOT NULL DEFAULT 'draft'
+            ");
+        }
     }
 };

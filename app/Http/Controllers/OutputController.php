@@ -36,18 +36,23 @@ class OutputController extends Controller
         $this->authorize('update', $output);
 
         $validated = $request->validate([
-            'proposal_id' => 'required',
-            'user_id'     => 'required',
+            'proposal_id' => 'nullable|integer|exists:proposals,id',
             'kategori'    => 'required|string|max:255',
             'judul'       => 'required|string|max:255',
-            'file_path'   => 'nullable|string|max:255',
-            'status'      => 'required|string|max:100',
             'keterangan'  => 'nullable|string',
+            'file_path'   => 'nullable|string|max:255',
+            'status'      => 'required|in:draft,submitted,approved,rejected,published,patented',
+            // Kolom spesifik produk/prototipe
+            'tkt_level'   => 'nullable|integer|min:1|max:9',
+            'version'     => 'nullable|string|max:50',
+            'year'        => 'nullable|integer|min:2000|max:' . (date('Y') + 1),
+            'url'         => 'nullable|url',
         ]);
 
+        // user_id TIDAK diambil dari input — selalu diikat ke pemilik record (RBAC)
         $output->update($validated);
 
-        return redirect()->route('outputs.index')->with('message', 'Output updated successfully');
+        return redirect()->route('user.outputs.index')->with('message', 'Output updated successfully');
     }
 
     public function destroy(ResearchOutput $output)
@@ -56,7 +61,7 @@ class OutputController extends Controller
 
         $output->delete();
 
-        return redirect()->route('outputs.index')->with('message', 'Output deleted successfully');
+        return redirect()->route('user.outputs.index')->with('message', 'Output deleted successfully');
     }
 
     /**
