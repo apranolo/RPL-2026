@@ -97,8 +97,8 @@ class ProfileManagementTest extends DuskTestCase
             $browser->loginAs($this->user)
                 ->visit('/settings/profile')
                 ->waitForText('Account Information', 10)
-                ->assertSee('Role')
-                ->assertSee('Status Akun');
+                ->assertSee('ROLE')
+                ->assertSee('STATUS AKUN');
         });
     }
 
@@ -156,7 +156,7 @@ class ProfileManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/password')
-                ->waitForText('Update Password', 10)
+                ->waitForText('Update password', 10)
                 ->assertPresent('input[name="current_password"]')
                 ->assertPresent('input[name="password"]')
                 ->assertPresent('input[name="password_confirmation"]');
@@ -171,12 +171,12 @@ class ProfileManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/password')
-                ->waitForText('Update Password', 10)
-                ->type('current_password', 'Password123!')
-                ->type('password', 'NewPassword456!')
-                ->type('password_confirmation', 'NewPassword456!')
-                ->press('Save Password')
-                ->waitForText('Password updated', 10);
+                ->waitForText('Update password', 10)
+                ->type('current_password', 'password')
+                ->type('password', 'new-password123')
+                ->type('password_confirmation', 'new-password123')
+                ->press('Save')
+                ->waitForText('Saved', 10);
         });
     }
 
@@ -188,11 +188,11 @@ class ProfileManagementTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/settings/password')
-                ->waitForText('Update Password', 10)
+                ->waitForText('Update password', 10)
                 ->type('current_password', 'WrongPass!!!')
                 ->type('password', 'NewPassword456!')
                 ->type('password_confirmation', 'NewPassword456!')
-                ->press('Save Password')
+                ->press('Save')
                 ->waitFor('.text-destructive, [class*="error"], [class*="Error"]', 10);
 
             // An error should be shown for current_password field
@@ -240,7 +240,7 @@ class ProfileManagementTest extends DuskTestCase
             $browser->loginAs($this->user)
                 ->visit('/user/profil')
                 ->waitForText('Notifikasi', 10)
-                ->click('[data-testid="tab-notifications"]')
+                ->click('button[value="notifications"]')
                 ->waitForText('Belum Ada Notifikasi', 5);
         });
     }

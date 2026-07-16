@@ -155,8 +155,8 @@ class DashboardStatisticsTest extends DuskTestCase
                 'indexations' => ['Scopus' => true, 'DOAJ' => true],
             ]);
 
-            // User 2: 10 journals (should not be visible)
-            Journal::factory()->count(10)->create([
+            // User 2: 17 journals (should not be visible)
+            Journal::factory()->count(17)->create([
                 'user_id' => $user2->id,
                 'university_id' => $university->id,
                 'scientific_field_id' => $field->id,
@@ -166,7 +166,7 @@ class DashboardStatisticsTest extends DuskTestCase
                 ->visit('/dashboard')
                 ->waitForText('Total Jurnal')
                 ->assertSee('5') // Only user 1 journals
-                ->assertDontSee('10') // User 2 journals not visible
+                ->assertDontSee('17') // User 2 journals not visible
                 ->assertSee('Jurnal Terindeks Scopus')
                 ->assertSee('5'); // All 5 are Scopus indexed
         });
