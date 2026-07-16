@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BookOutput;
+use App\Models\HkiOutput;
+use App\Models\ResearchOutput;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class OutputController extends Controller
 {
@@ -16,11 +19,15 @@ class OutputController extends Controller
      */
     public function storeHKI(Request $request)
     {
+        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data HKI.');
+
         $validated = $request->validate([
             'judul_luaran' => 'required|string|max:255',
             'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
             'penulis_atau_pencipta' => 'required|string',
             'nomor_paten' => 'required|string|max:100',
+            'jenis_hki' => 'required|string|in:paten,hak_cipta,merek,desain_industri,rahasia_dagang',
+            'deskripsi' => 'nullable|string|max:1000',
             'tautan_publikasi' => 'nullable|url',
             'file_sertifikat_atau_cover' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120',
         ], [
@@ -28,6 +35,9 @@ class OutputController extends Controller
             'tahun_capaian.required' => 'Tahun capaian wajib diisi.',
             'penulis_atau_pencipta.required' => 'Penulis atau pencipta wajib diisi.',
             'nomor_paten.required' => 'Nomor paten wajib diisi.',
+            'jenis_hki.required' => 'Jenis HKI wajib dipilih.',
+            'jenis_hki.in' => 'Jenis HKI yang dipilih tidak valid.',
+            'deskripsi.max' => 'Deskripsi maksimal 1000 karakter.',
             'file_sertifikat_atau_cover.required' => 'File sertifikat atau cover wajib diunggah.',
             'file_sertifikat_atau_cover.mimes' => 'File sertifikat atau cover harus berupa PDF, JPG, PNG, atau JPEG.',
             'file_sertifikat_atau_cover.max' => 'Ukuran file sertifikat atau cover maksimal 5MB.',
@@ -40,20 +50,25 @@ class OutputController extends Controller
                 $filePath = $request->file('file_sertifikat_atau_cover')->store('luaran/hki', 'public');
             }
 
-            // Integrasi dinamis dengan model database (jika model sudah diimplementasikan oleh tim lain)
-            if (class_exists('App\Models\Output')) {
-                $outputClass = 'App\Models\Output';
-                $outputClass::create(array_merge($validated, [
-                    'jenis_luaran' => 'HKI',
-                    'file_sertifikat_atau_cover' => $filePath,
-                    'status_verifikasi' => 'Menunggu_Verifikasi',
-                ]));
-            } elseif (class_exists('App\Models\Hki')) {
-                $hkiClass = 'App\Models\Hki';
-                $hkiClass::create(array_merge($validated, [
-                    'file_sertifikat_atau_cover' => $filePath,
-                ]));
-            }
+            // 1. Save specific data to HkiOutput
+            $hkiOutput = new HkiOutput();
+            $hkiOutput->patent_number = $validated['nomor_paten'];
+            $hkiOutput->patent_type = $validated['jenis_hki'];
+            $hkiOutput->save();
+
+            // 3. Save the rest to ResearchOutput
+            $hkiOutput->researchOutput()->create([
+                'user_id' => auth()->id(),
+                'contract_id' => $request->input('contract_id', 1), // Fallback if missing
+                'jenis_luaran' => 'HKI',
+                'judul_luaran' => $validated['judul_luaran'],
+                'tahun_capaian' => $validated['tahun_capaian'],
+                'file_sertifikat_atau_cover' => $filePath,
+                'status_verifikasi' => 'Draft',
+                'penulis_atau_pencipta' => $validated['penulis_atau_pencipta'],
+                'tautan_publikasi' => $validated['tautan_publikasi'] ?? null,
+                'keterangan' => $validated['deskripsi'] ?? null,
+            ]);
 
             return redirect()->back()->with([
                 'success' => 'Data HKI berhasil disimpan.',
@@ -73,11 +88,15 @@ class OutputController extends Controller
      */
     public function storeBook(Request $request)
     {
+        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data Buku.');
+
         $validated = $request->validate([
             'judul_luaran' => 'required|string|max:255',
             'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
             'penulis_atau_pencipta' => 'required|string',
             'isbn' => 'required|string|max:50',
+            'tipe_buku' => 'required|string|in:monograf,referensi,modul_ajar,book_chapter',
+            'deskripsi' => 'nullable|string|max:1000',
             'tautan_publikasi' => 'nullable|url',
             'file_sertifikat_atau_cover' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120',
         ], [
@@ -85,6 +104,9 @@ class OutputController extends Controller
             'tahun_capaian.required' => 'Tahun capaian wajib diisi.',
             'penulis_atau_pencipta.required' => 'Penulis atau pencipta wajib diisi.',
             'isbn.required' => 'ISBN wajib diisi.',
+            'tipe_buku.required' => 'Tipe buku wajib dipilih.',
+            'tipe_buku.in' => 'Tipe buku yang dipilih tidak valid.',
+            'deskripsi.max' => 'Deskripsi maksimal 1000 karakter.',
             'file_sertifikat_atau_cover.required' => 'File sertifikat atau cover wajib diunggah.',
             'file_sertifikat_atau_cover.mimes' => 'File sertifikat atau cover harus berupa PDF, JPG, PNG, atau JPEG.',
             'file_sertifikat_atau_cover.max' => 'Ukuran file sertifikat atau cover maksimal 5MB.',
@@ -97,20 +119,25 @@ class OutputController extends Controller
                 $filePath = $request->file('file_sertifikat_atau_cover')->store('luaran/buku', 'public');
             }
 
-            // Integrasi dinamis dengan model database (jika model sudah diimplementasikan oleh tim lain)
-            if (class_exists('App\Models\Output')) {
-                $outputClass = 'App\Models\Output';
-                $outputClass::create(array_merge($validated, [
-                    'jenis_luaran' => 'Buku',
-                    'file_sertifikat_atau_cover' => $filePath,
-                    'status_verifikasi' => 'Menunggu_Verifikasi',
-                ]));
-            } elseif (class_exists('App\Models\Book')) {
-                $bookClass = 'App\Models\Book';
-                $bookClass::create(array_merge($validated, [
-                    'file_sertifikat_atau_cover' => $filePath,
-                ]));
-            }
+            // 2. Save specific data to BookOutput
+            $bookOutput = new BookOutput();
+            $bookOutput->isbn = $validated['isbn'];
+            $bookOutput->tipe_buku = $validated['tipe_buku'];
+            $bookOutput->save();
+
+            // 3. Save the rest to ResearchOutput
+            $bookOutput->researchOutput()->create([
+                'user_id' => auth()->id(),
+                'contract_id' => $request->input('contract_id', 1), // Fallback if missing
+                'jenis_luaran' => 'Buku',
+                'judul_luaran' => $validated['judul_luaran'],
+                'tahun_capaian' => $validated['tahun_capaian'],
+                'file_sertifikat_atau_cover' => $filePath,
+                'status_verifikasi' => 'Draft',
+                'penulis_atau_pencipta' => $validated['penulis_atau_pencipta'],
+                'tautan_publikasi' => $validated['tautan_publikasi'] ?? null,
+                'keterangan' => $validated['deskripsi'] ?? null,
+            ]);
 
             return redirect()->back()->with([
                 'success' => 'Data Buku berhasil disimpan.',
@@ -122,3 +149,4 @@ class OutputController extends Controller
         }
     }
 }
+
