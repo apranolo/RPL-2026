@@ -124,7 +124,7 @@ class FundingTerminTest extends TestCase
     {
         $response = $this->actingAs($this->adminKeuangan)
             ->post(route('finance.funding.store-termin'), [
-                'contract_id' => $this->contract->id,
+                'id_contract' => $this->contract->id,
                 'percentage' => 30,
                 'description' => 'Pencairan Tahap 1',
                 'funding_date' => '2026-08-01',
@@ -155,11 +155,70 @@ class FundingTerminTest extends TestCase
 
         $response = $this->actingAs($this->adminKeuangan)
             ->post(route('finance.funding.store-termin'), [
-                'contract_id' => $this->contract->id,
+                'id_contract' => $this->contract->id,
                 'percentage' => 25,
                 'description' => 'Exceeding termin',
             ]);
 
         $response->assertSessionHasErrors('percentage');
+    }
+
+    public function test_admin_kampus_from_same_university_can_access_create_page()
+    {
+        $role = Role::updateOrCreate(
+            ['name' => 'Admin Kampus'],
+            ['display_name' => 'Admin Kampus']
+        );
+
+        $adminKampus = User::factory()->create([
+            'role_id' => $role->id,
+            'university_id' => $this->contract->university_id,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($adminKampus)
+            ->get(route('finance.funding.create', $this->contract->id));
+
+        $response->assertStatus(200);
+    }
+
+    public function test_admin_kampus_from_different_university_cannot_access_create_page()
+    {
+        $role = Role::updateOrCreate(
+            ['name' => 'Admin Kampus'],
+            ['display_name' => 'Admin Kampus']
+        );
+
+        $otherUniversity = University::factory()->create();
+
+        $adminKampus = User::factory()->create([
+            'role_id' => $role->id,
+            'university_id' => $otherUniversity->id,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($adminKampus)
+            ->get(route('finance.funding.create', $this->contract->id));
+
+        $response->assertStatus(403);
+    }
+
+    public function test_other_roles_cannot_access_create_page()
+    {
+        $role = Role::updateOrCreate(
+            ['name' => 'Dosen'],
+            ['display_name' => 'Dosen']
+        );
+
+        $dosen = User::factory()->create([
+            'role_id' => $role->id,
+            'university_id' => $this->contract->university_id,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($dosen)
+            ->get(route('finance.funding.create', $this->contract->id));
+
+        $response->assertStatus(403);
     }
 }

@@ -17,6 +17,18 @@ class FundingController extends Controller
      */
     public function create(Request $request, Contract $contract)
     {
+        // Pengecekan Otorisasi Multi-Tenancy / Security
+        $user = $request->user();
+        if (!$user->hasAnyRole(['Admin Keuangan', 'Super Admin'])) {
+            if ($user->hasRole('Admin Kampus')) {
+                if ($contract->university_id !== $user->university_id) {
+                    abort(403, 'Unauthorized access to this contract funding.');
+                }
+            } else {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+
         $service = app(FundingService::class);
         $sisa = $service->calculateSisa($contract);
 
@@ -38,7 +50,7 @@ class FundingController extends Controller
     public function storeTermin(StoreFundingRequest $request)
     {
         $validated = $request->validated();
-        $contract = Contract::findOrFail($validated['contract_id']);
+        $contract = Contract::findOrFail($validated['id_contract']);
 
         $service = app(FundingService::class);
         $fundingNumber = $service->generateFundingNumber($contract);

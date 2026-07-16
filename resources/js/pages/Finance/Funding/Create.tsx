@@ -1,3 +1,10 @@
+/**
+ * @file Create.tsx
+ * @description Halaman pembuatan termin pencairan dana kontrak finansial.
+ * Menyediakan form penginputan termin, visualisasi progress alokasi & serapan,
+ * serta daftar termin yang sudah diterbitkan.
+ */
+
 import React from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm } from '@inertiajs/react';
@@ -38,7 +45,6 @@ interface Contract {
     contract_number: string;
     nomor_kontrak: string;
     title: string;
-    contract_value: number;
     total_pendanaan_disetujui: number;
     status: string;
     status_kontrak: string;
@@ -91,7 +97,7 @@ function getStatusLabel(status: string): string {
 
 export default function Create({ contract, termins, sisa }: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        contract_id: contract.id,
+        id_contract: contract.id,
         percentage: '',
         description: '',
         funding_date: '',
@@ -100,7 +106,7 @@ export default function Create({ contract, termins, sisa }: Props) {
     });
 
     const calculatedAmount = data.percentage
-        ? ((parseFloat(data.percentage) || 0) / 100) * contract.contract_value
+        ? ((parseFloat(data.percentage) || 0) / 100) * contract.total_pendanaan_disetujui
         : 0;
 
     const totalPercentageAfter = (100 - sisa.sisa_persentase) + (parseFloat(data.percentage) || 0);
@@ -230,7 +236,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                 <TableBody>
                                     {termins.map((termin) => (
                                         <TableRow key={termin.id}>
-                                            <TableCell className="pl-6 font-medium">{termin.funding_number}</TableCell>
+                                            <TableCell className="pl-6 font-medium">{termin.termin_number}</TableCell>
                                             <TableCell>{termin.percentage}%</TableCell>
                                             <TableCell>{formatRp(termin.amount)}</TableCell>
                                             <TableCell>{termin.funding_date || '-'}</TableCell>
@@ -257,7 +263,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            <input type="hidden" name="contract_id" value={contract.id} />
+                            <input type="hidden" name="id_contract" value={contract.id} />
 
                             {/* Percentage & Calculated Amount */}
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

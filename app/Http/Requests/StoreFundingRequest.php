@@ -26,7 +26,7 @@ class StoreFundingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'contract_id' => ['required', 'integer', 'exists:contracts,id'],
+            'id_contract' => ['required', 'integer', 'exists:contracts,id'],
             'percentage' => ['required', 'numeric', 'min:0.01', 'max:100'],
             'description' => ['nullable', 'string', 'max:500'],
             'funding_date' => ['nullable', 'date'],
@@ -45,7 +45,7 @@ class StoreFundingRequest extends FormRequest
                 return;
             }
 
-            $contract = Contract::find($this->input('contract_id'));
+            $contract = Contract::find($this->input('id_contract'));
 
             if (! $contract) {
                 return;
@@ -72,8 +72,8 @@ class StoreFundingRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'contract_id.required' => 'Kontrak wajib dipilih.',
-            'contract_id.exists' => 'Kontrak yang dipilih tidak ditemukan.',
+            'id_contract.required' => 'Kontrak wajib dipilih.',
+            'id_contract.exists' => 'Kontrak yang dipilih tidak ditemukan.',
             'percentage.required' => 'Persentase pencairan wajib diisi.',
             'percentage.numeric' => 'Persentase harus berupa angka.',
             'percentage.min' => 'Persentase minimal 0.01%.',

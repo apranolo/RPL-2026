@@ -489,11 +489,13 @@ Route::middleware(['auth'])->group(function () {
             ->name('contracts.index');
 
         // Funding Termin Routes
-        Route::get('contracts/{contract}/funding/create', [\App\Http\Controllers\FundingController::class, 'create'])
-            ->name('funding.create');
         Route::post('funding/store-termin', [\App\Http\Controllers\FundingController::class, 'storeTermin'])
             ->name('funding.store-termin');
     });
+
+    Route::get('finance/contracts/{contract}/funding/create', [\App\Http\Controllers\FundingController::class, 'create'])
+        ->middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])
+        ->name('finance.funding.create');
 
     /*
     |--------------------------------------------------------------------------
