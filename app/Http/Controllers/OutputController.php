@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ResearchOutput;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -47,7 +48,7 @@ class OutputController extends Controller
 
         $output->update($validated);
 
-        return redirect()->route('outputs.index')->with('message', 'Output updated successfully');
+        return redirect()->route('user.outputs.index')->with('message', 'Output updated successfully');
     }
 
     public function destroy(ResearchOutput $output)
@@ -56,6 +57,7 @@ class OutputController extends Controller
 
         $output->delete();
 
-        return redirect()->route('outputs.index')->with('message', 'Output deleted successfully');
+        return redirect()->route('user.outputs.index')->with('message', 'Output deleted successfully');
     }
 }
+

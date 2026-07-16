@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Contract extends Model
 {
@@ -59,6 +60,12 @@ class Contract extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
+    ];
+
+    protected $appends = [
+        'nomor_kontrak',
+        'total_pendanaan_disetujui',
+        'status_kontrak',
     ];
 
     /*
@@ -155,6 +162,21 @@ class Contract extends Model
         };
     }
 
+    public function getNomorKontrakAttribute(): ?string
+    {
+        return $this->contract_number;
+    }
+
+    public function getTotalPendanaanDisetujuiAttribute(): ?string
+    {
+        return $this->contract_value;
+    }
+
+    public function getStatusKontrakAttribute(): ?string
+    {
+        return $this->status;
+    }
+
     /**
      * @return array<string, string>
      */
@@ -173,14 +195,14 @@ class Contract extends Model
         parent::boot();
 
         static::creating(function (Contract $contract) {
-            if (auth()->check() && ! $contract->created_by) {
-                $contract->created_by = auth()->id();
+            if (Auth::check() && ! $contract->created_by) {
+                $contract->created_by = Auth::id();
             }
         });
 
         static::updating(function (Contract $contract) {
-            if (auth()->check()) {
-                $contract->updated_by = auth()->id();
+            if (Auth::check()) {
+                $contract->updated_by = Auth::id();
             }
         });
     }

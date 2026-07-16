@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Funding extends Model
 {
@@ -33,6 +34,7 @@ class Funding extends Model
         'funding_number',
         'description',
         'amount',
+        'percentage',
         'status',
         'funding_date',
         'due_date',
@@ -52,12 +54,21 @@ class Funding extends Model
      */
     protected $casts = [
         'amount' => 'decimal:2',
+        'percentage' => 'decimal:2',
         'funding_date' => 'date',
         'due_date' => 'date',
         'paid_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
+    ];
+
+    protected $appends = [
+        'id_contract',
+        'termin_number',
+        'status_pencairan',
+        'bukti_transfer_path',
+        'cair_at',
     ];
 
     /*
@@ -71,10 +82,10 @@ class Funding extends Model
         return $this->belongsTo(Contract::class);
     }
 
-    public function payments(): HasMany
-    {
-        return $this->hasMany(Payment::class);
-    }
+    // public function payments(): HasMany
+    // {
+    //     return $this->hasMany(Payment::class);
+    // }
 
     public function creator(): BelongsTo
     {
@@ -112,6 +123,38 @@ class Funding extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function getIdContractAttribute(): int
+    {
+        return $this->contract_id;
+    }
+
+    public function getTerminNumberAttribute(): int
+    {
+        preg_match('/\d+/', (string) $this->funding_number, $matches);
+
+        return isset($matches[0]) ? (int) $matches[0] : 0;
+    }
+
+    public function getStatusPencairanAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_PLANNED => 'Belum_Cair',
+            self::STATUS_REQUESTED, self::STATUS_APPROVED => 'Proses_Transfer',
+            self::STATUS_DISBURSED => 'Sudah_Cair',
+            default => 'Belum_Cair',
+        };
+    }
+
+    public function getBuktiTransferPathAttribute()
+    {
+        return $this->proof_document_path;
+    }
+
+    public function getCairAtAttribute()
+    {
+        return $this->paid_at ? $this->paid_at->toIso8601String() : null;
+    }
+
     public function getStatusLabelAttribute(): string
     {
         return self::getStatusOptions()[$this->status] ?? $this->status;
@@ -147,8 +190,8 @@ class Funding extends Model
         parent::boot();
 
         static::creating(function (Funding $funding) {
-            if (auth()->check() && ! $funding->created_by) {
-                $funding->created_by = auth()->id();
+            if (Auth::check() && ! $funding->created_by) {
+                $funding->created_by = Auth::id();
             }
         });
     }

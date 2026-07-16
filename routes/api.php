@@ -48,4 +48,6 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // TODO: Add other protected routes here
     // Route::apiResource('journals', JournalController::class);
     // Route::apiResource('universities', UniversityController::class);
+
+    Route::get('/budget/stats', [\App\Http\Controllers\Api\BudgetController::class, 'getStats']);
 });
