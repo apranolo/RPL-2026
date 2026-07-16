@@ -6,11 +6,48 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\AuthorProfile;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::updating(function ($user) {
+            if ($user->isDirty('role_id')) {
+                $oldRoleId = $user->getOriginal('role_id');
+                if ($oldRoleId) {
+                    $user->roles()->detach($oldRoleId);
+                }
+            }
+        });
+
+        static::saved(function ($user) {
+            // Sync primary role_id to user_roles
+            if ($user->role_id) {
+                $user->roles()->syncWithoutDetaching([$user->role_id => [
+                    'assigned_at' => now(),
+                    'assigned_by' => auth()->id() ?? $user->approved_by,
+                ]]);
+            }
+
+            // Sync is_reviewer flag to Reviewer role
+            $reviewerRole = Role::where('name', Role::REVIEWER)->first();
+            if ($reviewerRole) {
+                if ($user->is_reviewer) {
+                    $user->roles()->syncWithoutDetaching([$reviewerRole->id => [
+                        'assigned_at' => now(),
+                        'assigned_by' => auth()->id() ?? $user->approved_by,
+                    ]]);
+                } else {
+                    $user->roles()->detach($reviewerRole->id);
+                }
+            }
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -93,6 +130,52 @@ class User extends Authenticatable
     }
 
     /**
+     * Get journal roles of this user
+     */
+    public function userRoles()
+    {
+        return $this->hasMany(UserRole::class, 'user_id');
+    }
+
+    /**
+     * Check if user has a role in a specific journal
+     */
+    public function hasJournalRole(string $roleName, $journalId = null): bool
+    {
+        if ($this->relationLoaded('userRoles')) {
+            return $this->userRoles
+                ->where('role_name', $roleName)
+                ->where('id_journal', $journalId)
+                ->where('status', 'Active')
+                ->isNotEmpty();
+        }
+
+        return $this->userRoles()
+            ->where('role_name', $roleName)
+            ->where('id_journal', $journalId)
+            ->where('status', 'Active')
+            ->exists();
+    }
+
+    /**
+     * Check if user has a role in any journal
+     */
+    public function hasRoleInAnyJournal(string $roleName): bool
+    {
+        if ($this->relationLoaded('userRoles')) {
+            return $this->userRoles
+                ->where('role_name', $roleName)
+                ->where('status', 'Active')
+                ->isNotEmpty();
+        }
+
+        return $this->userRoles()
+            ->where('role_name', $roleName)
+            ->where('status', 'Active')
+            ->exists();
+    }
+
+    /**
      * Get the university of this user
      */
     public function university()
@@ -154,6 +237,14 @@ class User extends Authenticatable
     public function authorProfile()
     {
         return $this->hasOne(AuthorProfile::class);
+    }
+
+    /**
+     * Get the reviewer profile of this user
+     */
+    public function reviewerProfile()
+    {
+        return $this->hasOne(ReviewerProfile::class);
     }
 
     /*
@@ -291,6 +382,18 @@ class User extends Authenticatable
 
         // Check in roles relationship (multi-role)
         return $this->roles()->where('name', Role::ADMIN_KAMPUS)->exists();
+    }
+
+    /**
+     * Check if user is Admin Keuangan
+     */
+    public function isAdminKeuangan(): bool
+    {
+        if ($this->role && $this->role->name === Role::ADMIN_KEUANGAN) {
+            return true;
+        }
+
+        return $this->roles()->where('name', Role::ADMIN_KEUANGAN)->exists();
     }
 
     /**
