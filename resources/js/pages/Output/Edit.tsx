@@ -1,3 +1,12 @@
+/**
+ * Edit.tsx
+ *
+ * Halaman untuk mengedit luaran penelitian (Research Output).
+ * Menggunakan form dinamis berdasarkan kategori luaran (Jurnal, HKI, Buku, Produk, Prosiding).
+ *
+ * @package  resources/js/pages/Output
+ */
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

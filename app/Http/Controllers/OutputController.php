@@ -34,8 +34,26 @@ class OutputController extends Controller
         // Load relasi outputable untuk mengirim data detail ke frontend
         $output->load('outputable');
 
+        // Map model properties to frontend-expected structure
+        $kategori = strtolower($output->jenis_luaran);
+        $metadata = $output->outputable ? $output->outputable->toArray() : [];
+
         return Inertia::render('Output/Edit', [
-            'output' => $output,
+            'output' => [
+                'id' => $output->id,
+                'proposal_id' => $output->proposal_id,
+                'user_id' => $output->user_id,
+                'kategori' => $kategori,
+                'judul' => $output->judul_luaran,
+                'link_url' => $output->outputable?->url ?? null,
+                'file_path' => $output->file_sertifikat_atau_cover,
+                'file_name' => $output->file_sertifikat_atau_cover ? basename($output->file_sertifikat_atau_cover) : null,
+                'status' => strtolower($output->status_verifikasi),
+                'keterangan' => $output->keterangan,
+                'metadata' => $metadata,
+                'created_at' => $output->created_at?->toIso8601String(),
+                'updated_at' => $output->updated_at?->toIso8601String(),
+            ],
         ]);
     }
 
@@ -46,8 +64,17 @@ class OutputController extends Controller
     {
         $this->authorize('update', $output);
 
+        // Normalize kategori to capitalized format (frontend sends lowercase)
+        $kategoriMap = [
+            'jurnal' => 'Jurnal',
+            'hki' => 'HKI',
+            'buku' => 'Buku',
+            'produk' => 'Produk',
+            'prosiding' => 'Prosiding',
+        ];
+
         $validated = $request->validate([
-            'kategori' => 'required|string|in:Jurnal,Buku,HKI,Produk',
+            'kategori' => 'required|string|in:Jurnal,Buku,HKI,Produk,Prosiding',
             'judul' => 'required|string|max:255',
             'link_url' => 'nullable|url|max:500',
             'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
@@ -56,9 +83,12 @@ class OutputController extends Controller
             'metadata' => 'nullable|array',
         ]);
 
+        // Convert frontend lowercase kategori to capitalized for storage
+        $kategoriCapitalized = $kategoriMap[strtolower($validated['kategori'])] ?? $validated['kategori'];
+
         // 1. Update data pada model utama (ResearchOutput)
         $output->update([
-            'jenis_luaran' => $validated['kategori'],
+            'jenis_luaran' => $kategoriCapitalized,
             'judul_luaran' => $validated['judul'],
             'status_verifikasi' => $validated['status'],
             'keterangan' => $validated['keterangan'] ?? null,
@@ -78,7 +108,7 @@ class OutputController extends Controller
         if ($output->outputable) {
             $metadata = $request->input('metadata', []);
 
-            match ($validated['kategori']) {
+            match ($kategoriCapitalized) {
                 'Jurnal' => $output->outputable->update([
                     'doi' => $metadata['doi'] ?? null,
                     'journal_name' => $metadata['nama_jurnal'] ?? null,

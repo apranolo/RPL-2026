@@ -25,8 +25,8 @@ export type KategoriConfig = {
 export type OutputMetadata = Record<string, string>;
 
 const kategoriConfigs: Record<string, KategoriConfig> = {
-    jurnal: {
-        value: 'jurnal',
+    Jurnal: {
+        value: 'Jurnal',
         label: 'Jurnal Ilmiah',
         extraFields: [
             { name: 'doi', label: 'DOI', type: 'text', placeholder: '10.xxxx/xxxxx', required: true },
@@ -35,8 +35,8 @@ const kategoriConfigs: Record<string, KategoriConfig> = {
             { name: 'halaman', label: 'Halaman', type: 'text', placeholder: 'xx-xx', required: false },
         ],
     },
-    hki: {
-        value: 'hki',
+    HKI: {
+        value: 'HKI',
         label: 'HKI / Paten',
         extraFields: [
             { name: 'nomor_paten', label: 'Nomor Paten', type: 'text', placeholder: 'IDP000123456', required: true },
@@ -44,8 +44,8 @@ const kategoriConfigs: Record<string, KategoriConfig> = {
             { name: 'pemegang_paten', label: 'Pemegang Paten', type: 'text', placeholder: 'Nama institusi/perorangan', required: false },
         ],
     },
-    buku: {
-        value: 'buku',
+    Buku: {
+        value: 'Buku',
         label: 'Buku / Modul',
         extraFields: [
             { name: 'isbn', label: 'ISBN', type: 'text', placeholder: '978-xxx-xxx-xxx-x', required: true },
@@ -54,16 +54,16 @@ const kategoriConfigs: Record<string, KategoriConfig> = {
             { name: 'penulis', label: 'Penulis', type: 'text', placeholder: 'Nama penulis buku', required: false },
         ],
     },
-    produk: {
-        value: 'produk',
+    Produk: {
+        value: 'Produk',
         label: 'Produk / Prototipe',
         extraFields: [
             { name: 'nama_prototipe', label: 'Nama Produk/Prototipe', type: 'text', placeholder: 'Nama produk yang dihasilkan', required: true },
             { name: 'deskripsi_produk', label: 'Deskripsi', type: 'textarea', placeholder: 'Deskripsikan produk/prototipe yang dihasilkan...', required: false },
         ],
     },
-    prosiding: {
-        value: 'prosiding',
+    Prosiding: {
+        value: 'Prosiding',
         label: 'Prosiding',
         extraFields: [
             { name: 'link_prosiding', label: 'Link Prosiding', type: 'text', placeholder: 'https://...', required: true },
