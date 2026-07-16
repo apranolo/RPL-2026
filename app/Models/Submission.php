@@ -14,7 +14,7 @@ class Submission extends Model
 
     protected $fillable = [
         'journal_id',
-        'user_id',
+        'author_id',
         'title',
         'description',
         'keywords',
@@ -31,12 +31,12 @@ class Submission extends Model
 
     public function getIdUserAttribute()
     {
-        return $this->user_id;
+        return $this->author_id;
     }
 
     public function setIdUserAttribute($value)
     {
-        $this->user_id = $value;
+        $this->author_id = $value;
     }
 
     public function getIdJournalAttribute()
@@ -51,12 +51,12 @@ class Submission extends Model
 
     public function getAuthorIdAttribute()
     {
-        return $this->user_id;
+        return $this->author_id;
     }
 
     public function setAuthorIdAttribute($value)
     {
-        $this->user_id = $value;
+        $this->author_id = $value;
     }
 
     public function getAbstractAttribute()
@@ -78,11 +78,19 @@ class Submission extends Model
     }
 
     /**
-     * Relasi ke User (Author)
+     * Relasi ke User (Author) menggunakan author_id
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /**
+     * Relasi ke User (Author) - alias author()
+     */
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 
     /**
