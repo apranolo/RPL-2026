@@ -26,8 +26,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import ActionButtons from '@/components/ActionButtons';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, FileText, Search, X, XCircle } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, CheckCircle, FileText, Search, X, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 // ─── Breadcrumbs ─────────────────────────────────────────────────────────────
@@ -196,10 +197,6 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
         router.get(route('admin.proposals.index'));
     };
 
-    const handleApprove = (proposal: Proposal) => {
-        if (!confirm(`Validasi proposal "${proposal.title}"?`)) return;
-        router.post(route('admin.proposals.approve', { proposal: proposal.id }));
-    };
 
     const hasActiveFilters = !!(search || statusFilter);
 
@@ -313,35 +310,12 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                             <TableCell><StatusBadge status={proposal.status_proposal} /></TableCell>
                                             <TableCell className="text-sm text-muted-foreground">{proposal.created_at}</TableCell>
                                             <TableCell className="text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    {proposal.status_proposal === 'Submitted' ? (
-                                                        <>
-                                                            <Button
-                                                                id={`btn-approve-${proposal.id}`}
-                                                                size="sm"
-                                                                onClick={() => handleApprove(proposal)}
-                                                                className="gap-1.5 bg-green-600 text-white hover:bg-green-700"
-                                                            >
-                                                                <CheckCircle className="h-3.5 w-3.5" />Validasi
-                                                            </Button>
-                                                            <Button
-                                                                id={`btn-reject-${proposal.id}`}
-                                                                size="sm"
-                                                                variant="destructive"
-                                                                onClick={() => setRejectTarget(proposal)}
-                                                                className="gap-1.5"
-                                                            >
-                                                                <XCircle className="h-3.5 w-3.5" />Tolak
-                                                            </Button>
-                                                        </>
-                                                    ) : (
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {proposal.status_proposal === 'Administrasi_Valid' ? '✓ Sudah divalidasi'
-                                                                : proposal.status_proposal === 'Ditolak' ? '✗ Sudah ditolak'
-                                                                : 'Belum disubmit'}
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                <ActionButtons
+                                                    proposalId={proposal.id}
+                                                    proposalTitle={proposal.title}
+                                                    status={proposal.status_proposal}
+                                                    onReject={() => setRejectTarget(proposal)}
+                                                />
                                             </TableCell>
                                         </TableRow>
                                     ))
