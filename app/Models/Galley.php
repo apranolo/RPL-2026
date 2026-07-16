@@ -47,6 +47,7 @@ class Galley extends Model
         'id_submission',
         'id_issue',
         'pages',
+        'file_extension',
     ];
 
     /*
@@ -140,6 +141,14 @@ class Galley extends Model
         }
 
         return (string) ($this->page_from ?? $this->page_to);
+    }
+
+    /**
+     * Get file extension (lowercase of the label, e.g., 'pdf').
+     */
+    public function getFileExtensionAttribute(): string
+    {
+        return strtolower($this->label);
     }
 }
 
