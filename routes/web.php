@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\AdminKampus\UserController as AdminKampusUserController
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\OutputController;
@@ -430,6 +432,16 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Keuangan Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
+        Route::get('contracts', [ContractController::class, 'index'])
+            ->name('contracts.index');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | User (Pengelola Jurnal) Routes
     |--------------------------------------------------------------------------
     */
@@ -537,9 +549,23 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
 
         // Proposal
-        Route::prefix('proposal')->name('proposal.')->group(function (){
+        Route::prefix('proposal')->name('proposal.')->group(function () {
             //
         });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Editor Routes (v1.1 - Submission Editorial)
+    |--------------------------------------------------------------------------
+    */
+    // NOTE: Group ini akan diperbaiki lebih lanjut oleh ADITYA GAUTAMA
+    Route::middleware(['role:Editor'])->prefix('editorial')->name('editorial.')->group(function () {
+
+        // Activity Log per submission
+        Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
+            ->name('activity-logs.index');
+
     });
 
     /*
