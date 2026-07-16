@@ -1,3 +1,15 @@
+/**
+ - @file TopResearchList.tsx
+ - @description Menampilkan leaderboard 5 penelitian teraktif berdasarkan
+ - jumlah luaran (research outputs). Mengambil data dari
+ - `GET /api/top-research` jika prop `data` tidak diberikan, atau menampilkan
+ - `data` yang dikirim langsung oleh parent component.
+ 
+ - Palet warna latar (surface) diambil dari CSS custom properties yang
+ - didefinisikan di `resources/css/leaderboard-theme.css`, bukan hex hardcoded,
+ - agar konsisten dengan TopLecturerList.tsx dan mudah diubah di satu tempat.
+ */
+
 import { useEffect, useState } from 'react';
 import { BookOpen, Flame } from 'lucide-react';
 
@@ -12,7 +24,7 @@ interface Props {
 }
 
 const MEDAL_STYLES: Record<number, string> = {
-    0: 'bg-gradient-to-br from-yellow-300 to-yellow-500 text-[#0d1117] shadow-yellow-400/30',
+    0: 'bg-gradient-to-br from-yellow-300 to-yellow-500 text-[var(--color-surface-base)] shadow-yellow-400/30',
     1: 'bg-gradient-to-br from-slate-400 to-slate-600 text-white shadow-slate-400/20',
     2: 'bg-gradient-to-br from-amber-600 to-orange-700 text-white shadow-orange-400/20',
 };
@@ -42,10 +54,10 @@ export default function TopResearchList({ data }: Props) {
     }, [data]);
 
     return (
-        <div className="flex flex-col h-full rounded-2xl border border-white/10 bg-[#0d1117] shadow-lg overflow-hidden">
+        <div className="flex flex-col h-full rounded-2xl border border-white/10 bg-[var(--color-surface-base)] shadow-lg overflow-hidden">
 
             {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10 bg-gradient-to-r from-[#0d1a2a] to-[#0d1117]">
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10 bg-gradient-to-r from-[var(--color-surface-header-research)] to-[var(--color-surface-base)]">
                 <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-green-500/20 text-green-400">
                     <BookOpen size={18} strokeWidth={2.2} />
                 </span>

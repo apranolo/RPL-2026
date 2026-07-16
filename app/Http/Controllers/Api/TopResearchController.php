@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Proposal;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class TopResearchCtrl extends Controller
+class TopResearchController extends Controller
 {
     /**
      * Mengambil top 5 penelitian teraktif berdasarkan jumlah luaran (research_outputs).
@@ -17,13 +18,17 @@ class TopResearchCtrl extends Controller
      */
     public function getTop(): JsonResponse
     {
+        $universityId = Auth::user()->university_id;
+
         $topResearch = Proposal::select(
                 'proposals.id',
-                'proposals.title',
+                'proposals.judul',
                 DB::raw('COUNT(research_outputs.id) as citations')
             )
+            ->join('users', 'proposals.user_id', '=', 'users.id')
             ->leftJoin('research_outputs', 'proposals.id', '=', 'research_outputs.proposal_id')
-            ->groupBy('proposals.id', 'proposals.title')
+            ->where('users.university_id', $universityId)
+            ->groupBy('proposals.id', 'proposals.judul')
             ->orderByDesc('citations')
             ->limit(5)
             ->get();

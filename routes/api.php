@@ -4,7 +4,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\TopResearchCtrl;
+use App\Http\Controllers\Api\TopResearchController;
+use App\Http\Controllers\Api\TopLecturerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,8 +35,6 @@ Route::middleware(['web'])->group(function () {
         // Route::get('/microsoft/callback', [SocialAuthController::class, 'handleMicrosoftCallback']);
     });
 
-    Route::get('/top-lecturers', [TopLecturerCtrl::class, 'getTop']);
-    Route::get('/top-research', [TopResearchCtrl::class, 'getTop']);
 });
 
 /*
@@ -48,7 +47,10 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // Auth User Info & Logout
     Route::get('/user', [AuthenticatedSessionController::class, 'user']);
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
-
+    
+    Route::get('/top-lecturers', [TopLecturerController::class, 'getTop']);
+    Route::get('/top-research', [TopResearchController::class, 'getTop']);
+    
     // TODO: Add other protected routes here
     // Route::apiResource('journals', JournalController::class);
     // Route::apiResource('universities', UniversityController::class);
