@@ -105,7 +105,7 @@ class PublicHomeService
             foreach ($platforms as $platform) {
                 $stats[strtolower(str_replace(' ', '_', $platform))] = Journal::where('is_active', true)
                     ->whereNotNull('indexations')
-                    ->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.\"$platform\"')")
+                    ->whereNotNull("indexations->{$platform}")
                     ->count();
             }
 
