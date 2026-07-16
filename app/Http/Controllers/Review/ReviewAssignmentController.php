@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
 use App\Models\ReviewAssignment;
+use App\Models\Submission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -38,9 +39,17 @@ class ReviewAssignmentController extends Controller
             'round'         => 'sometimes|integer|min:1',
         ]);
 
+        // 2. Validasi Kepemilikan Jurnal (IDOR Multi-Tenancy Guard)
+        //    Pastikan Editor yang login adalah pemilik jurnal tempat naskah diajukan.
+        //    Kolom owner pada tabel journals adalah `user_id` (bukan editor_id).
+        $submission = Submission::findOrFail($validated['submission_id']);
+        if ($submission->journal->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized journal access.');
+        }
+
         $round = $validated['round'] ?? 1;
 
-        // 2. Pencegahan Duplikasi — gunakan firstOrCreate untuk menghindari
+        // 3. Pencegahan Duplikasi — gunakan firstOrCreate untuk menghindari
         //    race condition yang bisa terjadi antara ->exists() dan ->create().
         //    $created = true  : baru dibuat (undangan berhasil)
         //    $created = false : sudah ada (duplikat, batalkan)
@@ -101,6 +110,14 @@ class ReviewAssignmentController extends Controller
         $validated = $request->validate([
             'reason' => ['nullable', 'string', 'min:3', 'max:500'],
         ]);
+
+        // Validasi Kepemilikan Jurnal (IDOR Multi-Tenancy Guard)
+        //    Pastikan Editor yang login adalah pemilik jurnal tempat naskah diajukan.
+        //    Kolom owner pada tabel journals adalah `user_id` (bukan editor_id).
+        $submission = $assignment->submission;
+        if ($submission->journal->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized journal access.');
+        }
 
         // Undangan hanya bisa dibatalkan selama masih berstatus 'Pending'.
         // Status enum per migration 2026_05_14_010000:

@@ -80,7 +80,7 @@ beforeEach(function () {
 });
 
 it('blocks unauthenticated users from cancelling a review assignment', function () {
-    $assignment = createPendingAssignment($this->reviewer);
+    $assignment = createPendingAssignment($this->reviewer, owner: $this->editor);
 
     $response = $this->post(route('review-assignments.cancel', $assignment->id), [
         'reason' => 'No longer needed',
@@ -93,7 +93,7 @@ it('blocks unauthenticated users from cancelling a review assignment', function 
 });
 
 it('blocks users without the Editor role from cancelling', function () {
-    $assignment = createPendingAssignment($this->reviewer);
+    $assignment = createPendingAssignment($this->reviewer, owner: $this->editor);
 
     $response = actingAs($this->plainUser)->post(route('review-assignments.cancel', $assignment->id), [
         'reason' => 'Trying to cancel without permission',
@@ -104,7 +104,7 @@ it('blocks users without the Editor role from cancelling', function () {
 });
 
 it('allows an Editor to cancel a Pending assignment', function () {
-    $assignment = createPendingAssignment($this->reviewer);
+    $assignment = createPendingAssignment($this->reviewer, owner: $this->editor);
 
     $response = actingAs($this->editor)->post(route('review-assignments.cancel', $assignment->id), [
         'reason' => 'Reviewer no longer available',
@@ -118,7 +118,7 @@ it('allows an Editor to cancel a Pending assignment', function () {
 });
 
 it('does not allow cancelling an assignment that already progressed past Pending', function () {
-    $assignment = createPendingAssignment($this->reviewer, status: 'Accepted');
+    $assignment = createPendingAssignment($this->reviewer, status: 'Accepted', owner: $this->editor);
 
     $response = actingAs($this->editor)->post(route('review-assignments.cancel', $assignment->id), [
         'reason' => 'Too late',
@@ -129,8 +129,9 @@ it('does not allow cancelling an assignment that already progressed past Pending
     expect($assignment->fresh()->status)->toBe('Accepted');
 });
 
+
 it('rejects a cancellation reason that is too short', function () {
-    $assignment = createPendingAssignment($this->reviewer);
+    $assignment = createPendingAssignment($this->reviewer, owner: $this->editor);
 
     // 'No' hanya 2 karakter — di bawah minimum 3 karakter.
     $response = actingAs($this->editor)->post(route('review-assignments.cancel', $assignment->id), [
@@ -142,30 +143,56 @@ it('rejects a cancellation reason that is too short', function () {
     expect($assignment->fresh()->status)->toBe('Pending');
 });
 
+it('blocks an Editor from cancelling an assignment that belongs to another journal', function () {
+    // assignment ini dimiliki oleh jurnal yang user_id-nya BUKAN $this->editor
+    $assignment = createPendingAssignment($this->reviewer);
+
+    // Buat editor lain yang bukan pemilik jurnal tersebut
+    $editorRole  = Role::where('name', 'Editor')->first();
+    $otherEditor = User::factory()->create(['role_id' => $editorRole->id, 'is_active' => true]);
+    $otherEditor->roles()->syncWithoutDetaching([$editorRole->id]);
+
+    $response = actingAs($otherEditor)->post(route('review-assignments.cancel', $assignment->id), [
+        'reason' => 'Trying IDOR',
+    ]);
+
+    // IDOR guard harus mengembalikan 403
+    $response->assertForbidden();
+    expect($assignment->fresh()->status)->toBe('Pending');
+});
+
 
 /**
  * Create a 'Pending' review assignment attached to a freshly-created
  * submission. Submission has no factory yet, so it's built manually from
  * its known fillable fields.
+ *
+ * @param  User        $reviewer  Reviewer to assign.
+ * @param  string      $status    Initial assignment status (default: 'Pending').
+ * @param  User|null   $owner     Journal owner (user_id). If null, a new user is created.
  */
-function createPendingAssignment(User $reviewer, string $status = 'Pending'): ReviewAssignment
+function createPendingAssignment(User $reviewer, string $status = 'Pending', ?User $owner = null): ReviewAssignment
 {
     $university = University::factory()->create();
-    $journal = Journal::factory()->create(['university_id' => $university->id]);
+    $journal = Journal::factory()->create([
+        'university_id' => $university->id,
+        'user_id'       => $owner?->id ?? User::factory()->create()->id,
+    ]);
     $author = User::factory()->create();
 
     $submission = Submission::create([
         'journal_id' => $journal->id,
-        'author_id' => $author->id,
-        'title' => 'Test Submission',
-        'status' => 'unassigned',
+        'author_id'  => $author->id,
+        'title'      => 'Test Submission',
+        'status'     => 'unassigned',
     ]);
 
     return ReviewAssignment::create([
         'submission_id' => $submission->id,
-        'reviewer_id' => $reviewer->id,
-        'round' => 1,
-        'status' => $status,
-        'due_date' => now()->addDays(14),
+        'reviewer_id'   => $reviewer->id,
+        'round'         => 1,
+        'status'        => $status,
+        'due_date'      => now()->addDays(14),
     ]);
 }
+
