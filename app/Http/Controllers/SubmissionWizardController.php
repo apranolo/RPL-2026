@@ -1,115 +1,129 @@
 <?php
 
+/**
+ * @file SubmissionWizardController.php
+ * @description Controller untuk menangani alur multi-step submission wizard naskah jurnal.
+ * @author Haryansyah Dwi Nugroho <@Haryansyah15>
+ */
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage; // Memuat library Storage untuk menyimpan file
+use Illuminate\Support\Facades\Storage;
+use App\Models\Submission;
+use Illuminate\Support\Facades\Auth;
 
 class SubmissionWizardController extends Controller
 {
-    // ==========================================
-    // STEP 1 - VIEW PAGE (Menampilkan Halaman)
-    // ==========================================
+    /**
+     * Menampilkan Halaman Wizard Step 1 (Pemilihan Jurnal & Lisensi)
+     */
     public function step1()
     {
         return Inertia::render('Submission/Wizard/Step1Start', [
             'journals' => [
-                // Contoh data dummy dulu agar dropdown pilihan jurnal di Step 1 tidak kosong pelontos
-                ['id' => 1, 'name' => 'Jurnal Teknologi Informasi (JTI)'],
-                ['id' => 2, 'name' => 'Jurnal Rekayasa Perangkat Lunak (RPL)'],
-            ], 
+                ['id' => 1, 'title' => 'Jurnal Teknologi Informasi (JTI)'],
+                ['id' => 2, 'title' => 'Jurnal Rekayasa Perangkat Lunak (RPL)'],
+            ],
         ]);
     }
 
-    // ==========================================
-    // STEP 1 - STORE DATA (Memproses Form & Redirect)
-    // ==========================================
+    /**
+     * Memproses Penyimpanan Data Step 1 (Menyimpan Draft ke DB)
+     */
     public function storeStep1(Request $request)
     {
-        // 1. Validasi input dari React component Step 1
-        $request->validate([
-            'journal_id' => 'required', 
-            'agreement' => 'required|accepted',
+        $validated = $request->validate([
+            'journal_id' => 'required|integer|exists:journals,id', // Pastikan exist jika ada DB real
+            'agreement1' => 'required|accepted',
+            'agreement2' => 'required|accepted',
+            'agreement3' => 'required|accepted',
+            'agreement4' => 'required|accepted',
         ], [
             'journal_id.required' => 'Silakan pilih jurnal tujuan terlebih dahulu.',
-            'agreement.accepted' => 'Anda harus menyetujui syarat dan ketentuan untuk melanjutkan.',
+            'agreement1.accepted' => 'Anda harus menyetujui komitmen ke-1.',
+            'agreement2.accepted' => 'Anda harus menyetujui komitmen ke-2.',
+            'agreement3.accepted' => 'Anda harus menyetujui komitmen ke-3.',
+            'agreement4.accepted' => 'Anda harus menyetujui komitmen ke-4.',
         ]);
 
-        // 2. Ambil data session lama (jika ada) atau buat array baru
-        $submission = session('submission', []);
-        
-        // 3. Masukkan data dari Step 1 ke session
-        $submission['journal_id'] = $request->journal_id;
-        $submission['agreement'] = $request->agreement;
-        $submission['step'] = 2; // Tandai bahwa user sekarang berhak ke step 2
-
-        session(['submission' => $submission]);
-
-        // 4. Lempar user secara aman ke halaman Step 2 menggunakan Inertia Redirect
-        return redirect()->route('submission.step2');
-    }
-
-    // ==========================================
-    // INIT WIZARD SESSION (Optional tapi penting)
-    // ==========================================
-    public function initWizard(Request $request)
-    {
-        session([
-            'submission' => [
-                'step' => 1,
-                'data' => []
+        // Buat atau Update Draft Submission di Database
+        $submission = Submission::updateOrCreate(
+            [
+                'id' => session('submission_id'),
+                'author_id' => Auth::id(),
+            ],
+            [
+                'journal_id' => $validated['journal_id'],
+                'title' => 'Draft Submission', // Placeholder sebelum Step 3
+                'status' => 'Draft',
             ]
-        ]);
+        );
 
-        return response()->json([
-            'message' => 'Wizard initialized'
-        ]);
+        // Simpan ID ke session untuk referensi step berikutnya
+        session(['submission_id' => $submission->id]);
+
+        return redirect()->route('submission.step2')
+            ->with('success', 'Draft submission berhasil disimpan.');
     }
 
-    // ==========================================
-    // STEP 2 - VIEW PAGE (Menampilkan Halaman)
-    // ==========================================
+    /**
+     * Menampilkan Halaman Wizard Step 2 (Upload File)
+     */
     public function step2()
     {
+        $submissionId = session('submission_id');
+        if (!$submissionId) {
+            return redirect()->route('submission.step1')
+                ->with('error', 'Silakan isi Step 1 terlebih dahulu.');
+        }
+
         return Inertia::render('Submission/Wizard/Step2Upload');
     }
 
-    // ==========================================
-    // STEP 2 - UPLOAD PROCESS (Memproses Unggah Berkas)
-    // ==========================================
-   // ==========================================
-    // STEP 2 - UPLOAD PROCESS (Memproses Unggah Berkas)
-    // ==========================================
-public function step2Upload(Request $request)
-{
-    // Validasi file
-    $request->validate([
-        'manuscript' => 'required|file|mimes:pdf,doc,docx|max:10240',
-    ]);
+    /**
+     * Memproses Upload Manuscript & File Tambahan di Step 2
+     */
+    public function step2Upload(Request $request)
+    {
+        $request->validate([
+            'manuscript' => 'required|file|mimes:pdf,doc,docx|max:10240',
+            'supplementary_files.*' => 'nullable|file|max:5120',
+        ]);
 
-    // Simpan file jika ada
-    if ($request->hasFile('manuscript')) {
+        $submissionId = session('submission_id');
+        if (!$submissionId) {
+            return redirect()->route('submission.step1')
+                ->withErrors(['wizard' => 'Sesi draf tidak ditemukan.']);
+        }
 
-        $file = $request->file('manuscript');
+        $submission = Submission::find($submissionId);
+        if (!$submission) {
+            return redirect()->route('submission.step1')
+                ->withErrors(['wizard' => 'Draf submission tidak ditemukan di database.']);
+        }
 
-        // simpan file
-        $path = $file->store('submissions');
+        if ($request->hasFile('manuscript')) {
+            $path = $request->file('manuscript')->store('submissions/manuscripts', 'public');
+            
+            // Simpan path ke database (sesuaikan dengan skema tabel Anda)
+            $submission->update([
+                'manuscript_path' => $path, // Pastikan kolom ini ada atau tangani via relasi
+            ]);
 
-        // simpan session wizard
-        $submission = session('submission', []);
+            // Handling file tambahan jika ada
+            if ($request->hasFile('supplementary_files')) {
+                foreach ($request->file('supplementary_files') as $file) {
+                    $file->store('submissions/supplementary', 'public');
+                    // Simpan ke tabel submission_files jika skema relasi sudah siap
+                }
+            }
 
-        $submission['manuscript_path'] = $path;
-        $submission['step'] = 3;
+            return redirect()->route('submission.step3')
+                ->with('success', 'File manuskrip berhasil diunggah.');
+        }
 
-        session(['submission' => $submission]);
-
-        // PINDAH KE STEP 3
-        return redirect('/submission/step-3');
+        return back()->withErrors(['manuscript' => 'Upload file gagal.']);
     }
-
-    return back()->withErrors([
-        'manuscript' => 'Upload gagal'
-    ]);
-}
 }
