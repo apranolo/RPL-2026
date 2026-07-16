@@ -7,22 +7,91 @@ use App\Models\ReviewAssignment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Mengelola proses pengundangan dan pembatalan Reviewer untuk sebuah naskah.
+ *
+ * Otorisasi berbasis peran (role) ditangani sepenuhnya oleh middleware
+ * di routes/web.php — bukan oleh Policy (ReviewAssignmentPolicy tidak digunakan).
+ * Pastikan semua route di sini terdaftar di dalam grup:
+ *   middleware(['auth', 'role:Editor'])
+ */
 class ReviewAssignmentController extends Controller
 {
     /**
-     * Cancel a review assignment invitation.
+     * Memproses pengiriman undangan ke Reviewer.
      *
-     * Route is restricted to the `Pengelola Jurnal` role via middleware
-     * (see routes/web.php). Fine-grained per-journal authorization
-     * (via a ReviewAssignmentPolicy) is intentionally NOT implemented here
-     * since no such policy exists upstream yet; the role-middleware check
-     * is considered sufficient for now. If a ReviewAssignmentPolicy is
-     * added later by the team, re-add:
+     * Otorisasi (hanya Editor) ditangani oleh middleware `role:Editor`
+     * di routes/web.php, sehingga pengecekan manual hasRole() di sini
+     * tidak diperlukan lagi.
+     *
+     * @param  Request  $request  Harus mengandung submission_id, reviewer_id,
+     *                            dan opsional round (default: 1).
+     * @return RedirectResponse   Redirect balik dengan flash message sukses/gagal.
+     */
+    public function invite(Request $request): RedirectResponse
+    {
+        // 1. Validasi Input
+        $validated = $request->validate([
+            'submission_id' => 'required|exists:submissions,id',
+            'reviewer_id'   => 'required|exists:users,id',
+            // Round bisa dikirim dari frontend; fallback ke 1 jika tidak ada.
+            'round'         => 'sometimes|integer|min:1',
+        ]);
+
+        $round = $validated['round'] ?? 1;
+
+        // 2. Pencegahan Duplikasi — gunakan firstOrCreate untuk menghindari
+        //    race condition yang bisa terjadi antara ->exists() dan ->create().
+        //    $created = true  : baru dibuat (undangan berhasil)
+        //    $created = false : sudah ada (duplikat, batalkan)
+        [$assignment, $created] = ReviewAssignment::firstOrCreate(
+            [
+                'submission_id' => $validated['submission_id'],
+                'reviewer_id'   => $validated['reviewer_id'],
+                'round'         => $round,
+            ],
+            [
+                // Status enum per migration 2026_05_14_010000:
+                // Pending, Accepted, Declined, Completed, Cancelled.
+                'status'   => 'Pending',
+                'due_date' => now()->addDays(7), // SLA 7 hari
+            ]
+        );
+
+        if (! $created) {
+            return back()->withErrors([
+                'message' => 'Reviewer tersebut sudah diundang untuk naskah ini pada ronde yang sama.',
+            ]);
+        }
+
+        // Catatan: Email notifikasi akan di-handle oleh Event/Observer dari Modul 7.
+
+        return back()->with('success', 'Undangan berhasil dikirimkan ke Reviewer.');
+    }
+
+    /**
+     * Membatalkan undangan review assignment.
+     *
+     * Otorisasi: Route ini dilindungi oleh middleware `role:Editor` di
+     * routes/web.php. ReviewAssignmentPolicy sengaja TIDAK digunakan karena
+     * belum ada policy tersebut di upstream; pengecekan via middleware sudah
+     * dianggap cukup. Jika policy ditambahkan di masa mendatang, tambahkan:
      *   $this->authorize('cancel', $assignment);
      *
-     * @param  Request  $request  Must include an optional `reason` string.
-     * @param  ReviewAssignment  $assignment  The invitation to cancel.
-     * @return RedirectResponse  Redirects back with a success/error flash message.
+     * Hanya assignment berstatus 'Pending' yang dapat dibatalkan.
+     * Assignment yang sudah direspons reviewer (Accepted/Declined)
+     * atau sudah selesai (Completed) tidak bisa diubah di sini.
+     *
+     * Catatan kolom: Tabel review_assignments tidak memiliki kolom
+     * `cancel_reason` tersendiri. Alasan pembatalan disimpan di kolom
+     * `decline_reason` yang sudah tersedia (lihat migration
+     * 2026_05_14_010000). Kolom ini aman digunakan bersama karena
+     * status 'Cancelled' dan 'Declined' bersifat mutually exclusive.
+     *
+     * @param  Request           $request     Opsional: field `reason` (string, max 500).
+     * @param  ReviewAssignment  $assignment  Assignment yang akan dibatalkan
+     *                                        (route-model binding).
+     * @return RedirectResponse               Redirect balik dengan flash message.
      */
     public function cancel(Request $request, ReviewAssignment $assignment): RedirectResponse
     {
@@ -30,26 +99,21 @@ class ReviewAssignmentController extends Controller
             'reason' => 'nullable|string|max:500',
         ]);
 
-        // Undangan hanya bisa dibatalkan selama masih berstatus 'Pending'
-        // (belum direspon reviewer / belum masuk tahap review).
-        // Status enum per migration 2026_05_14_010000: Pending, Accepted,
-        // Declined, Completed, Cancelled.
+        // Undangan hanya bisa dibatalkan selama masih berstatus 'Pending'.
+        // Status enum per migration 2026_05_14_010000:
+        // Pending, Accepted, Declined, Completed, Cancelled.
         if ($assignment->status !== 'Pending') {
             return back()->with('error', 'Assignment cannot be cancelled at this stage.');
         }
 
         $assignment->update([
             'status' => 'Cancelled',
-            // Tabel review_assignments tidak punya kolom cancel_reason
-            // tersendiri, jadi alasan pembatalan disimpan di kolom
-            // decline_reason yang sudah ada (lihat migration).
+            // Alasan disimpan di decline_reason (lihat PHPDoc di atas).
             'decline_reason' => $validated['reason'] ?? null,
         ]);
 
-        // TODO: Send notification to reviewer
+        // TODO: Kirim notifikasi ke Reviewer (Modul 7).
 
-        return redirect()
-            ->back()
-            ->with('success', 'Review assignment has been cancelled.');
+        return back()->with('success', 'Review assignment has been cancelled.');
     }
 }
