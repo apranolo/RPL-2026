@@ -113,7 +113,7 @@ export default function Index({ emailTemplates }: Props) {
         e.preventDefault();
         if (!selectedTemplate) return;
 
-        put(route('email-template.update', selectedTemplate.id), {
+        put(route('admin.email-template.update', selectedTemplate.id), {
             onSuccess: () => {
                 closeEdit();
             },

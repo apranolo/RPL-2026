@@ -17,7 +17,13 @@ class EmailTemplateFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->words(3, true),
+            'event_trigger' => $this->faker->randomElement(['submission_created', 'submission_approved', 'submission_rejected']),
+            'subject' => $this->faker->sentence(),
+            'body' => 'Dear {{author_name}}, your submission {{submission_title}} has been updated.',
+            'variables' => ['author_name', 'submission_title'],
+            'description' => $this->faker->sentence(),
+            'is_active' => true,
         ];
     }
 }
