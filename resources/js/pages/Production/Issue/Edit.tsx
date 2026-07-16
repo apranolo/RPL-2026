@@ -38,8 +38,8 @@ import { toast } from 'sonner';
 interface IssueData {
     id: number;
     volume: string;
-    nomor: string;
-    tahun: number;
+    number: string;
+    year: number;
     judul_tematik: string | null;
     deskripsi: string | null;
     status: string;
@@ -71,8 +71,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function IssueEdit({ issue }: EditProps) {
     const { data, setData, put, processing, errors } = useForm({
         volume: issue.volume,
-        nomor: issue.nomor,
-        tahun: issue.tahun,
+        number: issue.number,
+        year: issue.year,
         judul_tematik: issue.judul_tematik ?? '',
         deskripsi: issue.deskripsi ?? '',
     });
@@ -135,36 +135,36 @@ export default function IssueEdit({ issue }: EditProps) {
 
                                 {/* Nomor */}
                                 <div>
-                                    <Label htmlFor="nomor">
+                                    <Label htmlFor="number">
                                         Nomor <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
-                                        id="nomor"
+                                        id="number"
                                         type="text"
-                                        value={data.nomor}
-                                        onChange={(e) => setData('nomor', e.target.value)}
+                                        value={data.number}
+                                        onChange={(e) => setData('number', e.target.value)}
                                         placeholder="Contoh: 1"
                                         required
                                         className="mt-2"
                                     />
-                                    <InputError message={errors.nomor} />
+                                    <InputError message={errors.number} />
                                 </div>
 
                                 {/* Tahun */}
                                 <div>
-                                    <Label htmlFor="tahun">
+                                    <Label htmlFor="year">
                                         Tahun <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
-                                        id="tahun"
+                                        id="year"
                                         type="number"
-                                        value={data.tahun}
-                                        onChange={(e) => setData('tahun', parseInt(e.target.value))}
+                                        value={data.year}
+                                        onChange={(e) => setData('year', parseInt(e.target.value))}
                                         placeholder="Contoh: 2026"
                                         required
                                         className="mt-2"
                                     />
-                                    <InputError message={errors.tahun} />
+                                    <InputError message={errors.year} />
                                 </div>
                             </div>
                         </div>
