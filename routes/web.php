@@ -569,6 +569,14 @@ Route::middleware(['auth'])->group(function () {
                 ->name('index');
         });
 
+        // Proposal Assessment Routes
+        Route::prefix('assessment')->name('assessment.')->group(function () {
+            Route::post('/', [\App\Http\Controllers\ReviewController::class, 'storeAssessment'])
+                ->name('store');
+            Route::put('/{id}', [\App\Http\Controllers\ReviewController::class, 'updateAssessment'])
+                ->name('update');
+        });
+
     });
 
     /*

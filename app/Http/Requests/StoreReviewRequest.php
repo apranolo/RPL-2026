@@ -2,16 +2,20 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreReviewRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * Menggunakan hasRole(Role::REVIEWER) yang menangani fallback legacy
+     * secara aman, sesuai aturan proyek.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->hasRole(Role::REVIEWER);
     }
 
     /**
