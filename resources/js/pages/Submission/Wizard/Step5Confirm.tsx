@@ -58,6 +58,8 @@ interface Submission {
     id: number;
     journal_id: number;
     author_id: number;
+    id_user: number;
+    id_journal: number;
     title: string | null;
     abstract: string | null;
     keywords: string[] | string | null;
@@ -89,7 +91,7 @@ export default function Step5Confirm({ submission }: Props) {
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Profil', href: route('user.profil.index') },
+        { title: 'Daftar Pengajuan', href: route('submissions.index') },
         { title: 'Kirim Naskah (Wizard)', href: '#' },
     ];
 
@@ -418,10 +420,10 @@ export default function Step5Confirm({ submission }: Props) {
                         <div className="flex flex-col gap-3 sm:flex-row sm:justify-between pt-2">
                             <Button
                                 variant="outline"
-                                onClick={() => router.visit(route('user.profil.index'))}
+                                onClick={() => router.visit(route('submissions.index'))}
                             >
                                 <ArrowLeft className="mr-2 h-4 w-4" />
-                                Kembali ke Profil
+                                Kembali ke Dashboard Author
                             </Button>
 
                             <Button

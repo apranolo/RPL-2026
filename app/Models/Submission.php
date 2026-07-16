@@ -34,9 +34,19 @@ class Submission extends Model
         return $this->user_id;
     }
 
+    public function setIdUserAttribute($value)
+    {
+        $this->user_id = $value;
+    }
+
     public function getIdJournalAttribute()
     {
         return $this->journal_id;
+    }
+
+    public function setIdJournalAttribute($value)
+    {
+        $this->journal_id = $value;
     }
 
     public function getAuthorIdAttribute()

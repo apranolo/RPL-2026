@@ -142,6 +142,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // Dashboard Author (Submissions)
+    Route::get('/submission', function () {
+        return Inertia::render('Submission/Index');
+    })->name('submissions.index');
+
     // Dashboard Admin
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');

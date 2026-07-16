@@ -27,7 +27,7 @@ class SubmissionWizardController extends Controller
 
         // Only draft submissions can go through the wizard
         if ($submission->status !== 'Draft') {
-            return redirect()->route('user.profil.index')
+            return redirect()->route('submissions.index')
                 ->withErrors(['error' => 'Submission yang sudah dikirim tidak dapat diubah.']);
         }
 
@@ -55,7 +55,7 @@ class SubmissionWizardController extends Controller
 
         // Only draft submissions can be submitted
         if ($submission->status !== 'Draft') {
-            return redirect()->route('user.profil.index')
+            return redirect()->route('submissions.index')
                 ->withErrors(['error' => 'Submission yang sudah dikirim tidak dapat diubah.']);
         }
 
@@ -63,7 +63,7 @@ class SubmissionWizardController extends Controller
             'status' => 'Submitted'
         ]);
 
-        return redirect()->route('user.profil.index')
+        return redirect()->route('submissions.index')
             ->with('success', 'Naskah ilmiah berhasil diajukan dan sedang mengantre di meja editor!');
     }
 }

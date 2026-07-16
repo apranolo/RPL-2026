@@ -99,7 +99,7 @@ test('user cannot view confirm page if status is not Draft', function () {
 
     $this->actingAs($user)
         ->get(route('user.submission-wizard.confirm', $submission->id))
-        ->assertRedirect(route('user.profil.index'));
+        ->assertRedirect(route('submissions.index'));
 });
 
 test('user can submit submission successfully', function () {
@@ -135,7 +135,7 @@ test('user can submit submission successfully', function () {
         ->post(route('user.submission-wizard.final-submit', $submission->id), [
             'confirm_submission' => true,
         ])
-        ->assertRedirect(route('user.profil.index'))
+        ->assertRedirect(route('submissions.index'))
         ->assertSessionHas('success');
 
     expect($submission->fresh()->status)->toBe('Submitted');
@@ -215,6 +215,6 @@ test('user cannot final submit if status is not Draft', function () {
         ->post(route('user.submission-wizard.final-submit', $submission->id), [
             'confirm_submission' => true,
         ])
-        ->assertRedirect(route('user.profil.index'))
+        ->assertRedirect(route('submissions.index'))
         ->assertSessionHasErrors(['error']);
 });
