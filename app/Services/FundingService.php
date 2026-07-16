@@ -3,184 +3,63 @@
 namespace App\Services;
 
 use App\Models\Contract;
-use App\Models\FundingTerm;
+use App\Models\Funding;
 
 class FundingService
 {
     /**
-     * Calculate funding statistics for a researcher
+     * Menghitung sisa dana kontrak yang belum dialokasikan ke termin.
+     *
+     * @return array{total_pendanaan: float, total_dialokasikan: float, total_cair: float, sisa_dana: float, sisa_persentase: float}
      */
-    public static function getResearcherFundingStats(int $researcherId): array
+    public function calculateSisa(Contract $contract): array
     {
-        $contracts = Contract::forResearcher($researcherId)
-            ->with(['fundingTerms'])
+        $totalPendanaan = (float) $contract->contract_value;
+
+        $fundings = $contract->fundings()
+            ->where('status', '!=', Funding::STATUS_CANCELLED)
             ->get();
 
-        $totalApproved = 0;
-        $totalDisbursed = 0;
-        $activeContracts = 0;
-
-        foreach ($contracts as $contract) {
-            // Count active contracts
-            if ($contract->contract_status === 'aktif') {
-                $activeContracts++;
-            }
-
-            // Calculate totals
-            $totalApproved += $contract->total_approved_funding;
-
-            foreach ($contract->fundingTerms as $term) {
-                if ($term->status === 'cair') {
-                    $totalDisbursed += $term->nominal;
-                }
-            }
-        }
+        $totalDialokasikan = $fundings->sum('amount');
+        $totalPersentase = (float) $fundings->sum('percentage');
+        $totalCair = (float) $fundings
+            ->where('status', Funding::STATUS_DISBURSED)
+            ->sum('amount');
 
         return [
-            'total_approved' => $totalApproved,
-            'total_disbursed' => $totalDisbursed,
-            'total_remaining' => $totalApproved - $totalDisbursed,
-            'active_contracts' => $activeContracts,
-            'disbursement_percentage' => $totalApproved > 0
-                ? round(($totalDisbursed / $totalApproved) * 100, 2)
-                : 0,
+            'total_pendanaan' => $totalPendanaan,
+            'total_dialokasikan' => (float) $totalDialokasikan,
+            'total_cair' => $totalCair,
+            'sisa_dana' => $totalPendanaan - (float) $totalDialokasikan,
+            'sisa_persentase' => round(100 - $totalPersentase, 2),
         ];
     }
 
     /**
-     * Validate if funding term percentages equal 100%
+     * Memvalidasi bahwa akumulasi persentase seluruh termin tidak melebihi 100%.
      */
-    public static function validateTermPercentages(int $contractId): bool
+    public function validateTerminPercentage(Contract $contract, float $newPercentage, ?int $excludeId = null): bool
     {
-        $totalPercentage = FundingTerm::where('contract_id', $contractId)
-            ->whereNull('deleted_at')
-            ->sum('percentage');
+        $query = $contract->fundings()
+            ->where('status', '!=', Funding::STATUS_CANCELLED);
 
-        return abs($totalPercentage - 100) < 0.01; // Allow for floating point errors
-    }
-
-    /**
-     * Get disbursement rate for a contract
-     */
-    public static function getContractDisbursementRate(Contract $contract): float
-    {
-        if ($contract->total_approved_funding <= 0) {
-            return 0;
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
         }
 
-        $totalDisbursed = $contract->fundingTerms()
-            ->where('status', 'cair')
-            ->sum('nominal');
+        $currentTotal = (float) $query->sum('percentage');
 
-        return round(($totalDisbursed / $contract->total_approved_funding) * 100, 2);
+        return ($currentTotal + $newPercentage) <= 100.00;
     }
 
     /**
-     * Get pending funding terms for a contract
+     * Auto-generate nomor termin unik berdasarkan kontrak.
      */
-    public static function getPendingTerms(int $contractId): float
+    public function generateFundingNumber(Contract $contract): string
     {
-        return FundingTerm::where('contract_id', $contractId)
-            ->where('status', 'menunggu')
-            ->sum('nominal');
-    }
+        $existingCount = $contract->fundings()->count();
+        $terminNumber = $existingCount + 1;
 
-    /**
-     * Check if next term can be disbursed
-     * (considering if previous terms are completed)
-     */
-    public static function canDisburseTerm(FundingTerm $term): bool
-    {
-        if ($term->status !== 'menunggu') {
-            return false;
-        }
-
-        // Check if all previous terms are disbursed
-        $previousTerms = FundingTerm::where('contract_id', $term->contract_id)
-            ->where('order', '<', $term->order)
-            ->whereNull('deleted_at')
-            ->get();
-
-        foreach ($previousTerms as $prevTerm) {
-            if ($prevTerm->status !== 'cair') {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Format funding data for API response
-     */
-    public static function formatContractResponse(Contract $contract): array
-    {
-        return [
-            'id' => $contract->id,
-            'contract_number' => $contract->contract_number,
-            'contract_date' => $contract->contract_date?->format('Y-m-d'),
-            'researcher_name' => $contract->researcher?->name,
-            'total_approved_funding' => (float) $contract->total_approved_funding,
-            'contract_status' => $contract->contract_status,
-            'contract_status_label' => self::getStatusLabel($contract->contract_status),
-            'total_disbursed' => (float) $contract->fundingTerms()
-                ->where('status', 'cair')
-                ->sum('nominal'),
-            'remaining_funding' => (float) self::getRemainingFunding($contract),
-            'disbursement_percentage' => round(
-                self::getContractDisbursementRate($contract),
-                2
-            ),
-            'funding_terms' => $contract->fundingTerms->map(function ($term) {
-                return self::formatTermResponse($term);
-            })->toArray(),
-        ];
-    }
-
-    /**
-     * Format funding term data for API response
-     */
-    public static function formatTermResponse(FundingTerm $term): array
-    {
-        return [
-            'id' => $term->id,
-            'term_name' => $term->term_name,
-            'order' => $term->order,
-            'percentage' => (float) $term->percentage,
-            'nominal' => (float) $term->nominal,
-            'status' => $term->status,
-            'status_label' => $term->getStatusLabelAttribute(),
-            'status_color' => $term->getStatusColorAttribute(),
-            'disbursement_date' => $term->disbursement_date?->format('Y-m-d'),
-            'receipt_number' => $term->receipt_number,
-            'receipt_file' => $term->receipt_file,
-            'notes' => $term->notes,
-        ];
-    }
-
-    /**
-     * Get human-readable status label
-     */
-    public static function getStatusLabel(string $status): string
-    {
-        $statuses = [
-            'aktif' => 'Aktif',
-            'selesai' => 'Selesai',
-            'ditangguhkan' => 'Ditangguhkan',
-        ];
-
-        return $statuses[$status] ?? ucfirst($status);
-    }
-
-    /**
-     * Calculate remaining funding for a contract
-     */
-    private static function getRemainingFunding(Contract $contract): float
-    {
-        $totalDisbursed = $contract->fundingTerms()
-            ->where('status', 'cair')
-            ->sum('nominal');
-
-        return $contract->total_approved_funding - $totalDisbursed;
+        return 'TRM-' . $contract->id . '-' . str_pad((string) $terminNumber, 3, '0', STR_PAD_LEFT);
     }
 }

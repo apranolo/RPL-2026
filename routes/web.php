@@ -1,15 +1,18 @@
 <?php
 
+use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
 use App\Http\Controllers\Admin\DataMasterController;
+use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
@@ -26,6 +29,7 @@ use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
 use App\Http\Controllers\FundingController;
 use App\Http\Controllers\OutputController;
@@ -187,6 +191,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('data-master', [DataMasterController::class, 'index'])
             ->name('data-master.index');
 
+        // Skema Penelitian Management
+        Route::resource('schema', SchemaController::class);
+
         // Borang Indikator (Using Accreditation Templates System)
         Route::get('borang-indikator', [AccreditationTemplateController::class, 'index'])
             ->name('borang-indikator.index');
@@ -285,6 +292,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
 
+        // Rekap Hasil Penilaian (Summary)
+        Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
+            ->name('reviews.summary');
+
+
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             Route::get('/', [AdminPembinaanController::class, 'index'])
@@ -306,6 +318,20 @@ Route::middleware(['auth'])->group(function () {
         });
 
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Decision Routes (Super Admin & Admin Kampus)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])
+        ->prefix('admin')
+        ->name('admin.')
+        ->group(function () {
+            // Penentuan Keputusan Diterima/Ditolak (Decision)
+            Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
+                ->name('decision.decide');
+        });
 
     /*
     |--------------------------------------------------------------------------
@@ -462,7 +488,15 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
         Route::get('contracts', [ContractController::class, 'index'])
             ->name('contracts.index');
+
+        // Funding Termin Routes
+        Route::post('funding/store-termin', [\App\Http\Controllers\FundingController::class, 'storeTermin'])
+            ->name('funding.store-termin');
     });
+
+    Route::get('finance/contracts/{contract}/funding/create', [\App\Http\Controllers\FundingController::class, 'create'])
+        ->middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])
+        ->name('finance.funding.create');
 
     /*
     |--------------------------------------------------------------------------
@@ -482,6 +516,11 @@ Route::middleware(['auth'])->group(function () {
             ->name('profil.notifications.read');
         Route::post('profil/notifications/read-all', [ProfilController::class, 'markAllNotificationsAsRead'])
             ->name('profil.notifications.read-all');
+
+        // Editorial Desk
+        Route::prefix('editorial/desk')->name('editorial.desk.')->group(function () {
+            Route::get('inbox', [DeskController::class, 'inbox'])->name('inbox');
+        });
 
         // Journals Management
         Route::resource('journals', UserJournalController::class)
@@ -640,6 +679,8 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('evaluations')->name('evaluations.')->group(function () {
             Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
                 ->name('index');
+            Route::get('{report}', [\App\Http\Controllers\EvaluationController::class, 'showProgress'])
+                ->name('show');
         });
 
         // Profile Management
@@ -719,6 +760,11 @@ Route::middleware(['auth'])->group(function () {
     // });
 
     Route::post('/user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])->name('user.bank.update');
+
+    // Rute Undangan Reviewer (Dilindungi middleware Editor agar aman)
+    Route::post('/review/invite', [ReviewAssignmentController::class, 'invite'])
+        ->middleware(['role:Editor'])
+        ->name('review.invite');
 });
 
 require __DIR__.'/settings.php';
