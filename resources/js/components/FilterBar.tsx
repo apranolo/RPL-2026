@@ -73,8 +73,8 @@ export function FilterBar({ currentYear, currentScheme, schemeOptions = [] }: Fi
                 <div className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
                         <Label htmlFor="year">Tahun</Label>
-                        <Select id="year" value={year.toString()} onValueChange={(value) => setYear(parseInt(value))}>
-                            <SelectTrigger>
+                        <Select value={year.toString()} onValueChange={(value) => setYear(parseInt(value))}>
+                            <SelectTrigger id="year">
                                 <SelectValue placeholder="Pilih tahun" />
                             </SelectTrigger>
                             <SelectContent>
@@ -89,8 +89,8 @@ export function FilterBar({ currentYear, currentScheme, schemeOptions = [] }: Fi
 
                     <div className="space-y-2">
                         <Label htmlFor="scheme">Skema</Label>
-                        <Select id="scheme" value={scheme} onValueChange={setScheme}>
-                            <SelectTrigger>
+                        <Select value={scheme} onValueChange={setScheme}>
+                            <SelectTrigger id="scheme">
                                 <SelectValue placeholder="Pilih skema" />
                             </SelectTrigger>
                             <SelectContent>
