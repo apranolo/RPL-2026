@@ -15,7 +15,7 @@ class StoreCriteriaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sub_category_id' => 'required|exists:sub_categories,id',
+            'sub_category_id' => 'required|exists:evaluation_sub_categories,id',
             'criteria' => 'required|array|min:1',
             'criteria.*.code' => 'required|string|max:50',
             'criteria.*.question' => 'required|string',

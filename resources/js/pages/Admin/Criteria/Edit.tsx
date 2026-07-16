@@ -282,7 +282,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                             <SelectItem value="text">Teks Bebas</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.answer_type && <p className="text-sm text-destructive">{errors.answer_type}</p>}
+                                    <InputError message={errors.answer_type} />
                                 </div>
 
                                 <div className="space-y-2">

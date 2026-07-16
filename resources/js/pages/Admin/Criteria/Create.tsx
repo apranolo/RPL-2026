@@ -20,9 +20,8 @@
  *
  * @author JurnalMU Team
  */
-import DynamicInput, {
+import {
     AnswerTypePreview,
-    type DynamicFieldValue,
 } from '@/components/DynamicInput';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +66,7 @@ interface Props {
 }
 
 export default function CriteriaCreate({ subCategories }: Props) {
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors: rawErrors } = useForm({
         sub_category_id: '',
         criteria: [
             {
@@ -83,6 +82,22 @@ export default function CriteriaCreate({ subCategories }: Props) {
             },
         ],
     });
+
+    // Cast errors for dynamic nested key access (e.g. criteria.0.code)
+    const errors = rawErrors as Record<string, string>;
+
+    // Group sub-categories by template > category
+    const groupedSubCategories = subCategories.reduce(
+        (acc, sub) => {
+            const groupKey = `${sub.template_name} › ${sub.category_name}`;
+            if (!acc[groupKey]) {
+                acc[groupKey] = [];
+            }
+            acc[groupKey].push(sub);
+            return acc;
+        },
+        {} as Record<string, SubCategory[]>,
+    );
 
     // Helper untuk mengubah field spesifik pada indeks kriteria tertentu
     const updateCriteriaField = (index: number, field: string, value: any) => {
@@ -137,7 +152,7 @@ export default function CriteriaCreate({ subCategories }: Props) {
                     <Button variant="ghost" size="sm" className="h-auto gap-2 p-0" asChild>
                         <Link href={route('admin.criteria.index')}><ArrowLeft className="h-4 w-4" /> Kembali</Link>
                     </Button>
-                    <h1 className="text-3xl font-extrabold tracking-tight">Tambah Kriteria Penilaian (Batch)</h1>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Tambah Kriteria Penilaian (Batch)</h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
