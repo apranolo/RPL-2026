@@ -129,6 +129,20 @@ it('does not allow cancelling an assignment that already progressed past Pending
     expect($assignment->fresh()->status)->toBe('Accepted');
 });
 
+it('rejects a cancellation reason that is too short', function () {
+    $assignment = createPendingAssignment($this->reviewer);
+
+    // 'No' hanya 2 karakter — di bawah minimum 3 karakter.
+    $response = actingAs($this->editor)->post(route('review-assignments.cancel', $assignment->id), [
+        'reason' => 'No',
+    ]);
+
+    $response->assertSessionHasErrors('reason');
+    // Status tidak berubah karena validasi gagal.
+    expect($assignment->fresh()->status)->toBe('Pending');
+});
+
+
 /**
  * Create a 'Pending' review assignment attached to a freshly-created
  * submission. Submission has no factory yet, so it's built manually from

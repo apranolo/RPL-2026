@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 class ReviewAssignmentController extends Controller
 {
     /**
-     * Memproses pengiriman undangan ke Reviewer.
+     * Memproses pengiriman undangan ke Reviewer
      *
      * Otorisasi (hanya Editor) ditangani oleh middleware `role:Editor`
      * di routes/web.php, sehingga pengecekan manual hasRole() di sini
@@ -95,8 +95,11 @@ class ReviewAssignmentController extends Controller
      */
     public function cancel(Request $request, ReviewAssignment $assignment): RedirectResponse
     {
+        // Validasi input: reason bersifat opsional, namun jika diisi
+        // minimal 3 karakter agar tidak hanya spasi/karakter tunggal,
+        // dan maksimal 500 karakter.
         $validated = $request->validate([
-            'reason' => 'nullable|string|max:500',
+            'reason' => ['nullable', 'string', 'min:3', 'max:500'],
         ]);
 
         // Undangan hanya bisa dibatalkan selama masih berstatus 'Pending'.
@@ -107,7 +110,7 @@ class ReviewAssignmentController extends Controller
         }
 
         $assignment->update([
-            'status' => 'Cancelled',
+            'status'         => 'Cancelled',
             // Alasan disimpan di decline_reason (lihat PHPDoc di atas).
             'decline_reason' => $validated['reason'] ?? null,
         ]);
