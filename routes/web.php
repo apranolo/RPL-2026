@@ -763,6 +763,17 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+    Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
+    ->prefix('editorial')
+    ->name('editorial.')
+    ->group(function () {
+
+        Route::post(
+            '/submissions/{id_submission}/notify-author',
+            [RevisionController::class, 'notifyAuthor']
+        )->name('revision.notify-author');
+
+    });
 });
 
     

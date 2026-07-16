@@ -17,8 +17,8 @@ class RevisionRound extends Model
     protected $fillable = [
         'id_submission',
         'round_number',
-        'revision_due_date',
-        'revision_note',
+        'editor_decision_note',
+        'due_date',
         'status',
     ];
 

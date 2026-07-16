@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('copyediting_tasks', function (Blueprint $table) {
             $table->id('id_task');
             $table->foreignId('id_submission')
-                ->constrained('submissions', 'id_submission')
+                ->constrained('submissions', 'id')
                 ->cascadeOnDelete();
 
             $table->foreignId('id_copyeditor')

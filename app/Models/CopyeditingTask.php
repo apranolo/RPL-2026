@@ -20,12 +20,14 @@ class CopyeditingTask extends Model
         'status',
         'editor_note',
         'copyeditor_note',
+        'assigned_at',
+        'completed_at',
     ];
 
     // 3. Relasi ke tabel Submissions (Naskah)
     public function submission()
     {
-        return $this->belongsTo(Submission::class, 'id_submission', 'id_submission');
+        return $this->belongsTo(Submission::class, 'id_submission', 'id');
     }
 
     // 4. Relasi ke tabel Users (sebagai Copyeditor)
