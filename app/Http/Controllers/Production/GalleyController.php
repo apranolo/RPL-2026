@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
 use App\Models\Galley;
-use App\Models\Article;
+use App\Models\Submission;
 use App\Http\Requests\StoreGalleyRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,22 +15,23 @@ class GalleyController extends Controller
      */
     public function store(StoreGalleyRequest $request, $articleId)
     {
-        $article = Article::findOrFail($articleId);
+        $submission = Submission::findOrFail($articleId);
 
         // ================================
         // MULTI-TENANCY CHECK (EDITOR ONLY)
         // ================================
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
         if (!$user) {
             abort(401, 'Unauthorized');
         }
 
-        if ($user->role !== 'editor') {
+        if (!$user->hasRole('editor')) {
             abort(403, 'Only editor can upload galley');
         }
 
-        if ($user->journal_id !== $article->journal_id) {
+        if ($user->journal_id !== $submission->journal_id) {
             abort(403, 'You are not editor of this journal');
         }
 
@@ -45,9 +46,9 @@ class GalleyController extends Controller
                 'public'
             );
 
-            $galley = Galley::create([
+            Galley::create([
                 'id_submission' => $articleId,
-                'label'         => $request->label,
+                'file_extension' => $file->getClientOriginalExtension(),
                 'file_path'     => $path,
             ]);
 
@@ -64,26 +65,26 @@ class GalleyController extends Controller
     public function assignToIssue($articleId, \Illuminate\Http\Request $request)
     {
         $request->validate([
-            'issue_id' => 'required|exists:issues,id',
+            'id_issue' => 'required|exists:issues,id',
         ]);
 
-        $article = Article::findOrFail($articleId);
-
+        $submission = Submission::findOrFail($articleId);
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
         // ================================
         // MULTI-TENANCY CHECK
         // ================================
-        if (!$user || $user->role !== 'editor') {
+        if (!$user || !$user->hasRole('editor')) {
             abort(403, 'Only editor can assign article');
         }
 
-        if ($user->journal_id !== $article->journal_id) {
+        if ($user->journal_id !== $submission->journal_id) {
             abort(403, 'Not allowed for this journal');
         }
 
-        $article->update([
-            'issue_id' => $request->issue_id,
+        $submission->update([
+            'id_issue' => $request->id_issue,
             'status'   => 'Scheduled',
         ]);
 
