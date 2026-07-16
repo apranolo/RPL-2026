@@ -3,9 +3,7 @@
 use App\Models\Announcement;
 use App\Models\University;
 use App\Models\User;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 

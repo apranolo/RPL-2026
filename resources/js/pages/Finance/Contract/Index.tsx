@@ -330,7 +330,7 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                     </form>
                 </section>
 
-                <section className="hidden overflow-hidden rounded-lg border border-sidebar-border/70 bg-card dark:border-sidebar-border lg:block">
+                <section className="hidden overflow-hidden rounded-lg border border-sidebar-border/70 bg-card lg:block dark:border-sidebar-border">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -385,7 +385,9 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                                 <p className="text-xs text-muted-foreground">{contract.party_2 || '-'}</p>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="whitespace-nowrap text-sm">{formatPeriod(contract.start_date, contract.end_date)}</TableCell>
+                                        <TableCell className="text-sm whitespace-nowrap">
+                                            {formatPeriod(contract.start_date, contract.end_date)}
+                                        </TableCell>
                                         <TableCell className="text-right font-medium">{formatCurrency(contract.contract_value)}</TableCell>
                                         <TableCell className="min-w-56">
                                             <div className="space-y-2">
@@ -398,7 +400,10 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="outline" className={cn('border', statusClassNames[contract.status_color] || statusClassNames.gray)}>
+                                            <Badge
+                                                variant="outline"
+                                                className={cn('border', statusClassNames[contract.status_color] || statusClassNames.gray)}
+                                            >
                                                 {contract.status_label}
                                             </Badge>
                                         </TableCell>
@@ -423,7 +428,10 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                         <p className="font-semibold text-foreground">{contract.title}</p>
                                         <p className="mt-1 text-xs text-muted-foreground">{contract.contract_number}</p>
                                     </div>
-                                    <Badge variant="outline" className={cn('shrink-0 border', statusClassNames[contract.status_color] || statusClassNames.gray)}>
+                                    <Badge
+                                        variant="outline"
+                                        className={cn('shrink-0 border', statusClassNames[contract.status_color] || statusClassNames.gray)}
+                                    >
                                         {contract.status_label}
                                     </Badge>
                                 </div>
@@ -441,7 +449,6 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="text-muted-foreground">Pihak 2</span>
                                         <span className="text-right font-medium">{contract.party_2 || '-'}</span>
-
                                     </div>
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="text-muted-foreground">Nilai</span>
