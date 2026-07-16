@@ -315,7 +315,6 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{pembinaan}/toggle-status', [AdminPembinaanController::class, 'toggleStatus'])
                 ->name('toggle-status');
         });
-
     });
 
     /*
@@ -492,6 +491,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('funding/store-termin', [\App\Http\Controllers\FundingController::class, 'storeTermin'])
             ->name('funding.store-termin');
     });
+
+    Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS])
+        ->prefix('admin/contracts')
+        ->name('admin.contracts.')
+        ->group(function () {
+            Route::post('generate', [ContractController::class, 'generate'])->name('generate');
+            Route::get('{contract}', [ContractController::class, 'show'])->name('show');
+            Route::post('{contract}/update-status', [ContractController::class, 'updateStatus'])->name('update-status');
+        });
 
     Route::get('finance/contracts/{contract}/funding/create', [\App\Http\Controllers\FundingController::class, 'create'])
         ->middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])

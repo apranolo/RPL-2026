@@ -116,4 +116,141 @@ class ContractController extends Controller
                 ->values(),
         ]);
     }
+
+    /**
+     * Generate (create) a new draft contract for a proposal.
+     */
+    public function generate(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
+    {
+        if (!auth()->user()->hasAnyRole([\App\Models\Role::SUPER_ADMIN, \App\Models\Role::ADMIN_KEUANGAN])) {
+            abort(403, 'Unauthorized.');
+        }
+        $validated = $request->validate([
+            'proposal_id'    => ['required', 'integer', 'exists:proposals,id', 'unique:contracts,proposal_id'],
+            'title'          => ['required', 'string', 'max:255'],
+            'contract_value' => ['required', 'numeric', 'min:0'],
+            'party_1'        => ['required', 'string', 'max:255'],
+            'party_2'        => ['required', 'string', 'max:255'],
+            'start_date'     => ['nullable', 'date'],
+            'end_date'       => ['nullable', 'date', 'after_or_equal:start_date'],
+            'description'    => ['nullable', 'string'],
+            'notes'          => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $proposal = \App\Models\Proposal::with('user')->findOrFail($validated['proposal_id']);
+
+        $contract = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $proposal, $request) {
+            $year = now()->year;
+            $prefix = "KON-{$year}-";
+            $lastContract = Contract::withTrashed()
+                ->where('contract_number', 'like', "{$prefix}%")
+                ->orderByDesc('id')
+                ->lockForUpdate()
+                ->first();
+            $sequence = $lastContract ? ((int) last(explode('-', $lastContract->contract_number))) + 1 : 1;
+            $contractNumber = $prefix . str_pad((string)$sequence, 4, '0', STR_PAD_LEFT);
+
+            return Contract::create([
+                'university_id'   => $proposal->user->university_id ?? $request->user()->university_id,
+                'proposal_id'     => $proposal->id,
+                'contract_number' => $contractNumber,
+                'title'           => $validated['title'],
+                'description'     => $validated['description'] ?? null,
+                'status'          => 'draft',
+                'contract_value'  => $validated['contract_value'],
+                'party_1'         => $validated['party_1'],
+                'party_2'         => $validated['party_2'],
+                'start_date'      => $validated['start_date'] ?? null,
+                'end_date'        => $validated['end_date'] ?? null,
+                'notes'           => $validated['notes'] ?? null,
+                'created_by'      => $request->user()->id,
+            ]);
+        });
+
+        return redirect()
+            ->route('admin.contracts.show', $contract->id)
+            ->with('success', "Draft kontrak {$contract->contract_number} berhasil dibuat.");
+    }
+
+    /**
+     * Display the specified contract.
+     */
+    public function show(Contract $contract): Response
+    {
+        $user = auth()->user();
+        if (!$user->hasAnyRole([\App\Models\Role::SUPER_ADMIN, \App\Models\Role::ADMIN_KEUANGAN])) {
+            if ($user->hasRole(\App\Models\Role::ADMIN_KAMPUS)) {
+                if ($contract->university_id !== $user->university_id) {
+                    abort(403, 'Unauthorized access to this contract.');
+                }
+            } else {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+
+        $contract->load([
+            'proposal.user',
+            'university',
+            'creator',
+            'updater',
+        ]);
+
+        return Inertia::render('Finance/Contract/Show', [
+            'contract' => $contract,
+        ]);
+    }
+
+    /**
+     * Update contract status.
+     */
+    public function updateStatus(\Illuminate\Http\Request $request, Contract $contract): \Illuminate\Http\RedirectResponse
+    {
+        $user = auth()->user();
+        if (!$user->hasAnyRole([\App\Models\Role::SUPER_ADMIN, \App\Models\Role::ADMIN_KEUANGAN])) {
+            if ($user->hasRole(\App\Models\Role::ADMIN_KAMPUS)) {
+                if ($contract->university_id !== $user->university_id) {
+                    abort(403, 'Unauthorized access to this contract.');
+                }
+            } else {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:active,completed,cancelled'],
+            'notes'  => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        // Guard: terminal states cannot be changed
+        if (in_array($contract->status, ['completed', 'cancelled'])) {
+            return back()->with(
+                'error',
+                'Kontrak dengan status "Selesai" atau "Dibatalkan" tidak dapat diubah.'
+            );
+        }
+
+        // Guard: only valid forward transitions
+        $allowedTransitions = [
+            'draft'  => ['active', 'cancelled'],
+            'active' => ['completed', 'cancelled'],
+        ];
+
+        if (! in_array($validated['status'], $allowedTransitions[$contract->status] ?? [])) {
+            return back()->with(
+                'error',
+                "Tidak dapat mengubah status dari \"{$contract->status}\" ke \"{$validated['status']}\"."
+            );
+        }
+
+        $contract->update([
+            'status'     => $validated['status'],
+            'notes'      => $validated['notes'] ?? $contract->notes,
+            'updated_by' => $user->id,
+        ]);
+
+        return back()->with(
+            'success',
+            "Status kontrak {$contract->contract_number} berhasil diubah ke \"{$validated['status']}\"."
+        );
+    }
 }
