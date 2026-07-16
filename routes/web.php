@@ -714,8 +714,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [DiscussionController::class, 'store'])
             ->name('store');
 
-        Route::post('/{discussion}/message', [DiscussionController::class, 'reply'])
-            ->name('message.store');
+        Route::post('/discussions/{parentMessage}/reply', [DiscussionController::class, 'reply'])
+            ->name('reply');
+
+        Route::post('/discussions/{message}/upload-attachment', [DiscussionController::class, 'uploadAttachment'])
+            ->name('message.upload-attachment');
     });
 
 
