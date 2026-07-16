@@ -36,9 +36,22 @@ class FundingTerminTest extends TestCase
             'is_active' => true,
         ]);
 
+        // Create a research schema
+        $schema = \App\Models\ResearchSchema::create([
+            'name' => 'Skema Penelitian Unggulan',
+            'description' => 'Deskripsi skema penelitian unggulan',
+        ]);
+
+        // Create a proposal
+        $proposal = \App\Models\Proposal::factory()->create([
+            'user_id' => $this->adminKeuangan->id,
+            'research_schema_id' => $schema->id,
+        ]);
+
         // Create a contract
         $this->contract = Contract::create([
             'university_id' => $university->id,
+            'proposal_id' => $proposal->id,
             'contract_number' => 'KTR-TEST-001',
             'title' => 'Penelitian Uji Coba',
             'contract_value' => 100000000.00,
