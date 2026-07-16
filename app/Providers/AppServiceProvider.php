@@ -36,6 +36,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\EssayQuestion::class, \App\Policies\EssayQuestionPolicy::class);
         
 
+        // Proposal Verification Policy (Super Admin)
+        Gate::policy(\App\Models\Proposal::class, \App\Policies\ProposalPolicy::class);
+
         // Define additional gates if needed
         Gate::define('manage-universities', function ($user) {
             return $user->isSuperAdmin();

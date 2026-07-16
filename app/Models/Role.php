@@ -13,8 +13,6 @@ class Role extends Model
 
     public const ADMIN_KAMPUS = 'Admin Kampus';
 
-    public const ADMIN_KEUANGAN = 'Admin Keuangan';
-
     public const USER = 'User';
 
     public const PENGELOLA_JURNAL = 'Pengelola Jurnal';
@@ -91,14 +89,6 @@ class Role extends Model
     public function isAdminKampus(): bool
     {
         return $this->name === self::ADMIN_KAMPUS;
-    }
-
-    /**
-     * check if role is admin keuangan
-     */
-    public function isAdminKeuangan(): bool
-    {
-        return $this->name === self::ADMIN_KEUANGAN;
     }
 
     /**
