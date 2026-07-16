@@ -190,10 +190,11 @@ class JournalController extends Controller
             ->values();
 
         $pembinaanYears = \App\Models\PembinaanRegistration::query()
-            ->selectRaw('YEAR(registered_at) as year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year')
+            ->whereNotNull('registered_at')
+            ->pluck('registered_at')
+            ->map(fn ($date) => \Carbon\Carbon::parse($date)->year)
+            ->unique()
+            ->sortDesc()
             ->map(fn ($year) => ['value' => (string) $year, 'label' => (string) $year])
             ->values();
 

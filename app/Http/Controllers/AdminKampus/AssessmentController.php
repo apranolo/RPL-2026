@@ -80,10 +80,12 @@ class AssessmentController extends Controller
         $availableYears = JournalAssessment::whereHas('journal', function ($query) use ($user) {
             $query->where('university_id', $user->university_id);
         })
-            ->selectRaw('DISTINCT YEAR(assessment_date) as year')
             ->whereNotNull('assessment_date')
-            ->orderBy('year', 'desc')
-            ->pluck('year');
+            ->pluck('assessment_date')
+            ->map(fn ($date) => \Carbon\Carbon::parse($date)->year)
+            ->unique()
+            ->sortDesc()
+            ->values();
 
         return Inertia::render('AdminKampus/Assessments/Index', [
             'assessments' => $assessments,
