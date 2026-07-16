@@ -29,7 +29,7 @@ class UserFundingController extends Controller
         $fundingStats['total_remaining'] = $fundingStats['total_approved'] - $fundingStats['total_disbursed'];
 
         $contracts = $baseQuery
-            ->with(['proposal:id,judul', 'fundings' => fn ($q) => $q->orderBy('funding_number')])
+            ->with(['proposal:id,title', 'fundings' => fn ($q) => $q->orderBy('funding_number')])
             ->orderByDesc('created_at')
             ->paginate(10)
             ->withQueryString();
@@ -43,7 +43,7 @@ class UserFundingController extends Controller
             return [
                 'id' => $contract->id,
                 'contract_number' => $contract->contract_number,
-                'title' => $contract->title ?? $contract->proposal?->judul,
+                'title' => $contract->title ?? $contract->proposal?->title,
                 'start_date' => $contract->start_date?->format('Y-m-d'),
                 'contract_value' => (float) $contract->contract_value,
                 'status' => $contract->status,

@@ -1,3 +1,24 @@
+/**
+ * FundingInfo Component
+ *
+ * @description
+ * Component untuk menampilkan rincian dana cair bagi dosen/peneliti.
+ * Menampilkan informasi tentang:
+ * - Ringkasan dana (total disetujui, cair, sisa)
+ * - Daftar kontrak penelitian
+ * - Detail termin pencairan per kontrak
+ * - Progress bar serapan dana
+ *
+ * @features
+ * - Dashboard ringkasan dana
+ * - List kontrak dengan pagination
+ * - Detail termin pencairan
+ * - Progress bar visual
+ * - Status badge untuk setiap termin
+ * - Download bukti pencairan
+ *
+ * @route GET /user/funding
+ */
 import { Head, usePage } from '@inertiajs/react';
 import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock, Download, FileText } from 'lucide-react';
 import { useState } from 'react';
