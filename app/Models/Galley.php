@@ -44,6 +44,9 @@ class Galley extends Model
      */
     protected $appends = [
         'file_url',
+        'id_submission',
+        'id_issue',
+        'pages',
     ];
 
     /*
@@ -71,7 +74,7 @@ class Galley extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Accessors
+    | Accessors & Mutators
     |--------------------------------------------------------------------------
     |
     */
@@ -87,4 +90,56 @@ class Galley extends Model
 
         return Storage::url($this->file_path);
     }
+
+    /**
+     * Get id_submission (alias for submission_id).
+     */
+    public function getIdSubmissionAttribute(): ?int
+    {
+        return $this->submission_id;
+    }
+
+    /**
+     * Set id_submission (alias for submission_id).
+     */
+    public function setIdSubmissionAttribute($value): void
+    {
+        $this->attributes['submission_id'] = $value;
+    }
+
+    /**
+     * Get id_issue (alias for issue_id).
+     */
+    public function getIdIssueAttribute(): ?int
+    {
+        return $this->issue_id;
+    }
+
+    /**
+     * Set id_issue (alias for issue_id).
+     */
+    public function setIdIssueAttribute($value): void
+    {
+        $this->attributes['issue_id'] = $value;
+    }
+
+    /**
+     * Get pages (formatted page range).
+     */
+    public function getPagesAttribute(): ?string
+    {
+        if ($this->page_from === null && $this->page_to === null) {
+            return null;
+        }
+
+        if ($this->page_from !== null && $this->page_to !== null) {
+            if ($this->page_from === $this->page_to) {
+                return (string) $this->page_from;
+            }
+            return "{$this->page_from}-{$this->page_to}";
+        }
+
+        return (string) ($this->page_from ?? $this->page_to);
+    }
 }
+
