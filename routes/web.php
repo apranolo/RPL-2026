@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
@@ -734,6 +735,11 @@ Route::middleware(['auth'])->group(function () {
     // });
 
     Route::post('/user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])->name('user.bank.update');
+
+    // Rute Undangan Reviewer (Dilindungi middleware Editor agar aman)
+    Route::post('/review/invite', [ReviewAssignmentController::class, 'invite'])
+        ->middleware(['role:Editor'])
+        ->name('review.invite');
 });
 
     
