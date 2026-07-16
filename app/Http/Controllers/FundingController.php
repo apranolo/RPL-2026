@@ -2,12 +2,66 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contract;
 use App\Models\Funding;
+use App\Http\Requests\StoreFundingRequest;
+use App\Services\FundingService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class FundingController extends Controller
 {
+    /**
+     * Menampilkan form pembuatan termin pencairan dana
+     */
+    public function create(Request $request, Contract $contract)
+    {
+        $service = app(FundingService::class);
+        $sisa = $service->calculateSisa($contract);
+
+        $contract->load(['proposal', 'fundings' => function ($query) {
+            $query->where('status', '!=', Funding::STATUS_CANCELLED)
+                ->orderBy('created_at', 'asc');
+        }]);
+
+        return Inertia::render('Finance/Funding/Create', [
+            'contract' => $contract,
+            'termins' => $contract->fundings,
+            'sisa' => $sisa,
+        ]);
+    }
+
+    /**
+     * Menyimpan data termin pencairan baru
+     */
+    public function storeTermin(StoreFundingRequest $request)
+    {
+        $validated = $request->validated();
+        $contract = Contract::findOrFail($validated['contract_id']);
+
+        $service = app(FundingService::class);
+        $fundingNumber = $service->generateFundingNumber($contract);
+
+        // Hitung nominal dari persentase
+        $amount = ((float) $validated['percentage'] / 100) * (float) $contract->contract_value;
+
+        Funding::create([
+            'contract_id' => $contract->id,
+            'funding_number' => $fundingNumber,
+            'description' => $validated['description'] ?? null,
+            'amount' => round($amount, 2),
+            'percentage' => $validated['percentage'],
+            'status' => Funding::STATUS_PLANNED,
+            'funding_date' => $validated['funding_date'] ?? null,
+            'due_date' => $validated['due_date'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        return redirect()->route('finance.funding.create', $contract->id)
+            ->with('success', 'Termin pencairan berhasil ditambahkan.');
+    }
+
     /**
      * Mencetak kwitansi termin ke dalam format PDF
      */
