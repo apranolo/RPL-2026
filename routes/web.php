@@ -531,10 +531,15 @@ Route::middleware(['auth'])->group(function () {
                 ->name('registrations.create-assessment');
         });
 
-        Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
-        Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
-        Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
-        Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
+        // Outputs (Luaran) Management
+        Route::prefix('outputs')->name('outputs.')->group(function () {
+            Route::get('/', [OutputController::class, 'index'])->name('index');
+            Route::get('create', [OutputController::class, 'create'])->name('create');
+            Route::post('store-journal', [OutputController::class, 'storeJournal'])->name('store-journal');
+            Route::get('{output}/edit', [OutputController::class, 'edit'])->name('edit');
+            Route::put('{output}', [OutputController::class, 'update'])->name('update');
+            Route::delete('{output}', [OutputController::class, 'destroy'])->name('destroy');
+        });
 
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
