@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('editorial_assignments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
+            $table->foreignId('editor_id')->constrained('users')->cascadeOnDelete();
+            $table->enum('role', ['Pengelola Jurnal', 'Reviewer'])->default('Pengelola Jurnal');
+            $table->enum('status', ['active', 'completed', 'cancelled'])->default('active');
+            $table->timestamp('assigned_at')->useCurrent();
+            $table->timestamp('completed_at')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('editorial_assignments');
+    }
+};
