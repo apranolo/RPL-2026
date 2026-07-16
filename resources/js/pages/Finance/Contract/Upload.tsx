@@ -1,5 +1,3 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { FormEvent } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { ArrowLeft, Upload as UploadIcon } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import { FormEvent } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -96,9 +95,7 @@ export default function Upload({ contractId }: Props) {
                                         form.setData('document', file);
                                     }}
                                 />
-                                {form.errors.document && (
-                                    <p className="text-sm text-destructive">{form.errors.document}</p>
-                                )}
+                                {form.errors.document && <p className="text-sm text-destructive">{form.errors.document}</p>}
                                 <p className="text-sm text-muted-foreground">Hanya file PDF, maksimal 5MB.</p>
                             </div>
 

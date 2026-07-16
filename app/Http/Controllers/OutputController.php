@@ -60,4 +60,3 @@ class OutputController extends Controller
         return redirect()->route('user.outputs.index')->with('message', 'Output deleted successfully');
     }
 }
-

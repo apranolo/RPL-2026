@@ -29,7 +29,7 @@ test('editorial desk inbox displays correct counts of submissions per status', f
     $this->seedRoles();
     $editor = User::factory()->user()->create();
     $author = User::factory()->create();
-    
+
     // Seed university and field first so JournalFactory works smoothly
     $journal = Journal::factory()->create(['user_id' => $editor->id]);
 
@@ -67,7 +67,7 @@ test('editorial desk inbox displays correct counts of submissions per status', f
     $response = $this->get('/user/editorial/desk/inbox');
 
     $response->assertOk();
-    
+
     // Verify inertia props contains correct counts
     $response->assertInertia(fn ($page) => $page
         ->component('Editorial/Desk/Inbox')

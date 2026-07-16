@@ -1,6 +1,7 @@
 <?php
 
 /** @author KHANSA KAMILAH LICTJELITA */
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -17,13 +18,13 @@ class UserBankController extends Controller
         ]);
 
         $user = Auth::user();
-        
+
         $user->update([
             'bank_name' => $validated['bank_name'],
             'account_number' => $validated['account_number'],
             'account_name' => $validated['account_name'],
         ]);
-        
+
         return back()->with('success', 'Data rekening bank berhasil disinkronisasi.');
     }
 }
