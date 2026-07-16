@@ -15,6 +15,8 @@ class Proposal extends Model
         'deskripsi',
         'user_id',
         'research_schema_id',
+        'status_proposal',
+        'rejection_reason',
     ];
 
     // Relasi ke User (Dosen)
