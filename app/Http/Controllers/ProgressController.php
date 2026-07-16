@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ProgressReport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -121,27 +122,38 @@ class ProgressController extends Controller
     }
 
     /**
-     * Display a listing of laporan kemajuan milik user.
-     *
-     * @route GET /dosen/progress
+     * Display a listing of progress reports for the authenticated user (Dosen).
      */
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
-        $user = $request->user();
+        $user = Auth::user();
 
-        $reports = ProgressReport::where('user_id', $user->id)
-            ->when($request->search, fn ($q, $search) => $q->where('judul', 'like', "%{$search}%"))
-            ->when($request->status, fn ($q, $status) => $q->where('status', $status))
-            ->latest('tanggal_laporan')
-            ->paginate(10)
-            ->withQueryString();
+        $query = ProgressReport::where('user_id', $user->id)
+            ->with(['proposal', 'contract', 'evaluations.reviewer']);
+
+        // Search by title
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by status
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        // Filter by report type
+        if ($reportType = $request->input('report_type')) {
+            $query->where('report_type', $reportType);
+        }
+
+        $progressReports = $query->latest()->paginate(10)->withQueryString();
 
         return Inertia::render('Progress/Index', [
-            'reports' => $reports,
-            'filters' => [
-                'search' => $request->search,
-                'status' => $request->status,
-            ],
+            'progressReports' => $progressReports,
+            'filters' => $request->only(['search', 'status', 'report_type']),
         ]);
     }
 }

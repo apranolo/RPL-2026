@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('progress_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('proposal_id')->constrained('proposals')->onDelete('cascade');
+            $table->foreignId('contract_id')->nullable()->constrained('contracts')->onDelete('set null');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->text('content');
+            $table->enum('report_type', ['logbook', 'laporan_kemajuan', 'laporan_akhir']);
+            $table->date('report_date');
             $table->tinyInteger('progress_percentage')->default(0);
             $table->string('report_period');
             $table->string('attachment_path')->nullable();

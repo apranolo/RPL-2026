@@ -26,6 +26,9 @@ return new class extends Migration
             );
 
             if (! empty($columnsToDrop)) {
+                if (DB::getDriverName() === 'sqlite' && in_array('accreditation_expiry_date', $columnsToDrop)) {
+                    $table->dropIndex(['accreditation_expiry_date']);
+                }
                 $table->dropColumn(array_values($columnsToDrop));
             }
         });
