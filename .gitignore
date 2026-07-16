@@ -19,14 +19,9 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
-docker-compose.yml
-Dockerfile
 /auth.json
 /.fleet
 /.idea
 /.nova
 /.vscode
 /.zed
-/.github/instructions   
-/.agents/workflows
-/docs/guidence rpl 2026/specs/TEMPLATE_VIEW_SPEC.md

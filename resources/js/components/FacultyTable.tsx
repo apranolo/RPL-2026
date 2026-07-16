@@ -1,61 +1,189 @@
 /**
- * FacultyTable Component
- *
- * @description
- * Rekapitulasi performa proposal dan penerimaan per fakultas.
- *
- * @author JurnalMU Team
- * @filepath /resources/js/components/FacultyTable.tsx
+ * @file FacultyTable.tsx
+ * @description Komponen tabel untuk menampilkan rekap performa jumlah proposal dan luaran per Fakultas/Prodi.
+ * @module Dashboard/Reporting
  */
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Building2, Search } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
-import React from 'react';
-
-interface FacultyPerformanceItem {
+/**
+ * Faculty performance statistics shape (Modul 6 Kelas B).
+ * Matches the data returned by DashboardController::getFacultyStat()
+ */
+export interface FacultyStat {
     faculty_name: string;
     submitted: number;
     accepted: number;
 }
 
 interface FacultyTableProps {
-    data: FacultyPerformanceItem[];
+    /** Array of faculty statistics from getFacultyStat() */
+    data: FacultyStat[];
 }
 
+type SortField = 'faculty_name' | 'submitted' | 'accepted';
+type SortDirection = 'asc' | 'desc';
+
+/**
+ * FacultyTable — Tabel rekap performa Fakultas/Prodi pada Admin Dashboard.
+ *
+ * Menampilkan:
+ * - Jumlah proposal yang diajukan (submitted)
+ * - Jumlah luaran yang disetujui (accepted)
+ *
+ * Features:
+ * - Filter pencarian berdasarkan nama fakultas
+ * - Sorting per kolom (klik header)
+ * - Responsive dengan horizontal scroll
+ */
 export default function FacultyTable({ data }: FacultyTableProps) {
+    const [search, setSearch] = useState('');
+    const [sortField, setSortField] = useState<SortField>('submitted');
+    const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+    const handleSort = (field: SortField) => {
+        if (sortField === field) {
+            setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+        } else {
+            setSortField(field);
+            setSortDirection('desc');
+        }
+    };
+
+    const SortIndicator = ({ field }: { field: SortField }) => {
+        if (sortField !== field) return <span className="ml-1 text-muted-foreground/40">↕</span>;
+        return <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
+    };
+
+    const filteredData = useMemo(() => {
+        let result = data;
+
+        if (search.trim()) {
+            const q = search.toLowerCase();
+            result = result.filter((item) => item.faculty_name.toLowerCase().includes(q));
+        }
+
+        result = [...result].sort((a, b) => {
+            const aVal = a[sortField];
+            const bVal = b[sortField];
+
+            if (typeof aVal === 'string' && typeof bVal === 'string') {
+                return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            }
+
+            const numA = Number(aVal) || 0;
+            const numB = Number(bVal) || 0;
+            return sortDirection === 'asc' ? numA - numB : numB - numA;
+        });
+
+        return result;
+    }, [data, search, sortField, sortDirection]);
+
+    const totals = useMemo(
+        () => ({
+            submitted: data.reduce((sum, d) => sum + d.submitted, 0),
+            accepted: data.reduce((sum, d) => sum + d.accepted, 0),
+        }),
+        [data],
+    );
+
+    if (!data || data.length === 0) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Building2 className="h-5 w-5" />
+                        Rekap Performa Fakultas/Prodi
+                    </CardTitle>
+                    <CardDescription>Belum ada data fakultas yang tersedia.</CardDescription>
+                </CardHeader>
+            </Card>
+        );
+    }
+
     return (
-        <div className="overflow-hidden rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-neutral-950">
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-left text-sm text-gray-500 dark:text-gray-400">
-                    <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-neutral-900 dark:text-gray-300">
-                        <tr>
-                            <th scope="col" className="px-6 py-3 font-semibold">Nama Bidang / Fakultas</th>
-                            <th scope="col" className="px-6 py-3 text-center font-semibold">Proposal Diajukan</th>
-                            <th scope="col" className="px-6 py-3 text-center font-semibold">Proposal Diterima</th>
-                            <th scope="col" className="px-6 py-3 text-center font-semibold">Rasio Keberhasilan</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-neutral-800">
-                        {data.map((item, idx) => {
-                            const rate = item.submitted > 0 ? Math.round((item.accepted / item.submitted) * 100) : 0;
-                            return (
-                                <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-neutral-900/50">
-                                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{item.faculty_name}</td>
-                                    <td className="px-6 py-4 text-center text-gray-900 dark:text-white">{item.submitted}</td>
-                                    <td className="px-6 py-4 text-center text-gray-900 dark:text-white">{item.accepted}</td>
-                                    <td className="px-6 py-4 text-center">
-                                        <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
-                                            rate >= 70 ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' :
-                                            rate >= 40 ? 'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400' :
-                                            'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'
-                                        }`}>
-                                            {rate}%
-                                        </span>
+        <Card>
+            <CardHeader>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <CardTitle className="flex items-center gap-2">
+                            <Building2 className="h-5 w-5" />
+                            Rekap Performa Fakultas/Prodi
+                        </CardTitle>
+                        <CardDescription>
+                            {data.length} Fakultas/Prodi — {totals.submitted} Proposal Diajukan — {totals.accepted} Luaran Disetujui
+                        </CardDescription>
+                    </div>
+
+                    <div className="relative w-full sm:w-64">
+                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <input
+                            id="faculty-search"
+                            type="text"
+                            placeholder="Cari fakultas..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full rounded-lg border border-input bg-background py-2 pr-4 pl-9 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
+                        />
+                    </div>
+                </div>
+            </CardHeader>
+
+            <CardContent>
+                <div className="overflow-x-auto rounded-lg border">
+                    <table className="w-full min-w-[500px] text-sm">
+                        <thead>
+                            <tr className="border-b bg-muted/50">
+                                <th className="w-14 px-4 py-3 text-left font-medium text-muted-foreground">#</th>
+                                <th
+                                    className="cursor-pointer px-4 py-3 text-left font-medium text-muted-foreground transition-colors hover:text-foreground"
+                                    onClick={() => handleSort('faculty_name')}
+                                >
+                                    Fakultas / Program Studi
+                                    <SortIndicator field="faculty_name" />
+                                </th>
+                                <th
+                                    className="cursor-pointer px-4 py-3 text-center font-medium text-muted-foreground transition-colors hover:text-foreground"
+                                    onClick={() => handleSort('submitted')}
+                                >
+                                    Proposal Diajukan
+                                    <SortIndicator field="submitted" />
+                                </th>
+                                <th
+                                    className="cursor-pointer px-4 py-3 text-center font-medium text-muted-foreground transition-colors hover:text-foreground"
+                                    onClick={() => handleSort('accepted')}
+                                >
+                                    Luaran Disetujui
+                                    <SortIndicator field="accepted" />
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                            {filteredData.map((item, index) => (
+                                <tr key={item.faculty_name} className="transition-colors hover:bg-muted/30">
+                                    <td className="px-4 py-3 text-muted-foreground">{index + 1}</td>
+                                    <td className="px-4 py-3 font-medium">{item.faculty_name}</td>
+                                    <td className="px-4 py-3 text-center">
+                                        <span className="font-semibold text-blue-600 dark:text-blue-400">{item.submitted}</span>
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">{item.accepted}</span>
                                     </td>
                                 </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                            ))}
+
+                            {filteredData.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
+                                        Tidak ada fakultas yang cocok dengan pencarian &ldquo;{search}&rdquo;
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </CardContent>
+        </Card>
     );
 }

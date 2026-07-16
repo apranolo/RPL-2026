@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
@@ -40,6 +41,7 @@ use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\ProfileController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -493,7 +495,15 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
         Route::get('contracts', [ContractController::class, 'index'])
             ->name('contracts.index');
+
+        // Funding Termin Routes
+        Route::post('funding/store-termin', [\App\Http\Controllers\FundingController::class, 'storeTermin'])
+            ->name('funding.store-termin');
     });
+
+    Route::get('finance/contracts/{contract}/funding/create', [\App\Http\Controllers\FundingController::class, 'create'])
+        ->middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])
+        ->name('finance.funding.create');
 
     /*
     |--------------------------------------------------------------------------
@@ -713,8 +723,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [DiscussionController::class, 'store'])
             ->name('store');
 
-        Route::post('/{discussion}/message', [DiscussionController::class, 'reply'])
-            ->name('message.store');
+        Route::post('/discussions/{parentMessage}/reply', [DiscussionController::class, 'reply'])
+            ->name('reply');
+
+        Route::post('/discussions/{message}/upload-attachment', [DiscussionController::class, 'uploadAttachment'])
+            ->name('message.upload-attachment');
     });
 
 
@@ -734,6 +747,21 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('proposal', ProposalController::class);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Author Profile Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('profile')->name('profile.')->group(function () {
+
+        Route::get('/', [ProfileController::class, 'show'])
+            ->name('show');
+
+        Route::post('/', [ProfileController::class, 'update'])
+            ->name('update');
+    });
+
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {
     //     Route::get('/', [ProfileController::class, 'edit'])->name('edit');
@@ -742,6 +770,11 @@ Route::middleware(['auth'])->group(function () {
     // });
 
     Route::post('/user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])->name('user.bank.update');
+
+    // Rute Undangan Reviewer (Dilindungi middleware Editor agar aman)
+    Route::post('/review/invite', [ReviewAssignmentController::class, 'invite'])
+        ->middleware(['role:Editor'])
+        ->name('review.invite');
 });
 
     

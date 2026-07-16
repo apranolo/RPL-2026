@@ -89,8 +89,9 @@ export default function AdminDashboard({
 
     // Map faculty performance to category distribution for PieChart
     const pieChartData = facultyPerformance.map(item => ({
-        name: item.faculty_name,
-        value: item.submitted
+        label: item.faculty_name,
+        value: item.submitted,
+        percentage: 0 // Handled by PieChart calculation
     }));
 
     return (
@@ -160,11 +161,8 @@ export default function AdminDashboard({
                     </div>
 
                     {/* Right: PieChart (40%) */}
-                    <div className="lg:col-span-2 rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950 shadow-sm">
-                        <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">
-                            Sebaran Bidang Ilmu / Kategori Proposal
-                        </h2>
-                        <PieChart data={pieChartData} />
+                    <div className="lg:col-span-2">
+                        <PieChart title="Sebaran Bidang Ilmu / Kategori Proposal" categories={pieChartData} />
                     </div>
                 </div>
 
@@ -183,10 +181,7 @@ export default function AdminDashboard({
                 </div>
 
                 {/* ROW 4: Detailed Faculty Table */}
-                <div className="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950 shadow-sm">
-                    <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">
-                        Rekapitulasi Performa per Bidang / Fakultas
-                    </h2>
+                <div className="lg:col-span-5">
                     <FacultyTable data={facultyPerformance} />
                 </div>
             </div>
