@@ -125,60 +125,30 @@ class Contract extends Model
                 ->orWhere('title', 'like', "%{$search}%")
                 ->orWhereHas('university', function (Builder $universityQuery) use ($search) {
                     $universityQuery->where('name', 'like', "%{$search}%")
-                        ->orWhere('short_name', 'like', "%{$search}%")
-                        ->orWhere('code', 'like', "%{$search}%");
+                        ->orWhere('short_name', 'like', "%{$search}%");
                 });
         });
     }
 
-    public function scopeByStatus(Builder $query, ?string $status): Builder
-    {
-        if (! $status) {
-            return $query;
-        }
-
-        return $query->where('status', $status);
-    }
-
     /*
     |--------------------------------------------------------------------------
-    | Accessors & Helpers
+    | Accessors & Mutators
     |--------------------------------------------------------------------------
     */
 
-    public function getNomorKontrakAttribute(): string
+    public function getNomorKontrakAttribute(): ?string
     {
         return $this->contract_number;
     }
 
-    public function getTotalPendanaanDisetujuiAttribute()
+    public function getTotalPendanaanDisetujuiAttribute(): ?string
     {
         return $this->contract_value;
     }
 
-    public function getStatusKontrakAttribute(): string
+    public function getStatusKontrakAttribute(): ?string
     {
-        return match ($this->status) {
-            self::STATUS_ACTIVE => 'Aktif',
-            self::STATUS_COMPLETED => 'Selesai',
-            self::STATUS_CANCELLED => 'Ditangguhkan',
-            default => 'Draft',
-        };
-    }
-
-    public function getStatusLabelAttribute(): string
-    {
-        return self::getStatusOptions()[$this->status] ?? $this->status;
-    }
-
-    public function getStatusColorAttribute(): string
-    {
-        return match ($this->status) {
-            self::STATUS_ACTIVE => 'green',
-            self::STATUS_COMPLETED => 'blue',
-            self::STATUS_CANCELLED => 'red',
-            default => 'gray',
-        };
+        return $this->status;
     }
 
     /**
