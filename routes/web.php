@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataMasterController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\EssayQuestionController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
@@ -38,11 +40,13 @@ use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
+use App\Http\Controllers\Revision\RevisionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -145,6 +149,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // Author Submission Wizard Step 4 Routes
+    Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
+    Route::post('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'saveStep4'])->name('submissions.wizard.save-step4');
+
     // Dashboard Admin
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
@@ -185,6 +193,8 @@ Route::middleware(['auth'])->group(function () {
         // Sistem Profil (Ubah Logo/Nama App)
         Route::get('settings/profile', [SettingsCtrl::class, 'index'])->name('settings.profile');
         Route::post('settings/profile', [SettingsCtrl::class, 'update'])->name('settings.profile.update');
+
+
 
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
@@ -336,6 +346,10 @@ Route::middleware(['auth'])->group(function () {
             // Penentuan Keputusan Diterima/Ditolak (Decision)
             Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
                 ->name('decision.decide');
+
+            // Admin Dashboard (LPPM)
+            Route::get('dashboard', [AdminDashboardController::class, 'index'])
+                ->name('dashboard');
         });
 
     /*
@@ -622,7 +636,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
-            //
+            Route::post('{proposal}/documents', [\App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.store');
         });
     });
 
@@ -709,6 +723,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /*
+    |--------------------------------------------------------------------------
     | Submission Discussion Routes (v1.1)
     |--------------------------------------------------------------------------
     */
@@ -743,19 +758,38 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('proposal', ProposalController::class);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Author Profile Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('profile')->name('profile.')->group(function () {
+
+        Route::get('/', [ProfileController::class, 'show'])
+            ->name('show');
+
+        Route::post('/', [ProfileController::class, 'update'])
+            ->name('update');
+    });
+
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {
     //     Route::get('/', [ProfileController::class, 'edit'])->name('edit');
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+    Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
+    ->prefix('editorial')
+    ->name('editorial.')
+    ->group(function () {
 
-    Route::post('/user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])->name('user.bank.update');
+        Route::post(
+            '/submissions/{id_submission}/notify-author',
+            [RevisionController::class, 'notifyAuthor']
+        )->name('revision.notify-author');
 
-    // Rute Undangan Reviewer (Dilindungi middleware Editor agar aman)
-    Route::post('/review/invite', [ReviewAssignmentController::class, 'invite'])
-        ->middleware(['role:Editor'])
-        ->name('review.invite');
+    });
 });
 
 require __DIR__.'/settings.php';

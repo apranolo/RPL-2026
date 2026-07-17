@@ -106,11 +106,20 @@ class User extends Authenticatable
         ];
     }
 
-    /*
+   /*
     |--------------------------------------------------------------------------
     | Relationships
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Get all submissions created by this user (Author)
+     * Sesuai dengan spesifikasi relasi PRD Modul 2
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'author_id');
+    }
 
     /**
      * Get the role of this user (backwards compatibility - returns primary role)
@@ -246,7 +255,6 @@ class User extends Authenticatable
     {
         return $this->hasOne(ReviewerProfile::class);
     }
-
     /*
     |--------------------------------------------------------------------------
     | Scopes
@@ -382,18 +390,6 @@ class User extends Authenticatable
 
         // Check in roles relationship (multi-role)
         return $this->roles()->where('name', Role::ADMIN_KAMPUS)->exists();
-    }
-
-    /**
-     * Check if user is Admin Keuangan
-     */
-    public function isAdminKeuangan(): bool
-    {
-        if ($this->role && $this->role->name === Role::ADMIN_KEUANGAN) {
-            return true;
-        }
-
-        return $this->roles()->where('name', Role::ADMIN_KEUANGAN)->exists();
     }
 
     /**

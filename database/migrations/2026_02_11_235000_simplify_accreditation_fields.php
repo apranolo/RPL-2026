@@ -59,6 +59,10 @@ return new class extends Migration
             $table->renameColumn('sinta_rank_new', 'sinta_rank');
         });
 
+        Schema::table('journals', function (Blueprint $table) {
+            $table->index('sinta_rank');
+        });
+
         // Step 3: Make e_issn and oai_pmh_url NOT NULL with defaults
         DB::statement("UPDATE journals SET e_issn = '' WHERE e_issn IS NULL");
         DB::statement("UPDATE journals SET oai_pmh_url = '' WHERE oai_pmh_url IS NULL");

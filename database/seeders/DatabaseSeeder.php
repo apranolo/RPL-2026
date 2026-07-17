@@ -32,9 +32,6 @@ class DatabaseSeeder extends Seeder
             EmailTemplateSeeder::class,     // Email templates (depends on journals, optional)
             AssessmentSeeder::class,        // 10. Assessments with Journal Metadata (depends on: journals, users, indicators)
             PembinaanSeeder::class,         // 11. Pembinaan System (depends on: journals, users, templates)
-
-            ResearchSchemaSeeder::class,
-            ProposalSeeder::class,
         ]);
 
         $this->command->info('');

@@ -4,22 +4,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { ROLE_NAMES } from '@/constants/roles';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import {
-    Award,
-    BookOpen,
-    BookType,
-    Box,
-    Building2,
-    CalendarDays,
-    ClipboardList,
-    FileText,
-    LayoutGrid,
-    Library,
-    LifeBuoy,
-    UserCheck,
-    Users,
-} from 'lucide-react';
-
+import { Award, BookOpen, BookType, Box, Building2, ClipboardList, LayoutGrid, Library, LifeBuoy, UserCheck, Users, CalendarDays, FileText, } from 'lucide-react';
 import AppLogo from './app-logo';
 
 // Common navigation items shared across all roles
