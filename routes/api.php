@@ -55,4 +55,7 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
         Route::get('/by-category', [OutputStatsController::class, 'getCategory']);
         Route::get('/yearly',      [OutputStatsController::class, 'getYearly']);
     });
+
+    // Budget Stats
+    Route::get('/budget/stats', [\App\Http\Controllers\Api\BudgetController::class, 'getStats']);
 });
