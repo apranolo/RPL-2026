@@ -54,10 +54,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function IssueCreate() {
     const { data, setData, post, processing, errors } = useForm({
         volume: '',
-        nomor: '',
-        tahun: new Date().getFullYear(),
-        judul_tematik: '',
-        deskripsi: '',
+        number: '',
+        year: new Date().getFullYear(),
+        title: '',
+        description: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -106,7 +106,7 @@ export default function IssueCreate() {
                                     </Label>
                                     <Input
                                         id="volume"
-                                        type="text"
+                                        type="number"
                                         value={data.volume}
                                         onChange={(e) => setData('volume', e.target.value)}
                                         placeholder="Contoh: 1"
@@ -118,36 +118,36 @@ export default function IssueCreate() {
 
                                 {/* Nomor */}
                                 <div>
-                                    <Label htmlFor="nomor">
+                                    <Label htmlFor="number">
                                         Nomor <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
-                                        id="nomor"
-                                        type="text"
-                                        value={data.nomor}
-                                        onChange={(e) => setData('nomor', e.target.value)}
+                                        id="number"
+                                        type="number"
+                                        value={data.number}
+                                        onChange={(e) => setData('number', e.target.value)}
                                         placeholder="Contoh: 1"
                                         required
                                         className="mt-2"
                                     />
-                                    <InputError message={errors.nomor} />
+                                    <InputError message={errors.number} />
                                 </div>
 
                                 {/* Tahun */}
                                 <div>
-                                    <Label htmlFor="tahun">
+                                    <Label htmlFor="year">
                                         Tahun <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
-                                        id="tahun"
+                                        id="year"
                                         type="number"
-                                        value={data.tahun}
-                                        onChange={(e) => setData('tahun', parseInt(e.target.value))}
+                                        value={data.year}
+                                        onChange={(e) => setData('year', parseInt(e.target.value))}
                                         placeholder="Contoh: 2026"
                                         required
                                         className="mt-2"
                                     />
-                                    <InputError message={errors.tahun} />
+                                    <InputError message={errors.year} />
                                 </div>
                             </div>
                         </div>
@@ -160,31 +160,31 @@ export default function IssueCreate() {
 
                             {/* Judul Tematik */}
                             <div>
-                                <Label htmlFor="judul_tematik">Judul Tematik</Label>
+                                <Label htmlFor="title">Judul Tematik</Label>
                                 <Input
-                                    id="judul_tematik"
+                                    id="title"
                                     type="text"
-                                    value={data.judul_tematik}
-                                    onChange={(e) => setData('judul_tematik', e.target.value)}
+                                    value={data.title}
+                                    onChange={(e) => setData('title', e.target.value)}
                                     placeholder="Masukkan judul tematik (jika ada)"
                                     className="mt-2"
                                 />
                                 <p className="mt-1 text-xs text-muted-foreground">Opsional. Isi jika issue ini memiliki tema khusus.</p>
-                                <InputError message={errors.judul_tematik} />
+                                <InputError message={errors.title} />
                             </div>
 
                             {/* Deskripsi */}
                             <div>
-                                <Label htmlFor="deskripsi">Deskripsi</Label>
+                                <Label htmlFor="description">Deskripsi</Label>
                                 <Textarea
-                                    id="deskripsi"
+                                    id="description"
                                     rows={4}
-                                    value={data.deskripsi}
-                                    onChange={(e) => setData('deskripsi', e.target.value)}
+                                    value={data.description}
+                                    onChange={(e) => setData('description', e.target.value)}
                                     placeholder="Masukkan deskripsi issue ini"
                                     className="mt-2"
                                 />
-                                <InputError message={errors.deskripsi} />
+                                <InputError message={errors.description} />
                             </div>
                         </div>
 

@@ -36,11 +36,11 @@ test('production issue create page is rendered', function () {
 
 test('can submit new issue to store', function () {
     $payload = [
-        'volume' => '1',
-        'nomor' => '2',
-        'tahun' => 2026,
-        'judul_tematik' => 'Inovasi Teknologi Terkini',
-        'deskripsi' => 'Kumpulan jurnal tentang inovasi terbaru di bidang rekayasa perangkat lunak.',
+        'volume' => 1,
+        'number' => 2,
+        'year' => 2026,
+        'title' => 'Inovasi Teknologi Terkini',
+        'description' => 'Kumpulan jurnal tentang inovasi terbaru di bidang rekayasa perangkat lunak.',
     ];
 
     $response = $this->actingAs($this->user)
@@ -49,11 +49,11 @@ test('can submit new issue to store', function () {
     $response->assertRedirect(route('production.issue.create'));
     $response->assertSessionHasNoErrors();
     
-    $this->assertDatabaseHas('production_issues', [
+    $this->assertDatabaseHas('issues', [
         'journal_id' => $this->journal->id,
-        'volume' => '1',
-        'nomor' => '2',
-        'tahun' => 2026,
-        'judul_tematik' => 'Inovasi Teknologi Terkini',
+        'volume' => 1,
+        'number' => 2,
+        'year' => 2026,
+        'title' => 'Inovasi Teknologi Terkini',
     ]);
 });

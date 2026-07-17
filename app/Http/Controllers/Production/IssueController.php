@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProductionIssue;
+use App\Http\Requests\StoreIssueRequest;
+use App\Models\Issue;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -20,15 +21,9 @@ class IssueController extends Controller
     /**
      * Store a newly created production issue in storage.
      */
-    public function store(Request $request)
+    public function store(StoreIssueRequest $request)
     {
-        $validated = $request->validate([
-            'volume' => 'required|string|max:50',
-            'nomor' => 'required|string|max:50',
-            'tahun' => 'required|integer|min:1900|max:2100',
-            'judul_tematik' => 'nullable|string|max:255',
-            'deskripsi' => 'nullable|string|max:2000',
-        ]);
+        $validated = $request->validated();
 
         try {
             // Get the user's first journal as default context
@@ -40,10 +35,23 @@ class IssueController extends Controller
                 ]);
             }
 
-            ProductionIssue::create([
+            // Validasi keunikan kombinasi [volume, number, year]
+            $exists = Issue::where('journal_id', $journal->id)
+                ->where('volume', $validated['volume'])
+                ->where('number', $validated['number'])
+                ->where('year', $validated['year'])
+                ->exists();
+
+            if ($exists) {
+                return back()->withErrors([
+                    'number' => 'Kombinasi Volume, Nomor, dan Tahun sudah digunakan.',
+                ])->withInput();
+            }
+
+            Issue::create([
                 ...$validated,
                 'journal_id' => $journal->id,
-                'status' => 'draft',
+                'status' => 'Draft',
             ]);
 
             return redirect()
