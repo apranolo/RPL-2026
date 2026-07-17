@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProductionIssue;
+use App\Models\Issue;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Validation\Rule;
 
 class IssueController extends Controller
 {
@@ -23,11 +24,11 @@ class IssueController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'volume' => 'required|string|max:50',
-            'nomor' => 'required|string|max:50',
-            'tahun' => 'required|integer|min:1900|max:2100',
-            'judul_tematik' => 'nullable|string|max:255',
-            'deskripsi' => 'nullable|string|max:2000',
+            'volume' => 'required|integer|min:1',
+            'number' => 'required|integer|min:1',
+            'year' => 'required|integer|min:1900|max:2100',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:2000',
         ]);
 
         try {
@@ -40,7 +41,20 @@ class IssueController extends Controller
                 ]);
             }
 
-            ProductionIssue::create([
+            // Validasi keunikan kombinasi [volume, number, year]
+            $exists = Issue::where('journal_id', $journal->id)
+                ->where('volume', $validated['volume'])
+                ->where('number', $validated['number'])
+                ->where('year', $validated['year'])
+                ->exists();
+
+            if ($exists) {
+                return back()->withErrors([
+                    'number' => 'Kombinasi Volume, Nomor, dan Tahun sudah digunakan.',
+                ])->withInput();
+            }
+
+            Issue::create([
                 ...$validated,
                 'journal_id' => $journal->id,
                 'status' => 'draft',
@@ -59,7 +73,7 @@ class IssueController extends Controller
     /**
      * Show the form for editing the specified production issue.
      */
-    public function edit(ProductionIssue $issue)
+    public function edit(Issue $issue)
     {
         // Verifikasi kepemilikan: issue harus milik jurnal user yang login
         $journal = request()->user()->journals()->first();
@@ -70,10 +84,10 @@ class IssueController extends Controller
             'issue' => [
                 'id' => $issue->id,
                 'volume' => $issue->volume,
-                'nomor' => $issue->nomor,
-                'tahun' => $issue->tahun,
-                'judul_tematik' => $issue->judul_tematik,
-                'deskripsi' => $issue->deskripsi,
+                'number' => $issue->number,
+                'year' => $issue->year,
+                'title' => $issue->title,
+                'description' => $issue->description,
                 'status' => $issue->status,
             ],
         ]);
@@ -82,7 +96,7 @@ class IssueController extends Controller
     /**
      * Update the specified production issue in storage.
      */
-    public function update(Request $request, ProductionIssue $issue)
+    public function update(Request $request, Issue $issue)
     {
         // Verifikasi kepemilikan
         $journal = $request->user()->journals()->first();
@@ -90,12 +104,26 @@ class IssueController extends Controller
         abort_if($issue->status !== 'draft', 403, 'Only draft issues can be edited.');
 
         $validated = $request->validate([
-            'volume' => 'required|string|max:50',
-            'nomor' => 'required|string|max:50',
-            'tahun' => 'required|integer|min:1900|max:2100',
-            'judul_tematik' => 'nullable|string|max:255',
-            'deskripsi' => 'nullable|string|max:2000',
+            'volume' => 'required|integer|min:1',
+            'number' => 'required|integer|min:1',
+            'year' => 'required|integer|min:1900|max:2100',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:2000',
         ]);
+
+        // Validasi keunikan kombinasi [volume, number, year]
+        $exists = Issue::where('journal_id', $journal->id)
+            ->where('volume', $validated['volume'])
+            ->where('number', $validated['number'])
+            ->where('year', $validated['year'])
+            ->where('id', '!=', $issue->id)
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors([
+                'number' => 'Kombinasi Volume, Nomor, dan Tahun sudah digunakan.',
+            ])->withInput();
+        }
 
         $issue->update($validated);
 
