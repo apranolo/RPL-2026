@@ -45,6 +45,7 @@ use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
+use App\Http\Controllers\Revision\RevisionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -770,13 +771,17 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+    Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
+    ->prefix('editorial')
+    ->name('editorial.')
+    ->group(function () {
 
-    Route::post('/user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])->name('user.bank.update');
+        Route::post(
+            '/submissions/{id_submission}/notify-author',
+            [RevisionController::class, 'notifyAuthor']
+        )->name('revision.notify-author');
 
-    // Rute Undangan Reviewer (Dilindungi middleware Editor agar aman)
-    Route::post('/review/invite', [ReviewAssignmentController::class, 'invite'])
-        ->middleware(['role:Editor'])
-        ->name('review.invite');
+    });
 });
 
 require __DIR__.'/settings.php';
