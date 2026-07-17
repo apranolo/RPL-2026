@@ -1,26 +1,25 @@
-/**
- * MonevReport Component
- *
- * @description
- * Halaman Monev Report (Rekap Keseluruhan).
- * Halaman ini menampilkan ringkasan status progres penelitian dosen,
- * penyerapan anggaran penelitian, kinerja per fakultas, serta
- * rincian data laporan penelitian terbaru.
- *
- * @component
- *
- * @returns The rendered Monev Report component.
- */
-
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { Activity, CheckCircle, Clock, FileText, PieChart } from 'lucide-react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { Activity, CheckCircle, Clock, FileText, PieChart, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import AlertWarning from '@/components/AlertWarning';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormEvent, useState } from 'react';
+
+interface PaginatedData<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    from: number;
+    to: number;
+    total: number;
+    links: { url: string | null; label: string; active: boolean }[];
+}
 
 interface DataProp {
     ringkasan: {
@@ -39,7 +38,7 @@ interface DataProp {
         skor: number;
         status: string;
     }[];
-    penelitian_terbaru: {
+    penelitian_terbaru: PaginatedData<{
         id: number;
         judul_penelitian: string;
         nama_dosen: string;
@@ -47,21 +46,52 @@ interface DataProp {
         status: string;
         tanggal_update: string;
         is_late?: boolean;
-    }[];
+    }>;
 }
 
 interface Props {
     data: DataProp;
+    filters: {
+        search: string;
+        status: string;
+    };
 }
 
-export default function MonevReport({ data }: Props) {
+export default function MonevReport({ data, filters }: Props) {
+    const [search, setSearch] = useState(filters.search || '');
+    const [statusFilter, setStatusFilter] = useState(filters.status || 'all');
+    
+    // Safely determine current routing context for breadcrumbs
+    const isKampusAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin-kampus');
+    
+    const handleSearch = (e: FormEvent) => {
+        e.preventDefault();
+        router.get(
+            isKampusAdmin ? '/admin-kampus/monev/rekap-keseluruhan' : '/admin/monev/rekap-keseluruhan',
+            { 
+                search,
+                status: statusFilter === 'all' ? '' : statusFilter 
+            },
+            { preserveState: true }
+        );
+    };
+
+    const resetFilters = () => {
+        setSearch('');
+        setStatusFilter('all');
+        router.get(isKampusAdmin ? '/admin-kampus/monev/rekap-keseluruhan' : '/admin/monev/rekap-keseluruhan');
+    };
+
     const getStatusBadgeColor = (status: string) => {
         switch (status.toLowerCase()) {
             case 'berjalan':
+            case 'active':
                 return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
             case 'selesai':
+            case 'completed':
                 return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
             case 'tertunda':
+            case 'cancelled':
                 return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
             default:
                 return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400';
@@ -76,8 +106,6 @@ export default function MonevReport({ data }: Props) {
         }).format(angka);
     };
 
-    // Safely determine current routing context for breadcrumbs
-    const isKampusAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin-kampus');
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Dashboard',
@@ -186,13 +214,13 @@ export default function MonevReport({ data }: Props) {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Kinerja Fakultas</CardTitle>
+                            <CardTitle>Kinerja Bidang Ilmu</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Fakultas</TableHead>
+                                        <TableHead>Bidang Ilmu</TableHead>
                                         <TableHead className="text-right">Skor Rata-rata</TableHead>
                                         <TableHead className="text-right">Status</TableHead>
                                     </TableRow>
@@ -211,10 +239,48 @@ export default function MonevReport({ data }: Props) {
                     </Card>
                 </div>
 
+                {/* Filter and Search */}
+                <Card>
+                    <CardContent className="p-4">
+                        <form onSubmit={handleSearch} className="flex w-full flex-col sm:flex-row gap-4 items-center">
+                            <div className="relative w-full sm:w-[300px]">
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    type="search"
+                                    placeholder="Cari judul penelitian atau dosen..."
+                                    className="w-full pl-8"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-full sm:w-[200px]">
+                                    <SelectValue placeholder="Semua Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua Status</SelectItem>
+                                    <SelectItem value="active">Berjalan</SelectItem>
+                                    <SelectItem value="completed">Selesai</SelectItem>
+                                    <SelectItem value="cancelled">Tertunda</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                <Button type="submit" size="sm" className="w-full sm:w-auto">
+                                    <Search className="mr-2 h-4 w-4" />
+                                    Cari
+                                </Button>
+                                <Button type="button" variant="outline" size="sm" onClick={resetFilters} className="w-full sm:w-auto">
+                                    Reset
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+
                 {/* Recent Activities Table */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Penelitian Terbaru</CardTitle>
+                        <CardTitle>Daftar Penelitian</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="rounded-md border">
@@ -231,64 +297,102 @@ export default function MonevReport({ data }: Props) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {data.penelitian_terbaru.map((kegiatan) => (
-                                        <TableRow key={kegiatan.id}>
-                                            <TableCell className="font-medium">{kegiatan.id}</TableCell>
-                                            <TableCell className="max-w-[300px] truncate" title={kegiatan.judul_penelitian}>
-                                                {kegiatan.judul_penelitian}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col gap-1">
-                                                    <span>{kegiatan.nama_dosen}</span>
-                                                    {kegiatan.is_late && <AlertWarning />}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <div className="h-2 w-24 overflow-hidden rounded-full bg-secondary">
-                                                        <div
-                                                            className="h-full bg-blue-500"
-                                                            style={{ width: `${kegiatan.progres}%` }}
-                                                        ></div>
-                                                    </div>
-                                                    <span className="text-sm text-muted-foreground">{kegiatan.progres}%</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className={getStatusBadgeColor(kegiatan.status)}>
-                                                    {kegiatan.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>{kegiatan.tanggal_update}</TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    {kegiatan.status.toLowerCase() !== 'selesai' && (
-                                                        <>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                className="h-7 px-2.5 text-xs font-semibold border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 dark:border-green-900/50 dark:text-green-400 dark:hover:bg-green-950/20"
-                                                                onClick={() => handleDecide(kegiatan.id, 'Lanjut')}
-                                                            >
-                                                                Lanjut
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                className="h-7 px-2.5 text-xs font-semibold border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/20"
-                                                                onClick={() => handleDecide(kegiatan.id, 'Stop')}
-                                                            >
-                                                                Stop
-                                                            </Button>
-                                                        </>
-                                                    )}
+                                    {data.penelitian_terbaru.data.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={7} className="py-10 text-center">
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <FileText className="h-10 w-10 text-muted-foreground" />
+                                                    <p className="text-sm text-muted-foreground">Belum ada data penelitian</p>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    ) : (
+                                        data.penelitian_terbaru.data.map((kegiatan) => (
+                                            <TableRow key={kegiatan.id}>
+                                                <TableCell className="font-medium">{kegiatan.id}</TableCell>
+                                                <TableCell className="max-w-[300px] truncate" title={kegiatan.judul_penelitian}>
+                                                    {kegiatan.judul_penelitian}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-col gap-1">
+                                                        <span>{kegiatan.nama_dosen}</span>
+                                                        {kegiatan.is_late && <AlertWarning />}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-2 w-24 overflow-hidden rounded-full bg-secondary">
+                                                            <div
+                                                                className="h-full bg-blue-500"
+                                                                style={{ width: `${kegiatan.progres}%` }}
+                                                            ></div>
+                                                        </div>
+                                                        <span className="text-sm text-muted-foreground">{kegiatan.progres}%</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge className={getStatusBadgeColor(kegiatan.status)}>
+                                                        {kegiatan.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>{kegiatan.tanggal_update}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        {kegiatan.status.toLowerCase() !== 'selesai' && (
+                                                            <>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    className="h-7 px-2.5 text-xs font-semibold border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 dark:border-green-900/50 dark:text-green-400 dark:hover:bg-green-950/20"
+                                                                    onClick={() => handleDecide(kegiatan.id, 'Lanjut')}
+                                                                >
+                                                                    Lanjut
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    className="h-7 px-2.5 text-xs font-semibold border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/20"
+                                                                    onClick={() => handleDecide(kegiatan.id, 'Stop')}
+                                                                >
+                                                                    Stop
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
                                 </TableBody>
                             </Table>
                         </div>
+                        
+                        {/* Pagination */}
+                        {data.penelitian_terbaru.last_page > 1 && (
+                            <div className="mt-4 flex items-center justify-between">
+                                <p className="text-sm text-muted-foreground">
+                                    Menampilkan {data.penelitian_terbaru.from} - {data.penelitian_terbaru.to} dari {data.penelitian_terbaru.total} penelitian
+                                </p>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={data.penelitian_terbaru.current_page === 1}
+                                        onClick={() => router.get(data.penelitian_terbaru.links[0]?.url ?? '')}
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={data.penelitian_terbaru.current_page === data.penelitian_terbaru.last_page}
+                                        onClick={() => router.get(data.penelitian_terbaru.links[data.penelitian_terbaru.links.length - 1]?.url ?? '')}
+                                    >
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
