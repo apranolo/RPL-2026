@@ -630,6 +630,8 @@ Route::middleware(['auth'])->group(function () {
             ->name('progress.index');
 
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::post('/outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
+        Route::post('/outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
         Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
         Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
