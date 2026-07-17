@@ -3,9 +3,9 @@
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
+use App\Models\Proposal;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 use function Pest\Laravel\actingAs;
 
@@ -84,36 +84,31 @@ it('aborts with 403 if admin kampus has no university assigned', function () {
 });
 
 it('strictly enforces multi-tenant boundary for admin kampus when table exists', function () {
-    // Populate data for Univ A and Univ B
-    DB::table('progress_reports')->insert([
+    $dosenA = User::factory()->create(['name' => 'Dosen A', 'university_id' => $this->univA->id]);
+    $dosenB = User::factory()->create(['name' => 'Dosen B', 'university_id' => $this->univB->id]);
+
+    $proposalA = Proposal::factory()->create(['user_id' => $dosenA->id]);
+    $proposalB = Proposal::factory()->create(['user_id' => $dosenB->id]);
+
+    DB::table('contracts')->insert([
         [
             'university_id' => $this->univA->id,
-            'judul_penelitian' => 'Penelitian Univ A',
-            'nama_dosen' => 'Dosen A',
-            'fakultas' => 'Fakultas Teknik',
-            'progres' => 80,
-            'status' => 'Berjalan',
-            'anggaran' => 10000000,
-            'anggaran_terserap' => 8000000,
-            'skor_kinerja' => 90,
-            'tanggal_update' => '2026-05-01',
+            'proposal_id' => $proposalA->id,
+            'title' => 'Penelitian Univ A',
+            'status' => 'active',
+            'contract_value' => 10000000,
             'created_at' => now(),
             'updated_at' => now(),
         ],
         [
             'university_id' => $this->univB->id,
-            'judul_penelitian' => 'Penelitian Univ B',
-            'nama_dosen' => 'Dosen B',
-            'fakultas' => 'Fakultas Teknik',
-            'progres' => 50,
-            'status' => 'Berjalan',
-            'anggaran' => 20000000,
-            'anggaran_terserap' => 10000000,
-            'skor_kinerja' => 80,
-            'tanggal_update' => '2026-05-02',
+            'proposal_id' => $proposalB->id,
+            'title' => 'Penelitian Univ B',
+            'status' => 'active',
+            'contract_value' => 20000000,
             'created_at' => now(),
             'updated_at' => now(),
-        ],
+        ]
     ]);
 
     // Request from Admin A (should only see Univ A data)
@@ -124,7 +119,7 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
     $responseA->assertInertia(fn ($page) => $page
         ->component('Admin/Monev/Report')
         ->where('data.ringkasan.total_penelitian', 1)
-        ->where('data.penelitian_terbaru.0.judul_penelitian', 'Penelitian Univ A')
+        ->where('data.penelitian_terbaru.data.0.judul_penelitian', 'Penelitian Univ A')
     );
 
     // Request from Admin B (should only see Univ B data)
@@ -135,7 +130,7 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
     $responseB->assertInertia(fn ($page) => $page
         ->component('Admin/Monev/Report')
         ->where('data.ringkasan.total_penelitian', 1)
-        ->where('data.penelitian_terbaru.0.judul_penelitian', 'Penelitian Univ B')
+        ->where('data.penelitian_terbaru.data.0.judul_penelitian', 'Penelitian Univ B')
     );
 
     // Request from Super Admin (should see both Univ A and Univ B data)
@@ -150,64 +145,57 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
 });
 
 it('allows admin kampus to change research status using decide-action', function () {
-    // Populate data for Univ A
-    $reportId = DB::table('progress_reports')->insertGetId([
+    $dosenA = User::factory()->create(['name' => 'Dosen A', 'university_id' => $this->univA->id]);
+    $proposalA = Proposal::factory()->create(['user_id' => $dosenA->id]);
+
+    $contractId = DB::table('contracts')->insertGetId([
         'university_id' => $this->univA->id,
-        'judul_penelitian' => 'Penelitian Univ A',
-        'nama_dosen' => 'Dosen A',
-        'fakultas' => 'Fakultas Teknik',
-        'progres' => 80,
-        'status' => 'Berjalan',
-        'anggaran' => 10000000,
-        'anggaran_terserap' => 8000000,
-        'skor_kinerja' => 90,
-        'tanggal_update' => '2026-05-01',
+        'proposal_id' => $proposalA->id,
+        'title' => 'Penelitian Univ A',
+        'status' => 'active',
+        'contract_value' => 10000000,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
 
     $response = actingAs($this->adminA)
         ->post('/admin-kampus/monev/decide-action', [
-            'id' => $reportId,
+            'id' => $contractId,
             'action' => 'Stop'
         ]);
 
     $response->assertStatus(302); // Redirect back
-    $this->assertDatabaseHas('progress_reports', [
-        'id' => $reportId,
-        'status' => 'Tertunda'
+    $this->assertDatabaseHas('contracts', [
+        'id' => $contractId,
+        'status' => 'cancelled'
     ]);
 });
 
 it('prevents admin kampus from changing research status of another university', function () {
-    // Populate data for Univ B
-    $reportId = DB::table('progress_reports')->insertGetId([
+    $dosenB = User::factory()->create(['name' => 'Dosen B', 'university_id' => $this->univB->id]);
+    $proposalB = Proposal::factory()->create(['user_id' => $dosenB->id]);
+
+    $contractId = DB::table('contracts')->insertGetId([
         'university_id' => $this->univB->id,
-        'judul_penelitian' => 'Penelitian Univ B',
-        'nama_dosen' => 'Dosen B',
-        'fakultas' => 'Fakultas Teknik',
-        'progres' => 50,
-        'status' => 'Berjalan',
-        'anggaran' => 20000000,
-        'anggaran_terserap' => 10000000,
-        'skor_kinerja' => 80,
-        'tanggal_update' => '2026-05-02',
+        'proposal_id' => $proposalB->id,
+        'title' => 'Penelitian Univ B',
+        'status' => 'active',
+        'contract_value' => 20000000,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
 
-    // Admin A tries to modify Univ B's report
+    // Admin A tries to modify Univ B's contract
     $response = actingAs($this->adminA)
         ->post('/admin-kampus/monev/decide-action', [
-            'id' => $reportId,
+            'id' => $contractId,
             'action' => 'Stop'
         ]);
 
     // Should redirect back without modifying status due to lack of access
     $response->assertStatus(302);
-    $this->assertDatabaseHas('progress_reports', [
-        'id' => $reportId,
-        'status' => 'Berjalan' // remains unchanged
+    $this->assertDatabaseHas('contracts', [
+        'id' => $contractId,
+        'status' => 'active' // remains unchanged
     ]);
 });
-
