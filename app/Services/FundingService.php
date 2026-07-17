@@ -60,6 +60,6 @@ class FundingService
         $existingCount = $contract->fundings()->count();
         $terminNumber = $existingCount + 1;
 
-        return 'TRM-' . $contract->id . '-' . str_pad((string) $terminNumber, 3, '0', STR_PAD_LEFT);
+        return 'TRM-'.$contract->id.'-'.str_pad((string) $terminNumber, 3, '0', STR_PAD_LEFT);
     }
 }

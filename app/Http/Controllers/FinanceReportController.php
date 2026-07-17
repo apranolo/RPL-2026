@@ -12,6 +12,7 @@ use Inertia\Inertia;
  * Kontroler untuk pemantauan dan pelaporan administrasi keuangan.
  *
  * @route /finance/reports
+ *
  * @features Ringkasan nilai kontrak, dana yang telah dicairkan, dan sisa saldo.
  */
 class FinanceReportController extends Controller
@@ -19,8 +20,8 @@ class FinanceReportController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
-            'year' => ['nullable', 'integer', 'min:2000', 'max:' . now()->year],
-            'scheme' => ['nullable', 'string', 'in:all,' . implode(',', array_keys(Contract::getStatusOptions()))],
+            'year' => ['nullable', 'integer', 'min:2000', 'max:'.now()->year],
+            'scheme' => ['nullable', 'string', 'in:all,'.implode(',', array_keys(Contract::getStatusOptions()))],
         ]);
 
         $year = $validated['year'] ?? now()->year;
@@ -102,8 +103,8 @@ class FinanceReportController extends Controller
     public function filter(Request $request)
     {
         $validated = $request->validate([
-            'year' => ['nullable', 'integer', 'min:2000', 'max:' . now()->year],
-            'scheme' => ['nullable', 'string', 'in:all,' . implode(',', array_keys(Contract::getStatusOptions()))],
+            'year' => ['nullable', 'integer', 'min:2000', 'max:'.now()->year],
+            'scheme' => ['nullable', 'string', 'in:all,'.implode(',', array_keys(Contract::getStatusOptions()))],
         ]);
 
         $year = $validated['year'] ?? now()->year;

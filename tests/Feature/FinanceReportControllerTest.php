@@ -40,7 +40,7 @@ it('builds finance report summary from contracts and fundings', function () {
         'paid_at' => '2025-04-01 00:00:00',
     ]);
 
-    $controller = new FinanceReportController();
+    $controller = new FinanceReportController;
     $summary = $controller->summary(2025, 'all');
 
     expect($summary['total_contracts'])->toBe(1)

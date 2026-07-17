@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
