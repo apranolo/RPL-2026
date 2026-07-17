@@ -61,4 +61,13 @@ class ProposalPolicy
 
         return $proposal->status_proposal === Proposal::STATUS_SUBMITTED;
     }
+
+    /**
+     * Tentukan apakah user dapat mengunggah dokumen proposal.
+     * Hanya pemilik proposal yang dapat mengunggah.
+     */
+    public function upload(User $user, Proposal $proposal): bool
+    {
+        return $user->id === $proposal->user_id;
+    }
 }

@@ -1,14 +1,11 @@
 <?php
 
-use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
-use App\Http\Controllers\Admin\ProposalController as AdminProposalController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataMasterController;
-use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
@@ -27,28 +24,29 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ContractController;
+use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DeskController;
+use App\Http\Controllers\Editorial\PlagiarismController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
+use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
-use App\Http\Controllers\ContractDocController;
-use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
-use App\Http\Controllers\ProfileController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Editorial\PlagiarismController;
 use Inertia\Inertia;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -162,15 +160,15 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:Keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'keuanganDashboard'])->name('dashboard');
 
-    // Finance Reports
-    Route::prefix('finance')->name('finance.')->group(function () {
-        Route::get('reports', [\App\Http\Controllers\FinanceReportController::class, 'index'])
-            ->name('reports.index');
-        Route::get('reports/summary', [\App\Http\Controllers\FinanceReportController::class, 'summary'])
-            ->name('reports.summary');
-        Route::post('reports/filter', [\App\Http\Controllers\FinanceReportController::class, 'filter'])
-            ->name('reports.filter');
-    });
+        // Finance Reports
+        Route::prefix('finance')->name('finance.')->group(function () {
+            Route::get('reports', [\App\Http\Controllers\FinanceReportController::class, 'index'])
+                ->name('reports.index');
+            Route::get('reports/summary', [\App\Http\Controllers\FinanceReportController::class, 'summary'])
+                ->name('reports.summary');
+            Route::post('reports/filter', [\App\Http\Controllers\FinanceReportController::class, 'filter'])
+                ->name('reports.filter');
+        });
 
         Route::prefix('contracts')->name('contracts.')->group(function () {
             Route::get('{contract}/upload', [ContractDocController::class, 'create'])->name('upload');
@@ -299,7 +297,6 @@ Route::middleware(['auth'])->group(function () {
         // Rekap Hasil Penilaian (Summary)
         Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
             ->name('reviews.summary');
-
 
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
@@ -625,7 +622,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
-            //
+            Route::post('{proposal}/documents', [\App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.store');
         });
     });
 
@@ -731,7 +728,6 @@ Route::middleware(['auth'])->group(function () {
             ->name('message.upload-attachment');
     });
 
-
     /*
     |--------------------------------------------------------------------------
     | Shared Routes (All Roles)
@@ -778,6 +774,5 @@ Route::middleware(['auth'])->group(function () {
         ->name('review.invite');
 });
 
-    
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

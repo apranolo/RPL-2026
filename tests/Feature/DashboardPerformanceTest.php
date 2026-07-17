@@ -1,11 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
+use App\Models\ResearchSchema;
 use App\Models\University;
 use App\Models\User;
-use App\Models\ResearchSchema;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Admin\DashboardController;
 
 uses()->group('feature', 'performance', 'statistics', 'modul6-kelasB');
 
@@ -39,8 +39,8 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
         // Buat 3 proposal (submitted)
         for ($i = 0; $i < 3; $i++) {
             DB::table('proposals')->insert([
-                'title' => 'Proposal ' . $i,
-                'description' => 'Deskripsi ' . $i,
+                'title' => 'Proposal '.$i,
+                'description' => 'Deskripsi '.$i,
                 'user_id' => $this->user->id,
                 'research_schema_id' => $this->schema1->id,
                 'created_at' => now(),
@@ -53,8 +53,8 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
             DB::table('research_outputs')->insert([
                 'user_id' => $this->user->id,
                 'kategori' => 'jurnal',
-                'judul' => 'Luaran ' . $i,
-                'file_path' => 'file' . $i . '.pdf',
+                'judul' => 'Luaran '.$i,
+                'file_path' => 'file'.$i.'.pdf',
                 'status' => 'approved',
                 'keterangan' => 'test',
                 'created_at' => now(),
@@ -74,7 +74,7 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
             'updated_at' => now(),
         ]);
 
-        $ctrl = new DashboardController();
+        $ctrl = new DashboardController;
         $stats = $ctrl->getFacultyStat();
 
         expect($stats)->toBeArray();
@@ -90,7 +90,7 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
         // 2 proposal di schema 1
         for ($i = 0; $i < 2; $i++) {
             DB::table('proposals')->insert([
-                'title' => 'Schema1 Proposal ' . $i,
+                'title' => 'Schema1 Proposal '.$i,
                 'description' => 'Desc',
                 'user_id' => $this->user->id,
                 'research_schema_id' => $this->schema1->id,
@@ -102,7 +102,7 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
         // 3 proposal di schema 2
         for ($i = 0; $i < 3; $i++) {
             DB::table('proposals')->insert([
-                'title' => 'Schema2 Proposal ' . $i,
+                'title' => 'Schema2 Proposal '.$i,
                 'description' => 'Desc',
                 'user_id' => $this->user->id,
                 'research_schema_id' => $this->schema2->id,
@@ -111,7 +111,7 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
             ]);
         }
 
-        $ctrl = new DashboardController();
+        $ctrl = new DashboardController;
         $catStat = $ctrl->getCategoryStat();
 
         expect($catStat['total'])->toBe(5);
@@ -136,7 +136,7 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
             'updated_at' => now(),
         ]);
 
-        $ctrl = new DashboardController();
+        $ctrl = new DashboardController;
 
         // Cold cache — ambil data baru
         $stats1 = $ctrl->getFacultyStat();
