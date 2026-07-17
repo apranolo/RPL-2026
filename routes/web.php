@@ -34,6 +34,7 @@ use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\CitationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -593,6 +594,30 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+
+         // Citation Sync
+        Route::prefix('citations')->name('citations.')->group(function () {
+            Route::get('/', [CitationController::class, 'index'])
+                ->name('index');
+            Route::get('sync', [CitationController::class, 'sync'])
+                ->name('sync');
+            Route::post('sync', [CitationController::class, 'dispatchSync'])
+                ->name('sync.dispatch');
+            Route::get('sync/status', [CitationController::class, 'syncStatus'])
+                ->name('sync.status');
+            Route::get('{citation}', [CitationController::class, 'show'])
+                ->name('show');
+        });
+
+                // Citation Sync
+        Route::prefix('citations')->name('citations.')->group(function () {
+            Route::get('/', [CitationController::class, 'index'])
+                ->name('index');
+            Route::get('sync', [CitationController::class, 'sync'])
+                ->name('sync');
+        });
+
+
 });
 
 require __DIR__.'/settings.php';
