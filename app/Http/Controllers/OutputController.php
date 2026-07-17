@@ -50,24 +50,32 @@ class OutputController extends Controller
                 $filePath = $request->file('file_sertifikat_atau_cover')->store('luaran/hki', 'public');
             }
 
-            // 1. Save specific data to HkiOutput
-            $hkiOutput = new HkiOutput();
-            $hkiOutput->patent_number = $validated['nomor_paten'];
-            $hkiOutput->patent_type = $validated['jenis_hki'];
-            $hkiOutput->save();
+            // 1. Save specific data to HkiOutput (patent_number, patent_type)
+            $hkiOutput = HkiOutput::create([
+                'patent_number' => $validated['nomor_paten'],
+                'patent_type' => $validated['jenis_hki'],
+            ]);
 
-            // 3. Save the rest to ResearchOutput
+            // 2. Build keterangan from extra fields not in DB schema
+            $keteranganParts = [];
+            $keteranganParts[] = 'Penulis/Pencipta: ' . $validated['penulis_atau_pencipta'];
+            if (!empty($validated['tautan_publikasi'])) {
+                $keteranganParts[] = 'Tautan: ' . $validated['tautan_publikasi'];
+            }
+            if (!empty($validated['deskripsi'])) {
+                $keteranganParts[] = 'Deskripsi: ' . $validated['deskripsi'];
+            }
+
+            // 3. Save the rest to ResearchOutput via polymorphic relation
             $hkiOutput->researchOutput()->create([
                 'user_id' => auth()->id(),
-                'contract_id' => $request->input('contract_id', 1), // Fallback if missing
+                'contract_id' => $request->input('contract_id', 1),
                 'jenis_luaran' => 'HKI',
                 'judul_luaran' => $validated['judul_luaran'],
                 'tahun_capaian' => $validated['tahun_capaian'],
                 'file_sertifikat_atau_cover' => $filePath,
                 'status_verifikasi' => 'Draft',
-                'penulis_atau_pencipta' => $validated['penulis_atau_pencipta'],
-                'tautan_publikasi' => $validated['tautan_publikasi'] ?? null,
-                'keterangan' => $validated['deskripsi'] ?? null,
+                'keterangan' => implode(' | ', $keteranganParts),
             ]);
 
             return redirect()->back()->with([
@@ -119,24 +127,32 @@ class OutputController extends Controller
                 $filePath = $request->file('file_sertifikat_atau_cover')->store('luaran/buku', 'public');
             }
 
-            // 2. Save specific data to BookOutput
-            $bookOutput = new BookOutput();
-            $bookOutput->isbn = $validated['isbn'];
-            $bookOutput->tipe_buku = $validated['tipe_buku'];
-            $bookOutput->save();
+            // 2. Save specific data to BookOutput (isbn only; tipe_buku stored in keterangan)
+            $bookOutput = BookOutput::create([
+                'isbn' => $validated['isbn'],
+            ]);
 
-            // 3. Save the rest to ResearchOutput
+            // Build keterangan from extra fields not in DB schema
+            $keteranganParts = [];
+            $keteranganParts[] = 'Penulis/Pencipta: ' . $validated['penulis_atau_pencipta'];
+            $keteranganParts[] = 'Tipe Buku: ' . $validated['tipe_buku'];
+            if (!empty($validated['tautan_publikasi'])) {
+                $keteranganParts[] = 'Tautan: ' . $validated['tautan_publikasi'];
+            }
+            if (!empty($validated['deskripsi'])) {
+                $keteranganParts[] = 'Deskripsi: ' . $validated['deskripsi'];
+            }
+
+            // 3. Save the rest to ResearchOutput via polymorphic relation
             $bookOutput->researchOutput()->create([
                 'user_id' => auth()->id(),
-                'contract_id' => $request->input('contract_id', 1), // Fallback if missing
+                'contract_id' => $request->input('contract_id', 1),
                 'jenis_luaran' => 'Buku',
                 'judul_luaran' => $validated['judul_luaran'],
                 'tahun_capaian' => $validated['tahun_capaian'],
                 'file_sertifikat_atau_cover' => $filePath,
                 'status_verifikasi' => 'Draft',
-                'penulis_atau_pencipta' => $validated['penulis_atau_pencipta'],
-                'tautan_publikasi' => $validated['tautan_publikasi'] ?? null,
-                'keterangan' => $validated['deskripsi'] ?? null,
+                'keterangan' => implode(' | ', $keteranganParts),
             ]);
 
             return redirect()->back()->with([
