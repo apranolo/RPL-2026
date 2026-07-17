@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataMasterController;
+use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
@@ -76,7 +77,7 @@ Route::get('/storage/{path}', function (string $path) {
             abort(404);
         }
 
-        return Storage::disk('public')->response($path);
+        return response()->file(Storage::disk('public')->path($path));
     } catch (\Throwable $e) {
         // Avoid leaking storage layer errors
         abort(404);
@@ -198,6 +199,13 @@ Route::middleware(['auth'])->group(function () {
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
             ->name('data-master.index');
+
+        // Email Template Management
+        Route::get('email-template', [EmailTemplateController::class, 'index'])
+            ->name('email-template.index');
+
+        Route::put('email-template/{emailTemplate}', [EmailTemplateController::class, 'update'])
+            ->name('email-template.update');
 
         // Skema Penelitian Management
         Route::resource('schema', SchemaController::class);

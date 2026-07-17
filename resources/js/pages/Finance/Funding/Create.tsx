@@ -5,21 +5,21 @@
  * serta daftar termin yang sudah diterbitkan.
  */
 
-import React from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Head, useForm } from '@inertiajs/react';
-import { type BreadcrumbItem } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
 import { formatRp } from '@/utils/currency';
-import { ArrowLeft, Plus, Wallet, TrendingDown, CheckCircle2 } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { ArrowLeft, CheckCircle2, Plus, TrendingDown, Wallet } from 'lucide-react';
+import React from 'react';
+import { toast } from 'sonner';
 
 interface Proposal {
     id: number;
@@ -105,11 +105,9 @@ export default function Create({ contract, termins, sisa }: Props) {
         notes: '',
     });
 
-    const calculatedAmount = data.percentage
-        ? ((parseFloat(data.percentage) || 0) / 100) * contract.total_pendanaan_disetujui
-        : 0;
+    const calculatedAmount = data.percentage ? ((parseFloat(data.percentage) || 0) / 100) * contract.total_pendanaan_disetujui : 0;
 
-    const totalPercentageAfter = (100 - sisa.sisa_persentase) + (parseFloat(data.percentage) || 0);
+    const totalPercentageAfter = 100 - sisa.sisa_persentase + (parseFloat(data.percentage) || 0);
     const isOverLimit = totalPercentageAfter > 100;
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -125,9 +123,7 @@ export default function Create({ contract, termins, sisa }: Props) {
         });
     };
 
-    const serapanPercentage = sisa.total_pendanaan > 0
-        ? Math.round((sisa.total_cair / sisa.total_pendanaan) * 100)
-        : 0;
+    const serapanPercentage = sisa.total_pendanaan > 0 ? Math.round((sisa.total_cair / sisa.total_pendanaan) * 100) : 0;
 
     const alokasiPercentage = 100 - sisa.sisa_persentase;
 
@@ -145,11 +141,10 @@ export default function Create({ contract, termins, sisa }: Props) {
                         <ArrowLeft className="h-5 w-5" />
                     </a>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                            Tambah Termin Pencairan
-                        </h1>
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground">Tambah Termin Pencairan</h1>
                         <p className="text-sm text-muted-foreground">
-                            Kontrak: {contract.nomor_kontrak} — {contract.title || contract.proposal?.judul_penelitian || contract.proposal?.title || '-'}
+                            Kontrak: {contract.nomor_kontrak} —{' '}
+                            {contract.title || contract.proposal?.judul_penelitian || contract.proposal?.title || '-'}
                         </p>
                     </div>
                 </div>
@@ -162,7 +157,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                 <Wallet className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Total Pendanaan</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Total Pendanaan</p>
                                 <p className="text-lg font-bold text-foreground">{formatRp(sisa.total_pendanaan)}</p>
                             </div>
                         </CardContent>
@@ -174,7 +169,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                 <CheckCircle2 className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Sudah Cair</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Sudah Cair</p>
                                 <p className="text-lg font-bold text-foreground">{formatRp(sisa.total_cair)}</p>
                             </div>
                         </CardContent>
@@ -186,7 +181,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                 <TrendingDown className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Sisa Dana</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Sisa Dana</p>
                                 <p className="text-lg font-bold text-foreground">{formatRp(sisa.sisa_dana)}</p>
                             </div>
                         </CardContent>
@@ -283,15 +278,11 @@ export default function Create({ contract, termins, sisa }: Props) {
                                             placeholder="Contoh: 30"
                                             className={`pr-8 ${errors.percentage ? 'border-destructive' : ''}`}
                                         />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+                                        <span className="absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">%</span>
                                     </div>
-                                    {errors.percentage && (
-                                        <p className="text-sm text-destructive">{errors.percentage}</p>
-                                    )}
+                                    {errors.percentage && <p className="text-sm text-destructive">{errors.percentage}</p>}
                                     {isOverLimit && !errors.percentage && (
-                                        <p className="text-sm text-destructive">
-                                            Melebihi batas! Maksimal sisa: {sisa.sisa_persentase}%
-                                        </p>
+                                        <p className="text-sm text-destructive">Melebihi batas! Maksimal sisa: {sisa.sisa_persentase}%</p>
                                     )}
                                 </div>
 
@@ -317,9 +308,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                         onChange={(e) => setData('funding_date', e.target.value)}
                                         className={errors.funding_date ? 'border-destructive' : ''}
                                     />
-                                    {errors.funding_date && (
-                                        <p className="text-sm text-destructive">{errors.funding_date}</p>
-                                    )}
+                                    {errors.funding_date && <p className="text-sm text-destructive">{errors.funding_date}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -331,9 +320,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                         onChange={(e) => setData('due_date', e.target.value)}
                                         className={errors.due_date ? 'border-destructive' : ''}
                                     />
-                                    {errors.due_date && (
-                                        <p className="text-sm text-destructive">{errors.due_date}</p>
-                                    )}
+                                    {errors.due_date && <p className="text-sm text-destructive">{errors.due_date}</p>}
                                 </div>
                             </div>
 
@@ -348,9 +335,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                     placeholder="Contoh: Pencairan Tahap 1 — Awal Penelitian"
                                     className={errors.description ? 'border-destructive' : ''}
                                 />
-                                {errors.description && (
-                                    <p className="text-sm text-destructive">{errors.description}</p>
-                                )}
+                                {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
                             </div>
 
                             {/* Notes */}
@@ -364,9 +349,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                     rows={3}
                                     className={errors.notes ? 'border-destructive' : ''}
                                 />
-                                {errors.notes && (
-                                    <p className="text-sm text-destructive">{errors.notes}</p>
-                                )}
+                                {errors.notes && <p className="text-sm text-destructive">{errors.notes}</p>}
                             </div>
 
                             {/* Submit */}
@@ -376,10 +359,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                         Batal
                                     </Button>
                                 </a>
-                                <Button
-                                    type="submit"
-                                    disabled={processing || isOverLimit || !data.percentage}
-                                >
+                                <Button type="submit" disabled={processing || isOverLimit || !data.percentage}>
                                     {processing ? 'Menyimpan...' : 'Simpan Termin'}
                                 </Button>
                             </div>
