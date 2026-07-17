@@ -49,6 +49,7 @@ use App\Models\Role;
 use App\Http\Controllers\Revision\RevisionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\CitationController;
 use Inertia\Inertia;
 
 /*
@@ -496,7 +497,6 @@ Route::middleware(['auth'])->group(function () {
                 'update' => 'events.update',
                 'destroy' => 'events.destroy',
             ]);
-
     });
 
     /*
@@ -757,6 +757,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('resources');
 
     Route::resource('proposal', ProposalController::class);
+
+    // Citation Profile (Dosen, role User) — view & sync own Google Scholar stats
+    Route::middleware(['role:'.Role::USER])->prefix('profile')->name('profile.')->group(function () {
+        Route::get('citation', [CitationController::class, 'show'])
+            ->name('citation');
+        Route::post('citation/sync', [CitationController::class, 'sync'])
+            ->name('citation.sync');
+    });
 
     /*
     |--------------------------------------------------------------------------

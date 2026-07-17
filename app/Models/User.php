@@ -241,8 +241,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the author profile of this user
+     * Get the citation statistics record of this user
      */
+    public function citation()
+    {
+        return $this->hasOne(Citation::class);
+    }
+
     public function authorProfile()
     {
         return $this->hasOne(AuthorProfile::class);
