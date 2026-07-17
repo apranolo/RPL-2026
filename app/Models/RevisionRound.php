@@ -25,6 +25,6 @@ class RevisionRound extends Model
     // 3. Membuat relasi ke tabel Submissions
     public function submission()
     {
-        return $this->belongsTo(Submission::class, 'id_submission', 'id_submission');
+        return $this->belongsTo(Submission::class, 'id_submission', 'id');
     }
 }
