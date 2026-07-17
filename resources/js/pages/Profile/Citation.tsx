@@ -1,20 +1,21 @@
 /**
- * @route /admin-kampus/citations/{author} (citations.show)
+ * @route /profile/citation (profile.citation)
  * @features
- *  - Researcher Scholar profile overview (name, affiliation)
- *  - Aggregate metrics: total citations, h-index, i10-index
- *  - Citations-per-year bar chart (ApexCharts)
- *  - Publications list with per-publication citation counts
- *  - Dark-mode aware charting via theme observer
+ *  - Analytic dashboard for the logged-in Dosen's citation portfolio
+ *  - Widgets: H-Index and Total Sitasi (big numbers)
+ *  - Interactive line chart of yearly citation trend (ApexCharts)
+ *  - "Sinkronisasi Google Scholar" button (async loading state) top-right
+ *  - Last-synced timestamp; empty state when data has never been synced
  * @description
- * Displays a Google Scholar–style profile for a researcher, visualizing
- * aggregate citation statistics and yearly citation trends alongside the
- * underlying list of publications.
+ * Shows the authenticated user's Google Scholar citation statistics as
+ * provided by CitationController@show. Syncing POSTs to
+ * profile.citation.sync and redirects back with a success toast.
  */
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type PageProps } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import ReactApexChart from 'react-apexcharts';
 
 function useIsDark() {
     const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
@@ -27,122 +28,146 @@ function useIsDark() {
     }, []);
     return isDark;
 }
-import ReactApexChart from 'react-apexcharts';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Citations', href: '/admin-kampus/citations' },
-    { title: 'Citation Profile', href: '#' },
+    { title: 'Citation Profile', href: '/profile/citation' },
 ];
 
-interface Publication {
-    title: string;
-    year: number;
-    citations: number;
-}
-
-interface ScholarProfile {
-    name: string;
-    affiliation: string;
-    total_citations: number;
+interface Citation {
+    id: number;
+    id_user: number;
     h_index: number;
-    i10_index: number;
-    citations_per_year: Record<string, number>;
-    publications: Publication[];
+    total_citations: number;
+    yearly_data: { year: number; citations: number }[] | null;
+    last_synced_at: string | null;
 }
 
 interface Props extends PageProps {
-    profile: ScholarProfile;
+    citationData: Citation | null;
 }
 
-export default function CitationProfile({ profile }: Props) {
-    const isDark = useIsDark();
+function SyncButton({ syncing, onClick }: { syncing: boolean; onClick: () => void }) {
+    return (
+        <button
+            onClick={onClick}
+            disabled={syncing}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`}
+            >
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+            </svg>
+            {syncing ? 'Menyinkronkan...' : 'Sinkronisasi Google Scholar'}
+        </button>
+    );
+}
 
-    const years = Object.keys(profile.citations_per_year).sort();
-    const counts = years.map((y) => profile.citations_per_year[y]);
+export default function CitationProfile({ citationData }: Props) {
+    const isDark = useIsDark();
+    const [syncing, setSyncing] = useState(false);
+
+    function handleSync() {
+        setSyncing(true);
+        router.post(
+            route('profile.citation.sync'),
+            {},
+            { onFinish: () => setSyncing(false) },
+        );
+    }
+
+    const yearlyData = citationData?.yearly_data ?? [];
+    const years = yearlyData.map((d) => String(d.year));
+    const counts = yearlyData.map((d) => d.citations);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Citation Profile" />
             <div className="flex flex-col gap-6 p-4 sm:p-6">
 
-                <Link href="/admin-kampus/citations" className="text-sm text-muted-foreground hover:text-primary hover:underline">
-                    ← Back to authors
-                </Link>
+                {/* Header with sync action (top-right per spec) */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h1 className="text-2xl font-bold">Portofolio Sitasi</h1>
+                        {citationData?.last_synced_at && (
+                            <p className="mt-0.5 text-sm text-muted-foreground">
+                                Terakhir disinkronkan:{' '}
+                                {new Date(citationData.last_synced_at).toLocaleString('id-ID', {
+                                    dateStyle: 'long',
+                                    timeStyle: 'short',
+                                })}
+                            </p>
+                        )}
+                    </div>
+                    <SyncButton syncing={syncing} onClick={handleSync} />
+                </div>
 
-                {/* Header */}
-                        <div className="flex items-start gap-5 rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
-                                {profile.name.charAt(0)}
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-bold">{profile.name}</h1>
-                                <p className="mt-0.5 text-sm text-muted-foreground">{profile.affiliation}</p>
-                            </div>
-                        </div>
-
-                        {/* Stats */}
-                        <div className="grid grid-cols-3 gap-4">
+                {citationData === null ? (
+                    /* Empty state — never synced */
+                    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-sidebar-border/70 bg-white px-6 py-16 text-center dark:border-sidebar-border dark:bg-neutral-950">
+                        <p className="font-medium">Belum ada data sitasi</p>
+                        <p className="max-w-md text-sm text-muted-foreground">
+                            Klik tombol "Sinkronisasi Google Scholar" untuk menarik statistik
+                            sitasi dan h-index Anda dari Google Scholar.
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Stat widgets */}
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             {[
-                                { label: 'Total Citations', value: profile.total_citations.toLocaleString() },
-                                { label: 'h-index', value: profile.h_index },
-                                { label: 'i10-index', value: profile.i10_index },
+                                { label: 'H-Index', value: citationData.h_index },
+                                { label: 'Total Sitasi', value: citationData.total_citations.toLocaleString('id-ID') },
                             ].map((stat) => (
                                 <div
                                     key={stat.label}
-                                    className="rounded-xl border border-sidebar-border/70 bg-white p-5 text-center dark:border-sidebar-border dark:bg-neutral-950"
+                                    className="rounded-xl border border-sidebar-border/70 bg-white p-6 text-center dark:border-sidebar-border dark:bg-neutral-950"
                                 >
-                                    <div className="text-3xl font-bold text-primary">{stat.value}</div>
+                                    <div className="text-4xl font-bold text-primary">{stat.value}</div>
                                     <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Citations per year chart */}
+                        {/* Yearly citation trend (line chart per spec) */}
                         <div className="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                             <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                Citations per Year
+                                Tren Sitasi Tahunan
                             </h2>
                             <ReactApexChart
-                                type="bar"
-                                height={220}
-                                series={[{ name: 'Citations', data: counts }]}
+                                type="line"
+                                height={260}
+                                series={[{ name: 'Sitasi', data: counts }]}
                                 options={{
-                                    chart: { toolbar: { show: false }, animations: { enabled: true }, foreColor: isDark ? '#a3a3a3' : '#6b7280' },
-                                    plotOptions: { bar: { borderRadius: 4, columnWidth: '50%' } },
+                                    chart: {
+                                        toolbar: { show: false },
+                                        animations: { enabled: true },
+                                        foreColor: isDark ? '#a3a3a3' : '#6b7280',
+                                    },
+                                    stroke: { curve: 'smooth', width: 2 },
+                                    markers: { size: 4, hover: { size: 6 } },
                                     dataLabels: { enabled: false },
                                     xaxis: { categories: years },
                                     yaxis: { labels: { formatter: (v) => String(Math.round(v)) } },
-                                    tooltip: { theme: isDark ? 'dark' : 'light', y: { formatter: (v) => `${v} citations` } },
+                                    tooltip: {
+                                        theme: isDark ? 'dark' : 'light',
+                                        y: { formatter: (v) => `${v} sitasi` },
+                                    },
                                     grid: { borderColor: isDark ? '#262626' : '#e5e7eb' },
                                     colors: ['hsl(var(--primary))'],
                                 }}
                             />
                         </div>
-
-                        {/* Publications */}
-                        <div className="rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-neutral-950">
-                            <div className="border-b border-sidebar-border/70 px-6 py-4 dark:border-sidebar-border">
-                                <h2 className="font-semibold">Publications</h2>
-                            </div>
-                            <table className="w-full text-sm">
-                                <thead className="border-b border-sidebar-border/70 dark:border-sidebar-border">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left font-medium text-muted-foreground">Title</th>
-                                        <th className="px-6 py-3 text-right font-medium text-muted-foreground">Year</th>
-                                        <th className="px-6 py-3 text-right font-medium text-muted-foreground">Cited by</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-sidebar-border/70 dark:divide-sidebar-border">
-                                    {profile.publications.map((pub, i) => (
-                                        <tr key={i} className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/50">
-                                            <td className="px-6 py-4 font-medium">{pub.title}</td>
-                                            <td className="px-6 py-4 text-right text-muted-foreground">{pub.year}</td>
-                                            <td className="px-6 py-4 text-right font-semibold text-primary">{pub.citations}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                    </>
+                )}
             </div>
         </AppLayout>
     );

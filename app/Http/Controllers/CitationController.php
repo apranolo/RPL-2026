@@ -4,49 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Services\ScholarService;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CitationController extends Controller
 {
     /**
-     * Display the list of authors.
+     * Display the authenticated user's citation profile
+     * (h-index, total citations, and yearly citation trend).
      *
-     * @param ScholarService $scholar
      * @return \Inertia\Response
      */
-    public function index(ScholarService $scholar)
+    public function show()
     {
-        return Inertia::render('Profile/Index', [
-            'authors' => $scholar->all(),
+        return Inertia::render('Profile/Citation', [
+            'citationData' => Auth::user()->citation,
         ]);
     }
 
     /**
-     * Sync citation data from external source (dummy implementation).
+     * Sync the authenticated user's citation data from Google Scholar.
      *
+     * @param ScholarService $scholar
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function sync()
+    public function sync(ScholarService $scholar)
     {
-        // TODO: implement real sync with Google Scholar / external API
-        return back()->with('success', 'Citation data synced successfully.');
-    }
+        $user = Auth::user();
+        $stats = $scholar->fetch($user);
 
-    /**
-     * Display a single author's citation profile.
-     *
-     * @param ScholarService $scholar
-     * @param int $author
-     * @return \Inertia\Response
-     */
-    public function show(ScholarService $scholar, int $author)
-    {
-        $profile = $scholar->fetch($author);
-
-        abort_if($profile === null, 404);
-
-        return Inertia::render('Profile/Citation', [
-            'profile' => $profile,
+        $user->citation()->updateOrCreate([], [
+            'h_index' => $stats['h_index'],
+            'total_citations' => $stats['total_citations'],
+            'yearly_data' => $stats['yearly_data'],
+            'last_synced_at' => now(),
         ]);
+
+        return back()->with('success', 'Data sitasi Google Scholar berhasil disinkronkan!');
     }
 }

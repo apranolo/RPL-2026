@@ -13,6 +13,7 @@ import {
     CalendarDays,
     ClipboardList,
     FileText,
+    GraduationCap,
     LayoutGrid,
     Library,
     LifeBuoy,
@@ -130,11 +131,6 @@ export function AppSidebar() {
                     { title: 'Indeksasi', href: route('admin-kampus.pembinaan.indeksasi') },
                 ],
             },
-            {
-                title: 'Citations',
-                href: route('admin-kampus.citations.index'),
-                icon: BookOpen,
-            }
         ];
 
         // Add Reviewer menu only if user has reviewer role
@@ -167,6 +163,11 @@ export function AppSidebar() {
                 title: 'Jurnal',
                 href: route('user.journals.index'),
                 icon: BookOpen,
+            },
+            {
+                title: 'Sitasi',
+                href: route('profile.citation'),
+                icon: GraduationCap,
             },
             {
                 title: 'Pembinaan',

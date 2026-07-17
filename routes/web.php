@@ -427,17 +427,6 @@ Route::middleware(['auth'])->group(function () {
                 'update' => 'events.update',
                 'destroy' => 'events.destroy',
             ]);
-
-        // Citations
-        Route::prefix('citations')->name('citations.')->group(function () {
-            Route::get('/', [CitationController::class, 'index'])
-                ->name('index');
-            Route::post('sync', [CitationController::class, 'sync'])
-                ->name('sync');
-            Route::get('{author}', [CitationController::class, 'show'])
-                ->whereNumber('author')
-                ->name('show');
-        });
     });
 
     /*
@@ -608,6 +597,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('resources');
 
     Route::resource('proposal', ProposalController::class);
+
+    // Citation Profile (Dosen, role User) — view & sync own Google Scholar stats
+    Route::middleware(['role:'.Role::USER])->prefix('profile')->name('profile.')->group(function () {
+        Route::get('citation', [CitationController::class, 'show'])
+            ->name('citation');
+        Route::post('citation/sync', [CitationController::class, 'sync'])
+            ->name('citation.sync');
+    });
 
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {
