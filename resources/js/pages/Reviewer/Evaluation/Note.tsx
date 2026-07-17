@@ -31,7 +31,7 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
 
     const handleSubmitNote = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('reviewer.evaluations.submit', assignment.id), {
+        post(route('reviewer.evaluations.storeNote', assignment.id), {
             onSuccess: () => toast.success('Catatan evaluasi berhasil disimpan'),
             onError: () => toast.error('Gagal menyimpan catatan evaluasi. Silakan periksa kembali form Anda.'),
         });
