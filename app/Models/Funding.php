@@ -33,6 +33,7 @@ class Funding extends Model
         'funding_number',
         'description',
         'amount',
+        'percentage',
         'status',
         'funding_date',
         'due_date',
@@ -52,12 +53,21 @@ class Funding extends Model
      */
     protected $casts = [
         'amount' => 'decimal:2',
+        'percentage' => 'decimal:2',
         'funding_date' => 'date',
         'due_date' => 'date',
         'paid_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
+    ];
+
+    protected $appends = [
+        'id_contract',
+        'termin_number',
+        'status_pencairan',
+        'bukti_transfer_path',
+        'cair_at',
     ];
 
     /*
@@ -111,6 +121,38 @@ class Funding extends Model
     | Accessors & Helpers
     |--------------------------------------------------------------------------
     */
+
+    public function getIdContractAttribute(): int
+    {
+        return $this->contract_id;
+    }
+
+    public function getTerminNumberAttribute(): int
+    {
+        preg_match('/\d+/', (string) $this->funding_number, $matches);
+
+        return isset($matches[0]) ? (int) $matches[0] : 0;
+    }
+
+    public function getStatusPencairanAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_PLANNED => 'Belum_Cair',
+            self::STATUS_REQUESTED, self::STATUS_APPROVED => 'Proses_Transfer',
+            self::STATUS_DISBURSED => 'Sudah_Cair',
+            default => 'Belum_Cair',
+        };
+    }
+
+    public function getBuktiTransferPathAttribute()
+    {
+        return $this->proof_document_path;
+    }
+
+    public function getCairAtAttribute()
+    {
+        return $this->paid_at ? $this->paid_at->toIso8601String() : null;
+    }
 
     public function getStatusLabelAttribute(): string
     {
