@@ -682,8 +682,8 @@ Route::middleware(['auth'])->group(function () {
                 ->name('assignments.index');
             Route::get('{assignment}/note', [\App\Http\Controllers\EvaluationController::class, 'note'])
                 ->name('note');
-            Route::post('{assignment}/submit', [\App\Http\Controllers\EvaluationController::class, 'submit'])
-                ->name('submit');
+            Route::post('{assignment}/submit', [\App\Http\Controllers\EvaluationController::class, 'storeNote'])
+                ->name('storeNote');
             Route::post('{assignment}/status', [\App\Http\Controllers\EvaluationController::class, 'updateStatus'])
                 ->name('update-status');
             Route::get('{report}', [\App\Http\Controllers\EvaluationController::class, 'showProgress'])
