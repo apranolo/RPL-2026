@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SystemLog;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class LogController extends Controller
@@ -21,7 +20,7 @@ class LogController extends Controller
             ->paginate(15);
 
         return Inertia::render('Admin/Logs/Index', [
-            'logs' => $logs
+            'logs' => $logs,
         ]);
     }
 }

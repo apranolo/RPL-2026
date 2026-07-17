@@ -149,4 +149,3 @@ class OutputController extends Controller
         }
     }
 }
-
