@@ -26,27 +26,17 @@ class DeskController extends Controller
      * GET /editorial/desk/{submission}/review
      */
     public function show(Submission $submission): Response
-    {
-        $this->authorize('view', $submission);
+{
+    $editors = User::select('id', 'name', 'email')
+        ->where('is_reviewer', true)
+        ->whereNull('deleted_at')
+        ->get();
 
-        $editors = User::select('id', 'name', 'email')
-            ->whereHas('roles', function ($query) {
-                $query->whereIn('name', [Role::EDITOR, Role::SECTION_EDITOR]);
-            })
-            ->orWhereHas('role', function ($query) {
-                $query->whereIn('name', [Role::EDITOR, Role::SECTION_EDITOR]);
-            })
-            ->get();
-
-        return Inertia::render('Editorial/Desk/DeskReview', [
-            'submission' => $submission->load('journal', 'author'),
-
-            'editors'    => $editors,
-
-            'editors' => $editors,
-        ]);
-    }
-
+    return Inertia::render('Editorial/Desk/DeskReview', [
+        'submission' => $submission->load('journal', 'author'),
+        'editors'    => $editors,
+    ]);
+}
     /**
      * Tugaskan Section Editor ke submission.
      *
@@ -54,7 +44,7 @@ class DeskController extends Controller
      */
     public function assignEditor(AssignEditorRequest $request, Submission $submission): RedirectResponse
     {
-        $this->authorize('update', $submission);
+        //$this->authorize('update', $submission);
 
         $alreadyAssigned = EditorialAssignment::where('submission_id', $submission->id)
             ->where('editor_id', $request->editor_id)

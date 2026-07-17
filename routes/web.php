@@ -596,13 +596,13 @@ Route::middleware(['auth'])->group(function () {
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
 });
-Route::get('/editorial/desk/{registration}/review', [DeskController::class, 'show'])
+Route::get('/editorial/desk/{submission}/review', [DeskController::class, 'show'])
     ->name('editorial.desk.review');
 
-Route::post('/editorial/desk/{registration}/assign-editor', [DeskController::class, 'assignEditor'])
+Route::post('/editorial/desk/{submission}/assign-editor', [DeskController::class, 'assignEditor'])
     ->name('editorial.desk.assign-editor');
 
-Route::post('/editorial/desk/{registration}/desk-review', [DecisionController::class, 'deskReview'])
+Route::post('/editorial/desk/{submission}/desk-review', [DecisionController::class, 'deskReview'])
     ->name('editorial.desk.desk-review');
 
 require __DIR__.'/settings.php';
