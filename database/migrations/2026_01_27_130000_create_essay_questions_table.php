@@ -52,7 +52,8 @@ return new class extends Migration
             $table->index('display_order');
 
             // Unique Constraint: code must be unique within a category
-            $table->unique(['category_id', 'code'], 'unique_essay_code_per_category');
+            // $table->unique(['category_id', 'code'], 'unique_essay_code_per_category');
+            $table->unique(['category_id', 'code'], 'essay_unique_code_per_category');
         });
     }
 
