@@ -1,3 +1,11 @@
+/**
+ * Reviewer Evaluation Note Page
+ * 
+ * @description Formulir input untuk reviewer memberikan catatan, rekomendasi, dan nilai evaluasi terhadap jurnal.
+ * @route GET /reviewer/evaluations/{assignment}/note
+ * @features Input nilai, feedback, rekomendasi, serta update status monev.
+ */
+
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { ArrowLeft, Save, CheckCircle, HelpCircle } from 'lucide-react';
@@ -10,12 +18,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import ProgressTimeline from '@/components/ProgressTimeline';
 import { toast } from 'sonner';
-import { ReviewerAssignment, PembinaanReview } from '@/types';
+import { type BreadcrumbItem, type ReviewerAssignment, type PembinaanReview } from '@/types';
 
 interface Props {
     assignment: ReviewerAssignment;
     existingReview: PembinaanReview | null;
 }
+
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Daftar Evaluasi', href: '/reviewer/evaluations' },
+    { title: 'Catatan Evaluasi', href: '#' },
+];
 
 export default function EvaluationNote({ assignment, existingReview }: Props) {
     const registration = assignment.registration;
@@ -75,7 +88,7 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
     };
 
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Evaluasi Proposal & Catatan Reviewer" />
             
             <div className="container mx-auto p-6 space-y-6">
@@ -167,7 +180,14 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
 
                         {/* Progress Timeline */}
                         {registration && (
-                            <ProgressTimeline registration={registration} />
+                            <ProgressTimeline 
+                                registration={registration} 
+                                progressPercentage={
+                                    registration.status === 'approved' ? 100 :
+                                    registration.review_status === 'review_selesai' ? 50 :
+                                    registration.review_status === 'sedang_direview' ? 25 : 0
+                                }
+                            />
                         )}
                     </div>
 
