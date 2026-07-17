@@ -16,9 +16,12 @@ class SubmissionFile extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'submission_id', // Menghubungkan ke entitas submission utama
-        'file_path',     // Lokasi penyimpanan file fisik
-        'file_type',     // Kategori Berkas: 'ManuscriptMain' atau 'Supplementary'
+        'submission_id',
+        'file_name',
+        'file_path',
+        'file_type',
+        'mime_type',
+        'file_size',
     ];
 
     /**

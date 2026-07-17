@@ -39,7 +39,7 @@ class SubmissionTest extends TestCase
     {
         // Buat data submisi milik user saat ini
         Submission::factory()->create([
-            'user_id' => $this->user->id,
+            'author_id' => $this->user->id,
             'journal_id' => $this->journal->id,
             'title' => 'Analisis Keamanan Jaringan Wi-Fi',
             'status' => 'submitted',
@@ -86,7 +86,7 @@ class SubmissionTest extends TestCase
 
         // Verifikasi database utama mencatat submisi baru
         $this->assertDatabaseHas('submissions', [
-            'user_id' => $this->user->id,
+            'author_id' => $this->user->id,
             'journal_id' => $this->journal->id,
             'title' => 'Deteksi Malware pada Berkas Media MP4',
             'abstract' => 'Penelitian ini membahas mengenai kerentanan eksekusi kode berbahaya pada format kontainer MP4...',
@@ -146,7 +146,7 @@ class SubmissionTest extends TestCase
     public function test_author_can_delete_their_own_submission(): void
     {
         $submission = Submission::factory()->create([
-            'user_id' => $this->user->id,
+            'author_id' => $this->user->id,
             'journal_id' => $this->journal->id,
             'title' => 'Artikel untuk Dihapus',
             'status' => 'draft'

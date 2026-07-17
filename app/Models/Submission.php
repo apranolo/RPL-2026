@@ -17,17 +17,47 @@ class Submission extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'journal_id', // Menghilangkan blocker arsitektural multi-tenancy
-        'user_id',    // Relasi ke Author/Pengaju
+        'journal_id',
+        'author_id',
         'title',
-        'abstract',   // Metadata wajib sesuai PRD Modul 2
-        'keywords',   // Metadata wajib sesuai PRD Modul 2
-        'status',     // OJS Lifecycle: draft, pending, in_review, copyediting, rejected, published
+        'abstract',
+        'keywords',
+        'status',
+        'file_path',
+        'author_notes',
     ];
 
     /**
-     * Mendefinisikan relasi ke model Journal (Multi-tenancy).
-     * Setiap submission terikat pada satu Journal tujuan.
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'user_id',
+    ];
+
+    /**
+     * Relation to author (User)
+     *
+     * @return BelongsTo
+     */
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /**
+     * Alias relation to user (User) for backward compatibility.
+     *
+     * @return BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /**
+     * Relation to Journal (Multi-tenancy).
      *
      * @return BelongsTo
      */
@@ -37,24 +67,28 @@ class Submission extends Model
     }
 
     /**
-     * Mendefinisikan relasi ke model User (Author/Pengaju).
-     * Setiap submission diajukan oleh satu User.
-     *
-     * @return BelongsTo
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Mendefinisikan relasi ke model SubmissionFile.
-     * Satu submission dapat memiliki banyak berkas (naskah utama, dokumen pendukung, dll.).
+     * Relation to SubmissionFile.
      *
      * @return HasMany
      */
     public function files(): HasMany
     {
         return $this->hasMany(SubmissionFile::class);
+    }
+
+    /**
+     * Accessor for user_id (alias for author_id).
+     */
+    public function getUserIdAttribute(): ?int
+    {
+        return $this->author_id;
+    }
+
+    /**
+     * Mutator for user_id (alias for author_id).
+     */
+    public function setUserIdAttribute($value): void
+    {
+        $this->attributes['author_id'] = $value;
     }
 }

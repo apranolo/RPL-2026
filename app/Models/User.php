@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\AuthorProfile;
 
 class User extends Authenticatable
 {
@@ -119,7 +118,7 @@ class User extends Authenticatable
      */
     public function submissions(): HasMany
     {
-        return $this->hasMany(Submission::class, 'user_id');
+        return $this->hasMany(Submission::class, 'author_id');
     }
 
     /**
@@ -241,6 +240,8 @@ class User extends Authenticatable
         return $this->hasMany(AssessmentAttachment::class, 'uploaded_by');
     }
 
+<<<<<<< HEAD
+=======
     /**
      * Get the author profile of this user
      */
@@ -257,6 +258,7 @@ class User extends Authenticatable
         return $this->hasOne(ReviewerProfile::class);
     }
 
+>>>>>>> 6163c6466fd20bf47ac34d2d64740f264450f7e4
     /*
     |--------------------------------------------------------------------------
     | Scopes
@@ -392,18 +394,6 @@ class User extends Authenticatable
 
         // Check in roles relationship (multi-role)
         return $this->roles()->where('name', Role::ADMIN_KAMPUS)->exists();
-    }
-
-    /**
-     * Check if user is Admin Keuangan
-     */
-    public function isAdminKeuangan(): bool
-    {
-        if ($this->role && $this->role->name === Role::ADMIN_KEUANGAN) {
-            return true;
-        }
-
-        return $this->roles()->where('name', Role::ADMIN_KEUANGAN)->exists();
     }
 
     /**
