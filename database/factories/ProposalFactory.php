@@ -18,6 +18,7 @@ class ProposalFactory extends Factory
     public function definition(): array
     {
         $status = $this->faker->randomElement(['Draft', 'Submitted', 'Administrasi_Valid', 'Ditolak']);
+
         return [
             //
             'title' => $this->faker->sentence,

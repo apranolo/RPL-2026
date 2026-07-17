@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFundingRequest;
 use App\Models\Contract;
 use App\Models\Funding;
-use App\Http\Requests\StoreFundingRequest;
 use App\Services\FundingService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class FundingController extends Controller
 {
@@ -19,7 +19,7 @@ class FundingController extends Controller
     {
         // Pengecekan Otorisasi Multi-Tenancy / Security
         $user = $request->user();
-        if (!$user->hasAnyRole(['Admin Keuangan', 'Super Admin'])) {
+        if (! $user->hasAnyRole(['Admin Keuangan', 'Super Admin'])) {
             if ($user->hasRole('Admin Kampus')) {
                 if ($contract->university_id !== $user->university_id) {
                     abort(403, 'Unauthorized access to this contract funding.');
@@ -97,8 +97,8 @@ class FundingController extends Controller
 
         // Konfigurasi Kertas Dinamis
         // Mengambil parameter dari URL, jika tidak ada gunakan nilai default
-        $orientation = $request->query('orientation', 'landscape'); 
-        $size = $request->query('size', 'A4'); 
+        $orientation = $request->query('orientation', 'landscape');
+        $size = $request->query('size', 'A4');
 
         // Render tampilan PDF
         $pdf = Pdf::loadView('print.kwitansi', $data);
@@ -109,7 +109,7 @@ class FundingController extends Controller
             // Default 500x300 pt jika tidak diisi
             $width = $request->query('width', 500);
             $height = $request->query('height', 300);
-            
+
             // DomPDF menerima array [x, y, width, height] untuk ukuran custom
             $pdf->setPaper([0, 0, $width, $height]);
         } else {
@@ -118,6 +118,6 @@ class FundingController extends Controller
         }
 
         // Tampilkan PDF di browser
-        return $pdf->stream('Kwitansi_Termin_' . $funding->id . '.pdf');
+        return $pdf->stream('Kwitansi_Termin_'.$funding->id.'.pdf');
     }
 }

@@ -31,7 +31,7 @@ class FundingLogController extends Controller
 
         // Render response ke Inertia (menuju Logs.tsx)
         return Inertia::render('Finance/Funding/Logs', [
-            'logs' => $logs
+            'logs' => $logs,
         ]);
     }
 }
