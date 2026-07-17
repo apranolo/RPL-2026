@@ -77,6 +77,16 @@ class Submission extends Model
     }
 
     /**
+     * Relation to SubmissionContributor.
+     *
+     * @return HasMany
+     */
+    public function contributors(): HasMany
+    {
+        return $this->hasMany(SubmissionContributor::class);
+    }
+
+    /**
      * Accessor for user_id (alias for author_id).
      */
     public function getUserIdAttribute(): ?int
