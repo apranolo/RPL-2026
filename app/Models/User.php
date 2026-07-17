@@ -240,8 +240,6 @@ class User extends Authenticatable
         return $this->hasMany(AssessmentAttachment::class, 'uploaded_by');
     }
 
-<<<<<<< HEAD
-=======
     /**
      * Get the author profile of this user
      */
@@ -257,8 +255,6 @@ class User extends Authenticatable
     {
         return $this->hasOne(ReviewerProfile::class);
     }
-
->>>>>>> 6163c6466fd20bf47ac34d2d64740f264450f7e4
     /*
     |--------------------------------------------------------------------------
     | Scopes
