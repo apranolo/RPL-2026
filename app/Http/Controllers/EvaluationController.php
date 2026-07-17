@@ -126,7 +126,7 @@ class EvaluationController extends Controller
     /**
      * Submit/save evaluation note.
      */
-    public function submit(Request $request, ReviewerAssignment $assignment)
+    public function storeNote(Request $request, ReviewerAssignment $assignment)
     {
         abort_if($assignment->reviewer_id !== Auth::id(), 403);
 
