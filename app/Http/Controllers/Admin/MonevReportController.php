@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
+use App\Models\Contract;
+use App\Models\Funding;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
 class MonevReportController extends Controller
 {
     /**
-     * Mengambil rekap monev keseluruhan dengan data dummy / riil
+     * Mengambil rekap monev keseluruhan
      */
     public function index(Request $request)
     {
@@ -30,188 +29,143 @@ class MonevReportController extends Controller
             $universityId = $user->university_id;
         }
 
-        // Check if progress_reports table exists
-        $hasTable = Schema::hasTable('progress_reports');
+        $search = $request->input('search');
+        $statusFilter = $request->input('status');
 
-        if ($hasTable) {
-            // Real Data Path (Option B: queried dynamically if table exists)
-            $query = DB::table('progress_reports');
+        $contractQuery = Contract::query();
+        if ($universityId) {
+            $contractQuery->where('university_id', $universityId);
+        }
 
-            if ($universityId) {
-                $query->where('university_id', $universityId);
+        // Summary Calculations (excluding cancelled)
+        $summaryQuery = clone $contractQuery;
+        
+        $total_program = (clone $summaryQuery)->count();
+        $program_selesai = (clone $summaryQuery)->where('status', Contract::STATUS_COMPLETED)->count();
+        $program_berjalan = (clone $summaryQuery)->where('status', Contract::STATUS_ACTIVE)->count();
+        $program_tertunda = (clone $summaryQuery)->where('status', Contract::STATUS_CANCELLED)->count();
+
+        $total_anggaran = (clone $summaryQuery)->sum('contract_value');
+        
+        // Funding query
+        $fundingQuery = Funding::where('status', Funding::STATUS_DISBURSED);
+        if ($universityId) {
+            $fundingQuery->whereHas('contract', function($q) use ($universityId) {
+                $q->where('university_id', $universityId);
+            });
+        }
+        $anggaran_terserap = $fundingQuery->sum('amount');
+        
+        $persentase_serapan = $total_anggaran > 0 ? round(($anggaran_terserap / $total_anggaran) * 100, 2) : 0;
+
+        // Kinerja Bidang Ilmu (menggunakan relasi Contract -> Proposal -> User -> ScientificField)
+        // karena entitas Fakultas secara eksplisit tidak ada dalam schema saat ini.
+        $contractsForKinerja = (clone $contractQuery)->with(['proposal.user.scientificField', 'progressReports'])->get();
+        $kinerjaMap = [];
+        
+        foreach ($contractsForKinerja as $c) {
+            $field = $c->proposal->user->scientificField->name ?? 'Belum Diketahui';
+            if (!isset($kinerjaMap[$field])) {
+                $kinerjaMap[$field] = ['total_progres' => 0, 'count' => 0];
+            }
+            
+            $latestReport = $c->progressReports->sortByDesc('created_at')->first();
+            $progress = $latestReport ? $latestReport->progress_percentage : 0;
+            
+            $kinerjaMap[$field]['total_progres'] += $progress;
+            $kinerjaMap[$field]['count']++;
+        }
+
+        $kinerja_fakultas = [];
+        foreach ($kinerjaMap as $field => $data) {
+            $skor = $data['count'] > 0 ? (int) round($data['total_progres'] / $data['count']) : 0;
+            $statusStr = 'Kurang';
+            if ($skor >= 85) {
+                $statusStr = 'Sangat Baik';
+            } elseif ($skor >= 70) {
+                $statusStr = 'Baik';
+            } elseif ($skor >= 50) {
+                $statusStr = 'Cukup';
             }
 
-            $reports = $query->get();
-
-            $total_program = $reports->count();
-            $program_selesai = $reports->where('status', 'Selesai')->count();
-            $program_berjalan = $reports->where('status', 'Berjalan')->count();
-            $program_tertunda = $reports->where('status', 'Tertunda')->count();
-
-            $total_anggaran = $reports->sum('anggaran');
-            $anggaran_terserap = $reports->sum('anggaran_terserap');
-            $persentase_serapan = $total_anggaran > 0 ? round(($anggaran_terserap / $total_anggaran) * 100, 2) : 0;
-
-            // Group by fakultas and calculate averages
-            $kinerja_fakultas = $reports->groupBy('fakultas')->map(function ($group, $fakultas) {
-                $avgSkor = round($group->avg('skor_kinerja'));
-                $status = 'Cukup';
-                if ($avgSkor >= 85) {
-                    $status = 'Sangat Baik';
-                } elseif ($avgSkor >= 75) {
-                    $status = 'Baik';
-                }
-                return [
-                    'fakultas' => $fakultas,
-                    'skor' => $avgSkor,
-                    'status' => $status
-                ];
-            })->values()->toArray();
-
-            // Order by update date for recent research activities
-            $penelitian_terbaru = $reports->sortByDesc('tanggal_update')->take(5)->map(function ($report) {
-                return [
-                    'id' => $report->id,
-                    'judul_penelitian' => $report->judul_penelitian,
-                    'nama_dosen' => $report->nama_dosen,
-                    'progres' => $report->progres,
-                    'status' => $report->status,
-                    'tanggal_update' => $report->tanggal_update,
-                    'is_late' => Carbon::parse($report->tanggal_update)->addDays(14)->isPast(),
-                ];
-            })->values()->toArray();
-
-            $data = [
-                'ringkasan' => [
-                    'total_penelitian' => $total_program,
-                    'penelitian_selesai' => $program_selesai,
-                    'penelitian_berjalan' => $program_berjalan,
-                    'penelitian_tertunda' => $program_tertunda,
-                ],
-                'anggaran' => [
-                    'total_anggaran' => $total_anggaran,
-                    'anggaran_terserap' => $anggaran_terserap,
-                    'persentase_serapan' => $persentase_serapan
-                ],
-                'kinerja_fakultas' => $kinerja_fakultas,
-                'penelitian_terbaru' => $penelitian_terbaru
-            ];
-        } else {
-            // Localized Research Domain Dummy Data Fallback with multi-tenant filtering
-            $dummyReports = collect([
-                [
-                    'id' => 1,
-                    'university_id' => 1, // Assume 1 is Univ A
-                    'judul_penelitian' => 'Pengembangan Sistem Deteksi Dini Kanker menggunakan Artificial Intelligence',
-                    'nama_dosen' => 'Dr. Ahmad Fauzi',
-                    'fakultas' => 'Fakultas Kedokteran',
-                    'progres' => 75,
-                    'status' => 'Berjalan',
-                    'anggaran' => 5000000000,
-                    'anggaran_terserap' => 3500000000,
-                    'skor_kinerja' => 88,
-                    'tanggal_update' => '2026-05-12'
-                ],
-                [
-                    'id' => 2,
-                    'university_id' => 2, // Assume 2 is Univ B
-                    'judul_penelitian' => 'Analisis Perbandingan Protokol Keamanan pada IoT Smart Grid',
-                    'nama_dosen' => 'Budi Santoso, M.T.',
-                    'fakultas' => 'Fakultas Teknik',
-                    'progres' => 100,
-                    'status' => 'Selesai',
-                    'anggaran' => 6000000000,
-                    'anggaran_terserap' => 3000000000,
-                    'skor_kinerja' => 82,
-                    'tanggal_update' => '2026-05-10'
-                ],
-                [
-                    'id' => 3,
-                    'university_id' => 1, // Univ A
-                    'judul_penelitian' => 'Studi Efektivitas Pembelajaran Jarak Jauh Berbasis Virtual Reality',
-                    'nama_dosen' => 'Rina Wijayanti, Ph.D.',
-                    'fakultas' => 'Fakultas Ilmu Komputer',
-                    'progres' => 20,
-                    'status' => 'Tertunda',
-                    'anggaran' => 4000000000,
-                    'anggaran_terserap' => 2000000000,
-                    'skor_kinerja' => 76,
-                    'tanggal_update' => '2026-05-08'
-                ],
-                [
-                    'id' => 4,
-                    'university_id' => 2, // Univ B
-                    'judul_penelitian' => 'Optimasi Rantai Pasok Berkelanjutan pada Industri Manufaktur',
-                    'nama_dosen' => 'Dr. Ir. Hendra Wijaya',
-                    'fakultas' => 'Fakultas Teknik',
-                    'progres' => 45,
-                    'status' => 'Berjalan',
-                    'anggaran' => 3500000000,
-                    'anggaran_terserap' => 1500000000,
-                    'skor_kinerja' => 80,
-                    'tanggal_update' => '2026-05-14'
-                ]
-            ]);
-
-            if ($universityId) {
-                $dummyReports = $dummyReports->where('university_id', $universityId);
-            }
-
-            $total_program = $dummyReports->count();
-            $program_selesai = $dummyReports->where('status', 'Selesai')->count();
-            $program_berjalan = $dummyReports->where('status', 'Berjalan')->count();
-            $program_tertunda = $dummyReports->where('status', 'Tertunda')->count();
-
-            $total_anggaran = $dummyReports->sum('anggaran');
-            $anggaran_terserap = $dummyReports->sum('anggaran_terserap');
-            $persentase_serapan = $total_anggaran > 0 ? round(($anggaran_terserap / $total_anggaran) * 100, 2) : 0;
-
-            $kinerja_fakultas = $dummyReports->groupBy('fakultas')->map(function ($group, $fakultas) {
-                $avgSkor = round($group->avg('skor_kinerja'));
-                $status = 'Cukup';
-                if ($avgSkor >= 85) {
-                    $status = 'Sangat Baik';
-                } elseif ($avgSkor >= 75) {
-                    $status = 'Baik';
-                }
-                return [
-                    'fakultas' => $fakultas,
-                    'skor' => $avgSkor,
-                    'status' => $status
-                ];
-            })->values()->toArray();
-
-            $penelitian_terbaru = $dummyReports->sortByDesc('tanggal_update')->take(5)->map(function ($report) {
-                return [
-                    'id' => $report['id'],
-                    'judul_penelitian' => $report['judul_penelitian'],
-                    'nama_dosen' => $report['nama_dosen'],
-                    'progres' => $report['progres'],
-                    'status' => $report['status'],
-                    'tanggal_update' => $report['tanggal_update'],
-                    'is_late' => Carbon::parse($report['tanggal_update'])->addDays(14)->isPast(),
-                ];
-            })->values()->toArray();
-
-            $data = [
-                'ringkasan' => [
-                    'total_penelitian' => $total_program,
-                    'penelitian_selesai' => $program_selesai,
-                    'penelitian_berjalan' => $program_berjalan,
-                    'penelitian_tertunda' => $program_tertunda,
-                ],
-                'anggaran' => [
-                    'total_anggaran' => $total_anggaran,
-                    'anggaran_terserap' => $anggaran_terserap,
-                    'persentase_serapan' => $persentase_serapan
-                ],
-                'kinerja_fakultas' => $kinerja_fakultas,
-                'penelitian_terbaru' => $penelitian_terbaru
+            $kinerja_fakultas[] = [
+                'fakultas' => $field, // tetap menggunakan key 'fakultas' agar compatible dengan UI
+                'skor' => $skor,
+                'status' => $statusStr,
             ];
         }
 
+        // Penelitian Terbaru with filters and pagination
+        $listQuery = clone $contractQuery;
+        $listQuery->with(['proposal.user', 'progressReports' => function($q) {
+            $q->latest();
+        }]);
+
+        if ($search) {
+            $listQuery->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhereHas('proposal.user', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($statusFilter) {
+            $listQuery->where('status', $statusFilter);
+        }
+
+        $contracts = $listQuery->latest()->paginate(10)->withQueryString();
+
+        $penelitian_terbaru = $contracts->getCollection()->map(function ($contract) {
+            $latestReport = $contract->progressReports->first();
+            $progress = $latestReport ? $latestReport->progress_percentage : 0;
+            $updatedAt = $latestReport ? $latestReport->updated_at : $contract->updated_at;
+            
+            $statusLabel = 'Draft';
+            if ($contract->status === Contract::STATUS_ACTIVE) {
+                $statusLabel = 'Berjalan';
+            } elseif ($contract->status === Contract::STATUS_COMPLETED) {
+                $statusLabel = 'Selesai';
+            } elseif ($contract->status === Contract::STATUS_CANCELLED) {
+                $statusLabel = 'Tertunda';
+            }
+
+            return [
+                'id' => $contract->id,
+                'judul_penelitian' => $contract->title ?? 'Tidak Ada Judul',
+                'nama_dosen' => $contract->proposal->user->name ?? 'Unknown',
+                'progres' => $progress,
+                'status' => $statusLabel,
+                'tanggal_update' => Carbon::parse($updatedAt)->format('Y-m-d'),
+                'is_late' => Carbon::parse($updatedAt)->addDays(14)->isPast() && $contract->status === Contract::STATUS_ACTIVE,
+            ];
+        });
+
+        // Re-assign mapped items to paginator
+        $paginator = $contracts->setCollection($penelitian_terbaru);
+
+        $data = [
+            'ringkasan' => [
+                'total_penelitian' => $total_program,
+                'penelitian_selesai' => $program_selesai,
+                'penelitian_berjalan' => $program_berjalan,
+                'penelitian_tertunda' => $program_tertunda,
+            ],
+            'anggaran' => [
+                'total_anggaran' => $total_anggaran,
+                'anggaran_terserap' => $anggaran_terserap,
+                'persentase_serapan' => $persentase_serapan
+            ],
+            'kinerja_fakultas' => $kinerja_fakultas,
+            'penelitian_terbaru' => $paginator
+        ];
+
         return Inertia::render('Admin/Monev/Report', [
-            'data' => $data
+            'data' => $data,
+            'filters' => [
+                'search' => $search ?? '',
+                'status' => $statusFilter ?? '',
+            ]
         ]);
     }
 
@@ -222,19 +176,13 @@ class MonevReportController extends Controller
     {
         $request->validate([
             'id' => 'required|integer',
-            'action' => 'required|string|in:Lanjut,Stop,Berjalan,Tertunda,Selesai'
+            'action' => 'required|string|in:Lanjut,Stop'
         ]);
 
         $id = $request->input('id');
         $action = $request->input('action');
 
-        // Map "Lanjut" to "Berjalan" and "Stop" to "Tertunda"
-        $status = $action;
-        if ($action === 'Lanjut') {
-            $status = 'Berjalan';
-        } elseif ($action === 'Stop') {
-            $status = 'Tertunda';
-        }
+        $status = $action === 'Lanjut' ? Contract::STATUS_ACTIVE : Contract::STATUS_CANCELLED;
 
         $user = $request->user();
         $universityId = null;
@@ -248,29 +196,20 @@ class MonevReportController extends Controller
             $universityId = $user->university_id;
         }
 
-        $hasTable = Schema::hasTable('progress_reports');
-
-        if ($hasTable) {
-            $query = DB::table('progress_reports')->where('id', $id);
-
-            if ($universityId) {
-                $query->where('university_id', $universityId);
-            }
-
-            $report = $query->first();
-
-            if (!$report) {
-                return redirect()->back()->with('error', 'Laporan penelitian tidak ditemukan atau Anda tidak memiliki akses.');
-            }
-
-            DB::table('progress_reports')
-                ->where('id', $id)
-                ->update([
-                    'status' => $status,
-                    'tanggal_update' => now()->toDateString(),
-                    'updated_at' => now()
-                ]);
+        $query = Contract::where('id', $id);
+        if ($universityId) {
+            $query->where('university_id', $universityId);
         }
+
+        $contract = $query->first();
+
+        if (!$contract) {
+            return redirect()->back()->with('error', 'Penelitian (Kontrak) tidak ditemukan atau Anda tidak memiliki akses.');
+        }
+
+        $contract->update([
+            'status' => $status
+        ]);
 
         return redirect()->back()->with('success', 'Status penelitian berhasil diperbarui.');
     }
