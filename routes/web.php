@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
+use App\Http\Controllers\Admin\OutputReportController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingsCtrl;
@@ -332,6 +333,12 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{pembinaan}/toggle-status', [AdminPembinaanController::class, 'toggleStatus'])
                 ->name('toggle-status');
         });
+
+        // Output Report (Rekap Luaran)
+        Route::get('output/report', [OutputReportController::class, 'index'])
+            ->name('output.report');
+        Route::get('output/export', [OutputReportController::class, 'export'])
+            ->name('output.export');
 
     });
 
