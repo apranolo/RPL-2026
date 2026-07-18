@@ -15,7 +15,7 @@ import { BookOpen, Flame } from 'lucide-react';
 
 interface Research {
     id: number;
-    title: string;
+    judul: string;
     citations: number;
 }
 
@@ -110,8 +110,8 @@ export default function TopResearchList({ data }: Props) {
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-white leading-snug line-clamp-2" title={research.title}>
-                                {research.title}
+                            <p className="text-sm font-semibold text-white leading-snug line-clamp-2" title={research.judul}>
+                                {research.judul}
                             </p>
                             <p className="text-xs text-white/40 mt-1 flex items-center gap-1">
                                 <Flame size={11} className="text-green-400" />
