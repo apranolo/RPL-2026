@@ -11,15 +11,37 @@ use Inertia\Inertia;
 
 class OutputController extends Controller
 {
-    public function index()
+    /**
+     * Store a newly created HKI/Patent output in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeHKI(Request $request)
     {
-        $outputs = ResearchOutput::with('user')
-            ->where('user_id', Auth::id())
-            ->latest()
-            ->paginate(10);
+        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data HKI.');
 
-        return Inertia::render('Output/Index', [
-            'outputs' => $outputs,
+        $validated = $request->validate([
+            'judul_luaran' => 'required|string|max:255',
+            'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
+            'penulis_atau_pencipta' => 'required|string',
+            'nomor_paten' => 'required|string|max:100',
+            'jenis_hki' => 'required|string|in:paten,hak_cipta,merek,desain_industri,rahasia_dagang',
+            'deskripsi' => 'nullable|string|max:1000',
+            'tautan_publikasi' => 'nullable|url',
+            'file_sertifikat_atau_cover' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120',
+        ], [
+            'judul_luaran.required' => 'Judul luaran wajib diisi.',
+            'tahun_capaian.required' => 'Tahun capaian wajib diisi.',
+            'penulis_atau_pencipta.required' => 'Penulis atau pencipta wajib diisi.',
+            'nomor_paten.required' => 'Nomor paten wajib diisi.',
+            'jenis_hki.required' => 'Jenis HKI wajib dipilih.',
+            'jenis_hki.in' => 'Jenis HKI yang dipilih tidak valid.',
+            'deskripsi.max' => 'Deskripsi maksimal 1000 karakter.',
+            'file_sertifikat_atau_cover.required' => 'File sertifikat atau cover wajib diunggah.',
+            'file_sertifikat_atau_cover.mimes' => 'File sertifikat atau cover harus berupa PDF, JPG, PNG, atau JPEG.',
+            'file_sertifikat_atau_cover.max' => 'Ukuran file sertifikat atau cover maksimal 5MB.',
+            'tautan_publikasi.url' => 'Tautan publikasi harus berupa URL yang valid.',
         ]);
     }
 
@@ -41,7 +63,13 @@ class OutputController extends Controller
         ]);
     }
 
-    public function update(Request $request, ResearchOutput $output)
+    /**
+     * Store a newly created Book/Module output in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeBook(Request $request)
     {
         $this->authorize('update', $output);
 
@@ -120,4 +148,3 @@ class OutputController extends Controller
         return redirect()->route('user.outputs.index')->with('message', 'Luaran penelitian berhasil dihapus');
     }
 }
-
