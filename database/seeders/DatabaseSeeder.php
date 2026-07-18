@@ -29,11 +29,9 @@ class DatabaseSeeder extends Seeder
             EssayQuestionSeeder::class,         // 8. Essay Questions (6 samples)
 
             JournalSeeder::class,           // 9. Journals (depends on: universities, users, scientific_fields)
+            EmailTemplateSeeder::class,     // Email templates (depends on journals, optional)
             AssessmentSeeder::class,        // 10. Assessments with Journal Metadata (depends on: journals, users, indicators)
             PembinaanSeeder::class,         // 11. Pembinaan System (depends on: journals, users, templates)
-
-            ResearchSchemaSeeder::class,
-            ProposalSeeder::class,
         ]);
 
         $this->command->info('');

@@ -142,6 +142,14 @@ class Journal extends Model
     */
 
     /**
+     * Get all submissions registered under this journal.
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'journal_id');
+    }
+
+    /**
      * Get the university that owns this journal
      */
     public function university()
@@ -355,9 +363,7 @@ class Journal extends Model
         }
 
         return $query->whereNotNull('indexations')
-            ->where(function ($q) use ($platform) {
-                $q->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.\"$platform\"')");
-            });
+            ->whereNotNull('indexations->'.$platform);
     }
 
     /**
@@ -367,7 +373,7 @@ class Journal extends Model
     public function scopeIndexedInScopus($query)
     {
         return $query->whereNotNull('indexations')
-            ->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.Scopus')");
+            ->whereNotNull('indexations->Scopus');
     }
 
     /**

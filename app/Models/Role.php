@@ -13,13 +13,13 @@ class Role extends Model
 
     public const ADMIN_KAMPUS = 'Admin Kampus';
 
-    public const ADMIN_KEUANGAN = 'Admin Keuangan';
-
     public const USER = 'User';
 
     public const PENGELOLA_JURNAL = 'Pengelola Jurnal';
 
     public const REVIEWER = 'Reviewer';
+
+    public const ADMIN_KEUANGAN = 'Admin Keuangan';
 
     /**
      * The attributes that are mass assignable.
@@ -94,14 +94,6 @@ class Role extends Model
     }
 
     /**
-     * check if role is admin keuangan
-     */
-    public function isAdminKeuangan(): bool
-    {
-        return $this->name === self::ADMIN_KEUANGAN;
-    }
-
-    /**
      * check if role is user
      */
     public function isUser(): bool
@@ -123,5 +115,13 @@ class Role extends Model
     public function isReviewer(): bool
     {
         return $this->name === self::REVIEWER;
+    }
+
+    /**
+     * check if role is admin keuangan
+     */
+    public function isAdminKeuangan(): bool
+    {
+        return $this->name === self::ADMIN_KEUANGAN;
     }
 }
