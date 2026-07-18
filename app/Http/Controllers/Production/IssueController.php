@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Production;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Issue;
+use App\Models\Journal;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -23,7 +25,8 @@ class IssueController extends Controller
             }
             $journalId = $journal->id;
         } else {
-            $journal = \App\Models\Journal::findOrFail($journalId);
+            $journal = Journal::findOrFail($journalId);
+            $this->authorizeJournal($journal, $request->user());
         }
 
         $query = Issue::with('journal')
@@ -51,39 +54,44 @@ class IssueController extends Controller
     /**
      * Preview Issue
      */
-    public function preview($journalId, $volume, $issue)
-{
-    $issueModel = Issue::with('journal')
-        ->where('journal_id', $journalId)
-        ->where('volume', $volume)
-        ->where('number', $issue)
-        ->firstOrFail();
+    public function preview(Request $request, $journalId, $volume, $issue)
+    {
+        $issueModel = Issue::with('journal')
+            ->where('journal_id', $journalId)
+            ->where('volume', $volume)
+            ->where('number', $issue)
+            ->firstOrFail();
 
-    $articles = \App\Models\Article::where('journal_id', $journalId)
-        ->where('volume', $volume)
-        ->where('issue', $issue)
-        ->orderBy('publication_date')
-        ->get();
+        $this->authorizeJournal($issueModel->journal, $request->user());
 
-    return Inertia::render('Production/Issue/Preview', [
-        'issue' => $issueModel,
-        'articles' => $articles,
-    ]);
-}
+        $articles = Article::where('journal_id', $journalId)
+            ->where('volume', $volume)
+            ->where('issue', $issue)
+            ->orderBy('publication_date')
+            ->get();
+
+        return Inertia::render('Production/Issue/Preview', [
+            'issue' => $issueModel,
+            'articles' => $articles,
+        ]);
+    }
 
     /**
      * Publish Issue
      */
-    public function publish($journalId, $volume, $issue)
+    public function publish(Request $request, $journalId, $volume, $issue)
     {
+        $issueModel = Issue::with('journal')
+            ->where('journal_id', $journalId)
+            ->where('volume', $volume)
+            ->where('number', $issue)
+            ->firstOrFail();
+
+        $this->authorizeJournal($issueModel->journal, $request->user());
+
         DB::beginTransaction();
 
         try {
-            $issueModel = Issue::where('journal_id', $journalId)
-                ->where('volume', $volume)
-                ->where('number', $issue)
-                ->firstOrFail();
-
             $issueModel->update([
                 'status' => 'Published',
                 'publication_date' => now(),
@@ -109,7 +117,7 @@ class IssueController extends Controller
      */
     public function backIssues($journalId)
     {
-        $issues = \App\Models\Issue::with('journal')
+        $issues = Issue::with('journal')
             ->where('journal_id', $journalId)
             ->where('status', 'Published')
             ->orderByDesc('publication_date')
@@ -118,5 +126,31 @@ class IssueController extends Controller
         return Inertia::render('Production/Issue/BackIssues', [
             'issues' => $issues,
         ]);
+    }
+
+    /**
+     * Authorize that the user owns or can manage the journal.
+     */
+    private function authorizeJournal(Journal $journal, User $user): void
+    {
+        if ($user->isSuperAdmin()) {
+            return;
+        }
+
+        if ($user->isAdminKampus()) {
+            if ($journal->university_id !== $user->university_id) {
+                abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
+            }
+            return;
+        }
+
+        if ($user->isUser()) {
+            if ($journal->user_id !== $user->id) {
+                abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
+            }
+            return;
+        }
+
+        abort(403, 'Akses tidak sah.');
     }
 }

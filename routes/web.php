@@ -39,6 +39,7 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Editorial\PlagiarismController;
+use App\Http\Controllers\Production\IssueController;
 use Inertia\Inertia;
 
 
@@ -495,6 +496,12 @@ Route::middleware(['auth'])->group(function () {
         // =====================================================
         // Issue Preview & Publish
         // =====================================================
+
+        // Daftar Issues
+        Route::get(
+            'journals/{journal}/issues',
+            [IssueController::class, 'index']
+        )->name('journals.issues.index');
 
         // Preview Table of Contents sebelum publish
         Route::get(
