@@ -49,7 +49,7 @@ class CopyeditingController extends Controller
             'copyedited_file_path' => $path,
             'copyedited_file_name' => $file->getClientOriginalName(),
             'copyeditor_notes' => $request->copyeditor_notes,
-            'status' => 'waiting_approval',
+            'status' => 'Completed',
             'copyedited_at' => now(),
         ]);
 
@@ -79,12 +79,12 @@ class CopyeditingController extends Controller
             'author_approval_notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        if (! $task->isWaitingApproval()) {
+        if (! $task->isCompleted()) {
             return back()->withErrors(['error' => 'Task tidak dalam status menunggu persetujuan.']);
         }
 
         $task->update([
-            'status' => 'approved',
+            'status' => 'Author_Approved',
             'author_approval_notes' => $request->author_approval_notes,
             'author_approved_at' => now(),
         ]);
@@ -106,12 +106,12 @@ class CopyeditingController extends Controller
             'author_approval_notes.required' => 'Catatan penolakan wajib diisi agar Copyeditor tahu yang perlu diperbaiki.',
         ]);
 
-        if (! $task->isWaitingApproval()) {
+        if (! $task->isCompleted()) {
             return back()->withErrors(['error' => 'Task tidak dalam status menunggu persetujuan.']);
         }
 
         $task->update([
-            'status' => 'copyediting',
+            'status' => 'In_Progress',
             'author_approval_notes' => $request->author_approval_notes,
             'copyedited_file_path' => null,
             'copyedited_file_name' => null,

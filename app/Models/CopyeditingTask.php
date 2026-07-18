@@ -54,9 +54,8 @@ class CopyeditingTask extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function isPending(): bool          { return $this->status === 'pending'; }
-    public function isCopyediting(): bool      { return $this->status === 'copyediting'; }
-    public function isWaitingApproval(): bool  { return $this->status === 'waiting_approval'; }
-    public function isApproved(): bool         { return $this->status === 'approved'; }
-    public function isRejected(): bool         { return $this->status === 'rejected'; }
+    public function isAssigned(): bool       { return $this->status === 'Assigned'; }
+    public function isInProgress(): bool     { return $this->status === 'In_Progress'; }
+    public function isCompleted(): bool      { return $this->status === 'Completed'; }
+    public function isAuthorApproved(): bool { return $this->status === 'Author_Approved'; }
 }
