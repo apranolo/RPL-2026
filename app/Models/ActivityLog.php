@@ -18,6 +18,17 @@ class ActivityLog extends Model
     ];
 
     /**
+     * Virtual attributes appended to array/JSON representation.
+     */
+    protected $appends = [
+        'id_submission',
+        'id_user',
+        'user_name',
+        'action_type',
+        'activity_description',
+    ];
+
+    /**
      * Relasi ke User yang melakukan aktivitas
      */
     public function user(): BelongsTo
@@ -25,5 +36,42 @@ class ActivityLog extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Catatan: Relasi ke Submission bisa ditambahkan di sini setelah tabel submissions tersedia
+    /**
+     * Relasi ke Submission (jika ada)
+     */
+    public function submission(): BelongsTo
+    {
+        return $this->belongsTo(Submission::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    public function getIdSubmissionAttribute(): ?int
+    {
+        return $this->submission_id;
+    }
+
+    public function getIdUserAttribute(): ?int
+    {
+        return $this->user_id;
+    }
+
+    public function getUserNameAttribute(): string
+    {
+        return $this->user?->name ?? 'System';
+    }
+
+    public function getActionTypeAttribute(): string
+    {
+        return $this->action;
+    }
+
+    public function getActivityDescriptionAttribute(): ?string
+    {
+        return $this->description;
+    }
 }

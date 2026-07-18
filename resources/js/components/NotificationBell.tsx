@@ -129,7 +129,9 @@ export function NotificationBell() {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild className="justify-center text-primary cursor-pointer">
-                    <div className="w-full text-center">Lihat Semua Notifikasi</div>
+                    <Link href="/notifications" className="w-full text-center block">
+                        Lihat Semua Notifikasi
+                    </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

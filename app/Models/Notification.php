@@ -6,6 +6,39 @@ use Illuminate\Notifications\DatabaseNotification;
 
 class Notification extends DatabaseNotification
 {
-    // Extend bawaan Laravel untuk notifikasi database.
-    // Anda bisa menambahkan custom logic, scope, atau helper methods di sini jika diperlukan nanti.
+    /**
+     * Virtual attributes appended to array/JSON representation.
+     */
+    protected $appends = [
+        'id_user',
+        'title',
+        'message',
+        'url',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    public function getIdUserAttribute(): ?int
+    {
+        return $this->notifiable_id;
+    }
+
+    public function getTitleAttribute(): ?string
+    {
+        return $this->data['title'] ?? 'Notifikasi Baru';
+    }
+
+    public function getMessageAttribute(): ?string
+    {
+        return $this->data['message'] ?? '';
+    }
+
+    public function getUrlAttribute(): ?string
+    {
+        return $this->data['url'] ?? null;
+    }
 }
