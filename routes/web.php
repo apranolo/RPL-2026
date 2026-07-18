@@ -152,6 +152,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    //revisi ded code
+    Route::get('/monev/cetak-rekap', [\App\Http\Controllers\MonevDocumentController::class, 'printRekap'])
+        ->name('monev.printRekap')
+        ->middleware('role:' . Role::SUPER_ADMIN . '|' . Role::ADMIN_KAMPUS . '|' . Role::USER);
+
     // Author Submission Wizard Step 4 Routes
     Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
     Route::post('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'saveStep4'])->name('submissions.wizard.save-step4');
