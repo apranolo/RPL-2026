@@ -1,17 +1,17 @@
 <?php
 
-use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
-use App\Http\Controllers\Admin\ProposalController as AdminProposalController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataMasterController;
-use App\Http\Controllers\SchemaController;
+use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
+use App\Http\Controllers\Admin\OutputReportController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingsCtrl;
@@ -26,30 +26,34 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ContractController;
+use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DeskController;
+use App\Http\Controllers\Editorial\PlagiarismController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
+use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\User\AssessmentController;
-use App\Http\Controllers\ContractDocController;
-use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
-use App\Http\Controllers\ProfileController;
 use App\Models\Role;
+use App\Http\Controllers\Revision\RevisionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Editorial\PlagiarismController;
+use App\Http\Controllers\CitationController;
 use Inertia\Inertia;
 use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\DecisionController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -77,7 +81,7 @@ Route::get('/storage/{path}', function (string $path) {
             abort(404);
         }
 
-        return Storage::disk('public')->response($path);
+        return response()->file(Storage::disk('public')->path($path));
     } catch (\Throwable $e) {
         // Avoid leaking storage layer errors
         abort(404);
@@ -149,6 +153,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // Author Submission Wizard Step 4 Routes
+    Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
+    Route::post('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'saveStep4'])->name('submissions.wizard.save-step4');
+
     // Dashboard Admin
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
@@ -163,15 +171,15 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:Keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'keuanganDashboard'])->name('dashboard');
 
-    // Finance Reports
-    Route::prefix('finance')->name('finance.')->group(function () {
-        Route::get('reports', [\App\Http\Controllers\FinanceReportController::class, 'index'])
-            ->name('reports.index');
-        Route::get('reports/summary', [\App\Http\Controllers\FinanceReportController::class, 'summary'])
-            ->name('reports.summary');
-        Route::post('reports/filter', [\App\Http\Controllers\FinanceReportController::class, 'filter'])
-            ->name('reports.filter');
-    });
+        // Finance Reports
+        Route::prefix('finance')->name('finance.')->group(function () {
+            Route::get('reports', [\App\Http\Controllers\FinanceReportController::class, 'index'])
+                ->name('reports.index');
+            Route::get('reports/summary', [\App\Http\Controllers\FinanceReportController::class, 'summary'])
+                ->name('reports.summary');
+            Route::post('reports/filter', [\App\Http\Controllers\FinanceReportController::class, 'filter'])
+                ->name('reports.filter');
+        });
 
         Route::prefix('contracts')->name('contracts.')->group(function () {
             Route::get('{contract}/upload', [ContractDocController::class, 'create'])->name('upload');
@@ -190,9 +198,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('settings/profile', [SettingsCtrl::class, 'index'])->name('settings.profile');
         Route::post('settings/profile', [SettingsCtrl::class, 'update'])->name('settings.profile.update');
 
+
+
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
             ->name('data-master.index');
+
+        // Email Template Management
+        Route::get('email-template', [EmailTemplateController::class, 'index'])
+            ->name('email-template.index');
+
+        Route::put('email-template/{emailTemplate}', [EmailTemplateController::class, 'update'])
+            ->name('email-template.update');
 
         // Skema Penelitian Management
         Route::resource('schema', SchemaController::class);
@@ -299,7 +316,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
             ->name('reviews.summary');
 
-
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             Route::get('/', [AdminPembinaanController::class, 'index'])
@@ -320,6 +336,12 @@ Route::middleware(['auth'])->group(function () {
                 ->name('toggle-status');
         });
 
+        // Output Report (Rekap Luaran)
+        Route::get('output/report', [OutputReportController::class, 'index'])
+            ->name('output.report');
+        Route::get('output/export', [OutputReportController::class, 'export'])
+            ->name('output.export');
+
     });
 
     /*
@@ -334,6 +356,10 @@ Route::middleware(['auth'])->group(function () {
             // Penentuan Keputusan Diterima/Ditolak (Decision)
             Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
                 ->name('decision.decide');
+
+            // Admin Dashboard (LPPM)
+            Route::get('dashboard', [AdminDashboardController::class, 'index'])
+                ->name('dashboard');
         });
 
     /*
@@ -480,7 +506,6 @@ Route::middleware(['auth'])->group(function () {
                 'update' => 'events.update',
                 'destroy' => 'events.destroy',
             ]);
-
     });
 
     /*
@@ -614,13 +639,15 @@ Route::middleware(['auth'])->group(function () {
             ->name('progress.index');
 
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::post('/outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
+        Route::post('/outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
         Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
         Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
 
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
-            //
+            Route::post('{proposal}/documents', [\App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.store');
         });
     });
 
@@ -738,7 +765,6 @@ Route::middleware(['auth'])->group(function () {
             ->name('message.upload-attachment');
     });
 
-
     /*
     |--------------------------------------------------------------------------
     | Shared Routes (All Roles)
@@ -754,6 +780,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('resources');
 
     Route::resource('proposal', ProposalController::class);
+
+    // Citation Profile (Dosen, role User) — view & sync own Google Scholar stats
+    Route::middleware(['role:'.Role::USER])->prefix('profile')->name('profile.')->group(function () {
+        Route::get('citation', [CitationController::class, 'show'])
+            ->name('citation');
+        Route::post('citation/sync', [CitationController::class, 'sync'])
+            ->name('citation.sync');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -776,15 +810,18 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+    Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
+    ->prefix('editorial')
+    ->name('editorial.')
+    ->group(function () {
 
-    Route::post('/user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])->name('user.bank.update');
+        Route::post(
+            '/submissions/{id_submission}/notify-author',
+            [RevisionController::class, 'notifyAuthor']
+        )->name('revision.notify-author');
 
-    // Rute Undangan Reviewer (Dilindungi middleware Editor agar aman)
-    Route::post('/review/invite', [ReviewAssignmentController::class, 'invite'])
-        ->middleware(['role:Editor'])
-        ->name('review.invite');
+    });
 });
 
-    
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

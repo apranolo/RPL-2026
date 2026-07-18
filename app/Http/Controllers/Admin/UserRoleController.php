@@ -24,7 +24,7 @@ class UserRoleController extends Controller
                         'role_name' => $ur->role_name,
                         'status' => $ur->status,
                         'journal' => $ur->journal ? [
-                            'name' => $ur->journal->title
+                            'name' => $ur->journal->title,
                         ] : null,
                     ];
                 }),
@@ -48,4 +48,3 @@ class UserRoleController extends Controller
             ->with('success', 'Hak akses peran berhasil dicabut.');
     }
 }
-

@@ -106,11 +106,20 @@ class User extends Authenticatable
         ];
     }
 
-    /*
+   /*
     |--------------------------------------------------------------------------
     | Relationships
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Get all submissions created by this user (Author)
+     * Sesuai dengan spesifikasi relasi PRD Modul 2
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'author_id');
+    }
 
     /**
      * Get the role of this user (backwards compatibility - returns primary role)
@@ -231,11 +240,14 @@ class User extends Authenticatable
         return $this->hasMany(AssessmentAttachment::class, 'uploaded_by');
     }
 
-<<<<<<< HEAD
-=======
     /**
-     * Get the author profile of this user
+     * Get the citation statistics record of this user
      */
+    public function citation()
+    {
+        return $this->hasOne(Citation::class);
+    }
+
     public function authorProfile()
     {
         return $this->hasOne(AuthorProfile::class);
@@ -248,8 +260,6 @@ class User extends Authenticatable
     {
         return $this->hasOne(ReviewerProfile::class);
     }
-
->>>>>>> 6163c6466fd20bf47ac34d2d64740f264450f7e4
     /*
     |--------------------------------------------------------------------------
     | Scopes
