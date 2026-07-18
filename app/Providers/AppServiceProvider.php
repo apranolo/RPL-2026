@@ -33,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\EvaluationIndicator::class, \App\Policies\EvaluationIndicatorPolicy::class);
         Gate::policy(\App\Models\EssayQuestion::class, \App\Policies\EssayQuestionPolicy::class);
 
+        // Research Output Policy
+        Gate::policy(\App\Models\ResearchOutput::class, \App\Policies\ResearchOutputPolicy::class);
+
         // Define additional gates if needed
         Gate::define('manage-universities', function ($user) {
             return $user->isSuperAdmin();

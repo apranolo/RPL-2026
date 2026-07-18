@@ -1,10 +1,44 @@
+/**
+ * Edit Luaran Penelitian - Edit Page
+ *
+ * @description Halaman untuk mengedit luaran penelitian yang sudah ada.
+ * Mendukung field dinamis berdasarkan jenis luaran (Jurnal, Buku, HKI, Produk).
+ * Menggunakan Inertia.js useForm untuk pengelolaan form dan Shadcn UI untuk komponen.
+ *
+ * @param {ResearchOutput} outputs - Data luaran penelitian yang akan diedit
+ * @param {Contract[]} contracts - Daftar kontrak penelitian milik dosen
+ * @param {Record<string, string>} kategoriOptions - Opsi kategori luaran
+ * @param {Record<string, string>} statusOptions - Opsi status verifikasi
+ *
+ * @author JurnalMu Team
+ * @version 1.1.0
+ */
+
 'use client';
 
+/**
+ * OutputEdit Component
+ *
+ * @description
+ * The editing interface for existing research outputs.
+ * Supports dynamic fields based on output type (Jurnal, Buku, HKI, Produk).
+ *
+ * @route PUT /user/outputs/{id}
+ */
 import { Head, useForm, Link } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { OutputType, OutputFormData, getEmptyOutputFormData, filterOutputFormData, isValidOutputType } from '@/utils/OutputFormSelector';
 import OutputFormFields from '@/components/Output/OutputFormFields';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { type BreadcrumbItem } from '@/types';
+import { ChevronLeft } from 'lucide-react';
 
 interface ResearchOutput {
   id: number;
@@ -34,15 +68,15 @@ interface Props {
   statusOptions: Record<string, string>;
 }
 
-const ChevronLeftIcon = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-  </svg>
-);
-
 export default function Edit({ outputs, contracts, kategoriOptions, statusOptions }: Props) {
   const [outputType, setOutputType] = useState<OutputType>(outputs.jenis_luaran);
   const [outputableData, setOutputableData] = useState<OutputFormData>({});
+
+  const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Luaran Penelitian', href: route('user.outputs.index') },
+    { title: 'Edit Luaran', href: route('user.outputs.edit', outputs.id) },
+  ];
 
   const { data, setData, put, processing, errors, reset } = useForm({
     contract_id: outputs.contract_id,
@@ -102,7 +136,7 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
   };
 
   return (
-    <AppLayout>
+    <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Edit Luaran Penelitian" />
 
       <div className="py-6">
@@ -112,7 +146,7 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
               href={route('user.outputs.index')}
               className="text-gray-500 hover:text-gray-700 transition-colors"
             >
-              <ChevronLeftIcon />
+              <ChevronLeft className="h-5 w-5" />
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Edit Luaran Penelitian</h1>
@@ -145,24 +179,25 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                   <label htmlFor="contract_id" className="block text-sm font-medium text-gray-700">
                     Kontrak Penelitian <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    id="contract_id"
-                    value={data.contract_id}
-                    onChange={(e) => setData('contract_id', parseInt(e.target.value) || 0)}
+                  <Select
+                    value={data.contract_id ? String(data.contract_id) : ''}
+                    onValueChange={(value) => setData('contract_id', value ? parseInt(value) : 0)}
                     disabled={processing}
-                    className={`
-                      mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm
-                      focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1
-                      ${errors.contract_id ? 'border-red-300' : 'border-gray-300'}
-                    `}
                   >
-                    <option value="">Pilih Kontrak</option>
-                    {contracts.map((contract) => (
-                      <option key={contract.id} value={contract.id}>
-                        {contract.contract_number} - {contract.title}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="contract_id" className={`
+                      ${errors.contract_id ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
+                    `}>
+                      <SelectValue placeholder="Pilih Kontrak" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="" disabled>Pilih Kontrak</SelectItem>
+                      {contracts.map((contract) => (
+                        <SelectItem key={contract.id} value={String(contract.id)}>
+                          {contract.contract_number} - {contract.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.contract_id && <p className="mt-1 text-sm text-red-600">{errors.contract_id}</p>}
                 </div>
 
@@ -170,24 +205,25 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                   <label htmlFor="jenis_luaran" className="block text-sm font-medium text-gray-700">
                     Jenis Luaran <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    id="jenis_luaran"
+                  <Select
                     value={data.jenis_luaran}
-                    onChange={(e) => handleOutputTypeChange(e.target.value)}
+                    onValueChange={handleOutputTypeChange}
                     disabled={processing}
-                    className={`
-                      mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm
-                      focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1
-                      ${errors.jenis_luaran ? 'border-red-300' : 'border-gray-300'}
-                    `}
                   >
-                    <option value="">Pilih Jenis Luaran</option>
-                    {Object.entries(kategoriOptions).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="jenis_luaran" className={`
+                      ${errors.jenis_luaran ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
+                    `}>
+                      <SelectValue placeholder="Pilih Jenis Luaran" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="" disabled>Pilih Jenis Luaran</SelectItem>
+                      {Object.entries(kategoriOptions).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.jenis_luaran && <p className="mt-1 text-sm text-red-600">{errors.jenis_luaran}</p>}
                 </div>
 
@@ -316,23 +352,24 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                   <label htmlFor="status_verifikasi" className="block text-sm font-medium text-gray-700">
                     Status Verifikasi <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    id="status_verifikasi"
+                  <Select
                     value={data.status_verifikasi}
-                    onChange={(e) => setData('status_verifikasi', e.target.value)}
+                    onValueChange={(value) => setData('status_verifikasi', value)}
                     disabled={processing}
-                    className={`
-                      mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm
-                      focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1
-                      ${errors.status_verifikasi ? 'border-red-300' : 'border-gray-300'}
-                    `}
                   >
-                    {Object.entries(statusOptions).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="status_verifikasi" className={`
+                      ${errors.status_verifikasi ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
+                    `}>
+                      <SelectValue placeholder="Pilih Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(statusOptions).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.status_verifikasi && <p className="mt-1 text-sm text-red-600">{errors.status_verifikasi}</p>}
                 </div>
 
