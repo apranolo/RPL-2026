@@ -31,7 +31,7 @@ export default function PublishChecklist({
 
     const handlePublish = () => {
         router.post(
-            route('production.issue.publish', {
+            route('user.production.issue.publish', {
                 journalId,
                 volume,
                 issue,

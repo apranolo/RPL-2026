@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
-use App\Models\Article;
+use App\Models\Submission;
+use App\Models\Galley;
 use App\Models\Issue;
 use App\Models\Journal;
 use App\Models\User;
@@ -64,11 +65,27 @@ class IssueController extends Controller
 
         $this->authorizeJournal($issueModel->journal, $request->user());
 
-        $articles = Article::where('journal_id', $journalId)
-            ->where('volume', $volume)
-            ->where('issue', $issue)
-            ->orderBy('publication_date')
-            ->get();
+        // Fetch submissions via galleys of this issue
+        $articles = Galley::with(['submission.contributors', 'submission.author'])
+            ->where('issue_id', $issueModel->id)
+            ->orderBy('sequence')
+            ->get()
+            ->map(function ($galley) {
+                $submission = $galley->submission;
+                $authors = $submission->contributors->pluck('name')->toArray();
+                if (empty($authors) && $submission->author) {
+                    $authors = [$submission->author->name];
+                }
+
+                return [
+                    'id' => $submission->id,
+                    'title' => $submission->title,
+                    'authors' => $authors,
+                    'pages' => $galley->pages,
+                    'doi' => $galley->doi,
+                    'article_url' => $galley->file_url,
+                ];
+            });
 
         return Inertia::render('Production/Issue/Preview', [
             'issue' => $issueModel,
@@ -99,16 +116,11 @@ class IssueController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'message' => "Issue Vol {$volume} No {$issue} berhasil dipublish.",
-            ]);
+            return redirect()->back()->with('success', "Issue Vol {$volume} No {$issue} berhasil dipublish.");
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            return response()->json([
-                'message' => 'Gagal publish issue.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return redirect()->back()->with('error', 'Gagal publish issue: ' . $e->getMessage());
         }
     }
 

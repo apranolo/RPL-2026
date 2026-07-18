@@ -588,19 +588,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get(
             'journals/{journal}/issues',
             [IssueController::class, 'index']
-        )->name('journals.issues.index');
+        )->name('production.issue.index');
 
         // Preview Table of Contents sebelum publish
         Route::get(
             'journals/{journal}/issues/{volume}/{issue}/preview',
             [IssueController::class, 'preview']
-        )->name('journals.issues.preview');
+        )->name('production.issue.preview');
 
         // Publish Issue
         Route::post(
             'journals/{journal}/issues/publish/{volume}/{issue}',
             [IssueController::class, 'publish']
-        )->name('journals.issues.publish');
+        )->name('production.issue.publish');
 
         //Back Issues
         Route::get(
