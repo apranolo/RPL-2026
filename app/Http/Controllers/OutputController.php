@@ -33,26 +33,29 @@ class OutputController extends Controller
 
     public function update(Request $request, ResearchOutput $output)
     {
+        // ── Otorisasi: hanya pemilik atau Super Admin yang boleh update ──
         $this->authorize('update', $output);
 
         $validated = $request->validate([
-            'proposal_id' => 'nullable|integer|exists:proposals,id',
+            'proposal_id' => 'nullable|integer|exists:proposals,id',  // nullable: produk tidak wajib punya proposal
             'kategori'    => 'required|string|max:255',
             'judul'       => 'required|string|max:255',
             'keterangan'  => 'nullable|string',
             'file_path'   => 'nullable|string|max:255',
             'status'      => 'required|in:draft,submitted,approved,rejected,published,patented',
-            // Kolom spesifik produk/prototipe
+            // ── Kolom spesifik Produk/Prototipe ──────────────────────────
             'tkt_level'   => 'nullable|integer|min:1|max:9',
             'version'     => 'nullable|string|max:50',
             'year'        => 'nullable|integer|min:2000|max:' . (date('Y') + 1),
             'url'         => 'nullable|url',
+            'cover_image' => 'nullable|string|max:255',   // path, bukan file upload (upload via OutputDocController)
+            'document'    => 'nullable|string|max:255',   // path, bukan file upload (upload via OutputDocController)
         ]);
 
         // user_id TIDAK diambil dari input — selalu diikat ke pemilik record (RBAC)
         $output->update($validated);
 
-        return redirect()->route('user.outputs.index')->with('message', 'Output updated successfully');
+        return redirect()->route('user.outputs.index')->with('message', 'Output berhasil diperbarui.');
     }
 
     public function destroy(ResearchOutput $output)
