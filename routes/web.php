@@ -269,6 +269,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('indicators/reorder', [EvaluationIndicatorController::class, 'reorder'])
             ->name('indicators.reorder');
 
+        // Kriteria Penilaian Management (CRUD for Assessment Criteria)
+        Route::resource('criteria', CriteriaController::class)
+            ->parameters(['criteria' => 'criterion']);
+
         /*
         |--------------------------------------------------------------------------
         | v1.0 Legacy Routes
