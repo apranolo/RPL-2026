@@ -33,7 +33,7 @@ class OutputController extends Controller
 
     public function update(Request $request, ResearchOutput $output)
     {
-        // ── Otorisasi: hanya pemilik atau Super Admin yang boleh update ──
+        // ── Otorisasi: hanya pemilik atau Super Admin yang boleh update (RBAC) ──
         $this->authorize('update', $output);
 
         $validated = $request->validate([
@@ -43,16 +43,16 @@ class OutputController extends Controller
             'keterangan'  => 'nullable|string',
             'file_path'   => 'nullable|string|max:255',
             'status'      => 'required|in:draft,submitted,approved,rejected,published,patented',
-            // ── Kolom spesifik Produk/Prototipe ──────────────────────────
+            // ── Kolom spesifik Produk/Prototipe ──────────────────────────────
             'tkt_level'   => 'nullable|integer|min:1|max:9',
             'version'     => 'nullable|string|max:50',
             'year'        => 'nullable|integer|min:2000|max:' . (date('Y') + 1),
             'url'         => 'nullable|url',
-            'cover_image' => 'nullable|string|max:255',   // path, bukan file upload (upload via OutputDocController)
-            'document'    => 'nullable|string|max:255',   // path, bukan file upload (upload via OutputDocController)
+            'cover_image' => 'nullable|string|max:255',   // path string — file upload ditangani OutputDocController
+            'document'    => 'nullable|string|max:255',   // path string — file upload ditangani OutputDocController
         ]);
 
-        // user_id TIDAK diambil dari input — selalu diikat ke pemilik record (RBAC)
+        // user_id TIDAK diambil dari input — selalu diikat ke pemilik record yg sudah ada (RBAC)
         $output->update($validated);
 
         return redirect()->route('user.outputs.index')->with('message', 'Output berhasil diperbarui.');
