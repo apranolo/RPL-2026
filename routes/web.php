@@ -52,7 +52,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\CitationController;
 use Inertia\Inertia;
-use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\DecisionController;
 
 /*
