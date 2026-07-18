@@ -3,29 +3,29 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\CopyeditingSubmission;
+use App\Models\CopyeditingTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class CopyeditingController extends Controller
 {
-    public function panel(CopyeditingSubmission $submission)
+    public function panel(CopyeditingTask $task)
     {
-        if (auth()->id() !== $submission->copyeditor_id && auth()->id() !== $submission->author_id) {
+        if (auth()->id() !== $task->copyeditor_id && auth()->id() !== $task->submission?->author_id) {
             abort(403);
         }
 
-        $submission->load(['article', 'author', 'copyeditor']);
+        $task->load(['submission.author', 'copyeditor']);
 
-        return Inertia::render('User/Copyediting/CopyeditingPanel', [
-            'submission' => $this->formatSubmission($submission),
+        return Inertia::render('Copyediting/CopyeditingPanel', [
+            'task' => $this->formatTask($task),
         ]);
     }
 
-    public function uploadCopyeditedFile(Request $request, CopyeditingSubmission $submission)
+    public function uploadCopyeditedFile(Request $request, CopyeditingTask $task)
     {
-        if (auth()->id() !== $submission->copyeditor_id) {
+        if (auth()->id() !== $task->copyeditor_id) {
             abort(403);
         }
 
@@ -38,14 +38,14 @@ class CopyeditingController extends Controller
             'copyedited_file.max' => 'Ukuran file maksimal 10MB.',
         ]);
 
-        if ($submission->copyedited_file_path) {
-            Storage::disk('public')->delete($submission->copyedited_file_path);
+        if ($task->copyedited_file_path) {
+            Storage::disk('public')->delete($task->copyedited_file_path);
         }
 
         $file = $request->file('copyedited_file');
         $path = $file->store('copyediting/copyedited', 'public');
 
-        $submission->update([
+        $task->update([
             'copyedited_file_path' => $path,
             'copyedited_file_name' => $file->getClientOriginalName(),
             'copyeditor_notes' => $request->copyeditor_notes,
@@ -56,22 +56,22 @@ class CopyeditingController extends Controller
         return back()->with('success', 'File copyediting berhasil diupload. Menunggu persetujuan Author.');
     }
 
-    public function approvalPage(CopyeditingSubmission $submission)
+    public function approvalPage(CopyeditingTask $task)
     {
-        if (auth()->id() !== $submission->author_id) {
+        if (auth()->id() !== $task->submission?->author_id) {
             abort(403);
         }
 
-        $submission->load(['article', 'copyeditor']);
+        $task->load(['submission', 'copyeditor']);
 
-        return Inertia::render('User/Copyediting/AuthorApproval', [
-            'submission' => $this->formatSubmission($submission),
+        return Inertia::render('Copyediting/AuthorApproval', [
+            'task' => $this->formatTask($task),
         ]);
     }
 
-    public function approve(Request $request, CopyeditingSubmission $submission)
+    public function approve(Request $request, CopyeditingTask $task)
     {
-        if (auth()->id() !== $submission->author_id) {
+        if (auth()->id() !== $task->submission?->author_id) {
             abort(403);
         }
 
@@ -79,24 +79,24 @@ class CopyeditingController extends Controller
             'author_approval_notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        if (! $submission->isWaitingApproval()) {
-            return back()->withErrors(['error' => 'Submission tidak dalam status menunggu persetujuan.']);
+        if (! $task->isWaitingApproval()) {
+            return back()->withErrors(['error' => 'Task tidak dalam status menunggu persetujuan.']);
         }
 
-        $submission->update([
+        $task->update([
             'status' => 'approved',
             'author_approval_notes' => $request->author_approval_notes,
             'author_approved_at' => now(),
         ]);
 
         return redirect()
-            ->route('user.copyediting.panel', $submission)
-            ->with('success', 'Anda telah menyetujui hasil copyediting. Artikel siap masuk tahap Production.');
+            ->route('user.copyediting.panel', $task)
+            ->with('success', 'Anda telah menyetujui hasil copyediting. Naskah siap masuk tahap Production.');
     }
 
-    public function reject(Request $request, CopyeditingSubmission $submission)
+    public function reject(Request $request, CopyeditingTask $task)
     {
-        if (auth()->id() !== $submission->author_id) {
+        if (auth()->id() !== $task->submission?->author_id) {
             abort(403);
         }
 
@@ -106,11 +106,11 @@ class CopyeditingController extends Controller
             'author_approval_notes.required' => 'Catatan penolakan wajib diisi agar Copyeditor tahu yang perlu diperbaiki.',
         ]);
 
-        if (! $submission->isWaitingApproval()) {
-            return back()->withErrors(['error' => 'Submission tidak dalam status menunggu persetujuan.']);
+        if (! $task->isWaitingApproval()) {
+            return back()->withErrors(['error' => 'Task tidak dalam status menunggu persetujuan.']);
         }
 
-        $submission->update([
+        $task->update([
             'status' => 'copyediting',
             'author_approval_notes' => $request->author_approval_notes,
             'copyedited_file_path' => null,
@@ -119,38 +119,38 @@ class CopyeditingController extends Controller
         ]);
 
         return redirect()
-            ->route('user.copyediting.panel', $submission)
+            ->route('user.copyediting.panel', $task)
             ->with('success', 'Hasil copyediting dikembalikan ke Copyeditor untuk direvisi.');
     }
 
-    private function formatSubmission(CopyeditingSubmission $submission): array
+    private function formatTask(CopyeditingTask $task): array
     {
         return [
-            'id' => $submission->id,
-            'status' => $submission->status,
-            'original_file_name' => $submission->original_file_name,
-            'original_file_url' => $submission->original_file_path
-                ? Storage::disk('public')->url($submission->original_file_path)
+            'id' => $task->id,
+            'status' => $task->status,
+            'original_file_name' => $task->original_file_name,
+            'original_file_url' => $task->original_file_path
+                ? Storage::disk('public')->url($task->original_file_path)
                 : null,
-            'copyedited_file_name' => $submission->copyedited_file_name,
-            'copyedited_file_url' => $submission->copyedited_file_path
-                ? Storage::disk('public')->url($submission->copyedited_file_path)
+            'copyedited_file_name' => $task->copyedited_file_name,
+            'copyedited_file_url' => $task->copyedited_file_path
+                ? Storage::disk('public')->url($task->copyedited_file_path)
                 : null,
-            'copyeditor_notes' => $submission->copyeditor_notes,
-            'author_approval_notes' => $submission->author_approval_notes,
-            'copyedited_at' => $submission->copyedited_at?->toDateTimeString(),
-            'author_approved_at' => $submission->author_approved_at?->toDateTimeString(),
-            'article' => $submission->article ? [
-                'id' => $submission->article->id,
-                'title' => $submission->article->title,
+            'copyeditor_notes' => $task->copyeditor_notes,
+            'author_approval_notes' => $task->author_approval_notes,
+            'copyedited_at' => $task->copyedited_at?->toDateTimeString(),
+            'author_approved_at' => $task->author_approved_at?->toDateTimeString(),
+            'submission' => $task->submission ? [
+                'id' => $task->submission->id,
+                'title' => $task->submission->title,
+                'author' => $task->submission->author ? [
+                    'id' => $task->submission->author->id,
+                    'name' => $task->submission->author->name,
+                ] : null,
             ] : null,
-            'author' => $submission->author ? [
-                'id' => $submission->author->id,
-                'name' => $submission->author->name,
-            ] : null,
-            'copyeditor' => $submission->copyeditor ? [
-                'id' => $submission->copyeditor->id,
-                'name' => $submission->copyeditor->name,
+            'copyeditor' => $task->copyeditor ? [
+                'id' => $task->copyeditor->id,
+                'name' => $task->copyeditor->name,
             ] : null,
         ];
     }
