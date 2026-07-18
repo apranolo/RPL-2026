@@ -4,68 +4,66 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * Model Submission (Local Mock — Modul 2 Kelas G)
- *
- * ⚠️ CATATAN: Model ini dibuat secara lokal untuk keperluan testing.
- * Jangan di-commit ke branch utama. Tunggu model resmi dari Modul 2.
- *
- * @property int         $id
- * @property int         $journal_id
- * @property int         $user_id
- * @property string      $title
- * @property string      $abstract
- * @property string      $keywords
- * @property string      $status
- * @property string|null $rejection_reason
- * @property int|null    $reviewed_by
- * @property string|null $reviewed_at
- */
 class Submission extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
+    /**
+     * Atribut yang dapat diisi secara massal (mass assignable).
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'journal_id',
-        'user_id',
+        'author_id',
         'title',
         'abstract',
         'keywords',
         'status',
-        'rejection_reason',
-        'reviewed_by',
-        'reviewed_at',
-        'updated_by',
-        'deleted_by',
+        'file_path',
+        'author_notes',
     ];
 
-    protected $casts = [
-        'reviewed_at' => 'datetime',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
-        'deleted_at'  => 'datetime',
+    protected $appends = [
+        'user_id',
     ];
 
-    public function journal()
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function journal(): BelongsTo
     {
         return $this->belongsTo(Journal::class);
     }
 
-    public function author()
+    public function files(): HasMany
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->hasMany(SubmissionFile::class);
     }
 
-    public function reviewer()
+    public function contributors(): HasMany
     {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        return $this->hasMany(SubmissionContributor::class);
     }
 
-    public function editorialAssignments()
+    public function getUserIdAttribute(): ?int
     {
-        return $this->hasMany(EditorialAssignment::class);
+        return $this->author_id;
+    }
+
+    public function setUserIdAttribute($value): void
+    {
+        $this->attributes['author_id'] = $value;
     }
 
     public function isPending(): bool

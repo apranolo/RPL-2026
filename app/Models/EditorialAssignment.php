@@ -32,11 +32,6 @@ class EditorialAssignment extends Model
         'deleted_by',
     ];
 
-    /**
-     * Append virtual attributes for frontend backward compatibility.
-     * Frontend expects id_submission and id_editor,
-     * while the database columns are submission_id and editor_id.
-     */
     protected $appends = [
         'id_submission',
         'id_editor',
@@ -48,12 +43,6 @@ class EditorialAssignment extends Model
         'updated_at'  => 'datetime',
         'deleted_at'  => 'datetime',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relationships
-    |--------------------------------------------------------------------------
-    */
 
     public function editor()
     {
@@ -70,35 +59,15 @@ class EditorialAssignment extends Model
         return $this->belongsTo(User::class, 'assigned_by');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Accessors (Backward Compatibility)
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Accessor: id_submission → maps to submission_id column.
-     * Required for frontend components that reference id_submission.
-     */
     public function getIdSubmissionAttribute(): ?int
     {
         return $this->submission_id;
     }
 
-    /**
-     * Accessor: id_editor → maps to editor_id column.
-     * Required for frontend components that reference id_editor.
-     */
     public function getIdEditorAttribute(): ?int
     {
         return $this->editor_id;
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes
-    |--------------------------------------------------------------------------
-    */
 
     public function scopeAssigned($query)
     {
@@ -124,12 +93,6 @@ class EditorialAssignment extends Model
     {
         return $query->where('submission_id', $submissionId);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Helpers
-    |--------------------------------------------------------------------------
-    */
 
     public function isAssigned(): bool
     {
@@ -165,12 +128,6 @@ class EditorialAssignment extends Model
             default       => 'default',
         };
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Boot
-    |--------------------------------------------------------------------------
-    */
 
     protected static function boot()
     {
