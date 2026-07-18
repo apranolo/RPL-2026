@@ -2,11 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ResearchOutput extends Model
 {
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'outputs';
+
     // Kategori statis
     const KATEGORI = [
         'jurnal' => 'Jurnal',
@@ -39,6 +46,10 @@ class ResearchOutput extends Model
         'url',
         'cover_image',
         'document',
+        'outputable_type',
+        'outputable_id',
+        'title',
+        'type',
     ];
 
     // Relasi ke User

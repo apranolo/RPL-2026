@@ -12,7 +12,6 @@ class ProposalObserver
      * Handle the "created" event.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
      */
     public function created($model): void
     {
@@ -23,7 +22,6 @@ class ProposalObserver
      * Handle the "updated" event.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
      */
     public function updated($model): void
     {
@@ -34,7 +32,6 @@ class ProposalObserver
      * Handle the "deleted" event.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
      */
     public function deleted($model): void
     {
@@ -44,9 +41,7 @@ class ProposalObserver
     /**
      * Record the activity to system_logs.
      *
-     * @param string $action
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @return void
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      */
     protected function logActivity(string $action, $model): void
     {
@@ -55,7 +50,7 @@ class ProposalObserver
             'loggable_type' => get_class($model),
             'loggable_id' => $model->id,
             'action' => $action,
-            'description' => class_basename($model) . " has been {$action}.",
+            'description' => class_basename($model)." has been {$action}.",
             'changes' => $action === 'updated' ? $model->getChanges() : null,
             'ip_address' => Request::ip(),
             'user_agent' => Request::userAgent(),

@@ -40,9 +40,13 @@ export default function Index({ outputs }: Props) {
     const getStatusBadge = (status: string) => {
         const colors: Record<string, string> = {
             draft:      'bg-gray-100 text-gray-700',
+            Draft:      'bg-gray-100 text-gray-700',
             submitted:  'bg-yellow-100 text-yellow-800',
+            Menunggu_Verifikasi: 'bg-yellow-100 text-yellow-800',
             approved:   'bg-green-100 text-green-800',
+            Terverifikasi_LPPM: 'bg-green-100 text-green-800',
             rejected:   'bg-red-100 text-red-800',
+            Ditolak:    'bg-red-100 text-red-800',
             published:  'bg-blue-100 text-blue-800',
             patented:   'bg-purple-100 text-purple-800',
         };
@@ -52,9 +56,13 @@ export default function Index({ outputs }: Props) {
     const getStatusLabel = (status: string) => {
         const labels: Record<string, string> = {
             draft:     'Draft',
+            Draft:     'Draft',
             submitted: 'Diajukan',
+            Menunggu_Verifikasi: 'Menunggu Verifikasi',
             approved:  'Disetujui',
+            Terverifikasi_LPPM: 'Terverifikasi LPPM',
             rejected:  'Ditolak',
+            Ditolak:   'Ditolak',
             published: 'Dipublikasi',
             patented:  'Dipatenkan',
         };
@@ -64,10 +72,14 @@ export default function Index({ outputs }: Props) {
     const getKategoriBadge = (kategori: string) => {
         const colors: Record<string, string> = {
             jurnal:   'bg-blue-100 text-blue-800',
+            Jurnal:   'bg-blue-100 text-blue-800',
             buku:     'bg-purple-100 text-purple-800',
+            Buku:     'bg-purple-100 text-purple-800',
             hki:      'bg-green-100 text-green-800',
+            HKI:      'bg-green-100 text-green-800',
             prosiding:'bg-orange-100 text-orange-800',
             produk:   'bg-pink-100 text-pink-800',
+            Produk:   'bg-pink-100 text-pink-800',
         };
         return colors[kategori] ?? 'bg-gray-100 text-gray-700';
     };

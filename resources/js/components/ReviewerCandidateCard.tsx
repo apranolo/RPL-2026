@@ -1,6 +1,5 @@
-import React from 'react';
-import { User, BookOpen, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BookOpen, CheckCircle, User } from 'lucide-react';
 
 interface ReviewerCandidateCardProps {
     id: number;
@@ -21,52 +20,47 @@ export default function ReviewerCandidateCard({
     activeReviews,
     completedReviews,
     onInvite,
-    processing = false
+    processing = false,
 }: ReviewerCandidateCardProps) {
     return (
-        <div className="flex flex-col p-5 border border-border rounded-lg shadow-sm bg-card text-card-foreground">
+        <div className="flex flex-col rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm">
             <div className="mb-4">
-                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
                     <User className="h-5 w-5 text-muted-foreground" />
                     {name}
                 </h3>
-                <p className="text-sm font-normal text-muted-foreground mt-1 pl-7">
-                    {institution}
-                </p>
+                <p className="mt-1 pl-7 text-sm font-normal text-muted-foreground">{institution}</p>
             </div>
 
             <div className="mb-4 flex-grow pl-7">
-                <h4 className="text-sm font-semibold text-foreground mb-2">Keahlian:</h4>
+                <h4 className="mb-2 text-sm font-semibold text-foreground">Keahlian:</h4>
                 <div className="flex flex-wrap gap-2">
                     {skills.map((skill, index) => (
-                        <span 
-                            key={index} 
-                            className="px-2 py-1 bg-slate-100 text-slate-800 border border-slate-200 text-xs font-normal rounded-lg"
-                        >
+                        <span key={index} className="rounded-lg border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-normal text-slate-800">
                             {skill}
                         </span>
                     ))}
                 </div>
             </div>
 
-            <div className="flex items-center justify-between mb-5 p-3 bg-slate-50 border border-slate-100 rounded-lg ml-7">
-                <div className="text-center flex flex-col items-center w-1/2">
+            <div className="mb-5 ml-7 flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 p-3">
+                <div className="flex w-1/2 flex-col items-center text-center">
                     <span className="flex items-center gap-1 text-xl font-bold text-foreground">
                         <CheckCircle className="h-4 w-4 text-emerald-600" />
                         {completedReviews}
                     </span>
-                    <span className="text-xs text-muted-foreground font-normal">Selesai</span>
+                    <span className="text-xs font-normal text-muted-foreground">Selesai</span>
                 </div>
-                <div className="text-center flex flex-col items-center border-l border-border w-1/2">
+                <div className="flex w-1/2 flex-col items-center border-l border-border text-center">
                     <span className="flex items-center gap-1 text-xl font-bold text-foreground">
                         <BookOpen className="h-4 w-4 text-amber-600" />
                         {activeReviews}
                     </span>
-                    <span className="text-xs text-muted-foreground font-normal">Aktif</span>
+                    <span className="text-xs font-normal text-muted-foreground">Aktif</span>
                 </div>
             </div>
 
-            <Button 
+            <Button
                 onClick={() => onInvite(id)}
                 disabled={processing}
                 className="w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
