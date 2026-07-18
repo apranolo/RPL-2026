@@ -137,6 +137,7 @@ class Galley extends Model
             if ($this->page_from === $this->page_to) {
                 return (string) $this->page_from;
             }
+
             return "{$this->page_from}-{$this->page_to}";
         }
 
@@ -151,4 +152,3 @@ class Galley extends Model
         return strtolower($this->label);
     }
 }
-

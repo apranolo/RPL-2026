@@ -28,13 +28,13 @@ class PlagiarismCheckPolicy
      * Determine whether the user can create models.
      */
     public function create(User $user): bool
-{
-    return $user->hasAnyRole([
-        Role::SUPER_ADMIN,
-        Role::ADMIN_KAMPUS,
-        Role::PENGELOLA_JURNAL,
-    ]);
-}
+    {
+        return $user->hasAnyRole([
+            Role::SUPER_ADMIN,
+            Role::ADMIN_KAMPUS,
+            Role::PENGELOLA_JURNAL,
+        ]);
+    }
 
     /**
      * Determine whether the user can update the model.

@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ResearchOutput extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'outputs';
 
     // Kategori statis
     const KATEGORI = [
@@ -64,6 +67,11 @@ class ResearchOutput extends Model
         'keterangan',
         'outputable_type',
         'outputable_id',
+        // Kolom tambahan untuk fitur report
+        'title',
+        'type', // Jurnal/Buku/HKI/Produk
+        'year',
+        'status', // Status verifikasi
     ];
 
     // Relasi ke User
