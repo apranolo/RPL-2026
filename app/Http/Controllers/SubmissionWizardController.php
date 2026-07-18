@@ -8,17 +8,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Submission;
+use App\Models\SubmissionContributor;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class SubmissionWizardController extends Controller
 {
-    /**
-     * Menampilkan Halaman Wizard Step 1 (Pemilihan Jurnal & Lisensi)
-     */
+    // ==========================================
+    // STEP 1 - VIEW & STORE (Draft DB & License)
+    // ==========================================
+    
     public function step1()
     {
         return Inertia::render('Submission/Wizard/Step1Start', [
@@ -29,13 +32,10 @@ class SubmissionWizardController extends Controller
         ]);
     }
 
-    /**
-     * Memproses Penyimpanan Data Step 1 (Menyimpan Draft ke DB)
-     */
     public function storeStep1(Request $request)
     {
         $validated = $request->validate([
-            'journal_id' => 'required|integer|exists:journals,id', // Pastikan exist jika ada DB real
+            'journal_id' => 'required|integer',
             'agreement1' => 'required|accepted',
             'agreement2' => 'required|accepted',
             'agreement3' => 'required|accepted',
@@ -48,7 +48,6 @@ class SubmissionWizardController extends Controller
             'agreement4.accepted' => 'Anda harus menyetujui komitmen ke-4.',
         ]);
 
-        // Buat atau Update Draft Submission di Database
         $submission = Submission::updateOrCreate(
             [
                 'id' => session('submission_id'),
@@ -56,21 +55,21 @@ class SubmissionWizardController extends Controller
             ],
             [
                 'journal_id' => $validated['journal_id'],
-                'title' => 'Draft Submission', // Placeholder sebelum Step 3
+                'title' => 'Draft Submission',
                 'status' => 'Draft',
             ]
         );
 
-        // Simpan ID ke session untuk referensi step berikutnya
         session(['submission_id' => $submission->id]);
 
         return redirect()->route('submission.step2')
             ->with('success', 'Draft submission berhasil disimpan.');
     }
 
-    /**
-     * Menampilkan Halaman Wizard Step 2 (Upload File)
-     */
+    // ==========================================
+    // STEP 2 - VIEW & UPLOAD (Manuscript File)
+    // ==========================================
+
     public function step2()
     {
         $submissionId = session('submission_id');
@@ -82,9 +81,6 @@ class SubmissionWizardController extends Controller
         return Inertia::render('Submission/Wizard/Step2Upload');
     }
 
-    /**
-     * Memproses Upload Manuscript & File Tambahan di Step 2
-     */
     public function step2Upload(Request $request)
     {
         $request->validate([
@@ -94,36 +90,92 @@ class SubmissionWizardController extends Controller
 
         $submissionId = session('submission_id');
         if (!$submissionId) {
-            return redirect()->route('submission.step1')
-                ->withErrors(['wizard' => 'Sesi draf tidak ditemukan.']);
+            return redirect()->route('submission.step1')->withErrors(['wizard' => 'Sesi draf tidak ditemukan.']);
         }
 
         $submission = Submission::find($submissionId);
         if (!$submission) {
-            return redirect()->route('submission.step1')
-                ->withErrors(['wizard' => 'Draf submission tidak ditemukan di database.']);
+            return redirect()->route('submission.step1')->withErrors(['wizard' => 'Draf submission tidak ditemukan.']);
         }
 
         if ($request->hasFile('manuscript')) {
             $path = $request->file('manuscript')->store('submissions/manuscripts', 'public');
             
-            // Simpan path ke database (sesuaikan dengan skema tabel Anda)
             $submission->update([
-                'manuscript_path' => $path, // Pastikan kolom ini ada atau tangani via relasi
+                'manuscript_path' => $path,
             ]);
 
-            // Handling file tambahan jika ada
             if ($request->hasFile('supplementary_files')) {
                 foreach ($request->file('supplementary_files') as $file) {
                     $file->store('submissions/supplementary', 'public');
-                    // Simpan ke tabel submission_files jika skema relasi sudah siap
                 }
             }
 
-            return redirect()->route('submission.step3')
+            return redirect('/submissions/wizard/' . $submission->id . '/step3')
                 ->with('success', 'File manuskrip berhasil diunggah.');
         }
 
         return back()->withErrors(['manuscript' => 'Upload file gagal.']);
+    }
+
+    // ==========================================
+    // STEP 4 - CONTRIBUTORS
+    // ==========================================
+
+    /**
+     * Display Step 4 (Contributors) of the submission wizard.
+     */
+    public function step4($id)
+    {
+        $submission = Submission::with('contributors')->findOrFail($id);
+
+        if ($submission->author_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return Inertia::render('Submission/Wizard/Step4Contributors', [
+            'submission' => $submission,
+        ]);
+    }
+
+    /**
+     * Save the contributors data and proceed to the next step.
+     */
+    public function saveStep4(Request $request, $id)
+    {
+        $submission = Submission::findOrFail($id);
+
+        if ($submission->author_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'contributors' => 'nullable|array',
+            'contributors.*.name' => 'required|string|max:255',
+            'contributors.*.email' => 'required|email|max:255',
+            'contributors.*.affiliation' => 'required|string|max:255',
+            'contributors.*.is_corresponding' => 'required|boolean',
+        ]);
+
+        DB::transaction(function () use ($submission, $validated) {
+            $submission->contributors()->delete();
+
+            if (!empty($validated['contributors'])) {
+                foreach ($validated['contributors'] as $contributorData) {
+                    $submission->contributors()->create([
+                        'name' => $contributorData['name'],
+                        'email' => $contributorData['email'],
+                        'affiliation' => $contributorData['affiliation'],
+                        'is_corresponding' => $contributorData['is_corresponding'],
+                    ]);
+                }
+            }
+        });
+
+        if ($request->input('action') === 'draft') {
+            return redirect()->back()->with('success', 'Draft saved successfully.');
+        }
+
+        return redirect('/submissions/wizard/' . $submission->id . '/step5');
     }
 }

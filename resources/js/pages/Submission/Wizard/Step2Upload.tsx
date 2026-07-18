@@ -10,7 +10,7 @@ import { Head, router } from "@inertiajs/react";
 import type { BreadcrumbItem } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-// import WizardProgressBar from "@/components/WizardProgressBar";
+import WizardProgressBar from "@/components/WizardProgressBar";
 import { UploadCloud, FileText, Paperclip } from "lucide-react";
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -74,7 +74,7 @@ export default function Step2Upload() {
             <Head title="Submission - Step 2" />
 
             <div className="mx-auto max-w-3xl p-6">
-                {/* <WizardProgressBar steps={wizardSteps} currentStep={1} className="mb-8" /> */}
+                <WizardProgressBar steps={wizardSteps} currentStep={1} className="mb-8" />
 
                 <Card>
                     <CardHeader>

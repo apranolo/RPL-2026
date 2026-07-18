@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import RevokeRoleModal from '@/components/RevokeRoleModal';
+import RoleBadge from '@/components/RoleBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link } from '@inertiajs/react';
 import { UserPlus } from 'lucide-react';
-import RoleBadge from '@/components/RoleBadge';
-import RevokeRoleModal from '@/components/RevokeRoleModal';
+import { useState } from 'react';
 
 export interface UserRole {
     id: number;
@@ -40,20 +40,23 @@ export default function Index({ users }: IndexProps) {
     };
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }, { title: 'User Management', href: '/admin/users' }]}>
+        <AppLayout
+            breadcrumbs={[
+                { title: 'Dashboard', href: '/dashboard' },
+                { title: 'User Management', href: '/admin/users' },
+            ]}
+        >
             <Head title="Manajemen Pengguna & Peran" />
 
             <div className="space-y-6 p-6">
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Pengelola Jurnal</h1>
-                        <p className="text-muted-foreground text-sm">
-                            Daftar seluruh pengguna dan peran mereka di dalam sistem JurnalMu.
-                        </p>
+                        <p className="text-sm text-muted-foreground">Daftar seluruh pengguna dan peran mereka di dalam sistem JurnalMu.</p>
                     </div>
                     <div>
                         <Link href="/admin/users/invite">
-                            <Button className="bg-primary hover:bg-primary/95 text-white flex items-center gap-2">
+                            <Button className="flex items-center gap-2 bg-primary text-white hover:bg-primary/95">
                                 <UserPlus className="h-4 w-4" />
                                 Undang Peran Baru
                             </Button>
@@ -76,7 +79,7 @@ export default function Index({ users }: IndexProps) {
                             <TableBody>
                                 {users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                                        <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                                             Tidak ada pengguna ditemukan.
                                         </TableCell>
                                     </TableRow>
@@ -90,32 +93,30 @@ export default function Index({ users }: IndexProps) {
                                                     <div className="flex flex-col items-start gap-1">
                                                         <RoleBadge roleName={role.role_name} />
                                                         {role.journal && (
-                                                            <span className="text-xs text-muted-foreground italic pl-1">
-                                                                {role.journal.name}
-                                                            </span>
+                                                            <span className="pl-1 text-xs text-muted-foreground italic">{role.journal.name}</span>
                                                         )}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                                        role.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                                                        role.status === 'Invited' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' :
-                                                        'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'
-                                                    }`}>
+                                                    <span
+                                                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                                                            role.status === 'Active'
+                                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                                                : role.status === 'Invited'
+                                                                  ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                                                                  : 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'
+                                                        }`}
+                                                    >
                                                         {role.status}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button
-                                                        variant="destructive"
-                                                        size="sm"
-                                                        onClick={() => handleRevokeClick(role, user.name)}
-                                                    >
+                                                    <Button variant="destructive" size="sm" onClick={() => handleRevokeClick(role, user.name)}>
                                                         Cabut Peran
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
-                                        ))
+                                        )),
                                     )
                                 )}
                             </TableBody>
@@ -124,13 +125,7 @@ export default function Index({ users }: IndexProps) {
                 </Card>
             </div>
 
-            {selectedRole && (
-                <RevokeRoleModal
-                    isOpen={isRevokeOpen}
-                    onClose={() => setIsRevokeOpen(false)}
-                    userRole={selectedRole}
-                />
-            )}
+            {selectedRole && <RevokeRoleModal isOpen={isRevokeOpen} onClose={() => setIsRevokeOpen(false)} userRole={selectedRole} />}
         </AppLayout>
     );
 }
