@@ -4,12 +4,13 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
-use App\Http\Controllers\Admin\DataMasterController;
-use App\Http\Controllers\SchemaController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
+use App\Http\Controllers\Admin\OutputReportController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingsCtrl;
@@ -24,27 +25,34 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ContractController;
+use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DeskController;
+use App\Http\Controllers\Editorial\PlagiarismController;
+use App\Http\Controllers\FundingController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
+use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\User\AssessmentController;
-use App\Http\Controllers\ContractDocController;
-use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
+use App\Http\Controllers\Revision\RevisionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Editorial\PlagiarismController;
+use App\Http\Controllers\CitationController;
 use Inertia\Inertia;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -72,7 +80,7 @@ Route::get('/storage/{path}', function (string $path) {
             abort(404);
         }
 
-        return Storage::disk('public')->response($path);
+        return response()->file(Storage::disk('public')->path($path));
     } catch (\Throwable $e) {
         // Avoid leaking storage layer errors
         abort(404);
@@ -149,6 +157,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('monev.printRekap')
         ->middleware('role:' . Role::SUPER_ADMIN . '|' . Role::ADMIN_KAMPUS . '|' . Role::USER);
 
+    // Author Submission Wizard Step 4 Routes
+    Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
+    Route::post('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'saveStep4'])->name('submissions.wizard.save-step4');
+
     // Dashboard Admin
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
@@ -190,9 +202,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('settings/profile', [SettingsCtrl::class, 'index'])->name('settings.profile');
         Route::post('settings/profile', [SettingsCtrl::class, 'update'])->name('settings.profile.update');
 
+
+
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
             ->name('data-master.index');
+
+        // Email Template Management
+        Route::get('email-template', [EmailTemplateController::class, 'index'])
+            ->name('email-template.index');
+
+        Route::put('email-template/{emailTemplate}', [EmailTemplateController::class, 'update'])
+            ->name('email-template.update');
 
         // Skema Penelitian Management
         Route::resource('schema', SchemaController::class);
@@ -299,7 +320,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
             ->name('reviews.summary');
 
-
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             Route::get('/', [AdminPembinaanController::class, 'index'])
@@ -320,6 +340,12 @@ Route::middleware(['auth'])->group(function () {
                 ->name('toggle-status');
         });
 
+        // Output Report (Rekap Luaran)
+        Route::get('output/report', [OutputReportController::class, 'index'])
+            ->name('output.report');
+        Route::get('output/export', [OutputReportController::class, 'export'])
+            ->name('output.export');
+
     });
 
     /*
@@ -334,6 +360,10 @@ Route::middleware(['auth'])->group(function () {
             // Penentuan Keputusan Diterima/Ditolak (Decision)
             Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
                 ->name('decision.decide');
+
+            // Admin Dashboard (LPPM)
+            Route::get('dashboard', [AdminDashboardController::class, 'index'])
+                ->name('dashboard');
         });
 
     /*
@@ -480,7 +510,6 @@ Route::middleware(['auth'])->group(function () {
                 'update' => 'events.update',
                 'destroy' => 'events.destroy',
             ]);
-
     });
 
     /*
@@ -491,7 +520,15 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
         Route::get('contracts', [ContractController::class, 'index'])
             ->name('contracts.index');
+
+        // Funding Termin Routes
+        Route::post('funding/store-termin', [\App\Http\Controllers\FundingController::class, 'storeTermin'])
+            ->name('funding.store-termin');
     });
+
+    Route::get('finance/contracts/{contract}/funding/create', [\App\Http\Controllers\FundingController::class, 'create'])
+        ->middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])
+        ->name('finance.funding.create');
 
     /*
     |--------------------------------------------------------------------------
@@ -601,18 +638,26 @@ Route::middleware(['auth'])->group(function () {
                 ->name('registrations.create-assessment');
         });
 
+        // Funding/Pendanaan Management
+        Route::prefix('funding')->name('funding.')->group(function () {
+            Route::get('/', [UserFundingController::class, 'index'])
+                ->name('index');
+        });
+
         // Progress Reports (Monitoring & Evaluasi)
         Route::get('progress', [ProgressController::class, 'index'])
             ->name('progress.index');
 
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::post('/outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
+        Route::post('/outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
         Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
         Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
 
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
-            //
+            Route::post('{proposal}/documents', [\App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.store');
         });
     });
 
@@ -682,6 +727,16 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Funding Terms (Super Admin & Admin Kampus)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])->group(function () {
+        Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
+            ->name('funding.upload-bukti');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Finance & Funding Routes
     |--------------------------------------------------------------------------
     | Akses untuk Keuangan dan Admin Kampus
@@ -699,6 +754,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /*
+    |--------------------------------------------------------------------------
     | Submission Discussion Routes (v1.1)
     |--------------------------------------------------------------------------
     */
@@ -710,11 +766,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [DiscussionController::class, 'store'])
             ->name('store');
 
-        Route::post('/{discussion}/message', [DiscussionController::class, 'reply'])
-            ->name('message.store');
+        Route::post('/discussions/{parentMessage}/reply', [DiscussionController::class, 'reply'])
+            ->name('reply');
+
+        Route::post('/discussions/{message}/upload-attachment', [DiscussionController::class, 'uploadAttachment'])
+            ->name('message.upload-attachment');
     });
-
-
     /*
     |--------------------------------------------------------------------------
     | Shared Routes (All Roles)
@@ -729,7 +786,37 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
 
+    // Notifications (Modul 7)
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
+        Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
+    });
+
     Route::resource('proposal', ProposalController::class);
+
+    // Citation Profile (Dosen, role User) — view & sync own Google Scholar stats
+    Route::middleware(['role:'.Role::USER])->prefix('profile')->name('profile.')->group(function () {
+        Route::get('citation', [CitationController::class, 'show'])
+            ->name('citation');
+        Route::post('citation/sync', [CitationController::class, 'sync'])
+            ->name('citation.sync');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Author Profile Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('profile')->name('profile.')->group(function () {
+
+        Route::get('/', [ProfileController::class, 'show'])
+            ->name('show');
+
+        Route::post('/', [ProfileController::class, 'update'])
+            ->name('update');
+    });
 
     // Profile Management
     // Route::prefix('profile')->name('profile.')->group(function () {
@@ -737,10 +824,18 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
+    Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
+    ->prefix('editorial')
+    ->name('editorial.')
+    ->group(function () {
 
-    Route::post('/user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])->name('user.bank.update');
+        Route::post(
+            '/submissions/{id_submission}/notify-author',
+            [RevisionController::class, 'notifyAuthor']
+        )->name('revision.notify-author');
+
+    });
 });
 
-    
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

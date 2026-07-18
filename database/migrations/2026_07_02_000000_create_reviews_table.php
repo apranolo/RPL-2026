@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
-            $table->unsignedDecimal('total_score', 8, 2)->nullable();
+            $table->decimal('total_score', 8, 2)->unsigned()->nullable();
             $table->string('recommendation')->nullable();
             $table->timestamps();
         });
