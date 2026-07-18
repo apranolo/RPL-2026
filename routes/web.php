@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\DataMasterController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
@@ -32,6 +31,7 @@ use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
+use App\Http\Controllers\FundingController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
@@ -46,6 +46,7 @@ use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
 use App\Http\Controllers\Revision\RevisionController;
 use Illuminate\Support\Facades\Route;
@@ -632,6 +633,12 @@ Route::middleware(['auth'])->group(function () {
                 ->name('registrations.create-assessment');
         });
 
+        // Funding/Pendanaan Management
+        Route::prefix('funding')->name('funding.')->group(function () {
+            Route::get('/', [UserFundingController::class, 'index'])
+                ->name('index');
+        });
+
         // Progress Reports (Monitoring & Evaluasi)
         Route::get('progress', [ProgressController::class, 'index'])
             ->name('progress.index');
@@ -715,6 +722,16 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Funding Terms (Super Admin & Admin Kampus)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])->group(function () {
+        Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
+            ->name('funding.upload-bukti');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Finance & Funding Routes
     |--------------------------------------------------------------------------
     | Akses untuk Keuangan dan Admin Kampus
@@ -750,7 +767,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/discussions/{message}/upload-attachment', [DiscussionController::class, 'uploadAttachment'])
             ->name('message.upload-attachment');
     });
-
     /*
     |--------------------------------------------------------------------------
     | Shared Routes (All Roles)
