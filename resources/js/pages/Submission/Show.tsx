@@ -2,9 +2,9 @@
  * Halaman detail naskah (submission) untuk author.
  * Menampilkan informasi naskah, dokumen terlampir, dan linimasa status review.
  */
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
 import { SubmissionTimeline } from '@/components/SubmissionTimeline';
+import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 
@@ -74,20 +74,12 @@ export default function Show({ submission, tracking }: Props) {
                 <div className="rounded-lg border bg-white p-6 shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold">
-                                {submission.title}
-                            </h1>
+                            <h1 className="text-2xl font-bold">{submission.title}</h1>
 
-                            <p className="mt-1 text-sm text-gray-500">
-                                Submitted by {submission.author.name}
-                            </p>
+                            <p className="mt-1 text-sm text-gray-500">Submitted by {submission.author.name}</p>
                         </div>
 
-                        <span
-                            className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusBadge(submission.status)}`}
-                        >
-                            {submission.status}
-                        </span>
+                        <span className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusBadge(submission.status)}`}>{submission.status}</span>
                     </div>
 
                     <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -96,27 +88,20 @@ export default function Show({ submission, tracking }: Props) {
 
                             <p>{submission.author.name}</p>
 
-                            <p className="text-sm text-gray-500">
-                                {submission.author.email}
-                            </p>
+                            <p className="text-sm text-gray-500">{submission.author.email}</p>
                         </div>
 
                         <div>
                             <h2 className="font-semibold">Reviewer</h2>
 
-                            <p>
-                                {submission.reviewer?.name ||
-                                    'Reviewer not assigned'}
-                            </p>
+                            <p>{submission.reviewer?.name || 'Reviewer not assigned'}</p>
                         </div>
                     </div>
 
                     <div className="mt-6">
                         <h2 className="mb-2 font-semibold">Abstract</h2>
 
-                        <p className="text-gray-700">
-                            {submission.abstract || '-'}
-                        </p>
+                        <p className="text-gray-700">{submission.abstract || '-'}</p>
                     </div>
 
                     <div className="mt-6">
@@ -124,26 +109,18 @@ export default function Show({ submission, tracking }: Props) {
 
                         {submission.file_path ? (
                             <Button asChild>
-                                <a
-                                    href={submission.file_path}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
+                                <a href={submission.file_path} target="_blank" rel="noopener noreferrer">
                                     View Document
                                 </a>
                             </Button>
                         ) : (
-                            <p className="text-gray-500">
-                                No document uploaded
-                            </p>
+                            <p className="text-gray-500">No document uploaded</p>
                         )}
                     </div>
                 </div>
 
                 <div className="rounded-lg border bg-white p-6 shadow-sm">
-                    <h2 className="mb-4 text-xl font-bold">
-                        Status Tracking
-                    </h2>
+                    <h2 className="mb-4 text-xl font-bold">Status Tracking</h2>
 
                     <SubmissionTimeline tracking={tracking} />
                 </div>

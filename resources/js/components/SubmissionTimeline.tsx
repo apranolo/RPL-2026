@@ -41,38 +41,22 @@ export function SubmissionTimeline({ tracking }: Props) {
                         <div className="flex flex-col items-center">
                             <div className="h-4 w-4 rounded-full bg-indigo-500" />
 
-                            {index !== tracking.length - 1 && (
-                                <div className="mt-1 h-full w-0.5 bg-slate-300" />
-                            )}
+                            {index !== tracking.length - 1 && <div className="mt-1 h-full w-0.5 bg-slate-300" />}
                         </div>
 
                         <div className="flex-1 rounded-lg border bg-white p-4 shadow-sm">
                             <div className="flex items-center justify-between">
-                                <span
-                                    className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusBadge(item.status)}`}
-                                >
-                                    {item.status}
-                                </span>
+                                <span className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusBadge(item.status)}`}>{item.status}</span>
 
-                                <span className="text-sm text-gray-500">
-                                    {new Date(
-                                        item.created_at,
-                                    ).toLocaleString()}
-                                </span>
+                                <span className="text-sm text-gray-500">{new Date(item.created_at).toLocaleString()}</span>
                             </div>
 
-                            {item.note && (
-                                <p className="mt-3 text-gray-700">
-                                    {item.note}
-                                </p>
-                            )}
+                            {item.note && <p className="mt-3 text-gray-700">{item.note}</p>}
                         </div>
                     </div>
                 ))
             ) : (
-                <p className="text-gray-500">
-                    No status history available.
-                </p>
+                <p className="text-gray-500">No status history available.</p>
             )}
         </div>
     );

@@ -23,9 +23,6 @@ class SubmissionController extends Controller
 {
     /**
      * Menampilkan halaman detail naskah beserta linimasa status.
-     *
-     * @param  Submission  $submission
-     * @return Response
      */
     public function show(Submission $submission): Response
     {
@@ -49,7 +46,6 @@ class SubmissionController extends Controller
      * Membatalkan (menghapus) naskah yang masih berstatus draft.
      * Hanya author pemilik naskah yang boleh membatalkan.
      *
-     * @param  Submission  $submission
      * @return \Illuminate\Http\RedirectResponse
      */
     public function cancel(Submission $submission)
