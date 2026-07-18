@@ -2,12 +2,6 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< HEAD
-use App\Models\ReviewerAssignment;
-=======
-use App\Models\ProgressReport;
-use App\Models\Review;
->>>>>>> origin/development
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

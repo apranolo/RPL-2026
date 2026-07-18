@@ -1,163 +1,113 @@
-import React, { useEffect, useState } from 'react';
+/**
+ * @route GET /user/editorial/copyediting/assign
+ * @route POST /user/editorial/copyediting/assign
+ * @features Penugasan Copyeditor ke submission yang sudah di-Approve pasca-revisi
+ * @description Halaman panel Editor untuk menugaskan seorang Copyeditor ke sebuah submission.
+ */
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, useForm } from '@inertiajs/react';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Penugasan Copyeditor', href: '/user/editorial/copyediting/assign' },
+];
 
 interface Submission {
     id: number;
     title: string;
-    author_name: string;
-    status: string;
+    author?: {
+        name: string;
+    };
 }
 
-interface User {
+interface Copyeditor {
     id: number;
     name: string;
     email: string;
 }
 
-export default function AssignCopyeditor() {
-    const [submissions, setSubmissions] = useState<Submission[]>([]);
-    const [copyeditors, setCopyeditors] = useState<User[]>([]);
-    const [selectedSubmission, setSelectedSubmission] = useState<string>('');
-    const [selectedCopyeditor, setSelectedCopyeditor] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+interface Props {
+    submissions: Submission[];
+    copyeditors: Copyeditor[];
+}
 
-    // Memuat data awal untuk simulasi panel admin
-    useEffect(() => {
-        setSubmissions([
-            { id: 101, title: 'Analisis Algoritma Optimasi Skripsi', author_name: 'Septian Eko', status: 'Accepted' },
-            { id: 102, title: 'Pengembangan Sistem E-Learning Berbasis Web', author_name: 'Aulia Luthfi', status: 'Accepted' },
-        ]);
+export default function AssignCopyeditor({ submissions, copyeditors }: Props) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        id_submission: '',
+        id_copyeditor: '',
+    });
 
-        setCopyeditors([
-            { id: 5, name: 'Hafidz Chairul', email: 'hafidz@mail.com' },
-            { id: 6, name: 'Alfin Ahmad', email: 'alfin@mail.com' },
-        ]);
-    }, []);
-
-    const handleAssign = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (!selectedSubmission || !selectedCopyeditor) {
-            setMessage({ type: 'error', text: 'Silakan pilih Submission dan Copyeditor terlebih dahulu!' });
-            return;
-        }
-
-        setLoading(true);
-        setMessage(null);
-
-        try {
-            const response = await fetch('/api/copyediting/assign', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                },
-                body: JSON.stringify({
-                    submission_id: parseInt(selectedSubmission),
-                    user_id: parseInt(selectedCopyeditor),
-                }),
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-                setMessage({ type: 'success', text: result.message || 'Berhasil menugaskan Copyeditor!' });
-                setSelectedSubmission('');
-                setSelectedCopyeditor('');
-            } else {
-                setMessage({ type: 'error', text: result.message || 'Gagal melakukan penugasan.' });
-            }
-        } catch (error) {
-            setMessage({ type: 'error', text: 'Terjadi kesalahan jaringan atau server.' });
-        } finally {
-            setLoading(false);
-        }
+        post(route('user.editorial.copyediting.assign.store'), {
+            onSuccess: () => reset(),
+        });
     };
 
     return (
-        <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-            <div
-                style={{
-                    backgroundColor: '#fff',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                    padding: '24px',
-                    border: '1px solid #e5e7eb',
-                }}
-            >
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '16px', color: '#1f2937' }}>Panel Penugasan Copyeditor</h2>
-                <p style={{ color: '#4b5563', marginBottom: '20px', fontSize: '0.875rem' }}>
-                    Pilih artikel pasca-keputusan (Accept) dan tentukan staf Copyeditor yang bertanggung jawab.
-                </p>
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Penugasan Copyeditor" />
+            <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-8">
+                <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
+                    <h2 className="mb-2 text-xl font-bold text-foreground">Panel Penugasan Copyeditor</h2>
+                    <p className="mb-6 text-sm text-muted-foreground">
+                        Pilih artikel pasca-keputusan (Approved) dan tentukan staf Copyeditor yang bertanggung jawab.
+                    </p>
 
-                {message && (
-                    <div
-                        style={{
-                            padding: '12px',
-                            borderRadius: '4px',
-                            marginBottom: '16px',
-                            fontSize: '0.875rem',
-                            backgroundColor: message.type === 'success' ? '#def7ec' : '#fde8e8',
-                            color: message.type === 'success' ? '#03543f' : '#9b1c1c',
-                        }}
-                    >
-                        {message.text}
-                    </div>
-                )}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Pilih Submission */}
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-foreground">Pilih Submission (Artikel)</label>
+                            <Select value={data.id_submission} onValueChange={(value) => setData('id_submission', value)}>
+                                <SelectTrigger className="w-full rounded-lg">
+                                    <SelectValue placeholder="-- Pilih Artikel --" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {submissions.length === 0 ? (
+                                        <div className="px-3 py-2 text-sm text-muted-foreground">Belum ada submission yang siap ditugaskan.</div>
+                                    ) : (
+                                        submissions.map((sub) => (
+                                            <SelectItem key={sub.id} value={String(sub.id)}>
+                                                {sub.title} {sub.author?.name ? `(${sub.author.name})` : ''}
+                                            </SelectItem>
+                                        ))
+                                    )}
+                                </SelectContent>
+                            </Select>
+                            {errors.id_submission && <p className="mt-1 text-sm text-red-600">{errors.id_submission}</p>}
+                        </div>
 
-                <form onSubmit={handleAssign}>
-                    <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', fontWeight: '500', marginBottom: '6px', color: '#374151' }}>
-                            Pilih Submission (Artikel)
-                        </label>
-                        <select
-                            value={selectedSubmission}
-                            onChange={(e) => setSelectedSubmission(e.target.value)}
-                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                        {/* Pilih Copyeditor */}
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-foreground">Pilih Copyeditor</label>
+                            <Select value={data.id_copyeditor} onValueChange={(value) => setData('id_copyeditor', value)}>
+                                <SelectTrigger className="w-full rounded-lg">
+                                    <SelectValue placeholder="-- Pilih Nama Copyeditor --" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {copyeditors.map((editor) => (
+                                        <SelectItem key={editor.id} value={String(editor.id)}>
+                                            {editor.name} ({editor.email})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {errors.id_copyeditor && <p className="mt-1 text-sm text-red-600">{errors.id_copyeditor}</p>}
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="w-full rounded-lg bg-primary py-3 font-bold text-white disabled:opacity-50"
                         >
-                            <option value="">-- Pilih Artikel --</option>
-                            {submissions.map((sub) => (
-                                <option key={sub.id} value={sub.id}>
-                                    ID: {sub.id} - {sub.title} ({sub.author_name})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div style={{ marginBottom: '24px' }}>
-                        <label style={{ display: 'block', fontWeight: '500', marginBottom: '6px', color: '#374151' }}>Pilih Copyeditor</label>
-                        <select
-                            value={selectedCopyeditor}
-                            onChange={(e) => setSelectedCopyeditor(e.target.value)}
-                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-                        >
-                            <option value="">-- Pilih Nama Copyeditor --</option>
-                            {copyeditors.map((editor) => (
-                                <option key={editor.id} value={editor.id}>
-                                    {editor.name} ({editor.email})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            backgroundColor: loading ? '#9ca3af' : '#2563eb',
-                            color: '#ffffff',
-                        }}
-                    >
-                        {loading ? 'Memproses...' : 'Tugaskan Copyeditor'}
-                    </button>
-                </form>
+                            {processing ? 'Memproses...' : 'Tugaskan Copyeditor'}
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
+        </AppLayout>
     );
 }
