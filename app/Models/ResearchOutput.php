@@ -2,35 +2,76 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ResearchOutput extends Model
 {
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'outputs';
+
     // Kategori statis
     const KATEGORI = [
-        'jurnal' => 'Jurnal',
-        'buku' => 'Buku',
-        'hki' => 'HKI',
-        'prosiding' => 'Prosiding',
-        'produk' => 'Produk/Prototipe',
+        'Jurnal' => 'Jurnal Ilmiah',
+        'Buku' => 'Buku / Modul',
+        'HKI' => 'HKI / Paten',
+        'Produk' => 'Produk / Prototipe',
     ];
 
     const STATUS = [
-        'draft' => 'Draft',
-        'submitted' => 'Submitted',
-        'approved' => 'Approved',
-        'rejected' => 'Rejected',
+        'Draft' => 'Draft',
+        'Menunggu_Verifikasi' => 'Menunggu Verifikasi',
+        'Terverifikasi_LPPM' => 'Terverifikasi LPPM',
+        'Ditolak' => 'Ditolak',
     ];
 
+    protected $appends = ['id_contract', 'doi', 'no_paten', 'isbn', 'tautan_publikasi'];
+
+    public function getIdContractAttribute()
+    {
+        return $this->contract_id;
+    }
+
+    public function getDoiAttribute()
+    {
+        return $this->jenis_luaran === 'Jurnal' && $this->outputable ? $this->outputable->doi : null;
+    }
+
+    public function getNoPatenAttribute()
+    {
+        return $this->jenis_luaran === 'HKI' && $this->outputable ? $this->outputable->patent_number : null;
+    }
+
+    public function getIsbnAttribute()
+    {
+        return $this->jenis_luaran === 'Buku' && $this->outputable ? $this->outputable->isbn : null;
+    }
+
+    public function getTautanPublikasiAttribute()
+    {
+        return $this->jenis_luaran === 'Jurnal' && $this->outputable ? $this->outputable->url : null;
+    }
+
     protected $fillable = [
-        'proposal_id',
+        'contract_id',
         'user_id',
-        'kategori',
-        'judul',
-        'file_path',
-        'status',
+        'jenis_luaran',
+        'judul_luaran',
+        'tahun_capaian',
+        'file_sertifikat_atau_cover',
+        'status_verifikasi',
         'keterangan',
+        'outputable_type',
+        'outputable_id',
+        // Kolom tambahan untuk fitur report
+        'title',
+        'type', // Jurnal/Buku/HKI/Produk
+        'year',
+        'status', // Status verifikasi
     ];
 
     // Relasi ke User
@@ -39,9 +80,17 @@ class ResearchOutput extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Relasi ke Proposal
-    public function proposal(): BelongsTo
+    // Relasi ke Contract
+    public function contract(): BelongsTo
     {
-        return $this->belongsTo(Proposal::class);
+        return $this->belongsTo(Contract::class);
+    }
+
+    /**
+     * Relasi Polymorphic untuk mendapatkan detail spesifik tipe luaran.
+     */
+    public function outputable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

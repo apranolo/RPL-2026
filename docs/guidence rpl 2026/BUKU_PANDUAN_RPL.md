@@ -13,8 +13,7 @@ Program Studi S1 Informatika - Universitas Ahmad Dahlan
 4. [Pemahaman Arsitektur (Laravel + Inertia)](#pemahaman-arsitektur)
 5. [Panduan Backend & Frontend Terpadu](#panduan-backend--frontend-terpadu)
 6. [Pengujian Kualitas (QA & Linting)](#pengujian-kualitas)
-7. [Evaluasi Mandiri Tugas (Testing Sederhana)](#evaluasi-mandiri-tugas-testing-sederhana)
-8. [Sinkronisasi Tugas Mingguan](#sinkronisasi-tugas-mingguan)
+7. [Sinkronisasi Tugas Mingguan](#sinkronisasi-tugas-mingguan)
 
 ---
 
@@ -286,61 +285,7 @@ php artisan test
 
 ---
 
-## 7. Evaluasi Mandiri Tugas (Testing Sederhana)
-
-Sebagai mahasiswa, Anda wajib memastikan komponen arsitektur MVC (Database, Model, Controller, View) yang Anda kerjakan berjalan dengan benar sebelum membuat Pull Request. Berikut adalah beberapa langkah evaluasi mandiri yang dapat Anda lakukan:
-
-### 1. Evaluasi Database & Model
-Cara paling cepat untuk memeriksa struktur tabel dan *relasi* Eloquent Model adalah menggunakan **Laravel Tinker**:
-```bash
-php artisan tinker
-```
-Di dalam Tinker, jalankan uji coba penyimpanan data dan pemanggilan relasi:
-```php
-// Uji coba membuat data
-$proposal = App\Models\Proposal::create(['judul' => 'Judul Test', 'status' => 'draft', 'user_id' => 1]);
-
-// Uji coba pemanggilan relasi
-$proposal->user;
-```
-*Evaluasi:* Jika terjadi error seperti `QueryException` atau kolom tidak ada, perbaiki file *Migration* (`database/migrations`). Jika muncul `MassAssignmentException`, perhatikan konfigurasi `$fillable` pada Model Anda.
-
-### 2. Evaluasi Controller & Route
-Pastikan *Route* Anda telah dikonfigurasi dengan benar dan Controller merespons dengan data yang tepat.
-- **Cek daftar route terdaftar:**
-  ```bash
-  php artisan route:list | grep nama_fitur
-  ```
-- **Testing via Pest (Sangat Direkomendasikan):**
-  Buat pengujian `Feature` di `tests/Feature/` untuk memastikan endpoint dapat diakses dan memberikan tampilan web yang benar.
-  ```php
-  use Inertia\Testing\AssertableInertia as Assert;
-
-  test('user bisa mengakses halaman index proposal', function () {
-      $user = User::factory()->create(); // Sesuaikan peran (role) pengguna
-      
-      $response = $this->actingAs($user)->get('/user/proposals');
-      
-      $response->assertStatus(200);
-      
-      // Evaluasi apakah controller mereturn komponen inertia (View) yang tepat dengan props tertentu
-      $response->assertInertia(fn (Assert $page) => $page
-          ->component('User/Proposal/Index')
-          ->has('proposals')
-      );
-  });
-  ```
-  Jalankan test tersebut di terminal dengan: `php artisan test`
-
-### 3. Evaluasi View (Frontend React & Inertia)
-Tugas View di React dapat dievaluasi melalui 3 (tiga) titik pengengecekan:
-- **Kompilasi TypeScript:** Pastikan terminal yang menjalankan `npm run dev` tidak memiliki error berwarna merah. Jika ada, berarti ada kemungkinan penulisan komponen salah atau masalah *Type* (`interface`).
-- **Validasi UI dan Data dari Backend:** Buka browser dan navigasi ke halaman tugas Anda. Pastikan komponen dimuat sempurna tanpa "Blank Screen" (layar kosong putih). Tekan `F12` (Inspect Element), buka tab **Console**, dan pastikan bersih dari pesan error peringatan React (seperti hilangnya `key` pada looping list / tabel).
-- **Inspeksi Props Inertia:** Pada halaman plugin **React Developer Tools** di browser Anda, periksa komponen halamannya dan pastikan data (seperti `proposals` atau informasi user) yang diservis oleh Laravel Controller betul-benar masuk pada *props*.
-
----
-
-## 8. Sinkronisasi Tugas Mingguan
+## Sinkronisasi Tugas Mingguan
 
 Buku panduan ini mengacu pada tahapan implementasi yang ada pada Rencana Proyek:
 
