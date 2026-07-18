@@ -26,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\JournalAssessment::class, \App\Policies\JournalAssessmentPolicy::class);
         Gate::policy(\App\Models\University::class, \App\Policies\UniversityPolicy::class);
 
+        // MOCK LOKAL - hapus setelah policy resmi Proposal multi-reviewer di-merge
+        Gate::policy(\App\Models\Proposal::class, \App\Policies\ProposalPolicy::class);
+
+
         // NEW v1.1: Hierarchical Borang Policies (Super Admin only)
         Gate::policy(\App\Models\AccreditationTemplate::class, \App\Policies\AccreditationTemplatePolicy::class);
         Gate::policy(\App\Models\EvaluationCategory::class, \App\Policies\EvaluationCategoryPolicy::class);

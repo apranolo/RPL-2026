@@ -27,4 +27,24 @@ class Proposal extends Model
     {
         return $this->belongsTo(ResearchSchema::class);
     }
+
+    public function getJudulAttribute()
+    {
+        return $this->attributes['title'] ?? null;
+    }
+
+    public function setJudulAttribute($value)
+    {
+        $this->attributes['title'] = $value;
+    }
+
+    public function getDeskripsiAttribute()
+    {
+        return $this->attributes['description'] ?? null;
+    }
+
+    public function setDeskripsiAttribute($value)
+    {
+        $this->attributes['description'] = $value;
+    }
 }
