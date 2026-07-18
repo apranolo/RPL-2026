@@ -1,5 +1,8 @@
 <?php
 
+uses(Tests\TestCase::class, Illuminate\Foundation\Testing\RefreshDatabase::class);
+
+use App\Models\CopyeditingTask;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -8,56 +11,60 @@ beforeEach(function () {
     Storage::fake('public');
 });
 
-test('copyeditor can view copyediting panel', function () {
-    $copyeditor = User::factory()->create();
-
-    $this->actingAs($copyeditor)
-        ->get('/user/copyediting/1/panel')
-        ->assertStatus(403);
+test('unauthenticated user cannot access copyediting routes', function () {
+    $this->get('/user/pembinaan/copyediting/1/panel')->assertRedirect('/login');
+    $this->get('/user/pembinaan/copyediting/1/approval')->assertRedirect('/login');
+    $this->post('/user/pembinaan/copyediting/1/upload')->assertRedirect('/login');
+    $this->post('/user/pembinaan/copyediting/1/approve')->assertRedirect('/login');
+    $this->post('/user/pembinaan/copyediting/1/reject')->assertRedirect('/login');
 });
 
 test('non copyeditor cannot access copyediting panel', function () {
+    $task = CopyeditingTask::factory()->create();
     $otherUser = User::factory()->create();
 
     $this->actingAs($otherUser)
-        ->get('/user/copyediting/1/panel')
+        ->get("/user/pembinaan/copyediting/{$task->id}/panel")
         ->assertStatus(403);
 });
 
-test('author can view approval page', function () {
-    $author = User::factory()->create();
+test('non author cannot access approval page', function () {
+    $task = CopyeditingTask::factory()->create();
+    $otherUser = User::factory()->create();
 
-    $this->actingAs($author)
-        ->get('/user/copyediting/1/approval')
+    $this->actingAs($otherUser)
+        ->get("/user/pembinaan/copyediting/{$task->id}/approval")
         ->assertStatus(403);
 });
 
-test('copyeditor can upload copyedited file', function () {
-    $copyeditor = User::factory()->create();
+test('non copyeditor cannot upload copyedited file', function () {
+    $task = CopyeditingTask::factory()->create();
+    $otherUser = User::factory()->create();
     $file = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
 
-    $this->actingAs($copyeditor)
-        ->post('/user/copyediting/1/upload', [
+    $this->actingAs($otherUser)
+        ->post("/user/pembinaan/copyediting/{$task->id}/upload", [
             'copyedited_file' => $file,
-            'copyeditor_notes' => 'Sudah diedit',
         ])
         ->assertStatus(403);
 });
 
-test('upload requires a file', function () {
-    $copyeditor = User::factory()->create();
+test('non author cannot approve copyediting task', function () {
+    $task = CopyeditingTask::factory()->create(['status' => 'Completed']);
+    $otherUser = User::factory()->create();
 
-    $this->actingAs($copyeditor)
-        ->post('/user/copyediting/1/upload', [
-            'copyeditor_notes' => 'Tanpa file',
-        ])
+    $this->actingAs($otherUser)
+        ->post("/user/pembinaan/copyediting/{$task->id}/approve")
         ->assertStatus(403);
 });
 
-test('unauthenticated user cannot access copyediting routes', function () {
-    $this->get('/user/copyediting/1/panel')->assertRedirect('/login');
-    $this->get('/user/copyediting/1/approval')->assertRedirect('/login');
-    $this->post('/user/copyediting/1/upload')->assertRedirect('/login');
-    $this->post('/user/copyediting/1/approve')->assertRedirect('/login');
-    $this->post('/user/copyediting/1/reject')->assertRedirect('/login');
+test('non author cannot reject copyediting task', function () {
+    $task = CopyeditingTask::factory()->create(['status' => 'Completed']);
+    $otherUser = User::factory()->create();
+
+    $this->actingAs($otherUser)
+        ->post("/user/pembinaan/copyediting/{$task->id}/reject", [
+            'author_approval_notes' => 'Perlu diperbaiki',
+        ])
+        ->assertStatus(403);
 });

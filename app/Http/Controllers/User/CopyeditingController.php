@@ -19,7 +19,7 @@ class CopyeditingController extends Controller
         $task->load(['submission.author', 'copyeditor']);
 
         return Inertia::render('Copyediting/CopyeditingPanel', [
-            'task' => $this->formatTask($task),
+            'submission' => $this->formatTask($task),
         ]);
     }
 
@@ -65,7 +65,7 @@ class CopyeditingController extends Controller
         $task->load(['submission', 'copyeditor']);
 
         return Inertia::render('Copyediting/AuthorApproval', [
-            'task' => $this->formatTask($task),
+            'submission' => $this->formatTask($task),
         ]);
     }
 
@@ -90,7 +90,7 @@ class CopyeditingController extends Controller
         ]);
 
         return redirect()
-            ->route('user.copyediting.panel', $task)
+            ->route('user.pembinaan.copyediting.panel', $task)
             ->with('success', 'Anda telah menyetujui hasil copyediting. Naskah siap masuk tahap Production.');
     }
 
@@ -119,7 +119,7 @@ class CopyeditingController extends Controller
         ]);
 
         return redirect()
-            ->route('user.copyediting.panel', $task)
+            ->route('user.pembinaan.copyediting.panel', $task)
             ->with('success', 'Hasil copyediting dikembalikan ke Copyeditor untuk direvisi.');
     }
 
@@ -140,13 +140,13 @@ class CopyeditingController extends Controller
             'author_approval_notes' => $task->author_approval_notes,
             'copyedited_at' => $task->copyedited_at?->toDateTimeString(),
             'author_approved_at' => $task->author_approved_at?->toDateTimeString(),
-            'submission' => $task->submission ? [
+            'article' => $task->submission ? [
                 'id' => $task->submission->id,
                 'title' => $task->submission->title,
-                'author' => $task->submission->author ? [
-                    'id' => $task->submission->author->id,
-                    'name' => $task->submission->author->name,
-                ] : null,
+            ] : null,
+            'author' => $task->submission?->author ? [
+                'id' => $task->submission->author->id,
+                'name' => $task->submission->author->name,
             ] : null,
             'copyeditor' => $task->copyeditor ? [
                 'id' => $task->copyeditor->id,
