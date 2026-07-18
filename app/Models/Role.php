@@ -21,7 +21,6 @@ class Role extends Model
 
     public const REVIEWER = 'Reviewer';
 
-    public const ADMIN_KEUANGAN = 'Admin Keuangan';
 
     /**
      * The attributes that are mass assignable.
@@ -127,11 +126,4 @@ class Role extends Model
         return $this->name === self::REVIEWER;
     }
 
-    /**
-     * check if role is admin keuangan
-     */
-    public function isAdminKeuangan(): bool
-    {
-        return $this->name === self::ADMIN_KEUANGAN;
-    }
 }
