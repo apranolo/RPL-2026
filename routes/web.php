@@ -31,6 +31,7 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\Copyediting\CopyeditingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Production\GalleyController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DeskController;
@@ -541,6 +542,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('contracts', [ContractController::class, 'index'])
             ->name('contracts.index');
 
+        Route::get('contracts', [ContractController::class, 'index'])
+            ->name('contracts.index');
+
         // Funding Termin Routes
         Route::post('funding/store-termin', [\App\Http\Controllers\FundingController::class, 'storeTermin'])
             ->name('funding.store-termin');
@@ -803,6 +807,20 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Production - Galley
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware(['auth'])->group(function () {
+
+        Route::post('/production/articles/{articleId}/galleys', [GalleyController::class, 'store'])
+            ->name('production.galleys.store');
+
+        Route::post('/production/articles/{articleId}/assign-issue', [GalleyController::class, 'assignToIssue'])
+            ->name('production.galleys.assignIssue');
+});
+    /*
+    |--------------------------------------------------------------------------
     | Funding Terms (Super Admin & Admin Kampus)
     |--------------------------------------------------------------------------
     */
@@ -810,20 +828,16 @@ Route::middleware(['auth'])->group(function () {
         Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
             ->name('funding.upload-bukti');
     });
-
     /*
     |--------------------------------------------------------------------------
     | Finance & Funding Routes
     |--------------------------------------------------------------------------
-    | Akses untuk Keuangan dan Admin Kampus
     */
     Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
 
-        // Rute untuk menampilkan halaman log perubahan termin
         Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
             ->name('finance.funding.logs.index');
 
-        // Rute BARU untuk mencetak kwitansi PDF
         Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
             ->name('finance.funding.print-kwitansi');
 
@@ -858,6 +872,7 @@ Route::middleware(['auth'])->group(function () {
     */
 
     Route::prefix('discussion')->name('discussion.')->group(function () {
+
         Route::get('/', [DiscussionController::class, 'index'])
             ->name('index');
 
