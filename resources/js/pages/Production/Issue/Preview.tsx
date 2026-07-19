@@ -1,12 +1,30 @@
-import ArticleSequencer, {
-    Galley,
-    Submission,
-} from '@/components/ArticleSequencer';
 import PublishChecklist from '@/components/Production/PublishChecklist';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+
+interface Galley {
+    id: number;
+    id_submission: number;
+    id_issue: number | null;
+    file_path: string;
+    file_extension: string;
+    doi: string | null;
+    pages: string | null;
+    sequence: number;
+    file_url?: string | null;
+}
+
+interface Article {
+    id: number;
+    title: string;
+    status: string;
+    author?: {
+        id: number;
+        name: string;
+    } | null;
+    galley: Galley;
+}
 
 interface Issue {
     id: number;
@@ -28,10 +46,6 @@ interface PublishReadiness {
     tocComplete: boolean;
 }
 
-type Article = Submission & {
-    galley: Galley;
-};
-
 interface Props {
     issue: Issue;
     articles: Article[];
@@ -43,21 +57,6 @@ export default function Preview({
     articles,
     publishReadiness,
 }: Props) {
-    const [orderedArticles, setOrderedArticles] =
-        useState<Article[]>(articles);
-
-    const handleOrderChange = (orderedIds: number[]) => {
-        const reordered = orderedIds
-            .map((galleyId) =>
-                orderedArticles.find(
-                    (article) => article.galley.id === galleyId,
-                ),
-            )
-            .filter((article): article is Article => article !== undefined);
-
-        setOrderedArticles(reordered);
-    };
-
     return (
         <AppLayout>
             <Head
@@ -65,17 +64,19 @@ export default function Preview({
             />
 
             <div className="space-y-6 p-6">
+                {/* Header */}
                 <div>
                     <h1 className="text-2xl font-bold">
                         Preview Issue
                     </h1>
 
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Periksa informasi issue dan urutan artikel sebelum
-                        menerbitkannya ke publik.
+                        Periksa kembali informasi issue dan daftar artikel
+                        sebelum menerbitkannya ke publik.
                     </p>
                 </div>
 
+                {/* Informasi Issue */}
                 <Card>
                     <CardHeader>
                         <CardTitle>
@@ -86,11 +87,13 @@ export default function Preview({
                     <CardContent>
                         <div className="flex flex-col gap-6 md:flex-row">
                             {issue.cover_image_url && (
-                                <img
-                                    src={issue.cover_image_url}
-                                    alt={`Cover ${issue.title}`}
-                                    className="w-40 rounded-md border object-cover shadow-sm"
-                                />
+                                <div className="shrink-0">
+                                    <img
+                                        src={issue.cover_image_url}
+                                        alt={`Cover ${issue.title}`}
+                                        className="w-40 rounded-md border object-cover shadow-sm"
+                                    />
+                                </div>
                             )}
 
                             <div className="space-y-2">
@@ -116,6 +119,7 @@ export default function Preview({
                     </CardContent>
                 </Card>
 
+                {/* Table of Contents */}
                 <Card>
                     <CardHeader>
                         <CardTitle>
@@ -124,21 +128,90 @@ export default function Preview({
                     </CardHeader>
 
                     <CardContent>
-                        {orderedArticles.length === 0 ? (
+                        {articles.length === 0 ? (
                             <div className="py-8 text-center">
                                 <p className="text-sm text-muted-foreground">
                                     Belum ada artikel pada issue ini.
                                 </p>
                             </div>
                         ) : (
-                            <ArticleSequencer
-                                articles={orderedArticles}
-                                onOrderChange={handleOrderChange}
-                            />
+                            <div className="divide-y">
+                                {articles.map((article, index) => (
+                                    <div
+                                        key={article.galley.id}
+                                        className="py-5 first:pt-0 last:pb-0"
+                                    >
+                                        <div className="flex gap-4">
+                                            {/* Nomor Urut */}
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium">
+                                                {index + 1}
+                                            </div>
+
+                                            {/* Informasi Artikel */}
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="font-semibold">
+                                                    {article.title}
+                                                </h3>
+
+                                                <p className="mt-1 text-sm text-muted-foreground">
+                                                    Penulis:{' '}
+                                                    {article.author?.name ||
+                                                        'Unknown Author'}
+                                                </p>
+
+                                                <div className="mt-2 space-y-1 text-sm">
+                                                    {article.galley.pages && (
+                                                        <p>
+                                                            Halaman:{' '}
+                                                            {
+                                                                article.galley
+                                                                    .pages
+                                                            }
+                                                        </p>
+                                                    )}
+
+                                                    {article.galley.doi && (
+                                                        <p>
+                                                            DOI:{' '}
+                                                            {
+                                                                article.galley
+                                                                    .doi
+                                                            }
+                                                        </p>
+                                                    )}
+
+                                                    {article.galley
+                                                        .file_extension && (
+                                                        <p>
+                                                            Format:{' '}
+                                                            {article.galley.file_extension.toUpperCase()}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                {article.galley.file_url && (
+                                                    <a
+                                                        href={
+                                                            article.galley
+                                                                .file_url
+                                                        }
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+                                                    >
+                                                        Lihat Berkas
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </CardContent>
                 </Card>
 
+                {/* Publish Checklist */}
                 <div className="flex justify-end">
                     <PublishChecklist
                         journalId={issue.journal_id}

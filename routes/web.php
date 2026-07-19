@@ -626,9 +626,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Back Issues
         Route::get(
-            'production/{journalId}/back-issues',
-            [IssueController::class, 'backIssues']
-        )->name('production.issue.back-issues');
+            'journals/{journalId}/back-issues',
+            [IssueController::class, 'archive']
+        )->name('journals.issues.archive');
 
         // Assessments Management
         Route::prefix('assessments')->name('assessments.')->group(function () {

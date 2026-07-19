@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Issue;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use App\Models\Journal;
 
 class IssueController extends Controller
 {
@@ -172,23 +173,24 @@ class IssueController extends Controller
     }
 
     /**
-     * Menampilkan daftar Back Issues
-     * atau arsip Issue yang telah dipublish.
+     * Menampilkan arsip Issue yang telah dipublish.
      */
-    public function backIssues($journalId)
+    public function archive($journalId)
     {
-        $issues = Issue::with('journal')
-            ->where('journal_id', $journalId)
+        $journal = Journal::findOrFail($journalId);
+
+        // Pastikan user memiliki akses ke journal ini.
+        $this->authorize('view', $journal);
+
+        $issues = Issue::where('journal_id', $journalId)
             ->where('status', 'Published')
             ->orderByDesc('publication_date')
+            ->orderByDesc('volume')
+            ->orderByDesc('number')
             ->get();
 
-        // Pastikan user memiliki akses ke journal.
-        if ($issues->isNotEmpty()) {
-            $this->authorize('view', $issues->first()->journal);
-        }
-
         return Inertia::render('Production/Issue/BackIssues', [
+            'journal' => $journal,
             'issues' => $issues,
         ]);
     }

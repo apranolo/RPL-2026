@@ -1,66 +1,118 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+interface Journal {
+    id: number;
+    title: string;
+}
 
 interface Issue {
     id: number;
-    title: string;
+    title?: string | null;
     volume: number;
     number: number;
-    publication_date: string;
+    year: number;
+    publication_date?: string | null;
 }
 
 interface Props {
+    journal: Journal;
     issues: Issue[];
 }
 
-export default function BackIssues({ issues }: Props) {
+export default function BackIssues({
+    journal,
+    issues,
+}: Props) {
     return (
         <AppLayout>
-            <Head title="Back Issues" />
+            <Head title={`Back Issues - ${journal.title}`} />
 
             <div className="space-y-6 p-6">
+                <div>
+                    <h1 className="text-2xl font-bold">
+                        Back Issues
+                    </h1>
+
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Arsip seluruh issue yang telah diterbitkan pada{' '}
+                        {journal.title}.
+                    </p>
+                </div>
+
                 <Card>
                     <CardHeader>
-                        <CardTitle>Back Issues</CardTitle>
+                        <CardTitle>
+                            Arsip Terbitan
+                        </CardTitle>
                     </CardHeader>
 
                     <CardContent>
                         {issues.length === 0 ? (
-                            <p>Belum ada issue yang dipublish.</p>
+                            <div className="py-8 text-center">
+                                <p className="text-sm text-muted-foreground">
+                                    Belum ada issue yang diterbitkan.
+                                </p>
+                            </div>
                         ) : (
-                            <table className="w-full border">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="p-2 text-left">Volume</th>
-                                        <th className="p-2 text-left">Issue</th>
-                                        <th className="p-2 text-left">Title</th>
-                                        <th className="p-2 text-left">Publication Date</th>
-                                    </tr>
-                                </thead>
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="p-3 text-left">
+                                                Volume
+                                            </th>
 
-                                <tbody>
-                                    {issues.map((issue) => (
-                                        <tr key={issue.id} className="border-b">
-                                            <td className="p-2">
-                                                {issue.volume}
-                                            </td>
+                                            <th className="p-3 text-left">
+                                                Nomor
+                                            </th>
 
-                                            <td className="p-2">
-                                                {issue.number}
-                                            </td>
+                                            <th className="p-3 text-left">
+                                                Tahun
+                                            </th>
 
-                                            <td className="p-2">
-                                                {issue.title}
-                                            </td>
+                                            <th className="p-3 text-left">
+                                                Judul
+                                            </th>
 
-                                            <td className="p-2">
-                                                {issue.publication_date}
-                                            </td>
+                                            <th className="p-3 text-left">
+                                                Tanggal Publikasi
+                                            </th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+
+                                    <tbody>
+                                        {issues.map((issue) => (
+                                            <tr
+                                                key={issue.id}
+                                                className="border-b last:border-b-0"
+                                            >
+                                                <td className="p-3">
+                                                    {issue.volume}
+                                                </td>
+
+                                                <td className="p-3">
+                                                    {issue.number}
+                                                </td>
+
+                                                <td className="p-3">
+                                                    {issue.year}
+                                                </td>
+
+                                                <td className="p-3">
+                                                    {issue.title || '-'}
+                                                </td>
+
+                                                <td className="p-3">
+                                                    {issue.publication_date ||
+                                                        '-'}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         )}
                     </CardContent>
                 </Card>
