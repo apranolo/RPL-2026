@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ReviewAssignmentController
- * 
- * Mengelola penerimaan dan penolakan undangan review oleh reviewer.
+ *
+ * Mengelola penerimaan dan penolakan undangan review oleh reviewer,
+ * serta pengiriman undangan ke reviewer oleh editor.
  * Menggunakan model ReviewAssignment yang terhubung ke Submission (naskah ilmiah).
  */
 class ReviewAssignmentController extends Controller
@@ -60,17 +61,14 @@ class ReviewAssignmentController extends Controller
         return redirect()
             ->back()
             ->with('success', 'Undangan review berhasil ditolak.');
-use App\Models\ReviewAssignment;
-use Illuminate\Http\Request;
+    }
 
-class ReviewAssignmentController extends Controller
-{
     /**
      * Memproses pengiriman undangan ke Reviewer.
      */
     public function invite(Request $request)
     {
-        // PERBAIKAN 5: Pengecekan Otorisasi (Hanya Editor yang boleh)
+        // Pengecekan Otorisasi (Hanya Editor yang boleh)
         if (!auth()->user()->hasRole('Editor')) {
             abort(403, 'Akses ditolak: Hanya Editor yang berhak mengundang Reviewer.');
         }
@@ -93,13 +91,12 @@ class ReviewAssignmentController extends Controller
         }
 
         // 3. Simpan Data (SLA 7 Hari)
-        // PERBAIKAN 4: Ganti 'Invited' menjadi 'Pending' agar tidak SQL Crash
         ReviewAssignment::create([
             'submission_id' => $validated['submission_id'],
             'reviewer_id'   => $validated['reviewer_id'],
             'round'         => 1,
-            'status'        => 'Pending', // <--- SUDAH DIPERBAIKI
-            'due_date'      => now()->addDays(7), 
+            'status'        => 'Pending',
+            'due_date'      => now()->addDays(7),
         ]);
 
         // Catatan: Email notifikasi akan di-handle oleh Event/Observer dari Modul 7.

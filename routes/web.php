@@ -59,7 +59,6 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\Production\IssueController;
 use Inertia\Inertia;
-use App\Http\Controllers\Editorial\PlagiarismController;
 
 /*
 |--------------------------------------------------------------------------
