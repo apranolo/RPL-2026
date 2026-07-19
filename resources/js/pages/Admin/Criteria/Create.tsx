@@ -20,7 +20,9 @@
  *
  * @author JurnalMU Team
  */
-import { AnswerTypePreview } from '@/components/DynamicInput';
+import {
+    AnswerTypePreview,
+} from '@/components/DynamicInput';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,10 +33,10 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, ClipboardList, Save } from 'lucide-react';
-import React from 'react';
+import { ArrowLeft, ClipboardList, Paperclip, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import InputError from '@/components/input-error';
+
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -145,39 +147,23 @@ export default function CriteriaCreate({ subCategories }: Props) {
             <Head title="Tambah Kriteria Penilaian" />
 
             <div className="mx-auto max-w-4xl space-y-8">
-                {/* Header */}
+                {/* Header (Tetap seperti kode kamu) */}
                 <div className="space-y-3">
                     <Button variant="ghost" size="sm" className="h-auto gap-2 p-0" asChild>
-                        <Link href={route('admin.criteria.index')}>
-                            <ArrowLeft className="h-4 w-4" /> 
-                            Kembali ke Daftar
-                        </Link>
+                        <Link href={route('admin.criteria.index')}><ArrowLeft className="h-4 w-4" /> Kembali</Link>
                     </Button>
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                            <ClipboardList className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                            <h1 className="text-4xl font-bold tracking-tight">Tambah Kriteria Penilaian (Batch)</h1>
-                            <p className="mt-1 text-base text-muted-foreground">
-                                Buat kriteria baru secara massal untuk evaluasi penilaian jurnal
-                            </p>
-                        </div>
-                    </div>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Tambah Kriteria Penilaian (Batch)</h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Klasifikasi */}
+                    {/* 1. KARDUS KLASIFIKASI (Hanya pilih sekali di atas) */}
                     <Card>
                         <CardHeader>
                             <CardTitle>Klasifikasi</CardTitle>
-                            <CardDescription>Tentukan posisi kriteria dalam hierarki evaluasi</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
-                                <Label htmlFor="sub_category_id">
-                                    Sub-Kategori <span className="text-destructive">*</span>
-                                </Label>
+                                <Label htmlFor="sub_category_id">Sub-Kategori <span className="text-destructive">*</span></Label>
                                 <Select value={data.sub_category_id} onValueChange={(val) => setData('sub_category_id', val)}>
                                     <SelectTrigger id="sub_category_id" className={errors.sub_category_id ? 'border-destructive' : ''}>
                                         <SelectValue placeholder="Pilih sub-kategori..." />
@@ -185,13 +171,9 @@ export default function CriteriaCreate({ subCategories }: Props) {
                                     <SelectContent>
                                         {Object.entries(groupedSubCategories).map(([groupName, subs]) => (
                                             <SelectGroup key={groupName}>
-                                                <SelectLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                                    {groupName}
-                                                </SelectLabel>
+                                                <SelectLabel>{groupName}</SelectLabel>
                                                 {subs.map((sub) => (
-                                                    <SelectItem key={sub.id} value={sub.id.toString()}>
-                                                        {sub.name}
-                                                    </SelectItem>
+                                                    <SelectItem key={sub.id} value={sub.id.toString()}>{sub.name}</SelectItem>
                                                 ))}
                                             </SelectGroup>
                                         ))}
@@ -202,13 +184,12 @@ export default function CriteriaCreate({ subCategories }: Props) {
                         </CardContent>
                     </Card>
 
-                    {/* Looping Form Kriteria secara Dinamis */}
+                    {/* 2. LOOPING KARDUS CRITERIA SECARA DINAMIS */}
                     {data.criteria.map((item, index) => (
                         <Card key={item.id} className="relative border-l-4 border-l-primary">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <div>
                                     <CardTitle className="text-lg">Kriteria #{index + 1}</CardTitle>
-                                    <CardDescription>Informasi dasar item kriteria penilaian</CardDescription>
                                 </div>
                                 {data.criteria.length > 1 && (
                                     <Button 
@@ -263,12 +244,12 @@ export default function CriteriaCreate({ subCategories }: Props) {
                                     <Textarea
                                         value={item.description}
                                         onChange={(e) => updateCriteriaField(index, 'description', e.target.value)}
-                                        placeholder="Penjelasan detail kriteria untuk membantu evaluator..."
+                                        placeholder="Penjelasan detail..."
                                         rows={2}
                                     />
                                 </div>
 
-                                {/* Integrasi Pratinjau Tipe Input */}
+                                {/* BAGIAN DYNAMIC INPUT INTEGRATION */}
                                 <div className="grid gap-4 sm:grid-cols-2 pt-4 border-t">
                                     <div className="space-y-2">
                                         <Label>Tipe Jawaban <span className="text-destructive">*</span></Label>
@@ -299,6 +280,7 @@ export default function CriteriaCreate({ subCategories }: Props) {
                                     </div>
                                 </div>
 
+                                {/* Preview Komponen dari DynamicInput */}
                                 {item.answer_type && (
                                     <div className="bg-muted/50 p-3 rounded-lg">
                                         <p className="text-xs font-semibold mb-2 text-muted-foreground">Live Preview Form Input:</p>
@@ -306,7 +288,7 @@ export default function CriteriaCreate({ subCategories }: Props) {
                                     </div>
                                 )}
 
-                                {/* Pengaturan Persyaratan */}
+                                {/* Toggles Requirements */}
                                 <div className="flex flex-col gap-3 pt-2">
                                     <div className="flex items-center justify-between">
                                         <Label>Wajib Lampiran</Label>
@@ -327,7 +309,7 @@ export default function CriteriaCreate({ subCategories }: Props) {
                         </Card>
                     ))}
 
-                    {/* Tombol Tambah Baris Baru */}
+                    {/* Tombol Tambah Barid Baru */}
                     <Button type="button" variant="outline" className="w-full dashed border-2" onClick={addCriteriaRow}>
                         + Tambah Kriteria Lainnya
                     </Button>
@@ -337,8 +319,7 @@ export default function CriteriaCreate({ subCategories }: Props) {
                         <Button type="button" variant="outline" asChild>
                             <Link href={route('admin.criteria.index')}>Batal</Link>
                         </Button>
-                        <Button type="submit" disabled={processing} className="gap-2">
-                            <Save className="h-4 w-4" />
+                        <Button type="submit" disabled={processing}>
                             {processing ? 'Menyimpan...' : `Simpan ${data.criteria.length} Kriteria`}
                         </Button>
                     </div>

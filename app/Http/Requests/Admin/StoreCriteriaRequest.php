@@ -28,15 +28,15 @@ class StoreCriteriaRequest extends FormRequest
             'is_active' => ['boolean'],
 
             // Batch creation rules
-            'criteria' => ['nullable', 'array'],
+            'criteria' => ['required_without:code', 'nullable', 'array', 'min:1'],
             'criteria.*.code' => ['required_with:criteria', 'string', 'max:50', 'unique:evaluation_indicators,code'],
             'criteria.*.question' => ['required_with:criteria', 'string'],
             'criteria.*.description' => ['nullable', 'string'],
             'criteria.*.weight' => ['required_with:criteria', 'numeric', 'min:0', 'max:100'],
             'criteria.*.answer_type' => ['required_with:criteria', 'string', Rule::in(['boolean', 'scale', 'text'])],
-            'criteria.*.requires_attachment' => ['boolean'],
+            'criteria.*.requires_attachment' => ['required_with:criteria', 'boolean'],
             'criteria.*.sort_order' => ['nullable', 'integer', 'min:1'],
-            'criteria.*.is_active' => ['boolean'],
+            'criteria.*.is_active' => ['required_with:criteria', 'boolean'],
         ];
     }
 
@@ -72,8 +72,17 @@ class StoreCriteriaRequest extends FormRequest
             'code.unique' => 'Kode kriteria sudah digunakan.',
             'answer_type.in' => 'Tipe jawaban harus "boolean", "scale", atau "text".',
             'weight.max' => 'Bobot tidak boleh melebihi 100.',
-            'criteria.*.code.unique' => 'Kode kriteria pada salah satu item sudah digunakan.',
+            
+            'criteria.required' => 'Minimal harus ada satu kriteria.',
+            'criteria.array' => 'Format data kriteria tidak valid.',
+            'criteria.min' => 'Minimal harus ada satu kriteria.',
+
+            'criteria.*.code.required' => 'Kode kriteria wajib diisi.',
+            'criteria.*.code.unique' => 'Kode kriteria sudah digunakan.',
+            'criteria.*.question.required' => 'Pertanyaan wajib diisi.',
+            'criteria.*.answer_type.required' => 'Tipe jawaban wajib dipilih.',
             'criteria.*.answer_type.in' => 'Tipe jawaban harus "boolean", "scale", atau "text".',
+            'criteria.*.weight.required' => 'Bobot wajib diisi.',
             'criteria.*.weight.max' => 'Bobot tidak boleh melebihi 100.',
         ];
     }

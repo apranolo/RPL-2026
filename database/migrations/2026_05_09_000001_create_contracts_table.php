@@ -11,38 +11,40 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('contracts', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('university_id')->constrained('universities')->cascadeOnDelete();
-            $table->foreignId('pembinaan_id')->nullable()->constrained('pembinaan')->nullOnDelete();
-            $table->foreignId('proposal_id')->unique()->constrained('proposals')->cascadeOnDelete();
+        if (! Schema::hasTable('contracts')) {
+            Schema::create('contracts', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('university_id')->constrained('universities')->cascadeOnDelete();
+                $table->foreignId('pembinaan_id')->nullable()->constrained('pembinaan')->nullOnDelete();
+                $table->foreignId('proposal_id')->unique()->constrained('proposals')->cascadeOnDelete();
 
-            $table->string('contract_number')->unique();
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->enum('status', ['draft', 'active', 'completed', 'cancelled'])->default('draft');
-            $table->decimal('contract_value', 15, 2)->default(0);
-            $table->string('party_1');
-            $table->string('party_2');
+                $table->string('contract_number')->unique();
+                $table->string('title');
+                $table->text('description')->nullable();
+                $table->enum('status', ['draft', 'active', 'completed', 'cancelled'])->default('draft');
+                $table->decimal('contract_value', 15, 2)->default(0);
+                $table->string('party_1');
+                $table->string('party_2');
 
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->date('signed_at')->nullable();
-            $table->string('document_path')->nullable();
-            $table->text('notes')->nullable();
+                $table->date('start_date')->nullable();
+                $table->date('end_date')->nullable();
+                $table->date('signed_at')->nullable();
+                $table->string('document_path')->nullable();
+                $table->text('notes')->nullable();
 
-            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
 
-            $table->softDeletes();
-            $table->timestamps();
+                $table->softDeletes();
+                $table->timestamps();
 
-            $table->index('university_id');
-            $table->index('pembinaan_id');
-            $table->index('status');
-            $table->index('start_date');
-            $table->index('end_date');
-        });
+                $table->index('university_id');
+                $table->index('pembinaan_id');
+                $table->index('status');
+                $table->index('start_date');
+                $table->index('end_date');
+            });
+        }
     }
 
     /**

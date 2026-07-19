@@ -1,30 +1,16 @@
-/**
- * CriteriaShow Component
- *
- * @description
- * Detail page for displaying a single Kriteria Penilaian (Assessment Criterion).
- * Super Admin can view full properties, hierarchy, status, and input preview.
- *
- * @route GET /admin/criteria/{criterion}
- *
- * @author JurnalMU Team
- */
-import { AnswerTypePreview } from '@/components/DynamicInput';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, ClipboardList, Edit, Paperclip } from 'lucide-react';
-import React from 'react';
+import { ArrowLeft, Edit, Paperclip } from 'lucide-react';
 
 interface Criterion {
     id: number;
     code: string;
     question: string;
     description?: string;
-    weight: number | string;
+    weight: number;
     answer_type: 'boolean' | 'scale' | 'text';
     answer_type_label: string;
     requires_attachment: boolean;
@@ -41,7 +27,7 @@ interface Criterion {
                 name: string;
             }
         }
-    } | null;
+    };
     created_at?: string;
     updated_at?: string;
 }
@@ -66,162 +52,100 @@ export default function CriteriaShow({ criterion }: Props) {
         },
     ];
 
-    const subCat = criterion.sub_category;
-    const templateName = subCat?.category?.template?.name || '-';
-    const categoryName = subCat?.category?.name || '-';
-    const subCategoryName = subCat?.name || '-';
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Detail Kriteria - ${criterion.code}`} />
 
-            <div className="mx-auto max-w-4xl space-y-6">
-                {/* Actions Header */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <Button variant="ghost" size="sm" className="h-auto gap-2 p-0 w-fit" asChild>
-                        <Link href={route('admin.criteria.index')}>
-                            <ArrowLeft className="h-4 w-4" />
-                            Kembali ke Daftar
+            <div className="max-w-4xl mx-auto space-y-6 p-4 md:p-6">
+                {/* Header Actions */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Detail Kriteria</h1>
+                        <p className="text-muted-foreground mt-1">Detail parameter kriteria penilaian rubrik proposal.</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <Link href="/admin/criteria">
+                            <Button variant="outline" size="sm">
+                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                Kembali
+                            </Button>
                         </Link>
-                    </Button>
-                    <Link href={route('admin.criteria.edit', criterion.id)}>
-                        <Button className="gap-2">
-                            <Edit className="h-4 w-4" />
-                            Ubah Kriteria
-                        </Button>
-                    </Link>
+                        <Link href={`/admin/criteria/${criterion.id}/edit`}>
+                            <Button size="sm">
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit Kriteria
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
-                {/* Main Card */}
-                <Card>
-                    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-6 border-b">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                                <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                                    Kriteria {criterion.code}
-                                </h1>
-                                {criterion.is_active ? (
-                                    <Badge className="bg-green-500/10 text-green-600 border-green-500/20 border">
-                                        Aktif
-                                    </Badge>
-                                ) : (
-                                    <Badge variant="secondary">Non-Aktif</Badge>
+                <Card className="border-border bg-card/60 backdrop-blur-sm shadow-md">
+                    <CardHeader className="border-b border-border bg-muted/20 pb-4">
+                        <div className="flex justify-between items-start gap-4">
+                            <div>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary mb-2">
+                                    {criterion.code}
+                                </span>
+                                <CardTitle className="text-xl">{criterion.question}</CardTitle>
+                                {criterion.description && (
+                                    <CardDescription className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">
+                                        {criterion.description}
+                                    </CardDescription>
                                 )}
                             </div>
-                            <CardDescription>
-                                Detail data kriteria penilaian evaluasi instrumen
-                            </CardDescription>
-                        </div>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                            <ClipboardList className="h-6 w-6 text-primary" />
                         </div>
                     </CardHeader>
-
-                    <CardContent className="divide-y pt-6 space-y-6">
-                        {/* 1. Klasifikasi Hierarki */}
-                        <div className="space-y-3">
-                            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                                Klasifikasi Hierarki
-                            </h3>
-                            <div className="grid gap-4 sm:grid-cols-3">
+                    <CardContent className="pt-6 space-y-6">
+                        {/* Detail Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-4">
                                 <div>
-                                    <p className="text-xs text-muted-foreground">Template</p>
-                                    <p className="text-sm font-semibold text-foreground mt-0.5">{templateName}</p>
+                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bobot Nilai</h4>
+                                    <p className="text-lg font-bold text-foreground mt-1">{criterion.weight}%</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-muted-foreground">Kategori</p>
-                                    <p className="text-sm font-semibold text-foreground mt-0.5">{categoryName}</p>
+                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tipe Jawaban</h4>
+                                    <p className="text-foreground mt-1 capitalize">{criterion.answer_type_label}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-muted-foreground">Sub-Kategori</p>
-                                    <p className="text-sm font-semibold text-foreground mt-0.5">{subCategoryName}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 2. Detail Data Kriteria */}
-                        <div className="pt-6 space-y-4">
-                            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                                Detail Kriteria
-                            </h3>
-                            <div className="grid gap-6 sm:grid-cols-2">
-                                <div className="sm:col-span-2">
-                                    <p className="text-xs text-muted-foreground">Pertanyaan</p>
-                                    <p className="text-base text-foreground font-medium mt-1 leading-relaxed whitespace-pre-wrap">
-                                        {criterion.question}
-                                    </p>
-                                </div>
-                                {criterion.description && (
-                                    <div className="sm:col-span-2">
-                                        <p className="text-xs text-muted-foreground">Deskripsi / Panduan Pengisian</p>
-                                        <p className="text-sm text-foreground mt-1 leading-relaxed whitespace-pre-wrap">
-                                            {criterion.description}
-                                        </p>
-                                    </div>
-                                )}
-                                <div>
-                                    <p className="text-xs text-muted-foreground">Bobot Penilaian</p>
-                                    <p className="text-xl font-bold font-mono text-foreground mt-0.5">
-                                        {Number(criterion.weight).toFixed(2)}%
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-muted-foreground">Urutan Tampil</p>
-                                    <p className="text-sm font-mono text-foreground mt-1">
-                                        {criterion.sort_order ?? 'Otomatis'}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 3. Konfigurasi Pengisian & Lampiran */}
-                        <div className="pt-6 space-y-4">
-                            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                                Konfigurasi Pengisian & Lampiran
-                            </h3>
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <p className="text-xs text-muted-foreground">Tipe Jawaban</p>
-                                    <div className="mt-1 flex items-center gap-2">
-                                        <Badge variant="secondary" className="capitalize text-xs font-semibold">
-                                            {criterion.answer_type_label}
-                                        </Badge>
+                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Wajib Lampiran Dokumen</h4>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <Paperclip className={`w-4 h-4 ${criterion.requires_attachment ? 'text-primary' : 'text-muted-foreground'}`} />
+                                        <p className="text-foreground">{criterion.requires_attachment ? 'Ya, wajib mengunggah bukti lampiran' : 'Tidak wajib'}</p>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="space-y-4">
                                 <div>
-                                    <p className="text-xs text-muted-foreground">Wajib Unggah Lampiran</p>
-                                    <div className="mt-1">
-                                        {criterion.requires_attachment ? (
-                                            <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs gap-1.5 py-0.5">
-                                                <Paperclip className="h-3 w-3" /> Wajib Unggah
-                                            </Badge>
+                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Hierarki Kriteria</h4>
+                                    <div className="mt-1 text-sm space-y-1">
+                                        {criterion.sub_category ? (
+                                            <>
+                                                <p className="text-foreground font-medium">Sub-Kategori: <span className="font-normal text-muted-foreground">{criterion.sub_category.name}</span></p>
+                                                {criterion.sub_category.category && (
+                                                    <p className="text-foreground font-medium">Kategori: <span className="font-normal text-muted-foreground">{criterion.sub_category.category.name}</span></p>
+                                                )}
+                                                {criterion.sub_category.category?.template && (
+                                                    <p className="text-foreground font-medium">Template Rubrik: <span className="font-normal text-muted-foreground">{criterion.sub_category.category.template.name}</span></p>
+                                                )}
+                                            </>
                                         ) : (
-                                            <Badge variant="outline" className="text-muted-foreground text-xs py-0.5">
-                                                Tidak Wajib
-                                            </Badge>
+                                            <p className="text-muted-foreground">Tidak terikat ke sub-kategori manapun</p>
                                         )}
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Live Preview Form */}
-                            <div className="rounded-lg border p-4 bg-muted/30">
-                                <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
-                                    Form Input Preview:
-                                </p>
-                                <AnswerTypePreview answerType={criterion.answer_type} />
-                            </div>
-                        </div>
-
-                        {/* 4. Metadata Timestamps */}
-                        <div className="pt-6 space-y-2 text-xs text-muted-foreground">
-                            <div className="flex justify-between">
-                                <span>Dibuat pada:</span>
-                                <span>{criterion.created_at || '-'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Terakhir diperbarui:</span>
-                                <span>{criterion.updated_at || '-'}</span>
+                                <div>
+                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status Keaktifan</h4>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className={`w-2 h-2 rounded-full ${criterion.is_active ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+                                        <p className="text-foreground font-medium">{criterion.is_active ? 'Aktif' : 'Non-aktif'}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Urutan</h4>
+                                    <p className="text-foreground mt-1 font-mono">{criterion.sort_order ?? 0}</p>
+                                </div>
                             </div>
                         </div>
                     </CardContent>

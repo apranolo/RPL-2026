@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('proposals', function (Blueprint $table) {
-            $table->string('status_proposal')->default('Pending')->after('research_schema_id');
-            $table->text('rejection_reason')->nullable()->after('status_proposal');
+            if (! Schema::hasColumn('proposals', 'status_proposal')) {
+                $table->string('status_proposal')->default('Pending')->after('research_schema_id');
+            }
+            if (! Schema::hasColumn('proposals', 'rejection_reason')) {
+                $table->text('rejection_reason')->nullable()->after('status_proposal');
+            }
         });
     }
 
@@ -23,7 +27,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('proposals', function (Blueprint $table) {
-            $table->dropColumn(['status_proposal', 'rejection_reason']);
+            $columnsToDrop = array_filter(
+                ['status_proposal', 'rejection_reason'],
+                fn ($col) => Schema::hasColumn('proposals', $col)
+            );
+            if (! empty($columnsToDrop)) {
+                $table->dropColumn(array_values($columnsToDrop));
+            }
         });
     }
 };

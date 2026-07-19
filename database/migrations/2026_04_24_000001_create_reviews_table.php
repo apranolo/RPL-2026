@@ -11,32 +11,34 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
-            
-            // Foreign keys
-            $table->foreignId('proposal_id')
-                ->constrained('proposals')
-                ->cascadeOnDelete();
-            $table->foreignId('reviewer_id')
-                ->constrained('users')
-                ->cascadeOnDelete();
+        if (! Schema::hasTable('reviews')) {
+            Schema::create('reviews', function (Blueprint $table) {
+                $table->id();
 
-            // Review details
-            $table->decimal('score', 5, 2)->default(0);
-            $table->text('feedback')->nullable();
-            $table->string('recommendation')->nullable(); // Diterima, Ditolak, Revisi
+                // Foreign keys
+                $table->foreignId('proposal_id')
+                    ->constrained('proposals')
+                    ->cascadeOnDelete();
+                $table->foreignId('reviewer_id')
+                    ->constrained('users')
+                    ->cascadeOnDelete();
 
-            // Timeline
-            $table->timestamp('reviewed_at')->nullable();
+                // Review details
+                $table->decimal('score', 5, 2)->default(0);
+                $table->text('feedback')->nullable();
+                $table->string('recommendation')->nullable(); // Diterima, Ditolak, Revisi
 
-            $table->timestamps();
+                // Timeline
+                $table->timestamp('reviewed_at')->nullable();
 
-            // Indexes
-            $table->index('proposal_id');
-            $table->index('reviewer_id');
-            $table->index('reviewed_at');
-        });
+                $table->timestamps();
+
+                // Indexes
+                $table->index('proposal_id');
+                $table->index('reviewer_id');
+                $table->index('reviewed_at');
+            });
+        }
     }
 
     /**

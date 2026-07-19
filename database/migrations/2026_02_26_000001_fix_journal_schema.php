@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -20,18 +20,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
-            try {
-                Schema::table('journals', function (Blueprint $table) {
-                    $table->dropIndex('journals_accreditation_expiry_date_index');
-                });
-            } catch (\Throwable) {
-                // Index already absent — safe to continue.
+        $hasIndex = false;
+        try {
+            if (DB::getDriverName() === 'sqlite') {
+                $hasIndex = collect(DB::select("SELECT name FROM sqlite_master WHERE type='index' AND name='journals_accreditation_expiry_date_index'"))->isNotEmpty();
+            } else {
+                $hasIndex = Schema::hasColumn('journals', 'accreditation_expiry_date');
             }
+        } catch (\Throwable $e) {
+            $hasIndex = false;
         }
 
-        Schema::table('journals', function (Blueprint $table) {
-            if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+        Schema::table('journals', function (Blueprint $table) use ($hasIndex) {
+            if ($hasIndex) {
                 try {
                     $table->dropIndex('journals_accreditation_expiry_date_index');
                 } catch (\Throwable $e) {
@@ -45,9 +46,6 @@ return new class extends Migration
             );
 
             if (! empty($columnsToDrop)) {
-                if (DB::getDriverName() === 'sqlite' && in_array('accreditation_expiry_date', $columnsToDrop)) {
-                    $table->dropIndex(['accreditation_expiry_date']);
-                }
                 $table->dropColumn(array_values($columnsToDrop));
             }
         });
