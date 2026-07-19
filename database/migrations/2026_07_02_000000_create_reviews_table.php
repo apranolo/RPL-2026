@@ -8,22 +8,29 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('proposal_id')->constrained('proposals')->cascadeOnDelete();
-            $table->foreignId('reviewer_id')->constrained('users')->cascadeOnDelete();
-            $table->string('status')->default('pending');
-            $table->text('notes')->nullable();
-            $table->timestamp('start_date')->nullable();
-            $table->timestamp('end_date')->nullable();
-            $table->decimal('total_score', 8, 2)->unsigned()->nullable();
-            $table->string('recommendation')->nullable();
-            $table->timestamps();
+        Schema::table('reviews', function (Blueprint $table) {
+            if (! Schema::hasColumn('reviews', 'status')) {
+                $table->string('status')->default('pending');
+            }
+            if (! Schema::hasColumn('reviews', 'notes')) {
+                $table->text('notes')->nullable();
+            }
+            if (! Schema::hasColumn('reviews', 'start_date')) {
+                $table->timestamp('start_date')->nullable();
+            }
+            if (! Schema::hasColumn('reviews', 'end_date')) {
+                $table->timestamp('end_date')->nullable();
+            }
+            if (! Schema::hasColumn('reviews', 'total_score')) {
+                $table->decimal('total_score', 8, 2)->unsigned()->nullable();
+            }
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('reviews');
+        Schema::table('reviews', function (Blueprint $table) {
+            $table->dropColumn(['status', 'notes', 'start_date', 'end_date', 'total_score']);
+        });
     }
 };

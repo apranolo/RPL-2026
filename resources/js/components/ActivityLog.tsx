@@ -1,18 +1,18 @@
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 
-interface User {
+export interface User {
     id: number;
     name: string;
     email: string;
 }
 
-interface Loggable {
+export interface Loggable {
     id: number;
     // other properties depending on the polymorphic model
 }
 
-interface ActivityLogItem {
+export interface ActivityLogItem {
     id: number;
     user?: User;
     action: string;

@@ -4,6 +4,8 @@ import React from 'react';
 
 interface WizardProgressBarProps {
     currentStep: number;
+    steps?: any[];
+    className?: string;
 }
 
 export const WizardProgressBar: React.FC<WizardProgressBarProps> = ({ currentStep }) => {

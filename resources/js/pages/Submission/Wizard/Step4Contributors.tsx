@@ -15,6 +15,7 @@ interface Contributor {
     email: string;
     affiliation: string;
     is_corresponding: boolean;
+    [key: string]: any;
 }
 
 interface Submission {
@@ -25,12 +26,13 @@ interface Submission {
 
 interface Step4ContributorsProps {
     submission: Submission;
+    [key: string]: any;
 }
 
 export default function Step4Contributors({ auth, submission }: PageProps<Step4ContributorsProps>) {
     // Determine initial contributors list
     // Pre-populate with logged in user as corresponding author if empty
-    const initialContributors =
+    const initialContributors: Contributor[] =
         submission.contributors && submission.contributors.length > 0
             ? submission.contributors
             : [
@@ -42,7 +44,9 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
                   },
               ];
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm<{
+        contributors: Contributor[];
+    }>({
         contributors: initialContributors,
     });
 
@@ -60,7 +64,7 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
 
     const handleRemoveContributor = (index: number) => {
         // Do not allow removing the corresponding author if it's the only one
-        const updated = data.contributors.filter((_, i) => i !== index);
+        const updated = data.contributors.filter((_, i: number) => i !== index);
 
         // If we removed the corresponding author, make the first remaining contributor corresponding
         if (data.contributors[index]?.is_corresponding && updated.length > 0) {
@@ -82,7 +86,7 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
             updated[index] = {
                 ...updated[index],
                 [field]: value,
-            };
+            } as Contributor;
         }
 
         setData('contributors', updated);
@@ -92,7 +96,7 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
         e.preventDefault();
 
         // Ensure at least one corresponding author is selected
-        const hasCorresponding = data.contributors.some((c) => c.is_corresponding);
+        const hasCorresponding = data.contributors.some((c: Contributor) => c.is_corresponding);
         if (!hasCorresponding && data.contributors.length > 0) {
             // Automatically make the first one corresponding
             const updated = [...data.contributors];
@@ -156,7 +160,7 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
                                         <p className="text-sm text-muted-foreground">No authors added. Please add at least one author.</p>
                                     </div>
                                 ) : (
-                                    data.contributors.map((contributor, index) => (
+                                    data.contributors.map((contributor: Contributor, index: number) => (
                                         <ContributorForm
                                             key={index}
                                             index={index}
@@ -164,13 +168,13 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
                                             onChange={handleContributorChange}
                                             onRemove={handleRemoveContributor}
                                             errors={
-                                                (errors && errors[`contributors.${index}.name` as any]) ||
-                                                (errors && errors[`contributors.${index}.email` as any]) ||
-                                                (errors && errors[`contributors.${index}.affiliation` as any])
+                                                (errors as any)[`contributors.${index}.name`] ||
+                                                (errors as any)[`contributors.${index}.email`] ||
+                                                (errors as any)[`contributors.${index}.affiliation`]
                                                     ? {
-                                                          name: errors[`contributors.${index}.name` as any],
-                                                          email: errors[`contributors.${index}.email` as any],
-                                                          affiliation: errors[`contributors.${index}.affiliation` as any],
+                                                          name: (errors as any)[`contributors.${index}.name`],
+                                                          email: (errors as any)[`contributors.${index}.email`],
+                                                          affiliation: (errors as any)[`contributors.${index}.affiliation`],
                                                       }
                                                     : undefined
                                             }

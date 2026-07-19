@@ -8,7 +8,7 @@
  * @filepath /resources/js/pages/Dashboard/Admin.tsx
  */
 
-import ActivityLog from '@/components/ActivityLog';
+import ActivityLog, { type ActivityLogItem } from '@/components/ActivityLog';
 import BarChart from '@/components/Charts/BarChart';
 import PieChart from '@/components/Charts/PieChart';
 import FacultyTable from '@/components/FacultyTable';
@@ -35,21 +35,13 @@ interface FacultyPerformanceItem {
 
 interface ResearchItem {
     id: number;
-    title: string;
+    judul: string;
     citations: number;
 }
 
 interface LecturerItem {
     name: string;
     score: number;
-}
-
-interface ActivityLogItem {
-    id: number;
-    action: string;
-    description: string;
-    created_at: string;
-    user: { name: string } | null;
 }
 
 interface Props {

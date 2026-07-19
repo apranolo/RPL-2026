@@ -2,13 +2,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Pagination } from '@/components/ui/pagination';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PublicLayout from '@/layouts/public-layout';
 import { PaginatedData } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { CalendarDays, Clock, MapPin, Search } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, MapPin, Search } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
 
 interface AgendaItem {
@@ -299,8 +298,32 @@ export default function Index({ agendas, filters, types = [] }: Props) {
                 )}
 
                 {agendas.last_page > 1 && (
-                    <div className="mt-12 flex justify-center">
-                        <Pagination links={agendas.links} />
+                    <div className="mt-12 flex justify-center gap-2">
+                        {agendas.links.map((link, index) => {
+                            if (link.url === null) return null;
+
+                            const isFirst = index === 0;
+                            const isLast = index === agendas.links.length - 1;
+
+                            return (
+                                <Link key={index} href={link.url} preserveState preserveScroll>
+                                    <Button
+                                        variant={link.active ? 'default' : 'outline'}
+                                        size="sm"
+                                        disabled={!link.url}
+                                        className={link.active ? '' : 'text-muted-foreground'}
+                                    >
+                                        {isFirst ? (
+                                            <ChevronLeft className="h-4 w-4" />
+                                        ) : isLast ? (
+                                            <ChevronRight className="h-4 w-4" />
+                                        ) : (
+                                            <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                        )}
+                                    </Button>
+                                </Link>
+                            );
+                        })}
                     </div>
                 )}
             </div>
