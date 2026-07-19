@@ -129,14 +129,9 @@ class IssueController extends Controller
      */
     public function backIssues($journalId)
     {
-        $issues = Issue::with('journal')
-            ->where('journal_id', $journalId)
-            ->where('status', 'Published')
-            ->orderByDesc('publication_date')
-            ->get();
-
-        return Inertia::render('Production/Issue/BackIssues', [
-            'issues' => $issues,
+        return redirect()->route('user.production.issue.index', [
+            'journal' => $journalId,
+            'status' => 'Published',
         ]);
     }
 
