@@ -57,6 +57,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Production\IssueController;
 use Inertia\Inertia;
+use App\Http\Controllers\Editorial\DecisionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -717,6 +718,14 @@ Route::middleware(['auth'])->group(function () {
         // Activity Log per submission
         Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
             ->name('activity-logs.index');
+    });
+    Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
+    Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
+    
+    Route::post('/editorial/desk/{id}/plagiarism', [PlagiarismController::class, 'store'])->name('editorial.desk.plagiarism');
+    Route::post('/editorial/desk/{id}/assign-editor', [DeskController::class, 'assignEditor'])->name('editorial.desk.assign-editor');
+    Route::post('/editorial/desk/{id}/desk-review', [DeskController::class, 'deskReview'])->name('editorial.desk.review');
+    Route::post('/editorial/desk/{id}/final-decision', [DecisionController::class, 'finalDecision'])->name('editorial.desk.final-decision');
     });
 
     /*
