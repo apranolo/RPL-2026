@@ -43,8 +43,8 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type PaginatedData } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { type BreadcrumbItem, type PaginatedData, type SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ClipboardList,
     Edit,
@@ -58,7 +58,7 @@ import {
     SlidersHorizontal,
     Trash2,
 } from 'lucide-react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface SubCategory {
@@ -78,7 +78,7 @@ interface Criterion {
     answer_type: 'boolean' | 'scale' | 'text';
     answer_type_label: string;
     requires_attachment: boolean;
-    sort_order: number;
+    sort_order?: number;
     is_active: boolean;
     sub_category?: {
         id: number;
@@ -118,12 +118,23 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CriteriaIndex({ criteria, subCategories, filters }: Props) {
+    const { flash } = usePage<SharedData>().props;
     const [search, setSearch] = useState(filters.search || '');
     const [subCategoryId, setSubCategoryId] = useState(filters.sub_category_id || 'all');
     const [isActive, setIsActive] = useState(filters.is_active || 'all');
     const [answerType, setAnswerType] = useState(filters.answer_type || 'all');
     const [isLoading, setIsLoading] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState<Criterion | null>(null);
+
+    // Menangani flash message otomatis dari Laravel redirect session
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     // Group sub-categories by template > category
     const groupedSubCategories = subCategories.reduce(
@@ -189,7 +200,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                 toast.success('Kriteria Penilaian berhasil dihapus');
                 setDeleteDialog(null);
             },
-            onError: (err) => {
+            onError: (err: any) => {
                 toast.error(err.error || 'Gagal menghapus kriteria penilaian');
                 setDeleteDialog(null);
             },
@@ -393,7 +404,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                         {/* Weight */}
                                         <TableCell className="align-top pt-4 text-center font-bold">
                                             <Badge variant="secondary" className="px-2.5 py-0.5 font-mono text-purple-700 bg-purple-50 border-purple-100 hover:bg-purple-50">
-                                                {Number(item.weight).toFixed(2)}
+                                                {自由(Number(item.weight).toFixed(2))}
                                             </Badge>
                                         </TableCell>
 
@@ -473,7 +484,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                         </TableCell>
                                     </TableRow>
                                 ))
-                             ) : (
+                            ) : (
                                 <TableRow>
                                     <TableCell colSpan={8} className="h-48 text-center bg-muted/5">
                                         <div className="flex flex-col items-center justify-center gap-3">
@@ -513,8 +524,6 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                     if (!link.url && !link.label) return null;
 
                                     const label = decodeHtml(link.label);
-
-                                    // Render custom buttons for Prev and Next to make layout cleaner
                                     const isPrev = link.label.includes('Previous');
                                     const isNext = link.label.includes('Next');
 
@@ -552,7 +561,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                             <strong className="text-foreground">"{deleteDialog?.code}"</strong>?
                             <br />
                             <br />
-                            Tindakan ini tidak dapat dibatalkan. Kriteria ini tidak akan dapat digunakan lagi di rubrik baru.
+                            Tindakan ini tidak dapat dibatalkan. Kriteria ini tidak dapat dihapus jika telah digunakan dalam respons penilaian yang telah dikirimkan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

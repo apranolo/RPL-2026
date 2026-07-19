@@ -86,14 +86,18 @@ export interface DynamicFieldValue {
     id: string;
     code: string;
     question: string;
+    description: string;
     weight: string;
     answer_type: 'boolean' | 'scale' | 'text' | '';
+    requires_attachment: boolean;
+    sort_order: string;
+    is_active: boolean;
 }
 
 interface DynamicFieldRowProps {
     index: number;
     value: DynamicFieldValue;
-    onChange: (index: number, field: keyof DynamicFieldValue, value: string) => void;
+    onChange: (index: number, field: keyof DynamicFieldValue, value: any) => void;
     onRemove: (index: number) => void;
     errors?: Record<string, string>;
     canRemove: boolean;
@@ -216,7 +220,7 @@ interface DynamicInputProps {
 export function DynamicInput({ items, onChange, errors, maxItems = 20 }: DynamicInputProps) {
     const generateId = () => `item-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
-    const handleFieldChange = (index: number, field: keyof DynamicFieldValue, value: string) => {
+    const handleFieldChange = (index: number, field: keyof DynamicFieldValue, value: any) => {
         const updated = [...items];
         updated[index] = { ...updated[index], [field]: value };
         onChange(updated);
@@ -230,8 +234,12 @@ export function DynamicInput({ items, onChange, errors, maxItems = 20 }: Dynamic
                 id: generateId(),
                 code: '',
                 question: '',
+                description: '',
                 weight: '1.00',
                 answer_type: '',
+                requires_attachment: false,
+                sort_order: '',
+                is_active: true,
             },
         ]);
     };

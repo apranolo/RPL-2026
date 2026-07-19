@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -19,10 +20,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('journals', function (Blueprint $table) {
-            if (\Illuminate\Support\Facades\DB::getDriverName() === 'sqlite') {
-                if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+        if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+            try {
+                Schema::table('journals', function (Blueprint $table) {
                     $table->dropIndex('journals_accreditation_expiry_date_index');
+                });
+            } catch (\Throwable) {
+                // Index already absent — safe to continue.
+            }
+        }
+
+        Schema::table('journals', function (Blueprint $table) {
+            if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+                try {
+                    $table->dropIndex('journals_accreditation_expiry_date_index');
+                } catch (\Throwable $e) {
+                    // Ignore
                 }
             }
 
@@ -32,6 +45,9 @@ return new class extends Migration
             );
 
             if (! empty($columnsToDrop)) {
+                if (DB::getDriverName() === 'sqlite' && in_array('accreditation_expiry_date', $columnsToDrop)) {
+                    $table->dropIndex(['accreditation_expiry_date']);
+                }
                 $table->dropColumn(array_values($columnsToDrop));
             }
         });

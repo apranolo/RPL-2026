@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -39,14 +40,15 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
-        // Load dynamic settings
-        $settings = ['app_name' => config('app.name'), 'app_logo' => null];
-        if (\Illuminate\Support\Facades\Storage::disk('local')->exists('settings.json')) {
-            $savedSettings = json_decode(\Illuminate\Support\Facades\Storage::disk('local')->get('settings.json'), true);
-            if ($savedSettings) {
-                $settings = array_merge($settings, $savedSettings);
-            }
-        }
+        $settings = Storage::disk('local')->exists('settings.json')
+            ? (json_decode(Storage::disk('local')->get('settings.json'), true) ?? [
+                'app_name' => config('app.name'),
+                'app_logo' => null,
+            ])
+            : [
+                'app_name' => config('app.name'),
+                'app_logo' => null,
+            ];
 
         return [
             ...parent::share($request),
