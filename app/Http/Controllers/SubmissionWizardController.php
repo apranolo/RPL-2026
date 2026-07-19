@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Submission;
-use App\Models\SubmissionContributor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -48,7 +47,7 @@ class SubmissionWizardController extends Controller
         DB::transaction(function () use ($submission, $validated) {
             $submission->contributors()->delete();
 
-            if (!empty($validated['contributors'])) {
+            if (! empty($validated['contributors'])) {
                 foreach ($validated['contributors'] as $contributorData) {
                     $submission->contributors()->create([
                         'name' => $contributorData['name'],
@@ -64,6 +63,6 @@ class SubmissionWizardController extends Controller
             return redirect()->back()->with('success', 'Draft saved successfully.');
         }
 
-        return redirect('/submissions/wizard/' . $submission->id . '/step5');
+        return redirect('/submissions/wizard/'.$submission->id.'/step5');
     }
 }

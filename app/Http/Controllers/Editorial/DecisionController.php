@@ -21,7 +21,7 @@ class DecisionController extends Controller
         $validated = $request->validate([
             'decision' => [
                 'required',
-                'in:Accept_For_Review,Desk_Reject'
+                'in:Accept_For_Review,Desk_Reject',
             ],
             'rejection_reason' => [
                 'nullable',
@@ -44,8 +44,7 @@ class DecisionController extends Controller
             'status' => $validated['decision'],
             'reviewed_at' => now(),
             'reviewed_by' => auth()->id(),
-            'rejection_reason' =>
-                $validated['decision'] === 'Desk_Reject'
+            'rejection_reason' => $validated['decision'] === 'Desk_Reject'
                     ? $validated['rejection_reason']
                     : null,
         ]);

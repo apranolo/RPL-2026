@@ -17,9 +17,9 @@ class DeskReviewRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'decision'         => ['required', 'in:approved,rejected'],
+            'decision' => ['required', 'in:Accept_For_Review,Desk_Reject'],
             'rejection_reason' => [
-                $this->decision === 'rejected' ? 'required' : 'nullable',
+                $this->decision === 'Desk_Reject' ? 'required' : 'nullable',
                 'string',
                 'max:1000',
             ],
@@ -29,10 +29,10 @@ class DeskReviewRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'decision.required'         => 'Keputusan desk review wajib dipilih.',
-            'decision.in'               => 'Keputusan tidak valid.',
+            'decision.required' => 'Keputusan desk review wajib dipilih.',
+            'decision.in' => 'Keputusan tidak valid.',
             'rejection_reason.required' => 'Catatan penolakan wajib diisi jika submission ditolak.',
-            'rejection_reason.max'      => 'Catatan penolakan maksimal 1000 karakter.',
+            'rejection_reason.max' => 'Catatan penolakan maksimal 1000 karakter.',
         ];
     }
 }

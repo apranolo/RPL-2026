@@ -11,12 +11,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Merepresentasikan penugasan Section Editor ke sebuah Submission naskah.
  *
- * @property int         $id
- * @property int         $editor_id
- * @property int         $submission_id
- * @property int         $assigned_by
- * @property string      $assigned_at
- * @property string      $status
+ * @property int $id
+ * @property int $editor_id
+ * @property int $submission_id
+ * @property int $assigned_by
+ * @property string $assigned_at
+ * @property string $status
  */
 class EditorialAssignment extends Model
 {
@@ -39,9 +39,9 @@ class EditorialAssignment extends Model
 
     protected $casts = [
         'assigned_at' => 'datetime',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
-        'deleted_at'  => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     public function editor()
@@ -112,20 +112,20 @@ class EditorialAssignment extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'assigned'    => 'Assigned',
+            'assigned' => 'Assigned',
             'in_progress' => 'In Progress',
-            'completed'   => 'Completed',
-            default       => $this->status,
+            'completed' => 'Completed',
+            default => $this->status,
         };
     }
 
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'assigned'    => 'secondary',
+            'assigned' => 'secondary',
             'in_progress' => 'warning',
-            'completed'   => 'success',
-            default       => 'default',
+            'completed' => 'success',
+            default => 'default',
         };
     }
 

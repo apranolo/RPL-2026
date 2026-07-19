@@ -25,34 +25,32 @@ use App\Http\Controllers\AdminKampus\UserController as AdminKampusUserController
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\CitationController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\Editorial\DecisionController;
 use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
-use App\Http\Controllers\Editorial\DecisionController;
-use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\ResourcesController;
-use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\Revision\RevisionController;
 use App\Http\Controllers\SchemaController;
-use App\Http\Controllers\SupportController;
 use App\Http\Controllers\SubmissionWizardController;
+use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
 use App\Models\Role;
-use App\Http\Controllers\Revision\RevisionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\CitationController;
 use Inertia\Inertia;
 
 /*
@@ -197,8 +195,6 @@ Route::middleware(['auth'])->group(function () {
         // Sistem Profil (Ubah Logo/Nama App)
         Route::get('settings/profile', [SettingsCtrl::class, 'index'])->name('settings.profile');
         Route::post('settings/profile', [SettingsCtrl::class, 'update'])->name('settings.profile.update');
-
-
 
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
@@ -799,16 +795,16 @@ Route::middleware(['auth'])->group(function () {
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
     Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
-    ->prefix('editorial')
-    ->name('editorial.')
-    ->group(function () {
+        ->prefix('editorial')
+        ->name('editorial.')
+        ->group(function () {
 
-        Route::post(
-            '/submissions/{id_submission}/notify-author',
-            [RevisionController::class, 'notifyAuthor']
-        )->name('revision.notify-author');
+            Route::post(
+                '/submissions/{id_submission}/notify-author',
+                [RevisionController::class, 'notifyAuthor']
+            )->name('revision.notify-author');
 
-    });
+        });
 });
 Route::get('/editorial/desk/{submission}/review', [DeskController::class, 'show'])
     ->name('editorial.desk.review');

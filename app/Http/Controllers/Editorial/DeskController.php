@@ -26,10 +26,10 @@ class DeskController extends Controller
     public function inbox(Request $request)
     {
         $counts = [
-            'unassigned'        => Submission::where('status', 'unassigned')->count(),
-            'active'            => Submission::where('status', 'active')->count(),
+            'unassigned' => Submission::where('status', 'unassigned')->count(),
+            'active' => Submission::where('status', 'active')->count(),
             'awaiting_decision' => Submission::where('status', 'awaiting_decision')->count(),
-            'archived'          => Submission::where('status', 'archived')->count(),
+            'archived' => Submission::where('status', 'archived')->count(),
         ];
 
         $activeTab = $request->query('tab', 'unassigned');
@@ -45,8 +45,8 @@ class DeskController extends Controller
             ->withQueryString();
 
         return Inertia::render('Editorial/Desk/Inbox', [
-            'counts'      => $counts,
-            'activeTab'   => $activeTab,
+            'counts' => $counts,
+            'activeTab' => $activeTab,
             'submissions' => $submissions,
         ]);
     }
@@ -65,7 +65,7 @@ class DeskController extends Controller
 
         return Inertia::render('Editorial/Desk/DeskReview', [
             'submission' => $submission->load('journal', 'author'),
-            'editors'    => $editors,
+            'editors' => $editors,
         ]);
     }
 
@@ -89,11 +89,11 @@ class DeskController extends Controller
         }
 
         EditorialAssignment::create([
-            'editor_id'     => $request->editor_id,
+            'editor_id' => $request->editor_id,
             'submission_id' => $submission->id,
-            'assigned_by'   => auth()->id(),
-            'assigned_at'   => now(),
-            'status'        => 'assigned',
+            'assigned_by' => auth()->id(),
+            'assigned_at' => now(),
+            'status' => 'assigned',
         ]);
 
         return redirect()

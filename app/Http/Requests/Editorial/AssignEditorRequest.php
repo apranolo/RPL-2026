@@ -25,7 +25,7 @@ class AssignEditorRequest extends FormRequest
     {
         return [
             'editor_id.required' => 'Section Editor wajib dipilih.',
-            'editor_id.exists'   => 'Section Editor yang dipilih tidak ditemukan.',
+            'editor_id.exists' => 'Section Editor yang dipilih tidak ditemukan.',
         ];
     }
 }
