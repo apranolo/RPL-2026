@@ -51,6 +51,7 @@ use App\Models\Role;
 use App\Http\Controllers\Revision\RevisionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Production\IssueController;
 use App\Http\Controllers\CitationController;
 use Inertia\Inertia;
 
@@ -577,6 +578,35 @@ Route::middleware(['auth'])->group(function () {
         // OAI-PMH Article Harvest
         Route::post('journals/{journal}/harvest', [UserJournalController::class, 'harvest'])
             ->name('journals.harvest');
+
+
+        // =====================================================
+        // Issue Preview & Publish
+        // =====================================================
+
+        // Daftar Issues
+        Route::get(
+            'journals/{journal}/issues',
+            [IssueController::class, 'index']
+        )->name('production.issue.index');
+
+        // Preview Table of Contents sebelum publish
+        Route::get(
+            'journals/{journal}/issues/{volume}/{issue}/preview',
+            [IssueController::class, 'preview']
+        )->name('production.issue.preview');
+
+        // Publish Issue
+        Route::post(
+            'journals/{journal}/issues/publish/{volume}/{issue}',
+            [IssueController::class, 'publish']
+        )->name('production.issue.publish');
+
+        //Back Issues
+        Route::get(
+            '/production/{journalId}/back-issues',
+            [IssueController::class, 'backIssues']
+        )->name('production.issue.back-issues');
 
         // Assessments Management
         Route::prefix('assessments')->name('assessments.')->group(function () {
