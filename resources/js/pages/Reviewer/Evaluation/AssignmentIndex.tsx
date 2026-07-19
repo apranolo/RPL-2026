@@ -1,8 +1,8 @@
-﻿import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
-import { Badge } from '@/components/ui/badge';
+﻿import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ClipboardList, Calendar, ArrowRight } from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowRight, Calendar, ClipboardList } from 'lucide-react';
 
 interface Journal {
     id: number;
@@ -69,7 +69,7 @@ export default function EvaluationIndex({ assignments }: Props) {
     return (
         <AppLayout>
             <Head title="Daftar Evaluasi" />
-            <div className="container mx-auto p-6 space-y-6">
+            <div className="container mx-auto space-y-6 p-6">
                 <div className="flex flex-col gap-2">
                     <h1 className="text-2xl font-bold tracking-tight">Daftar Proposal yang Perlu Dievaluasi</h1>
                     <p className="text-sm text-muted-foreground">
@@ -78,21 +78,24 @@ export default function EvaluationIndex({ assignments }: Props) {
                 </div>
 
                 {assignments.data.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center p-12 border border-dashed rounded-lg bg-muted/40">
-                        <ClipboardList className="h-10 w-10 text-muted-foreground mb-4" />
-                        <p className="text-muted-foreground font-medium">Tidak ada proposal yang perlu dievaluasi.</p>
+                    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed bg-muted/40 p-12">
+                        <ClipboardList className="mb-4 h-10 w-10 text-muted-foreground" />
+                        <p className="font-medium text-muted-foreground">Tidak ada proposal yang perlu dievaluasi.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         {assignments.data.map((assignment) => (
-                            <div key={assignment.id} className="group relative flex flex-col justify-between rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md">
+                            <div
+                                key={assignment.id}
+                                className="group relative flex flex-col justify-between rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md"
+                            >
                                 <div className="space-y-4">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="space-y-1">
-                                            <h2 className="text-lg font-bold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
+                                            <h2 className="line-clamp-1 text-lg font-bold text-gray-900 transition-colors group-hover:text-primary">
                                                 {assignment.registration?.journal?.name ?? '-'}
                                             </h2>
-                                            <p className="text-sm text-muted-foreground font-medium">
+                                            <p className="text-sm font-medium text-muted-foreground">
                                                 Program: {assignment.registration?.pembinaan?.name ?? '-'}
                                             </p>
                                         </div>
@@ -100,16 +103,17 @@ export default function EvaluationIndex({ assignments }: Props) {
                                             {getStatusLabel(assignment.registration?.review_status)}
                                         </Badge>
                                     </div>
-                                    
-                                    <div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground border-t pt-4">
+
+                                    <div className="grid grid-cols-2 gap-4 border-t pt-4 text-xs text-muted-foreground">
                                         <div className="flex items-center gap-1.5">
                                             <Calendar className="h-3.5 w-3.5" />
-                                            <span>
-                                                Ditugaskan: {new Date(assignment.assigned_at).toLocaleDateString('id-ID')}
-                                            </span>
+                                            <span>Ditugaskan: {new Date(assignment.assigned_at).toLocaleDateString('id-ID')}</span>
                                         </div>
                                         <div className="flex items-center justify-end gap-1.5">
-                                            <Badge variant={assignment.status === 'completed' ? 'outline' : 'secondary'} className="text-[10px] px-2 py-0.5">
+                                            <Badge
+                                                variant={assignment.status === 'completed' ? 'outline' : 'secondary'}
+                                                className="px-2 py-0.5 text-[10px]"
+                                            >
                                                 Tugas: {assignment.status === 'completed' ? 'Selesai' : 'Aktif'}
                                             </Badge>
                                         </div>
@@ -118,7 +122,11 @@ export default function EvaluationIndex({ assignments }: Props) {
 
                                 <div className="mt-6 flex justify-end">
                                     <Link href={route('reviewer.evaluations.note', assignment.id)} className="w-full sm:w-auto">
-                                        <Button className="w-full sm:w-auto flex items-center gap-2 group-hover:translate-x-0.5 transition-transform" variant="default" size="sm">
+                                        <Button
+                                            className="flex w-full items-center gap-2 transition-transform group-hover:translate-x-0.5 sm:w-auto"
+                                            variant="default"
+                                            size="sm"
+                                        >
                                             Evaluasi
                                             <ArrowRight className="h-4 w-4" />
                                         </Button>

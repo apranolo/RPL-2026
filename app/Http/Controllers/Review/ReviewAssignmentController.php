@@ -5,8 +5,6 @@
  *
  * Authorization: Hanya SuperAdmin, AdminKampus, dan PengelolaJurnal
  * yang dapat memperpanjang due date via ProposalPolicy::extendDueDate.
- *
- * @package App\Http\Controllers\Review
  */
 
 namespace App\Http\Controllers\Review;
@@ -16,7 +14,6 @@ use App\Models\ReviewerAssignment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
-
 class ReviewAssignmentController extends Controller
 {
     /**
@@ -24,10 +21,6 @@ class ReviewAssignmentController extends Controller
      *
      * Memvalidasi input dan memperbarui kolom due_date pada
      * reviewer_assignments untuk assignment yang diberikan.
-     *
-     * @param  Request             $request
-     * @param  ReviewerAssignment  $reviewerAssignment
-     * @return RedirectResponse
      */
     public function extendDue(Request $request, ReviewerAssignment $reviewerAssignment): RedirectResponse
     {

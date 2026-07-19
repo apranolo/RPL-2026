@@ -94,11 +94,7 @@ export default function RevisionNotePanel({ note }: RevisionNotePanelProps) {
             </div>
 
             <div className="mt-3 space-y-2 text-sm leading-relaxed text-amber-900/90">
-                {trimmed ? (
-                    renderNote(trimmed)
-                ) : (
-                    <p className="italic text-amber-800/70">Belum ada catatan revisi dari editor.</p>
-                )}
+                {trimmed ? renderNote(trimmed) : <p className="text-amber-800/70 italic">Belum ada catatan revisi dari editor.</p>}
             </div>
         </div>
     );

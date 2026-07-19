@@ -39,8 +39,8 @@ class ProgressDocController extends Controller
 
             // Buat nama file unik agar tidak bentrok
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $extension    = $file->getClientOriginalExtension();
-            $fileName     = time() . '_logbook_' . Str::slug($originalName) . '.' . $extension;
+            $extension = $file->getClientOriginalExtension();
+            $fileName = time().'_logbook_'.Str::slug($originalName).'.'.$extension;
 
             // Simpan ke storage/app/public/progress_reports/logbook/
             $path = $file->storeAs(
@@ -57,9 +57,9 @@ class ProgressDocController extends Controller
         } catch (\Exception $e) {
             Log::error('Gagal upload logbook', [
                 'progress_id' => $progress->id,
-                'user_id'     => $request->user()?->id,
-                'exception'   => $e->getMessage(),
-                'trace'       => $e->getTraceAsString(),
+                'user_id' => $request->user()?->id,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()->withErrors([
@@ -93,8 +93,8 @@ class ProgressDocController extends Controller
         } catch (\Exception $e) {
             Log::error('Gagal hapus logbook', [
                 'progress_id' => $progress->id,
-                'user_id'     => $request->user()?->id,
-                'exception'   => $e->getMessage(),
+                'user_id' => $request->user()?->id,
+                'exception' => $e->getMessage(),
             ]);
 
             return back()->withErrors([

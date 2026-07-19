@@ -19,6 +19,7 @@
  * @author JurnalMU Team
  */
 import { AnswerTypePreview } from '@/components/DynamicInput';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,7 +32,6 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Paperclip, Pencil, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import InputError from '@/components/input-error';
 
 interface SubCategory {
     id: number;
@@ -135,7 +135,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                         </div>
                         <div>
                             <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Edit Kriteria Penilaian</h1>
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <p className="mt-1 text-sm text-muted-foreground">
                                 Perbarui kriteria <span className="font-semibold text-foreground">{criterion.code}</span>
                             </p>
                         </div>
@@ -156,16 +156,13 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                     Sub-Kategori <span className="text-destructive">*</span>
                                 </Label>
                                 <Select value={data.sub_category_id} onValueChange={(value) => setData('sub_category_id', value)}>
-                                    <SelectTrigger
-                                        id="sub_category_id"
-                                        className={errors.sub_category_id ? 'border-destructive' : ''}
-                                    >
+                                    <SelectTrigger id="sub_category_id" className={errors.sub_category_id ? 'border-destructive' : ''}>
                                         <SelectValue placeholder="Pilih sub-kategori..." />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {Object.entries(groupedSubCategories).map(([groupName, subs]) => (
                                             <SelectGroup key={groupName}>
-                                                <SelectLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                                <SelectLabel className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                                     {groupName}
                                                 </SelectLabel>
                                                 {subs.map((sub) => (
@@ -235,7 +232,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                     rows={3}
                                     className={errors.question ? 'border-destructive' : ''}
                                 />
-                               <InputError message={errors.question} />
+                                <InputError message={errors.question} />
                             </div>
 
                             <div className="space-y-2">
@@ -249,7 +246,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                     className={errors.description ? 'border-destructive' : ''}
                                 />
                                 <p className="text-sm text-muted-foreground">Berikan penjelasan tambahan untuk membantu evaluator</p>
-                               <InputError message={errors.description} />
+                                <InputError message={errors.description} />
                             </div>
                         </CardContent>
                     </Card>
@@ -270,10 +267,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                         value={data.answer_type}
                                         onValueChange={(value: 'boolean' | 'scale' | 'text') => setData('answer_type', value)}
                                     >
-                                        <SelectTrigger
-                                            id="answer_type"
-                                            className={errors.answer_type ? 'border-destructive' : ''}
-                                        >
+                                        <SelectTrigger id="answer_type" className={errors.answer_type ? 'border-destructive' : ''}>
                                             <SelectValue placeholder="Pilih tipe jawaban" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -317,9 +311,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                             <Label htmlFor="requires_attachment" className="cursor-pointer">
                                                 Wajib Lampiran
                                             </Label>
-                                            <p className="text-sm text-muted-foreground">
-                                                Evaluator wajib mengunggah bukti dokumen
-                                            </p>
+                                            <p className="text-sm text-muted-foreground">Evaluator wajib mengunggah bukti dokumen</p>
                                         </div>
                                     </div>
                                     <Switch
@@ -335,9 +327,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                             <Label htmlFor="is_active" className="cursor-pointer">
                                                 Status Aktif
                                             </Label>
-                                            <p className="text-sm text-muted-foreground">
-                                                Kriteria aktif akan ditampilkan dalam form evaluasi
-                                            </p>
+                                            <p className="text-sm text-muted-foreground">Kriteria aktif akan ditampilkan dalam form evaluasi</p>
                                         </div>
                                         <Switch
                                             id="is_active"

@@ -58,16 +58,16 @@ class ContractController extends Controller
         // ------------------------------------------------------------------
         $validated = $request->validate([
             // Required
-            'title'          => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:255'],
 
             // Optional relational links
             'pembinaan_registration_id' => ['nullable', 'integer', 'exists:pembinaan_registrations,id'],
-            'journal_id'                => ['nullable', 'integer', 'exists:journals,id'],
-            'university_id'             => ['nullable', 'integer', 'exists:universities,id'],
+            'journal_id' => ['nullable', 'integer', 'exists:journals,id'],
+            'university_id' => ['nullable', 'integer', 'exists:universities,id'],
 
             // Optional contract period
             'start_date' => ['nullable', 'date'],
-            'end_date'   => ['nullable', 'date', 'after_or_equal:start_date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
 
             // Optional body content
             'terms' => ['nullable', 'string'],
@@ -101,18 +101,18 @@ class ContractController extends Controller
             $contractNumber = Contract::generateContractNumber();
 
             return Contract::create([
-                'contract_number'           => $contractNumber,
-                'title'                     => $validated['title'],
+                'contract_number' => $contractNumber,
+                'title' => $validated['title'],
                 'pembinaan_registration_id' => $validated['pembinaan_registration_id'] ?? null,
-                'journal_id'                => $validated['journal_id'] ?? null,
-                'university_id'             => $validated['university_id'] ?? null,
-                'start_date'                => $validated['start_date'] ?? null,
-                'end_date'                  => $validated['end_date'] ?? null,
-                'status'                    => 'draft',
-                'terms'                     => $validated['terms'] ?? null,
-                'notes'                     => $validated['notes'] ?? null,
-                'contract_value'            => $validated['contract_value'] ?? null,
-                'created_by'                => $request->user()->id,
+                'journal_id' => $validated['journal_id'] ?? null,
+                'university_id' => $validated['university_id'] ?? null,
+                'start_date' => $validated['start_date'] ?? null,
+                'end_date' => $validated['end_date'] ?? null,
+                'status' => 'draft',
+                'terms' => $validated['terms'] ?? null,
+                'notes' => $validated['notes'] ?? null,
+                'contract_value' => $validated['contract_value'] ?? null,
+                'created_by' => $request->user()->id,
             ]);
         });
 
@@ -188,7 +188,7 @@ class ContractController extends Controller
 
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:active,selesai,dibatalkan'],
-            'notes'  => ['nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
         // Guard: terminal states cannot be changed
@@ -201,7 +201,7 @@ class ContractController extends Controller
 
         // Guard: only valid forward transitions
         $allowedTransitions = [
-            'draft'  => ['active', 'dibatalkan'],
+            'draft' => ['active', 'dibatalkan'],
             'active' => ['selesai', 'dibatalkan'],
         ];
 
@@ -213,8 +213,8 @@ class ContractController extends Controller
         }
 
         $contract->update([
-            'status'     => $validated['status'],
-            'notes'      => $validated['notes'] ?? $contract->notes,
+            'status' => $validated['status'],
+            'notes' => $validated['notes'] ?? $contract->notes,
             'updated_by' => $request->user()->id,
         ]);
 

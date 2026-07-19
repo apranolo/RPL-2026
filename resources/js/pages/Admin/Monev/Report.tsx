@@ -1,14 +1,14 @@
+import AlertWarning from '@/components/AlertWarning';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
-import { Activity, CheckCircle, Clock, FileText, PieChart, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import AlertWarning from '@/components/AlertWarning';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Head, router } from '@inertiajs/react';
+import { Activity, CheckCircle, ChevronLeft, ChevronRight, Clock, FileText, PieChart, Search } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 
 interface PaginatedData<T> {
@@ -60,19 +60,19 @@ interface Props {
 export default function MonevReport({ data, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
     const [statusFilter, setStatusFilter] = useState(filters.status || 'all');
-    
+
     // Safely determine current routing context for breadcrumbs
     const isKampusAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin-kampus');
-    
+
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
         router.get(
             isKampusAdmin ? '/admin-kampus/monev/rekap-keseluruhan' : '/admin/monev/rekap-keseluruhan',
-            { 
+            {
                 search,
-                status: statusFilter === 'all' ? '' : statusFilter 
+                status: statusFilter === 'all' ? '' : statusFilter,
             },
-            { preserveState: true }
+            { preserveState: true },
         );
     };
 
@@ -118,13 +118,17 @@ export default function MonevReport({ data, filters }: Props) {
     ];
 
     const handleDecide = (id: number, action: 'Lanjut' | 'Stop') => {
-        if (confirm(`Apakah Anda yakin ingin mengubah status penelitian ini menjadi ${action === 'Lanjut' ? 'Lanjut (Berjalan)' : 'Stop (Tertunda)'}?`)) {
+        if (
+            confirm(
+                `Apakah Anda yakin ingin mengubah status penelitian ini menjadi ${action === 'Lanjut' ? 'Lanjut (Berjalan)' : 'Stop (Tertunda)'}?`,
+            )
+        ) {
             router.post(
                 isKampusAdmin ? '/admin-kampus/monev/decide-action' : '/admin/monev/decide-action',
                 { id, action },
                 {
                     preserveScroll: true,
-                }
+                },
             );
         }
     };
@@ -203,10 +207,7 @@ export default function MonevReport({ data, filters }: Props) {
                                     <span className="text-xl font-bold">{data.anggaran.persentase_serapan}%</span>
                                 </div>
                                 <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-secondary">
-                                    <div
-                                        className="h-full bg-primary transition-all"
-                                        style={{ width: `${data.anggaran.persentase_serapan}%` }}
-                                    ></div>
+                                    <div className="h-full bg-primary transition-all" style={{ width: `${data.anggaran.persentase_serapan}%` }}></div>
                                 </div>
                             </div>
                         </CardContent>
@@ -242,9 +243,9 @@ export default function MonevReport({ data, filters }: Props) {
                 {/* Filter and Search */}
                 <Card>
                     <CardContent className="p-4">
-                        <form onSubmit={handleSearch} className="flex w-full flex-col sm:flex-row gap-4 items-center">
+                        <form onSubmit={handleSearch} className="flex w-full flex-col items-center gap-4 sm:flex-row">
                             <div className="relative w-full sm:w-[300px]">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     type="search"
                                     placeholder="Cari judul penelitian atau dosen..."
@@ -264,7 +265,7 @@ export default function MonevReport({ data, filters }: Props) {
                                     <SelectItem value="cancelled">Tertunda</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <div className="flex gap-2 w-full sm:w-auto">
+                            <div className="flex w-full gap-2 sm:w-auto">
                                 <Button type="submit" size="sm" className="w-full sm:w-auto">
                                     <Search className="mr-2 h-4 w-4" />
                                     Cari
@@ -322,18 +323,13 @@ export default function MonevReport({ data, filters }: Props) {
                                                 <TableCell>
                                                     <div className="flex items-center gap-2">
                                                         <div className="h-2 w-24 overflow-hidden rounded-full bg-secondary">
-                                                            <div
-                                                                className="h-full bg-blue-500"
-                                                                style={{ width: `${kegiatan.progres}%` }}
-                                                            ></div>
+                                                            <div className="h-full bg-blue-500" style={{ width: `${kegiatan.progres}%` }}></div>
                                                         </div>
                                                         <span className="text-sm text-muted-foreground">{kegiatan.progres}%</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Badge className={getStatusBadgeColor(kegiatan.status)}>
-                                                        {kegiatan.status}
-                                                    </Badge>
+                                                    <Badge className={getStatusBadgeColor(kegiatan.status)}>{kegiatan.status}</Badge>
                                                 </TableCell>
                                                 <TableCell>{kegiatan.tanggal_update}</TableCell>
                                                 <TableCell className="text-right">
@@ -343,7 +339,7 @@ export default function MonevReport({ data, filters }: Props) {
                                                                 <Button
                                                                     size="sm"
                                                                     variant="outline"
-                                                                    className="h-7 px-2.5 text-xs font-semibold border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 dark:border-green-900/50 dark:text-green-400 dark:hover:bg-green-950/20"
+                                                                    className="h-7 border-green-200 px-2.5 text-xs font-semibold text-green-700 hover:bg-green-50 hover:text-green-800 dark:border-green-900/50 dark:text-green-400 dark:hover:bg-green-950/20"
                                                                     onClick={() => handleDecide(kegiatan.id, 'Lanjut')}
                                                                 >
                                                                     Lanjut
@@ -351,7 +347,7 @@ export default function MonevReport({ data, filters }: Props) {
                                                                 <Button
                                                                     size="sm"
                                                                     variant="outline"
-                                                                    className="h-7 px-2.5 text-xs font-semibold border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/20"
+                                                                    className="h-7 border-red-200 px-2.5 text-xs font-semibold text-red-700 hover:bg-red-50 hover:text-red-800 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/20"
                                                                     onClick={() => handleDecide(kegiatan.id, 'Stop')}
                                                                 >
                                                                     Stop
@@ -366,12 +362,13 @@ export default function MonevReport({ data, filters }: Props) {
                                 </TableBody>
                             </Table>
                         </div>
-                        
+
                         {/* Pagination */}
                         {data.penelitian_terbaru.last_page > 1 && (
                             <div className="mt-4 flex items-center justify-between">
                                 <p className="text-sm text-muted-foreground">
-                                    Menampilkan {data.penelitian_terbaru.from} - {data.penelitian_terbaru.to} dari {data.penelitian_terbaru.total} penelitian
+                                    Menampilkan {data.penelitian_terbaru.from} - {data.penelitian_terbaru.to} dari {data.penelitian_terbaru.total}{' '}
+                                    penelitian
                                 </p>
                                 <div className="flex gap-2">
                                     <Button

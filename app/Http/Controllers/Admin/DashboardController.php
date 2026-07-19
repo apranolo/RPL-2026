@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,13 +14,12 @@ use Inertia\Response;
 class DashboardController extends Controller
 {
     /**
-
      * Display the Admin LPPM Dashboard with university-wide research statistics.
      */
     public function index(Request $request): Response
     {
         $user = $request->user();
-        $isAdminKampus = $user->isAdminKampus() && !$user->isSuperAdmin();
+        $isAdminKampus = $user->isAdminKampus() && ! $user->isSuperAdmin();
         $universityId = $user->university_id;
 
         // 1. Proposal Queries & Stats
@@ -97,7 +95,7 @@ class DashboardController extends Controller
                 return [
                     'id' => $row->id,
                     'title' => $row->title,
-                    'citations' => 120 - ($index * 15)
+                    'citations' => 120 - ($index * 15),
                 ];
             });
 
@@ -129,7 +127,7 @@ class DashboardController extends Controller
             ->map(function ($row, $index) {
                 return [
                     'name' => $row->name,
-                    'score' => 85 - ($index * 5) + ($row->proposal_count * 3)
+                    'score' => 85 - ($index * 5) + ($row->proposal_count * 3),
                 ];
             });
 
@@ -166,7 +164,7 @@ class DashboardController extends Controller
                     'action' => $row->action,
                     'description' => $row->description,
                     'created_at' => $row->created_at,
-                    'user' => $row->actor_name ? ['name' => $row->actor_name] : null
+                    'user' => $row->actor_name ? ['name' => $row->actor_name] : null,
                 ];
             });
 
@@ -177,21 +175,21 @@ class DashboardController extends Controller
                     'action' => 'mengajukan',
                     'description' => 'Proposal penelitian kecerdasan buatan',
                     'created_at' => now()->subMinutes(15)->toIso8601String(),
-                    'user' => ['name' => 'Dr. Ir. Budi Santoso']
+                    'user' => ['name' => 'Dr. Ir. Budi Santoso'],
                 ],
                 [
                     'id' => 2,
                     'action' => 'menyetujui',
                     'description' => 'Kontrak penelitian LPPM 2026',
                     'created_at' => now()->subHours(2)->toIso8601String(),
-                    'user' => ['name' => 'Admin LPPM']
+                    'user' => ['name' => 'Admin LPPM'],
                 ],
                 [
                     'id' => 3,
                     'action' => 'mengunggah',
                     'description' => 'Laporan kemajuan Penelitian Unggulan',
                     'created_at' => now()->subDays(1)->toIso8601String(),
-                    'user' => ['name' => 'Siti Aminah, M.T.']
+                    'user' => ['name' => 'Siti Aminah, M.T.'],
                 ],
             ]);
         }
@@ -213,7 +211,7 @@ class DashboardController extends Controller
     {
         $query = DB::table('contracts')
             ->select(
-                DB::raw('YEAR(start_date) as year'), 
+                DB::raw('YEAR(start_date) as year'),
                 DB::raw('SUM(contract_value) as amount')
             )
             ->whereIn('status', ['active', 'completed']);
@@ -228,7 +226,7 @@ class DashboardController extends Controller
             ->map(function ($row) {
                 return [
                     'year' => (int) $row->year,
-                    'amount' => (float) $row->amount
+                    'amount' => (float) $row->amount,
                 ];
             });
 

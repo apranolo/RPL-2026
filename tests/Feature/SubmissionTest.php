@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Journal;
 use App\Models\Submission;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -16,6 +16,7 @@ class SubmissionTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected User $user;
+
     protected Journal $journal;
 
     /**
@@ -28,7 +29,7 @@ class SubmissionTest extends TestCase
         // Buat user (author) dan jurnal target untuk testing
         $this->user = User::factory()->create();
         $this->journal = Journal::factory()->create([
-            'title' => 'Jurnal Informatika dan Teknologi'
+            'title' => 'Jurnal Informatika dan Teknologi',
         ]);
     }
 
@@ -50,7 +51,7 @@ class SubmissionTest extends TestCase
             ->get('/submissions');
 
         $response->assertStatus(200);
-        
+
         // Memastikan komponen React Inertia "Submission/Index" dirender dengan membawa data
         $response->assertInertia(fn ($page) => $page
             ->component('Submission/Index')
@@ -91,7 +92,7 @@ class SubmissionTest extends TestCase
             'title' => 'Deteksi Malware pada Berkas Media MP4',
             'abstract' => 'Penelitian ini membahas mengenai kerentanan eksekusi kode berbahaya pada format kontainer MP4...',
             'keywords' => 'Malware, MP4, Keamanan Media, Cybersecurity',
-            'status' => 'submitted'
+            'status' => 'submitted',
         ]);
 
         // Ambil ID submisi yang baru saja dibuat
@@ -101,7 +102,7 @@ class SubmissionTest extends TestCase
         $this->assertDatabaseHas('submission_files', [
             'submission_id' => $submission->id,
             'file_name' => 'naskah_ilmiah.docx',
-            'file_type' => 'manuscript'
+            'file_type' => 'manuscript',
         ]);
     }
 
@@ -135,7 +136,7 @@ class SubmissionTest extends TestCase
         ];
 
         $responseInvalid = $this->post('/submissions', $invalidData);
-        
+
         // Memastikan request gagal divalidasi dan kembali dengan membawa error session
         $responseInvalid->assertSessionHasErrors(['status']);
     }
@@ -149,7 +150,7 @@ class SubmissionTest extends TestCase
             'author_id' => $this->user->id,
             'journal_id' => $this->journal->id,
             'title' => 'Artikel untuk Dihapus',
-            'status' => 'draft'
+            'status' => 'draft',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -159,7 +160,7 @@ class SubmissionTest extends TestCase
 
         // Memastikan data telah disembunyikan menggunakan soft deletes
         $this->assertSoftDeleted('submissions', [
-            'id' => $submission->id
+            'id' => $submission->id,
         ]);
     }
 }

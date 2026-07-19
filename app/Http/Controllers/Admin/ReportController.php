@@ -24,8 +24,6 @@ class ReportController extends Controller
      * - sort_by       : Sort field (title, university, sinta_rank, created_at)
      * - sort_dir      : Sort direction (asc, desc)
      * - per_page      : Items per page (default: 25)
-     *
-     * @return Response
      */
     public function index(Request $request): Response
     {
@@ -165,7 +163,7 @@ class ReportController extends Controller
 
         // Journals by approval status
         $byApproval = DB::table('journals')
-            ->selectRaw("approval_status, COUNT(*) as count")
+            ->selectRaw('approval_status, COUNT(*) as count')
             ->groupBy('approval_status')
             ->pluck('count', 'approval_status')
             ->toArray();

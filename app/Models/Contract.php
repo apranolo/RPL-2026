@@ -38,12 +38,12 @@ class Contract extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'start_date'     => 'date',
-        'end_date'       => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
         'contract_value' => 'integer',
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
-        'deleted_at'     => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /*
@@ -116,11 +116,11 @@ class Contract extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'draft'       => 'Draft',
-            'active'      => 'Aktif',
-            'selesai'     => 'Selesai',
-            'dibatalkan'  => 'Dibatalkan',
-            default       => $this->status,
+            'draft' => 'Draft',
+            'active' => 'Aktif',
+            'selesai' => 'Selesai',
+            'dibatalkan' => 'Dibatalkan',
+            default => $this->status,
         };
     }
 
@@ -128,11 +128,11 @@ class Contract extends Model
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'draft'      => 'secondary',
-            'active'     => 'success',
-            'selesai'    => 'default',
+            'draft' => 'secondary',
+            'active' => 'success',
+            'selesai' => 'default',
             'dibatalkan' => 'destructive',
-            default      => 'default',
+            default => 'default',
         };
     }
 
@@ -160,7 +160,7 @@ class Contract extends Model
      */
     public static function generateContractNumber(): string
     {
-        $year  = now()->year;
+        $year = now()->year;
         $prefix = "KON-{$year}-";
 
         $lastContract = static::withTrashed()
@@ -172,11 +172,11 @@ class Contract extends Model
         $sequence = 1;
 
         if ($lastContract && $lastContract->contract_number) {
-            $parts    = explode('-', $lastContract->contract_number);
+            $parts = explode('-', $lastContract->contract_number);
             $sequence = ((int) end($parts)) + 1;
         }
 
-        return $prefix . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     /*
