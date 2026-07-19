@@ -53,7 +53,7 @@ return new class extends Migration
             } else {
                 $hasIndex = true;
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $hasIndex = false;
         }
 
@@ -62,7 +62,7 @@ return new class extends Migration
             if ($hasIndex) {
                 try {
                     $table->dropIndex('journals_sinta_rank_index');
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     // Ignore
                 }
             }

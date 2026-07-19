@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UploadProgressDocRequest;
 use App\Models\ProgressReport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProgressDocController extends Controller
 {
@@ -22,7 +24,7 @@ class ProgressDocController extends Controller
      *
      * @route POST /dosen/progress/{progress}/upload-logbook
      */
-    public function upload(\App\Http\Requests\UploadProgressDocRequest $request, ProgressReport $progress): RedirectResponse
+    public function upload(UploadProgressDocRequest $request, ProgressReport $progress): RedirectResponse
     {
         // Pastikan user yang login adalah pemilik laporan
         $this->authorize('update', $progress);
@@ -39,8 +41,8 @@ class ProgressDocController extends Controller
 
             // Buat nama file unik agar tidak bentrok
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $extension    = $file->getClientOriginalExtension();
-            $fileName     = time() . '_logbook_' . Str::slug($originalName) . '.' . $extension;
+            $extension = $file->getClientOriginalExtension();
+            $fileName = time().'_logbook_'.Str::slug($originalName).'.'.$extension;
 
             // Simpan ke storage/app/public/progress_reports/logbook/
             $path = $file->storeAs(
@@ -57,9 +59,9 @@ class ProgressDocController extends Controller
         } catch (\Exception $e) {
             Log::error('Gagal upload logbook', [
                 'progress_id' => $progress->id,
-                'user_id'     => $request->user()?->id,
-                'exception'   => $e->getMessage(),
-                'trace'       => $e->getTraceAsString(),
+                'user_id' => $request->user()?->id,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()->withErrors([
@@ -93,8 +95,8 @@ class ProgressDocController extends Controller
         } catch (\Exception $e) {
             Log::error('Gagal hapus logbook', [
                 'progress_id' => $progress->id,
-                'user_id'     => $request->user()?->id,
-                'exception'   => $e->getMessage(),
+                'user_id' => $request->user()?->id,
+                'exception' => $e->getMessage(),
             ]);
 
             return back()->withErrors([
@@ -108,7 +110,7 @@ class ProgressDocController extends Controller
      *
      * @route GET /dosen/progress/{progress}/logbook/download
      */
-    public function download(ProgressReport $progress): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function download(ProgressReport $progress): StreamedResponse
     {
         $this->authorize('view', $progress);
 

@@ -2,11 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Models\Journal;
 use App\Models\ScientificField;
+use App\Models\University;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Journal>
+ * @extends Factory<Journal>
  */
 class JournalFactory extends Factory
 {
@@ -17,8 +20,8 @@ class JournalFactory extends Factory
      */
     public function definition(): array
     {
-        $university = \App\Models\University::factory()->create();
-        $user = \App\Models\User::factory()->user($university->id)->create();
+        $university = University::factory()->create();
+        $user = User::factory()->user($university->id)->create();
 
         return [
             'university_id' => $university->id,

@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SystemLog;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class LogController extends Controller
 {
     /**
      * Display a listing of the system logs.
      *
-     * @return \Inertia\Response
+     * @return Response
      */
     public function index()
     {

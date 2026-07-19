@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -41,7 +42,7 @@ class UserRoleController extends Controller
      */
     public function revoke($id)
     {
-        $userRole = \App\Models\UserRole::findOrFail($id);
+        $userRole = UserRole::findOrFail($id);
         $userRole->delete();
 
         return redirect()->route('admin.users.index')

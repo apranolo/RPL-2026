@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreJournalRequest extends FormRequest
@@ -17,7 +19,7 @@ class StoreJournalRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -126,7 +128,7 @@ class StoreJournalRequest extends FormRequest
         // Normalize SK Date to Y-m-d using app timezone if present
         if ($this->has('accreditation_sk_date') && $this->input('accreditation_sk_date') != '') {
             try {
-                $date = \Carbon\Carbon::createFromFormat('Y-m-d', (string) $this->input('accreditation_sk_date'), config('app.timezone'));
+                $date = Carbon::createFromFormat('Y-m-d', (string) $this->input('accreditation_sk_date'), config('app.timezone'));
                 if ($date !== false) {
                     $mergeData['accreditation_sk_date'] = $date->format('Y-m-d');
                 }

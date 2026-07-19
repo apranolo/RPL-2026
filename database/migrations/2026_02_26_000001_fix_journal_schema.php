@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -27,7 +27,7 @@ return new class extends Migration
             } else {
                 $hasIndex = Schema::hasColumn('journals', 'accreditation_expiry_date');
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $hasIndex = false;
         }
 
@@ -35,7 +35,7 @@ return new class extends Migration
             if ($hasIndex) {
                 try {
                     $table->dropIndex('journals_accreditation_expiry_date_index');
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     // Ignore
                 }
             }

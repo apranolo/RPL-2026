@@ -17,26 +17,18 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class OutputsExport implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    WithColumnFormatting,
-    WithCustomStartCell,
-    ShouldAutoSize,
-    WithTitle,
-    WithEvents
+class OutputsExport implements FromCollection, ShouldAutoSize, WithColumnFormatting, WithCustomStartCell, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     /**
      * Optional filters applied to the export.
      *
-     * @param  string|null  $type          'Jurnal'|'Buku'|'HKI'|'Produk'|null
-     * @param  string|null  $year          e.g. '2025'|null
-     * @param  int|null     $universityId  Filter by a specific university
-     * @param  int|null     $userId        Filter by a specific user (for multi-tenancy)
+     * @param  string|null  $type  'Jurnal'|'Buku'|'HKI'|'Produk'|null
+     * @param  string|null  $year  e.g. '2025'|null
+     * @param  int|null  $universityId  Filter by a specific university
+     * @param  int|null  $userId  Filter by a specific user (for multi-tenancy)
      */
     public function __construct(
         private readonly ?string $type = null,
@@ -157,9 +149,9 @@ class OutputsExport implements
         // Header row (row 5) — bold + accent background
         return [
             5 => [
-                'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                'fill'      => [
-                    'fillType'   => Fill::FILL_SOLID,
+                'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
                     'startColor' => ['argb' => 'FF1E3A5F'],
                 ],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -175,15 +167,15 @@ class OutputsExport implements
 
     public function registerEvents(): array
     {
-        $type         = $this->type;
-        $year         = $this->year;
+        $type = $this->type;
+        $year = $this->year;
         $universityId = $this->universityId;
 
         return [
-            AfterSheet::class => function (AfterSheet $event) use ($type, $year, $universityId) {
+            AfterSheet::class => function (AfterSheet $event) use ($type, $year) {
                 $sheet = $event->sheet->getDelegate();
                 $lastDataRow = $sheet->getHighestRow();
-                $lastCol     = 'G'; // Column G = last data column
+                $lastCol = 'G'; // Column G = last data column
 
                 /* ── 1. Insert 4 header rows above the data ────────────── */
                 $sheet->insertNewRowBefore(1, 4);
@@ -192,17 +184,17 @@ class OutputsExport implements
                 $sheet->mergeCells("A1:{$lastCol}1");
                 $sheet->setCellValue('A1', 'LAPORAN REKAP LUARAN DOSEN');
                 $sheet->getStyle('A1')->applyFromArray([
-                    'font'      => ['bold' => true, 'size' => 14, 'color' => ['argb' => 'FF1E3A5F']],
+                    'font' => ['bold' => true, 'size' => 14, 'color' => ['argb' => 'FF1E3A5F']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
                 // Row 2: Subtitle / filter info
                 $filterParts = [];
                 if ($type) {
-                    $filterParts[] = 'Jenis Luaran: ' . $type;
+                    $filterParts[] = 'Jenis Luaran: '.$type;
                 }
                 if ($year) {
-                    $filterParts[] = 'Tahun Capaian: ' . $year;
+                    $filterParts[] = 'Tahun Capaian: '.$year;
                 }
                 $subtitle = count($filterParts) > 0
                     ? implode('  ·  ', $filterParts)
@@ -211,15 +203,15 @@ class OutputsExport implements
                 $sheet->mergeCells("A2:{$lastCol}2");
                 $sheet->setCellValue('A2', $subtitle);
                 $sheet->getStyle('A2')->applyFromArray([
-                    'font'      => ['size' => 10, 'color' => ['argb' => 'FF555555']],
+                    'font' => ['size' => 10, 'color' => ['argb' => 'FF555555']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
                 // Row 3: Generated timestamp
                 $sheet->mergeCells("A3:{$lastCol}3");
-                $sheet->setCellValue('A3', 'Dicetak pada: ' . now()->format('d F Y, H:i') . ' WIB');
+                $sheet->setCellValue('A3', 'Dicetak pada: '.now()->format('d F Y, H:i').' WIB');
                 $sheet->getStyle('A3')->applyFromArray([
-                    'font'      => ['size' => 9, 'italic' => true, 'color' => ['argb' => 'FF777777']],
+                    'font' => ['size' => 9, 'italic' => true, 'color' => ['argb' => 'FF777777']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
@@ -229,8 +221,8 @@ class OutputsExport implements
 
                 /* ── 2. Re-style heading row (now row 5 after insert) ─── */
                 $sheet->getStyle("A5:{$lastCol}5")->applyFromArray([
-                    'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF'], 'size' => 10],
-                    'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1E3A5F']],
+                    'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF'], 'size' => 10],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1E3A5F']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
                 $sheet->getRowDimension(5)->setRowHeight(20);
@@ -242,7 +234,7 @@ class OutputsExport implements
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color'       => ['argb' => 'FFB0B0B0'],
+                                'color' => ['argb' => 'FFB0B0B0'],
                             ],
                         ],
                     ]);
@@ -252,7 +244,7 @@ class OutputsExport implements
                         if ($r % 2 === 0) {
                             $sheet->getStyle("A{$r}:{$lastCol}{$r}")->applyFromArray([
                                 'fill' => [
-                                    'fillType'   => Fill::FILL_SOLID,
+                                    'fillType' => Fill::FILL_SOLID,
                                     'startColor' => ['argb' => 'FFF0F4FA'],
                                 ],
                             ]);
@@ -269,7 +261,7 @@ class OutputsExport implements
 
                 /* ── 4. Summary rows below data ─────────────────────── */
                 $summaryRow = $totalRows + 2;
-                $dataCount  = max(0, $totalRows - 5); // rows 6..N = data
+                $dataCount = max(0, $totalRows - 5); // rows 6..N = data
 
                 $sheet->setCellValue("A{$summaryRow}", 'Total Luaran:');
                 $sheet->setCellValue("B{$summaryRow}", $dataCount);
@@ -287,8 +279,8 @@ class OutputsExport implements
 
                 /* ── 7. Page setup for printing ───────────────────────── */
                 $sheet->getPageSetup()
-                    ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE)
-                    ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4)
+                    ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
+                    ->setPaperSize(PageSetup::PAPERSIZE_A4)
                     ->setFitToPage(true)
                     ->setFitToWidth(1)
                     ->setFitToHeight(0);

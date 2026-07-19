@@ -156,7 +156,7 @@ class CriteriaController extends Controller
             DB::transaction(function () use ($validated, $subCategoryId, &$count) {
                 foreach ($validated['criteria'] as $index => $item) {
                     // Menghitung urutan tampil otomatis jika kosong
-                    $sortOrder = $item['sort_order'] ?? 
+                    $sortOrder = $item['sort_order'] ??
                         (EvaluationIndicator::where('sub_category_id', $subCategoryId)->max('sort_order') + 1 + $index);
 
                     EvaluationIndicator::create([

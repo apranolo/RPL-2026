@@ -8,6 +8,7 @@ use App\Models\EvaluationSubCategory;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Laravel\actingAs;
@@ -17,7 +18,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     // Seed roles (required for tests)
-    $this->seed(\Database\Seeders\RoleSeeder::class);
+    $this->seed(RoleSeeder::class);
 
     // Create Super Admin user
     $this->superAdmin = User::factory()->create([

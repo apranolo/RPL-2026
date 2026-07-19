@@ -16,7 +16,7 @@ class StoreCriteriaRequest extends FormRequest
     {
         return [
             'sub_category_id' => ['required', 'exists:evaluation_sub_categories,id'],
-            
+
             // Single creation rules
             'code' => ['required_without:criteria', 'nullable', 'string', 'max:50', 'unique:evaluation_indicators,code'],
             'question' => ['required_without:criteria', 'nullable', 'string'],
@@ -72,7 +72,7 @@ class StoreCriteriaRequest extends FormRequest
             'code.unique' => 'Kode kriteria sudah digunakan.',
             'answer_type.in' => 'Tipe jawaban harus "boolean", "scale", atau "text".',
             'weight.max' => 'Bobot tidak boleh melebihi 100.',
-            
+
             'criteria.required' => 'Minimal harus ada satu kriteria.',
             'criteria.array' => 'Format data kriteria tidak valid.',
             'criteria.min' => 'Minimal harus ada satu kriteria.',

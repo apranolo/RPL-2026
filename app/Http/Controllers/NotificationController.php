@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Notifications\ReviewerNotification;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -11,8 +13,7 @@ class NotificationController extends Controller
     /**
      * Notify reviewer via app (in-app notification).
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     * @return RedirectResponse|JsonResponse
      */
     public function notifyReviewer(Request $request)
     {
@@ -43,6 +44,7 @@ class NotificationController extends Controller
                     'message' => 'The selected user is not a reviewer.',
                 ], 422);
             }
+
             return back()->withErrors(['reviewer_id' => 'The selected user is not a reviewer.']);
         }
 

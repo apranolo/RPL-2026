@@ -12,8 +12,11 @@ class NotificationControllerTest extends TestCase
     use RefreshDatabase;
 
     private User $superAdmin;
+
     private User $adminKampus;
+
     private User $regularUser;
+
     private User $reviewer;
 
     protected function setUp(): void

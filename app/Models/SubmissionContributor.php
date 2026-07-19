@@ -34,8 +34,6 @@ class SubmissionContributor extends Model
 
     /**
      * Mendefinisikan relasi inverse ke model Submission.
-     *
-     * @return BelongsTo
      */
     public function submission(): BelongsTo
     {

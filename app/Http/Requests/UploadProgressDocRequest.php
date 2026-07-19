@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UploadProgressDocRequest extends FormRequest
@@ -17,7 +18,7 @@ class UploadProgressDocRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -34,10 +35,10 @@ class UploadProgressDocRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'logbook.required'  => 'File logbook wajib diunggah.',
-            'logbook.file'      => 'Unggahan harus berupa file.',
-            'logbook.mimes'     => 'Format file tidak didukung. Gunakan PDF, DOC, DOCX, XLS, atau XLSX.',
-            'logbook.max'       => 'Ukuran file tidak boleh melebihi 10 MB.',
+            'logbook.required' => 'File logbook wajib diunggah.',
+            'logbook.file' => 'Unggahan harus berupa file.',
+            'logbook.mimes' => 'Format file tidak didukung. Gunakan PDF, DOC, DOCX, XLS, atau XLSX.',
+            'logbook.max' => 'Ukuran file tidak boleh melebihi 10 MB.',
         ];
     }
 }

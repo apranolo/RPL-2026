@@ -24,7 +24,7 @@ export const WizardProgressBar: React.FC<WizardProgressBarProps> = ({ currentSte
     ];
 
     return (
-        <div className={cn("w-full px-2 py-4", className)} aria-label="Progress">
+        <div className={cn('w-full px-2 py-4', className)} aria-label="Progress">
             <ol className="mx-auto flex w-full max-w-4xl items-center justify-between">
                 {steps.map((step, idx) => {
                     const isCompleted = step.number < currentStep;

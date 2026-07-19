@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Role;
-use App\Models\User;
+use App\Models\AssessmentResponse;
 use App\Models\EvaluationIndicator;
 use App\Models\EvaluationSubCategory;
-use App\Models\AssessmentResponse;
 use App\Models\JournalAssessment;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Laravel\actingAs;
@@ -127,8 +127,8 @@ test('super admin can store new criteria in batch', function () {
                 'requires_attachment' => true,
                 'sort_order' => 2,
                 'is_active' => true,
-            ]
-        ]
+            ],
+        ],
     ];
 
     $response = actingAs($this->superAdmin)->post(route('admin.criteria.store'), $payload);

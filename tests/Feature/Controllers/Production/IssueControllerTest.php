@@ -5,8 +5,8 @@ namespace Tests\Feature\Controllers\Production;
 use App\Models\Galley;
 use App\Models\Issue;
 use App\Models\Journal;
-use App\Models\Role;
 use App\Models\Submission;
+use App\Models\University;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -48,7 +48,7 @@ class IssueControllerTest extends TestCase
 
     public function test_index_allows_admin_kampus_of_same_university()
     {
-        $university = \App\Models\University::factory()->create();
+        $university = University::factory()->create();
         $adminKampus = User::factory()->adminKampus($university->id)->create();
         $journal = Journal::factory()->create(['university_id' => $university->id]);
 
@@ -59,8 +59,8 @@ class IssueControllerTest extends TestCase
 
     public function test_index_denies_admin_kampus_of_different_university()
     {
-        $university1 = \App\Models\University::factory()->create();
-        $university2 = \App\Models\University::factory()->create();
+        $university1 = University::factory()->create();
+        $university2 = University::factory()->create();
         $adminKampus = User::factory()->adminKampus($university1->id)->create();
         $journal = Journal::factory()->create(['university_id' => $university2->id]);
 
@@ -186,7 +186,7 @@ class IssueControllerTest extends TestCase
         ]));
 
         $response->assertRedirect();
-        $response->assertSessionHas('success', "Issue Vol 1 No 2 berhasil dipublish.");
+        $response->assertSessionHas('success', 'Issue Vol 1 No 2 berhasil dipublish.');
         $this->assertEquals('Published', $issue->fresh()->status);
     }
 

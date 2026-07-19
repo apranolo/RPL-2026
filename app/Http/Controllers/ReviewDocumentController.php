@@ -4,16 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Review;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ReviewDocumentController extends Controller
 {
     /**
      * Cetak Berita Acara Review.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $type
-     * @param  int  $id
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function print(Request $request, string $type, int $id)
     {
@@ -27,7 +25,7 @@ class ReviewDocumentController extends Controller
             $review = Review::with([
                 'proposal.user.university',
                 'proposal.researchSchema',
-                'reviewer'
+                'reviewer',
             ])->findOrFail($id);
 
             $proposal = $review->proposal;
@@ -57,7 +55,7 @@ class ReviewDocumentController extends Controller
             $isAuthorized = true;
         }
 
-        if (!$isAuthorized) {
+        if (! $isAuthorized) {
             abort(403, 'Anda tidak memiliki akses untuk mencetak berita acara ini.');
         }
 

@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use App\Models\ReviewSchedule;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ReviewHistoryController extends Controller
 {
@@ -15,9 +17,7 @@ class ReviewHistoryController extends Controller
      * Jika parameter dosen diberikan, akan menampilkan riwayat dosen tersebut (untuk Admin).
      * Jika tidak, akan menampilkan riwayat user yang sedang login (untuk Reviewer/Dosen).
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User|null  $dosen
-     * @return \Inertia\Response|\Illuminate\Http\JsonResponse
+     * @return Response|JsonResponse
      */
     public function index(Request $request, ?User $dosen = null)
     {
@@ -33,19 +33,19 @@ class ReviewHistoryController extends Controller
         $reviewsQuery = Review::with([
             'proposal.user.university',
             'proposal.researchSchema',
-            'reviewer'
+            'reviewer',
         ])
-        ->byReviewer($reviewerId)
-        ->orderBy('reviewed_at', 'desc');
+            ->byReviewer($reviewerId)
+            ->orderBy('reviewed_at', 'desc');
 
         // Riwayat Jadwal/Penugasan Review (Schedules)
         $reviewSchedulesQuery = ReviewSchedule::with([
             'proposal.user.university',
             'proposal.researchSchema',
-            'reviewer'
+            'reviewer',
         ])
-        ->forReviewer($reviewerId)
-        ->orderBy('assigned_at', 'desc');
+            ->forReviewer($reviewerId)
+            ->orderBy('assigned_at', 'desc');
 
         // Ambil data dengan pagination
         $reviews = $reviewsQuery->paginate(10, ['*'], 'reviews_page')->withQueryString();

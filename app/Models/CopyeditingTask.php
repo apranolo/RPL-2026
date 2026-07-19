@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class CopyeditingTask extends Model
 {
@@ -11,6 +11,7 @@ class CopyeditingTask extends Model
 
     // 1. Menyesuaikan nama tabel dan primary key
     protected $table = 'copyediting_tasks';
+
     protected $primaryKey = 'id_task';
 
     // 2. Mendaftarkan kolom yang aman untuk diisi otomatis (Mass Assignment)

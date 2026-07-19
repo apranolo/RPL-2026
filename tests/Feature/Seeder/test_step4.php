@@ -1,18 +1,25 @@
 <?php
 
+use App\Models\AccreditationTemplate;
+use App\Models\EssayQuestion;
+use App\Models\EvaluationCategory;
+use App\Models\EvaluationIndicator;
+use App\Models\EvaluationSubCategory;
+use Illuminate\Contracts\Console\Kernel;
+
 // Complete verification script for Step 4
 
 require __DIR__.'/../../../vendor/autoload.php';
 
 $app = require_once __DIR__.'/../../../bootstrap/app.php';
-$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 echo '=== STEP 4: SEED VERIFICATION ==='.PHP_EOL;
 echo PHP_EOL;
 
 // 1. Templates
 echo '📋 1. ACCREDITATION TEMPLATES'.PHP_EOL;
-$templates = App\Models\AccreditationTemplate::all();
+$templates = AccreditationTemplate::all();
 echo "  Total: {$templates->count()}".PHP_EOL;
 foreach ($templates as $template) {
     $active = $template->is_active ? 'ACTIVE' : 'INACTIVE';
@@ -22,7 +29,7 @@ echo PHP_EOL;
 
 // 2. Categories
 echo '📊 2. EVALUATION CATEGORIES'.PHP_EOL;
-$categories = App\Models\EvaluationCategory::with('template')->orderBy('template_id')->orderBy('display_order')->get();
+$categories = EvaluationCategory::with('template')->orderBy('template_id')->orderBy('display_order')->get();
 echo "  Total: {$categories->count()}".PHP_EOL;
 foreach ($categories->groupBy('template_id') as $templateId => $cats) {
     $templateName = $cats->first()->template->name;
@@ -35,7 +42,7 @@ echo PHP_EOL;
 
 // 3. Sub-Categories
 echo '📑 3. EVALUATION SUB-CATEGORIES'.PHP_EOL;
-$subCategories = App\Models\EvaluationSubCategory::with('category')->get();
+$subCategories = EvaluationSubCategory::with('category')->get();
 echo "  Total: {$subCategories->count()}".PHP_EOL;
 $grouped = $subCategories->groupBy('category.name');
 foreach ($grouped as $categoryName => $subs) {
@@ -45,9 +52,9 @@ echo PHP_EOL;
 
 // 4. Indicators Migration Status
 echo '🔄 4. INDICATORS MIGRATION STATUS'.PHP_EOL;
-$totalIndicators = App\Models\EvaluationIndicator::count();
-$hierarchical = App\Models\EvaluationIndicator::whereNotNull('sub_category_id')->count();
-$legacy = App\Models\EvaluationIndicator::whereNull('sub_category_id')->count();
+$totalIndicators = EvaluationIndicator::count();
+$hierarchical = EvaluationIndicator::whereNotNull('sub_category_id')->count();
+$legacy = EvaluationIndicator::whereNull('sub_category_id')->count();
 echo "  Total indicators: {$totalIndicators}".PHP_EOL;
 echo "  • Hierarchical (v1.1): {$hierarchical}".PHP_EOL;
 echo "  • Legacy (v1.0): {$legacy}".PHP_EOL;
@@ -55,7 +62,7 @@ echo PHP_EOL;
 
 // 5. Essay Questions
 echo '📝 5. ESSAY QUESTIONS'.PHP_EOL;
-$essays = App\Models\EssayQuestion::with('category.template')->get();
+$essays = EssayQuestion::with('category.template')->get();
 echo "  Total: {$essays->count()}".PHP_EOL;
 foreach ($essays->groupBy('category.template.name') as $templateName => $essayGroup) {
     $active = $essayGroup->where('is_active', true)->count();
@@ -70,18 +77,18 @@ echo PHP_EOL;
 echo '🔍 6. HIERARCHICAL STRUCTURE VALIDATION'.PHP_EOL;
 
 // Check template -> category -> subcategory -> indicator chain
-$banptTemplate = App\Models\AccreditationTemplate::where('type', 'akreditasi')->where('is_active', true)->first();
+$banptTemplate = AccreditationTemplate::where('type', 'akreditasi')->where('is_active', true)->first();
 if ($banptTemplate) {
     $categoriesCount = $banptTemplate->categories()->count();
-    $subCategoriesCount = App\Models\EvaluationSubCategory::whereHas('category', function ($q) use ($banptTemplate) {
+    $subCategoriesCount = EvaluationSubCategory::whereHas('category', function ($q) use ($banptTemplate) {
         $q->where('template_id', $banptTemplate->id);
     })->count();
 
-    $indicatorsCount = App\Models\EvaluationIndicator::whereHas('subCategory.category', function ($q) use ($banptTemplate) {
+    $indicatorsCount = EvaluationIndicator::whereHas('subCategory.category', function ($q) use ($banptTemplate) {
         $q->where('template_id', $banptTemplate->id);
     })->count();
 
-    $essaysCount = App\Models\EssayQuestion::whereHas('category', function ($q) use ($banptTemplate) {
+    $essaysCount = EssayQuestion::whereHas('category', function ($q) use ($banptTemplate) {
         $q->where('template_id', $banptTemplate->id);
     })->count();
 
@@ -91,7 +98,7 @@ if ($banptTemplate) {
 
     // Verify weight consistency
     $totalWeight = $banptTemplate->categories()->sum('weight');
-    $indicatorWeight = App\Models\EvaluationIndicator::whereHas('subCategory.category', function ($q) use ($banptTemplate) {
+    $indicatorWeight = EvaluationIndicator::whereHas('subCategory.category', function ($q) use ($banptTemplate) {
         $q->where('template_id', $banptTemplate->id);
     })->sum('weight');
 
@@ -107,7 +114,7 @@ echo PHP_EOL;
 
 // 7. Sample Data Check
 echo '📄 7. SAMPLE DATA CHECK'.PHP_EOL;
-$sampleIndicator = App\Models\EvaluationIndicator::with('subCategory.category.template')->first();
+$sampleIndicator = EvaluationIndicator::with('subCategory.category.template')->first();
 if ($sampleIndicator) {
     echo "  Sample Indicator: {$sampleIndicator->code}".PHP_EOL;
     echo "    Question: {$sampleIndicator->question}".PHP_EOL;

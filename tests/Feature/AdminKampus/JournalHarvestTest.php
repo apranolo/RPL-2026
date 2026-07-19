@@ -2,6 +2,7 @@
 
 use App\Jobs\HarvestJournalArticlesJob;
 use App\Models\Journal;
+use App\Models\University;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 
@@ -13,7 +14,7 @@ beforeEach(function () {
 });
 
 it('can bulk harvest journals from same university', function () {
-    $university = \App\Models\University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create();
     $journal1 = Journal::factory()->create([
         'university_id' => $university->id,
@@ -40,10 +41,10 @@ it('can bulk harvest journals from same university', function () {
 });
 
 it('cannot bulk harvest journals from different university', function () {
-    $university = \App\Models\University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create();
     // Create journal belonging to a different university
-    $otherUniversity = \App\Models\University::factory()->create();
+    $otherUniversity = University::factory()->create();
     $otherJournal = Journal::factory()->create([
         'university_id' => $otherUniversity->id,
         'oai_urls' => ['https://example.com/oai'],
@@ -62,7 +63,7 @@ it('cannot bulk harvest journals from different university', function () {
 });
 
 it('fails validation on empty array', function () {
-    $university = \App\Models\University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create();
 
     actingAs($adminKampus)
@@ -73,7 +74,7 @@ it('fails validation on empty array', function () {
 });
 
 it('fails validation on invalid ids', function () {
-    $university = \App\Models\University::factory()->create();
+    $university = University::factory()->create();
     $adminKampus = User::factory()->adminKampus($university->id)->create();
 
     actingAs($adminKampus)

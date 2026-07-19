@@ -24,6 +24,11 @@ class Review extends Model
     protected $fillable = [
         'proposal_id',
         'reviewer_id',
+        'status',
+        'notes',
+        'start_date',
+        'end_date',
+        'total_score',
         'score',
         'feedback',
         'recommendation',
@@ -51,17 +56,6 @@ class Review extends Model
     /**
      * Get the proposal being reviewed
      */
-    protected $fillable = [
-        'proposal_id',
-        'reviewer_id',
-        'status',
-        'notes',
-        'start_date',
-        'end_date',
-        'total_score',
-        'recommendation',
-    ];
-
     public function proposal()
     {
         return $this->belongsTo(Proposal::class);
@@ -73,6 +67,14 @@ class Review extends Model
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewer_id');
+    }
+
+    /**
+     * Get the assessment criteria for this review
+     */
+    public function assessmentCriteria()
+    {
+        return $this->hasMany(AssessmentCriteria::class, 'review_id');
     }
 
     /*
@@ -124,8 +126,5 @@ class Review extends Model
                 $model->reviewed_at = now();
             }
         });
-    public function assessmentCriteria()
-    {
-        return $this->hasMany(AssessmentCriteria::class, 'review_id');
     }
 }

@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Contract;
 use App\Models\Funding;
+use App\Models\Proposal;
+use App\Models\ResearchSchema;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
@@ -38,13 +40,13 @@ class FundingTerminTest extends TestCase
         ]);
 
         // Create a research schema
-        $schema = \App\Models\ResearchSchema::create([
+        $schema = ResearchSchema::create([
             'name' => 'Skema Penelitian Unggulan',
             'description' => 'Deskripsi skema penelitian unggulan',
         ]);
 
         // Create a proposal
-        $proposal = \App\Models\Proposal::factory()->create([
+        $proposal = Proposal::factory()->create([
             'user_id' => $this->adminKeuangan->id,
             'research_schema_id' => $schema->id,
         ]);

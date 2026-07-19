@@ -12,11 +12,10 @@
  *   (hanya test fungsional yang bergantung pada model lokal tersebut).
  * - Ketika model resmi dari tim lain sudah di-merge, mock annotation
  *   pada model dapat dihapus tanpa mengubah test ini.
- *
- * @package Tests\Feature
  */
 
 use App\Models\Proposal;
+use App\Models\ResearchSchema;
 use App\Models\ReviewDecision;
 use App\Models\ReviewerAssignment;
 use App\Models\Role;
@@ -36,7 +35,7 @@ beforeEach(function () {
     // Super Admin
     $superRole = Role::where('name', Role::SUPER_ADMIN)->first();
     $this->superAdmin = User::factory()->create([
-        'role_id'   => $superRole->id,
+        'role_id' => $superRole->id,
         'is_active' => true,
     ]);
     $this->superAdmin->roles()->attach($superRole->id);
@@ -44,7 +43,7 @@ beforeEach(function () {
     // Admin Kampus
     $adminRole = Role::where('name', Role::ADMIN_KAMPUS)->first();
     $this->adminKampus = User::factory()->create([
-        'role_id'   => $adminRole->id,
+        'role_id' => $adminRole->id,
         'is_active' => true,
     ]);
     $this->adminKampus->roles()->attach($adminRole->id);
@@ -52,7 +51,7 @@ beforeEach(function () {
     // User biasa (Pengelola Jurnal)
     $userRole = Role::where('name', Role::USER)->first();
     $this->regularUser = User::factory()->create([
-        'role_id'   => $userRole->id,
+        'role_id' => $userRole->id,
         'is_active' => true,
     ]);
     $this->regularUser->roles()->attach($userRole->id);
@@ -60,19 +59,19 @@ beforeEach(function () {
     // Reviewer (is_reviewer = true, tidak ada role khusus)
     $this->reviewerUser = User::factory()->create([
         'is_reviewer' => true,
-        'is_active'   => true,
+        'is_active' => true,
     ]);
 
     // Research Schema
-    $this->researchSchema = \App\Models\ResearchSchema::create([
+    $this->researchSchema = ResearchSchema::create([
         'name' => 'Skema Riset Pengujian',
     ]);
 
     // Proposal
     $this->proposal = Proposal::create([
-        'judul'              => 'Proposal Riset Pengujian',
-        'deskripsi'          => 'Deskripsi pengujian otomatis.',
-        'user_id'            => $this->regularUser->id,
+        'judul' => 'Proposal Riset Pengujian',
+        'deskripsi' => 'Deskripsi pengujian otomatis.',
+        'user_id' => $this->regularUser->id,
         'research_schema_id' => $this->researchSchema->id,
     ]);
 
@@ -80,16 +79,16 @@ beforeEach(function () {
     $this->assignment = ReviewerAssignment::create([
         'proposal_id' => $this->proposal->id,
         'reviewer_id' => $this->reviewerUser->id,
-        'due_date'    => now()->addDays(14)->format('Y-m-d'),
-        'status'      => 'assigned',
+        'due_date' => now()->addDays(14)->format('Y-m-d'),
+        'status' => 'assigned',
     ]);
 
     // Review Decision (model lokal mock)
     ReviewDecision::create([
         'reviewer_assignment_id' => $this->assignment->id,
-        'score'                  => 85,
-        'recommendation'         => 'accepted',
-        'comment'                => 'Proposal sangat baik.',
+        'score' => 85,
+        'recommendation' => 'accepted',
+        'comment' => 'Proposal sangat baik.',
     ]);
 });
 
@@ -135,9 +134,9 @@ describe('ReviewSummaryController@index', function () {
 
     it('proposal tanpa reviewer mengembalikan assignments kosong', function () {
         $emptyProposal = Proposal::create([
-            'judul'              => 'Proposal Tanpa Reviewer',
-            'deskripsi'          => '',
-            'user_id'            => $this->regularUser->id,
+            'judul' => 'Proposal Tanpa Reviewer',
+            'deskripsi' => '',
+            'user_id' => $this->regularUser->id,
             'research_schema_id' => $this->researchSchema->id,
         ]);
 
