@@ -35,23 +35,11 @@ interface Journal {
     };
 }
 
-interface Pembinaan {
+interface Submission {
     id: number;
-    name: string;
-    description?: string;
-    category?: string;
-    registration_start?: string;
-    registration_end?: string;
-    assessment_start?: string;
-    assessment_end?: string;
-}
-
-interface PembinaanRegistration {
-    id: number;
+    title: string;
     status: string;
     journal?: Journal;
-    pembinaan?: Pembinaan;
-    registered_at?: string;
 }
 
 interface Assigner {
@@ -66,7 +54,7 @@ interface Assignment {
     status: string;
     assigned_at: string;
     reason?: string;
-    registration?: PembinaanRegistration;
+    submission?: Submission;
     assigner?: Assigner;
 }
 
@@ -86,12 +74,12 @@ function StatusBadge({ status }: { status: string }) {
             icon: <Clock className="h-3.5 w-3.5" />,
             className: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
         },
-        accepted: {
+        Accepted: {
             label: 'Diterima',
             icon: <CheckCircle2 className="h-3.5 w-3.5" />,
             className: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
         },
-        declined: {
+        Declined: {
             label: 'Ditolak',
             icon: <XCircle className="h-3.5 w-3.5" />,
             className: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
@@ -147,7 +135,7 @@ export default function Invitation({ assignment }: Props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<{ reason?: string }>({});
 
-    const isResponded = assignment.status === 'accepted' || assignment.status === 'declined';
+    const isResponded = assignment.status === 'Accepted' || assignment.status === 'Declined';
     const isPending = assignment.status === 'assigned';
 
     const formatDate = (dateStr?: string | null) => {
@@ -194,8 +182,8 @@ export default function Invitation({ assignment }: Props) {
         );
     };
 
-    const journal = assignment.registration?.journal;
-    const pembinaan = assignment.registration?.pembinaan;
+    const submission = assignment.submission;
+    const journal = submission?.journal;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -208,7 +196,7 @@ export default function Invitation({ assignment }: Props) {
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">Undangan Review Jurnal</h1>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Anda menerima undangan untuk menjadi reviewer pada jurnal berikut.
+                                Anda menerima undangan untuk menjadi reviewer pada naskah berikut (Double-Blind Review).
                             </p>
                         </div>
                         <StatusBadge status={assignment.status} />
@@ -218,130 +206,77 @@ export default function Invitation({ assignment }: Props) {
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Main Content - Left */}
                     <div className="flex flex-col gap-6 lg:col-span-2">
-                        {/* Journal Info Card */}
+                        {/* Submission Info Card */}
                         <Card className="overflow-hidden border border-sidebar-border/70 bg-white shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
                             <CardHeader className="border-b border-sidebar-border/70 pb-4 dark:border-sidebar-border">
                                 <div className="flex items-start gap-4">
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/20">
-                                        <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                        <FileText className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <CardTitle className="text-lg leading-snug">
-                                            {journal?.title ?? <span className="italic text-muted-foreground">Nama Jurnal Tidak Tersedia</span>}
+                                            {submission?.title ?? <span className="italic text-muted-foreground">Judul Naskah Tidak Tersedia</span>}
                                         </CardTitle>
-                                        {journal?.issn && (
-                                            <CardDescription className="mt-1">
-                                                ISSN: {journal.issn}
-                                                {journal.e_issn ? ` • E-ISSN: ${journal.e_issn}` : ''}
-                                            </CardDescription>
-                                        )}
+                                        <CardDescription className="mt-1">
+                                            Double-Blind Review: Identitas Penulis Disembunyikan
+                                        </CardDescription>
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent className="pt-5">
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     <InfoRow
+                                        icon={<BookOpen className="h-4 w-4" />}
+                                        label="Nama Jurnal"
+                                        value={journal?.title}
+                                    />
+                                    <InfoRow
                                         icon={<Building2 className="h-4 w-4" />}
-                                        label="Penerbit / Publisher"
-                                        value={journal?.publisher}
+                                        label="Universitas / Penerbit"
+                                        value={journal?.university?.name ?? journal?.publisher}
                                     />
                                     <InfoRow
                                         icon={<GraduationCap className="h-4 w-4" />}
-                                        label="Universitas"
-                                        value={journal?.university?.name}
-                                    />
-                                    <InfoRow
-                                        icon={<FileText className="h-4 w-4" />}
                                         label="Peringkat SINTA"
                                         value={journal?.sinta_rank_label ?? (journal?.sinta_rank ? `SINTA ${journal.sinta_rank}` : undefined)}
                                     />
                                     <InfoRow
-                                        icon={<ClipboardList className="h-4 w-4" />}
-                                        label="Program Pembinaan"
-                                        value={pembinaan?.name}
+                                        icon={<FileText className="h-4 w-4" />}
+                                        label="ISSN"
+                                        value={journal?.issn ? `${journal.issn} ${journal.e_issn ? '(E-ISSN: ' + journal.e_issn + ')' : ''}` : undefined}
                                     />
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Program Info Card */}
-                        {pembinaan && (
-                            <Card className="overflow-hidden border border-sidebar-border/70 bg-white shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
-                                <CardHeader className="border-b border-sidebar-border/70 pb-4 dark:border-sidebar-border">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/20">
-                                            <ClipboardList className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                                        </div>
-                                        <div>
-                                            <CardTitle className="text-base">Detail Program</CardTitle>
-                                            <CardDescription>Informasi periode pembinaan</CardDescription>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pt-5">
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        <InfoRow
-                                            icon={<Calendar className="h-4 w-4" />}
-                                            label="Mulai Pendaftaran"
-                                            value={formatDate(pembinaan.registration_start)}
-                                        />
-                                        <InfoRow
-                                            icon={<Calendar className="h-4 w-4" />}
-                                            label="Akhir Pendaftaran"
-                                            value={formatDate(pembinaan.registration_end)}
-                                        />
-                                        <InfoRow
-                                            icon={<Calendar className="h-4 w-4" />}
-                                            label="Mulai Penilaian"
-                                            value={formatDate(pembinaan.assessment_start)}
-                                        />
-                                        <InfoRow
-                                            icon={<Calendar className="h-4 w-4" />}
-                                            label="Akhir Penilaian"
-                                            value={formatDate(pembinaan.assessment_end)}
-                                        />
-                                    </div>
-                                    {pembinaan.description && (
-                                        <>
-                                            <Separator className="my-4" />
-                                            <div>
-                                                <p className="mb-1.5 text-xs font-medium text-muted-foreground">Deskripsi Program</p>
-                                                <p className="text-sm leading-relaxed text-foreground">{pembinaan.description}</p>
-                                            </div>
-                                        </>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        )}
-
                         {/* Already Responded State */}
                         {isResponded && (
                             <div
                                 className={`rounded-xl border p-5 ${
-                                    assignment.status === 'accepted'
+                                    assignment.status === 'Accepted'
                                         ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/10'
                                         : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/10'
                                 }`}
                             >
                                 <div className="flex items-start gap-3">
-                                    {assignment.status === 'accepted' ? (
+                                    {assignment.status === 'Accepted' ? (
                                         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
                                     ) : (
                                         <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
                                     )}
                                     <div>
                                         <p
-                                            className={`font-semibold ${assignment.status === 'accepted' ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'}`}
+                                            className={`font-semibold ${assignment.status === 'Accepted' ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'}`}
                                         >
-                                            {assignment.status === 'accepted' ? 'Anda telah menerima undangan ini' : 'Anda telah menolak undangan ini'}
+                                            {assignment.status === 'Accepted' ? 'Anda telah menerima undangan ini' : 'Anda telah menolak undangan ini'}
                                         </p>
-                                        {assignment.status === 'declined' && assignment.reason && (
+                                        {assignment.status === 'Declined' && assignment.reason && (
                                             <p className="mt-1.5 text-sm text-red-700 dark:text-red-400">
                                                 <span className="font-medium">Alasan: </span>
                                                 {assignment.reason}
                                             </p>
                                         )}
-                                        {assignment.status === 'accepted' && (
+                                        {assignment.status === 'Accepted' && (
                                             <p className="mt-1.5 text-sm text-green-700 dark:text-green-400">
                                                 Silakan lanjutkan ke halaman evaluasi untuk memulai proses review.
                                             </p>
@@ -511,7 +446,7 @@ export default function Invitation({ assignment }: Props) {
                         )}
 
                         {/* Already Responded Action Card */}
-                        {assignment.status === 'accepted' && (
+                        {assignment.status === 'Accepted' && (
                             <Card className="border border-green-200 bg-green-50 shadow-sm dark:border-green-800 dark:bg-green-900/10">
                                 <CardContent className="pt-6">
                                     <div className="flex flex-col items-center gap-3 text-center">
@@ -521,7 +456,7 @@ export default function Invitation({ assignment }: Props) {
                                         <div>
                                             <p className="font-semibold text-green-800 dark:text-green-300">Undangan Diterima</p>
                                             <p className="mt-1 text-xs text-green-700 dark:text-green-400">
-                                                Lanjutkan ke halaman evaluasi untuk memulai proses review jurnal.
+                                                Lanjutkan ke halaman evaluasi untuk memulai proses review naskah.
                                             </p>
                                         </div>
                                         <Button

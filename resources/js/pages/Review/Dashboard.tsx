@@ -38,19 +38,10 @@ interface DashboardJournal {
     university?: University;
 }
 
-interface DashboardPembinaan {
+interface DashboardSubmission {
     id: number;
-    name: string;
-    assessment_start?: string;
-    assessment_end?: string;
-}
-
-interface DashboardRegistration {
-    id: number;
-    status: string;
-    registered_at?: string;
+    title: string;
     journal?: DashboardJournal;
-    pembinaan?: DashboardPembinaan;
 }
 
 interface DashboardAssigner {
@@ -66,7 +57,7 @@ interface DashboardAssignment {
     status_color: string;
     assigned_at: string;
     assigner?: DashboardAssigner;
-    registration?: DashboardRegistration;
+    submission?: DashboardSubmission;
 }
 
 interface DashboardStats {
@@ -120,7 +111,7 @@ function getDaysRemaining(endDate?: string | null): number | null {
 // ---------------------------------------------------------------------------
 
 /** Badge status penugasan */
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, status_label }: { status: string; status_label?: string }) {
     const config: Record<string, { label: string; className: string }> = {
         assigned: {
             label: 'Menunggu Dimulai',
@@ -132,6 +123,16 @@ function StatusBadge({ status }: { status: string }) {
             className:
                 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
         },
+        Accepted: {
+            label: 'Diterima',
+            className:
+                'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+        },
+        Declined: {
+            label: 'Ditolak',
+            className:
+                'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+        },
         completed: {
             label: 'Selesai',
             className:
@@ -140,7 +141,7 @@ function StatusBadge({ status }: { status: string }) {
     };
 
     const item = config[status] ?? {
-        label: status,
+        label: status_label ?? status,
         className:
             'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
     };
@@ -231,9 +232,12 @@ function StatCard({
 
 /** Kartu satu penugasan */
 function AssignmentCard({ assignment }: { assignment: DashboardAssignment }) {
-    const journal = assignment.registration?.journal;
-    const pembinaan = assignment.registration?.pembinaan;
-    const daysRemaining = getDaysRemaining(pembinaan?.assessment_end);
+    const submission = assignment.submission;
+    const journal = submission?.journal;
+    
+    // As per double-blind rules, we shouldn't show author info here either.
+    // For now, no specific due date is available on submission level in this view, passing null.
+    const daysRemaining = getDaysRemaining(null);
 
     // Urgency border indicator
     const urgencyBorder =
@@ -256,16 +260,15 @@ function AssignmentCard({ assignment }: { assignment: DashboardAssignment }) {
                         </div>
                         <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-semibold text-foreground">
-                                {journal?.title ?? (
+                                {submission?.title ?? (
                                     <span className="italic text-muted-foreground">
-                                        Jurnal tidak tersedia
+                                        Naskah tidak tersedia
                                     </span>
                                 )}
                             </p>
-                            {journal?.issn && (
+                            {journal?.title && (
                                 <p className="mt-0.5 text-xs text-muted-foreground">
-                                    ISSN: {journal.issn}
-                                    {journal.e_issn ? ` · E-ISSN: ${journal.e_issn}` : ''}
+                                    Jurnal: {journal.title}
                                 </p>
                             )}
                             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -281,19 +284,13 @@ function AssignmentCard({ assignment }: { assignment: DashboardAssignment }) {
                                         SINTA {journal.sinta_rank}
                                     </span>
                                 )}
-                                {pembinaan?.name && (
-                                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                        <ClipboardList className="h-3 w-3" />
-                                        {pembinaan.name}
-                                    </span>
-                                )}
                             </div>
                         </div>
                     </div>
 
                     {/* Right: Status + actions */}
                     <div className="flex shrink-0 flex-col items-end gap-2">
-                        <StatusBadge status={assignment.status} />
+                        <StatusBadge status={assignment.status} status_label={assignment.status_label} />
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
                             Ditugaskan {formatDate(assignment.assigned_at)}
@@ -303,7 +300,7 @@ function AssignmentCard({ assignment }: { assignment: DashboardAssignment }) {
 
                 {/* Due date countdown */}
                 <div className="mt-4 flex flex-col gap-2 border-t border-sidebar-border/50 pt-3 sm:flex-row sm:items-center sm:justify-between dark:border-sidebar-border">
-                    <DueDateCountdown assessmentEnd={pembinaan?.assessment_end} />
+                    <DueDateCountdown assessmentEnd={null} />
 
                     <div className="flex gap-2">
                         {/* Tombol navigasi ke halaman undangan */}
@@ -450,3 +447,4 @@ export default function Dashboard({ assignments, stats }: Props) {
         </AppLayout>
     );
 }
+
