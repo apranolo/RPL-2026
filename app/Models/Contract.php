@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Contract extends Model
 {
@@ -146,26 +147,6 @@ class Contract extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getNomorKontrakAttribute(): string
-    {
-        return $this->contract_number;
-    }
-
-    public function getTotalPendanaanDisetujuiAttribute()
-    {
-        return $this->contract_value;
-    }
-
-    public function getStatusKontrakAttribute(): string
-    {
-        return match ($this->status) {
-            self::STATUS_ACTIVE => 'Aktif',
-            self::STATUS_COMPLETED => 'Selesai',
-            self::STATUS_CANCELLED => 'Ditangguhkan',
-            default => 'Draft',
-        };
-    }
-
     public function getStatusLabelAttribute(): string
     {
         return self::getStatusOptions()[$this->status] ?? $this->status;
@@ -179,6 +160,21 @@ class Contract extends Model
             self::STATUS_CANCELLED => 'red',
             default => 'gray',
         };
+    }
+
+    public function getNomorKontrakAttribute(): ?string
+    {
+        return $this->contract_number;
+    }
+
+    public function getTotalPendanaanDisetujuiAttribute(): ?string
+    {
+        return $this->contract_value;
+    }
+
+    public function getStatusKontrakAttribute(): ?string
+    {
+        return $this->status;
     }
 
     /**
@@ -199,14 +195,14 @@ class Contract extends Model
         parent::boot();
 
         static::creating(function (Contract $contract) {
-            if (auth()->check() && ! $contract->created_by) {
-                $contract->created_by = auth()->id();
+            if (Auth::check() && ! $contract->created_by) {
+                $contract->created_by = Auth::id();
             }
         });
 
         static::updating(function (Contract $contract) {
-            if (auth()->check()) {
-                $contract->updated_by = auth()->id();
+            if (Auth::check()) {
+                $contract->updated_by = Auth::id();
             }
         });
     }
