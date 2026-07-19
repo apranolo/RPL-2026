@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\OutputStatsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
@@ -43,15 +44,35 @@ Route::middleware(['web'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
+/*
+|--------------------------------------------------------------------------
+| Protected Routes (Authentication Required)
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // Auth User Info & Logout
     Route::get('/user', [AuthenticatedSessionController::class, 'user']);
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+
     
     Route::get('/top-lecturers', [TopLecturerController::class, 'getTop']);
     Route::get('/top-research', [TopResearchController::class, 'getTop']);
-    
+ 
+
+    // revisi dead code
+    Route::get('/timeline/chart', [\App\Http\Controllers\Api\TimelineController::class, 'getChart'])->name('timeline.getChart');
+
     // TODO: Add other protected routes here
     // Route::apiResource('journals', JournalController::class);
     // Route::apiResource('universities', UniversityController::class);
+
+    // Output Statistics
+    Route::prefix('stats/outputs')->group(function () {
+        Route::get('/by-category', [OutputStatsController::class, 'getCategory']);
+        Route::get('/yearly', [OutputStatsController::class, 'getYearly']);
+    });
+
+    // Budget Stats
+    Route::get('/budget/stats', [\App\Http\Controllers\Api\BudgetController::class, 'getStats']);
 });
