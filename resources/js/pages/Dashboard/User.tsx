@@ -1,3 +1,29 @@
+/**
+ * @fileoverview Dashboard/User.tsx — Personal research-proposal dashboard for the
+ * "Peneliti / Dosen" role (Modul 6 – Dashboard dan Pelaporan).
+ *
+ * Displays KPI score cards and a visual success-rate ring sourced from the
+ * `proposals` table (Modul 1 – Manajemen Proposal Penelitian) as specified in
+ * the Sistem Penelitian Terintegrasi PRD for Kelas B.
+ *
+ * Data flow:
+ *   DashboardController (PHP) → Inertia::render('Dashboard/User', [...])
+ *     → this component via `stats` and `proposal_stats` page props.
+ *
+ * Metrics displayed per Modul 6 PRD spec:
+ *   • Total Proposal   – all proposals ever submitted by this researcher
+ *   • Diajukan         – submitted, awaiting administrative review (status=submitted)
+ *   • Diterima         – passed administrative validation (status=administrasi_valid)
+ *   • Ditolak          – rejected proposals (status=ditolak)
+ *   • Draft            – proposals still in draft state (status=draft)
+ *   • Total Pendanaan  – sum of approved funding (total_pendanaan_disetujui)
+ *   • Tingkat Keberhasilan – success rate ring chart (lolos / decided × 100)
+ *
+ * @module pages/Dashboard/User
+ * @author  RPL-2026 Kelas B
+ * @since   2026-07-19
+ */
+
 import StatsCard from '@/components/StatsCard';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type PageProps } from '@/types';
@@ -6,6 +32,7 @@ import {
     BookOpen,
     CheckCircle,
     ClipboardList,
+    DraftingCompass,
     FileText,
     InboxIcon,
     Percent,
@@ -16,25 +43,48 @@ import {
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Proposal riset statistics aggregated per-user from the `proposals` table.
+ * Sourced from StatsService::getProposalSummaryForUser().
+ */
 interface ProposalStats {
+    /** Total number of proposals ever submitted (all statuses). */
     total: number;
+    /** Proposals currently awaiting administrative review (status = submitted). */
     masuk: number;
+    /** Proposals that passed administrative validation (status = administrasi_valid). */
     lolos: number;
+    /** Rejected proposals (status = ditolak). */
     gagal: number;
+    /** Proposals still in draft state (status = draft). */
+    draft: number;
+    /** Percentage of lolos out of total decided (lolos + gagal), 0–100. */
     success_rate: number;
+    /** Sum of `total_pendanaan_disetujui` for all lolos proposals (IDR). */
+    total_pendanaan: number;
 }
 
-interface JournalsByStatus {
-    pending: number;
-    approved: number;
-    rejected: number;
-}
-
+/**
+ * Dashboard statistics for the User (Peneliti/Dosen) role.
+ * The `stats` prop holds proposal riset counts injected by DashboardController.
+ */
 interface DashboardStats {
-    total_journals: number;
-    total_assessments: number;
-    average_score: number;
-    journals_by_status?: JournalsByStatus;
+    /** Total proposals (mirrors proposal_stats.total via the controller). */
+    total_proposals: number;
+    /** Proposals awaiting review. */
+    proposal_masuk: number;
+    /** Proposals that passed admin validation. */
+    proposal_lolos: number;
+    /** Rejected proposals. */
+    proposal_gagal: number;
+    /** Draft proposals. */
+    proposal_draft: number;
+    /** Aggregate approved funding amount in IDR. */
+    total_pendanaan: number;
+    /** Kept for backward compatibility but not rendered. */
+    total_journals?: number;
+    total_assessments?: number;
+    average_score?: number;
 }
 
 interface UserDashboardProps extends PageProps {
@@ -51,9 +101,34 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helper — circular progress ring
+// Helper – format IDR currency
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Format a numeric value as Indonesian Rupiah (IDR).
+ *
+ * @param amount - The numeric amount in IDR.
+ * @returns Formatted string, e.g. "Rp 500.000.000"
+ */
+function formatRupiah(amount: number): string {
+    if (amount === 0) return 'Rp 0';
+    // Use Intl.NumberFormat for locale-aware formatting
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+    }).format(amount);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper — circular progress ring (success rate visualisation)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Renders an animated SVG progress ring showing the proposal success rate.
+ *
+ * @param rate - A value between 0 and 100 representing the success percentage.
+ */
 function SuccessRing({ rate }: { rate: number }) {
     const radius = 36;
     const circumference = 2 * Math.PI * radius;
@@ -101,15 +176,19 @@ function SuccessRing({ rate }: { rate: number }) {
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * User (Peneliti/Dosen) personal research-proposal dashboard.
+ *
+ * Renders KPI cards and analytics sourced from the `proposals` table per
+ * Modul 6 – Dashboard dan Pelaporan specification (Kelas B).
+ */
 export default function UserDashboard({ stats, proposal_stats }: UserDashboardProps) {
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
 
-    const journalsByStatus = stats.journals_by_status ?? { pending: 0, approved: 0, rejected: 0 };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard Dosen" />
+            <Head title="Dashboard Peneliti" />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4 sm:p-6">
 
@@ -121,120 +200,28 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                             <span className="text-primary">{user.name}</span> 👋
                         </h1>
                         <p className="mt-0.5 text-sm text-muted-foreground">
-                            Berikut ringkasan aktivitas dan proposal pembinaan jurnal Anda.
+                            Berikut ringkasan proposal riset dan pendanaan penelitian Anda.
                         </p>
                     </div>
                     <Link
-                        href={route('user.journals.index')}
+                        href={route('user.pembinaan.akreditasi')}
                         className="mt-3 inline-flex items-center gap-2 rounded-lg border border-sidebar-border/70 bg-white px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-muted sm:mt-0 dark:bg-neutral-950"
                     >
-                        <BookOpen className="h-4 w-4" />
-                        Jurnal Saya
+                        <FileText className="h-4 w-4" />
+                        Proposal Saya
                     </Link>
                 </div>
 
-                {/* ── Section: Ringkasan Jurnal ───────────────────────────── */}
-                <section aria-labelledby="jurnal-section-title">
-                    <h2
-                        id="jurnal-section-title"
-                        className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
-                    >
-                        Ringkasan Jurnal
-                    </h2>
-
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        {/* Total Jurnal */}
-                        <StatsCard
-                            title="Total Jurnal"
-                            value={stats.total_journals}
-                            description="Jurnal yang Anda kelola"
-                            icon={BookOpen}
-                            variant="blue"
-                            id="stat-total-jurnal"
-                        />
-
-                        {/* Pending */}
-                        <StatsCard
-                            title="Menunggu Persetujuan"
-                            value={journalsByStatus.pending}
-                            description="Jurnal sedang diproses"
-                            icon={InboxIcon}
-                            variant="amber"
-                            id="stat-jurnal-pending"
-                        />
-
-                        {/* Disetujui */}
-                        <StatsCard
-                            title="Disetujui"
-                            value={journalsByStatus.approved}
-                            description="Jurnal telah disetujui"
-                            icon={CheckCircle}
-                            variant="green"
-                            id="stat-jurnal-approved"
-                        />
-
-                        {/* Ditolak */}
-                        <StatsCard
-                            title="Ditolak"
-                            value={journalsByStatus.rejected}
-                            description="Jurnal tidak disetujui"
-                            icon={XCircle}
-                            variant="red"
-                            id="stat-jurnal-rejected"
-                        />
-                    </div>
-                </section>
-
-                {/* ── Section: Asesmen ────────────────────────────────────── */}
-                <section aria-labelledby="asesmen-section-title">
-                    <h2
-                        id="asesmen-section-title"
-                        className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
-                    >
-                        Asesmen
-                    </h2>
-
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <StatsCard
-                            title="Total Asesmen"
-                            value={stats.total_assessments}
-                            description="Seluruh asesmen yang pernah diajukan"
-                            icon={ClipboardList}
-                            variant="purple"
-                            id="stat-total-asesmen"
-                        />
-
-                        <StatsCard
-                            title="Rata-rata Skor"
-                            value={
-                                stats.average_score !== null
-                                    ? `${Number(stats.average_score).toFixed(1)}`
-                                    : '—'
-                            }
-                            description="Dari seluruh asesmen yang dinilai"
-                            icon={Percent}
-                            variant="cyan"
-                            progress={
-                                stats.average_score
-                                    ? Math.min(100, Number(stats.average_score))
-                                    : 0
-                            }
-                            progressLabel="Progres skor"
-                            id="stat-avg-score"
-                        />
-                    </div>
-                </section>
-
-                {/* ── Section: Proposal Pembinaan ─────────────────────────── */}
+                {/* ── Section: Ringkasan Proposal Riset ───────────────────── */}
                 <section aria-labelledby="proposal-section-title">
                     <h2
                         id="proposal-section-title"
                         className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
                     >
-                        Proposal Pembinaan
+                        Ringkasan Proposal Riset
                     </h2>
 
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {/* Total Proposal */}
                         <StatsCard
                             title="Total Proposal"
@@ -245,31 +232,53 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                             id="stat-proposal-total"
                         />
 
-                        {/* Masuk (Pending) */}
+                        {/* Draft */}
                         <StatsCard
-                            title="Proposal Masuk"
+                            title="Draft"
+                            value={proposal_stats.draft}
+                            description="Proposal yang belum dikirim"
+                            icon={DraftingCompass}
+                            variant="blue"
+                            id="stat-proposal-draft"
+                        />
+
+                        {/* Diajukan / Masuk */}
+                        <StatsCard
+                            title="Menunggu Review"
                             value={proposal_stats.masuk}
-                            description="Sedang menunggu keputusan"
+                            description="Diajukan, menunggu verifikasi admin"
                             icon={InboxIcon}
                             variant="amber"
                             id="stat-proposal-masuk"
                         />
+                    </div>
+                </section>
 
-                        {/* Lolos */}
+                {/* ── Section: Hasil Seleksi ───────────────────────────────── */}
+                <section aria-labelledby="seleksi-section-title">
+                    <h2
+                        id="seleksi-section-title"
+                        className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+                    >
+                        Hasil Seleksi Administrasi
+                    </h2>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        {/* Diterima / Lolos */}
                         <StatsCard
-                            title="Proposal Lolos"
+                            title="Diterima (Valid Administrasi)"
                             value={proposal_stats.lolos}
-                            description="Disetujui oleh Admin"
+                            description="Proposal lulus verifikasi administrasi"
                             icon={CheckCircle}
                             variant="green"
                             id="stat-proposal-lolos"
                         />
 
-                        {/* Gagal */}
+                        {/* Ditolak / Gagal */}
                         <StatsCard
-                            title="Proposal Gagal"
+                            title="Ditolak"
                             value={proposal_stats.gagal}
-                            description="Ditolak atau tidak lolos seleksi"
+                            description="Proposal tidak lolos seleksi administrasi"
                             icon={XCircle}
                             variant="red"
                             id="stat-proposal-gagal"
@@ -277,7 +286,49 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                     </div>
                 </section>
 
-                {/* ── Success Rate Card ───────────────────────────────────── */}
+                {/* ── Section: Pendanaan Riset ─────────────────────────────── */}
+                <section aria-labelledby="pendanaan-section-title">
+                    <h2
+                        id="pendanaan-section-title"
+                        className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+                    >
+                        Metrik Pendanaan Riset
+                    </h2>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        {/* Total Pendanaan Disetujui */}
+                        <StatsCard
+                            title="Total Pendanaan Disetujui"
+                            value={formatRupiah(proposal_stats.total_pendanaan)}
+                            description="Akumulasi dana dari semua proposal yang diterima"
+                            icon={ClipboardList}
+                            variant="purple"
+                            id="stat-total-pendanaan"
+                        />
+
+                        {/* Tingkat Keberhasilan (numeric) */}
+                        <StatsCard
+                            title="Tingkat Keberhasilan"
+                            value={
+                                proposal_stats.success_rate !== null
+                                    ? `${Number(proposal_stats.success_rate).toFixed(1)}%`
+                                    : '—'
+                            }
+                            description="Persentase proposal diterima dari total yang diputuskan"
+                            icon={Percent}
+                            variant="cyan"
+                            progress={
+                                proposal_stats.success_rate
+                                    ? Math.min(100, Number(proposal_stats.success_rate))
+                                    : 0
+                            }
+                            progressLabel="Tingkat keberhasilan"
+                            id="stat-success-rate"
+                        />
+                    </div>
+                </section>
+
+                {/* ── Success Rate Ring Card ───────────────────────────────── */}
                 {(proposal_stats.lolos > 0 || proposal_stats.gagal > 0) && (
                     <section aria-labelledby="success-rate-title">
                         <h2
@@ -297,35 +348,36 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                                 {/* Detail */}
                                 <div className="flex-1">
                                     <p className="text-base font-semibold">
-                                        Tingkat Keberhasilan Proposal
+                                        Tingkat Keberhasilan Proposal Riset
                                     </p>
                                     <p className="mt-1 text-sm text-muted-foreground">
-                                        Persentase proposal yang lolos dari total proposal yang
-                                        telah mendapat keputusan (lolos + gagal).
+                                        Persentase proposal yang diterima (administrasi valid) dari
+                                        total proposal yang telah mendapat keputusan akhir
+                                        (diterima + ditolak).
                                     </p>
 
                                     <div className="mt-4 flex flex-wrap gap-6">
-                                        {/* Lolos */}
+                                        {/* Diterima */}
                                         <div className="flex items-center gap-2">
                                             <span className="inline-block h-3 w-3 rounded-full bg-emerald-500" />
                                             <span className="text-sm text-muted-foreground">
-                                                Lolos:{' '}
+                                                Diterima:{' '}
                                                 <strong className="text-foreground">
                                                     {proposal_stats.lolos}
                                                 </strong>
                                             </span>
                                         </div>
-                                        {/* Gagal */}
+                                        {/* Ditolak */}
                                         <div className="flex items-center gap-2">
                                             <span className="inline-block h-3 w-3 rounded-full bg-red-500" />
                                             <span className="text-sm text-muted-foreground">
-                                                Gagal:{' '}
+                                                Ditolak:{' '}
                                                 <strong className="text-foreground">
                                                     {proposal_stats.gagal}
                                                 </strong>
                                             </span>
                                         </div>
-                                        {/* Pending */}
+                                        {/* Menunggu */}
                                         <div className="flex items-center gap-2">
                                             <span className="inline-block h-3 w-3 rounded-full bg-amber-500" />
                                             <span className="text-sm text-muted-foreground">
@@ -371,22 +423,22 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                     </section>
                 )}
 
-                {/* ── Empty state ketika belum ada jurnal ────────────────── */}
-                {stats.total_journals === 0 && (
+                {/* ── Empty state — belum ada proposal ────────────────────── */}
+                {proposal_stats.total === 0 && (
                     <div className="flex min-h-[280px] flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-sidebar-border/70 bg-white p-8 text-center dark:border-sidebar-border dark:bg-neutral-950">
                         <BookOpen className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                        <h3 className="mt-4 text-lg font-semibold">Belum Ada Jurnal</h3>
+                        <h3 className="mt-4 text-lg font-semibold">Belum Ada Proposal Riset</h3>
                         <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                            Anda belum mengelola jurnal apapun. Mulai dengan menambahkan jurnal
-                            pertama Anda.
+                            Anda belum mengajukan proposal penelitian apapun. Mulai dengan membuat
+                            proposal pertama Anda.
                         </p>
                         <Link
-                            href={route('user.journals.create')}
-                            id="btn-tambah-jurnal"
+                            href={route('user.pembinaan.akreditasi')}
+                            id="btn-buat-proposal"
                             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
                         >
-                            <BookOpen className="h-4 w-4" />
-                            Tambah Jurnal
+                            <FileText className="h-4 w-4" />
+                            Buat Proposal
                         </Link>
                     </div>
                 )}
