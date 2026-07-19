@@ -34,20 +34,20 @@ interface Props extends PageProps {
 export default function Index({ outputs }: Props) {
     const getStatusBadge = (status: string) => {
         const colors: Record<string, string> = {
-            'Draft': 'bg-gray-200 text-gray-800',
-            'Menunggu_Verifikasi': 'bg-yellow-200 text-yellow-800',
-            'Terverifikasi_LPPM': 'bg-green-200 text-green-800',
-            'Ditolak': 'bg-red-200 text-red-800',
+            Draft: 'bg-gray-200 text-gray-800',
+            Menunggu_Verifikasi: 'bg-yellow-200 text-yellow-800',
+            Terverifikasi_LPPM: 'bg-green-200 text-green-800',
+            Ditolak: 'bg-red-200 text-red-800',
         };
         return colors[status] || 'bg-gray-200 text-gray-800';
     };
 
     const getKategoriBadge = (kategori: string) => {
         const colors: Record<string, string> = {
-            'Jurnal': 'bg-blue-200 text-blue-800',
-            'Buku': 'bg-purple-200 text-purple-800',
-            'HKI': 'bg-green-200 text-green-800',
-            'Produk': 'bg-pink-200 text-pink-800',
+            Jurnal: 'bg-blue-200 text-blue-800',
+            Buku: 'bg-purple-200 text-purple-800',
+            HKI: 'bg-green-200 text-green-800',
+            Produk: 'bg-pink-200 text-pink-800',
         };
         return colors[kategori] || 'bg-gray-200 text-gray-800';
     };
