@@ -45,7 +45,47 @@ class Proposal extends Model
         'research_schema_id',
         'status_proposal',
         'rejection_reason',
+        'abstract',
+        'background',
+        'proposal_doc_path',
+        'status',
+        'submitted_at',
+        'file_dokumen_proposal',
     ];
+
+    /**
+     * Virtual attributes appended to array/JSON representation.
+     */
+    protected $appends = [
+        'status',
+        'proposal_doc_path',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors & Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    public function getStatusAttribute(): string
+    {
+        return $this->status_proposal ?? 'Draft';
+    }
+
+    public function setStatusAttribute($value): void
+    {
+        $this->attributes['status_proposal'] = $value;
+    }
+
+    public function getProposalDocPathAttribute(): ?string
+    {
+        return $this->file_dokumen_proposal;
+    }
+
+    public function setProposalDocPathAttribute($value): void
+    {
+        $this->attributes['file_dokumen_proposal'] = $value;
+    }
 
     // ─── Relationships ───────────────────────────────────────────────────────
 
