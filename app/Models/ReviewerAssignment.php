@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ReviewerAssignment extends Model
 {
@@ -17,10 +20,12 @@ class ReviewerAssignment extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'proposal_id',
         'reviewer_id',
         'registration_id',
         'assigned_by',
         'assigned_at',
+        'due_date',
         'status',
         'reason',
         'updated_by',
@@ -34,6 +39,7 @@ class ReviewerAssignment extends Model
      */
     protected $casts = [
         'assigned_at' => 'datetime',
+        'due_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -46,9 +52,17 @@ class ReviewerAssignment extends Model
     */
 
     /**
+     * Get the proposal this assignment belongs to.
+     */
+    public function proposal(): BelongsTo
+    {
+        return $this->belongsTo(Proposal::class);
+    }
+
+    /**
      * Get the reviewer assigned
      */
-    public function reviewer()
+    public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewer_id');
     }
@@ -56,7 +70,7 @@ class ReviewerAssignment extends Model
     /**
      * Get the registration this assignment is for
      */
-    public function registration()
+    public function registration(): BelongsTo
     {
         return $this->belongsTo(PembinaanRegistration::class);
     }
@@ -64,9 +78,17 @@ class ReviewerAssignment extends Model
     /**
      * Get the user who assigned the reviewer
      */
-    public function assigner()
+    public function assigner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_by');
+    }
+
+    /**
+     * Get all decisions for this assignment.
+     */
+    public function reviewDecisions(): HasMany
+    {
+        return $this->hasMany(ReviewDecision::class);
     }
 
     /*
@@ -74,6 +96,14 @@ class ReviewerAssignment extends Model
     | Scopes
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Scope to filter by status.
+     */
+    public function scopeForStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', $status);
+    }
 
     /**
      * Scope to get only assigned status

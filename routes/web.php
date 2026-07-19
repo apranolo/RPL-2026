@@ -31,6 +31,7 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\Copyediting\CopyeditingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Production\GalleyController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DeskController;
@@ -59,6 +60,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\Production\IssueController;
 use Inertia\Inertia;
+use App\Http\Controllers\Editorial\DecisionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -326,6 +328,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
 
+        // Monev Report
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportController::class, 'index'])
+            ->name('monev.rekap-keseluruhan');
+        Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
+            ->name('monev.decide-action');
+
         // Rekap Hasil Penilaian (Summary)
         Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
             ->name('reviews.summary');
@@ -520,6 +528,13 @@ Route::middleware(['auth'])->group(function () {
                 'update' => 'events.update',
                 'destroy' => 'events.destroy',
             ]);
+
+        // Monev Report
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportController::class, 'index'])
+            ->name('monev.rekap-keseluruhan');
+        Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
+            ->name('monev.decide-action');
+
     });
 
     /*
@@ -528,6 +543,9 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
+        Route::get('contracts', [ContractController::class, 'index'])
+            ->name('contracts.index');
+
         Route::get('contracts', [ContractController::class, 'index'])
             ->name('contracts.index');
 
@@ -713,6 +731,27 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Review Summary & Assignment Routes (v1.1 - Multi Reviewer)
+    | MOCK LOKAL - hapus setelah model resmi di-merge ke development.
+    |--------------------------------------------------------------------------
+    */
+    // NOTE: Authorization enforced via ProposalPolicy in the controllers.
+    Route::middleware(['auth'])->name('review.')->group(function () {
+        // Rekap summary review multi-reviewer per proposal
+        Route::get(
+            'proposals/{proposal}/summary',
+            [\App\Http\Controllers\Review\ReviewSummaryController::class, 'index']
+        )->name('summary.index');
+
+        // Perpanjang due date reviewer assignment
+        Route::post(
+            'reviewer-assignments/{reviewerAssignment}/extend-due',
+            [\App\Http\Controllers\Review\ReviewAssignmentController::class, 'extendDue']
+        )->name('assignment.extend-due');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Editor Routes (v1.1 - Submission Editorial)
     |--------------------------------------------------------------------------
     */
@@ -721,6 +760,15 @@ Route::middleware(['auth'])->group(function () {
         // Activity Log per submission
         Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
             ->name('activity-logs.index');
+    });
+    Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
+    Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
+    
+    Route::get('/editorial/decision/history/{submissionId}', [DecisionController::class, 'history'])->name('editorial.decision.history');
+    Route::post('/editorial/desk/{id}/plagiarism', [PlagiarismController::class, 'store'])->name('editorial.desk.plagiarism');
+    Route::post('/editorial/desk/{id}/assign-editor', [DeskController::class, 'assignEditor'])->name('editorial.desk.assign-editor');
+    Route::post('/editorial/desk/{id}/desk-review', [DeskController::class, 'deskReview'])->name('editorial.desk.review');
+    Route::post('/editorial/desk/{id}/final-decision', [DecisionController::class, 'finalDecision'])->name('editorial.desk.final-decision');
     });
 
     /*
@@ -789,12 +837,44 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Production - Galley
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware(['auth'])->group(function () {
+
+        Route::post('/production/articles/{articleId}/galleys', [GalleyController::class, 'store'])
+            ->name('production.galleys.store');
+
+        Route::post('/production/articles/{articleId}/assign-issue', [GalleyController::class, 'assignToIssue'])
+            ->name('production.galleys.assignIssue');
+});
+    /*
+    |--------------------------------------------------------------------------
     | Funding Terms (Super Admin & Admin Kampus)
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])->group(function () {
         Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
             ->name('funding.upload-bukti');
+    });
+    /*
+    |--------------------------------------------------------------------------
+    | Finance & Funding Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
+
+        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
+            ->name('finance.funding.logs.index');
+
+        Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
+            ->name('finance.funding.print-kwitansi');
+
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     });
 
     /*
@@ -822,6 +902,7 @@ Route::middleware(['auth'])->group(function () {
     */
 
     Route::prefix('discussion')->name('discussion.')->group(function () {
+
         Route::get('/', [DiscussionController::class, 'index'])
             ->name('index');
 
@@ -847,6 +928,23 @@ Route::middleware(['auth'])->group(function () {
     // Resources (Placeholder)
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
+
+
+
+    // Print Berita Acara Review
+    Route::get('/review/print/{type}/{id}', [\App\Http\Controllers\ReviewDocumentController::class, 'print'])
+        ->name('review.print');
+
+    // Review History
+    Route::get('/proposal/review-history/{dosen?}', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
+        ->name('proposal.review-history');
+
+    // Notifications (Modul 7)
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
+        Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
+    });
 
     Route::resource('proposal', ProposalController::class);
 

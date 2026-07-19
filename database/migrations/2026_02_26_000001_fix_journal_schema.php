@@ -19,6 +19,16 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+            try {
+                Schema::table('journals', function (Blueprint $table) {
+                    $table->dropIndex('journals_accreditation_expiry_date_index');
+                });
+            } catch (\Throwable) {
+                // Index already absent — safe to continue.
+            }
+        }
+
         Schema::table('journals', function (Blueprint $table) {
             if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
                 try {

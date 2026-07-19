@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Review;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ReviewAssignment;
+use App\Models\ReviewerAssignment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * Class ReviewAssignmentController
@@ -103,5 +105,30 @@ class ReviewAssignmentController extends Controller
 
         // 4. Berikan flash message ke Inertia (Frontend React)
         return back()->with('success', 'Undangan berhasil dikirimkan ke Reviewer.');
+    }
+
+    /**
+     * Extend due date for a reviewer assignment.
+     *
+     * Memvalidasi input dan memperbarui kolom due_date pada
+     * reviewer_assignments untuk assignment yang diberikan.
+     *
+     * @param  Request             $request
+     * @param  ReviewerAssignment  $reviewerAssignment
+     * @return RedirectResponse
+     */
+    public function extendDue(Request $request, ReviewerAssignment $reviewerAssignment): RedirectResponse
+    {
+        $this->authorize('extendDueDate', $reviewerAssignment->proposal);
+
+        $validated = $request->validate([
+            'due_date' => ['required', 'date', 'after:today'],
+        ]);
+
+        $reviewerAssignment->update([
+            'due_date' => $validated['due_date'],
+        ]);
+
+        return redirect()->back()->with('success', 'Due date berhasil diperpanjang.');
     }
 }

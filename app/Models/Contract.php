@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Contract extends Model
 {
@@ -140,6 +141,7 @@ class Contract extends Model
         return $query->where('status', $status);
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | Accessors & Helpers
@@ -160,12 +162,6 @@ class Contract extends Model
             default => 'gray',
         };
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Accessors & Mutators
-    |--------------------------------------------------------------------------
-    */
 
     public function getNomorKontrakAttribute(): ?string
     {
@@ -200,14 +196,14 @@ class Contract extends Model
         parent::boot();
 
         static::creating(function (Contract $contract) {
-            if (auth()->check() && ! $contract->created_by) {
-                $contract->created_by = auth()->id();
+            if (Auth::check() && ! $contract->created_by) {
+                $contract->created_by = Auth::id();
             }
         });
 
         static::updating(function (Contract $contract) {
-            if (auth()->check()) {
-                $contract->updated_by = auth()->id();
+            if (Auth::check()) {
+                $contract->updated_by = Auth::id();
             }
         });
     }
