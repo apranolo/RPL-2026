@@ -26,10 +26,10 @@ return new class extends Migration
             $table->string('file_sertifikat_atau_cover')->nullable();
             $table->enum('status_verifikasi', ['Draft', 'Menunggu_Verifikasi', 'Terverifikasi_LPPM', 'Ditolak'])->default('Draft');
             $table->text('keterangan')->nullable();
-            
+
             // Polymorphic relation
             $table->nullableMorphs('outputable');
-            
+
             $table->softDeletes();
             $table->timestamps();
         });
