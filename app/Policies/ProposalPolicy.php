@@ -11,8 +11,9 @@ use App\Models\User;
  * Menentukan otorisasi aksi-aksi terhadap model Proposal.
  *
  * Aturan:
- * - Super Admin : dapat melihat semua, approve, dan reject proposal
- * - User (Dosen): dapat melihat proposal miliknya sendiri
+ * - Super Admin    : dapat melihat semua, approve, dan reject proposal
+ * - Admin Kampus   : dapat melihat rekap review dan memperpanjang due date
+ * - User (Dosen)   : dapat melihat proposal miliknya sendiri
  */
 class ProposalPolicy
 {
@@ -69,5 +70,31 @@ class ProposalPolicy
     public function upload(User $user, Proposal $proposal): bool
     {
         return $user->id === $proposal->user_id;
+    }
+
+    /**
+     * Tentukan apakah user dapat melihat rekap review multi-reviewer.
+     *
+     * Digunakan oleh ReviewSummaryController::index().
+     * Hanya SuperAdmin, AdminKampus, dan PengelolaJurnal.
+     */
+    public function viewSummary(User $user, Proposal $proposal): bool
+    {
+        return $user->isSuperAdmin()
+            || $user->isAdminKampus()
+            || $user->isPengelolaJurnal();
+    }
+
+    /**
+     * Tentukan apakah user dapat memperpanjang due date reviewer assignment.
+     *
+     * Digunakan oleh ReviewAssignmentController::extendDue().
+     * Hanya SuperAdmin, AdminKampus, dan PengelolaJurnal.
+     */
+    public function extendDueDate(User $user, Proposal $proposal): bool
+    {
+        return $user->isSuperAdmin()
+            || $user->isAdminKampus()
+            || $user->isPengelolaJurnal();
     }
 }

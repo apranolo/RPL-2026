@@ -1,7 +1,17 @@
 # Product Requirement Document (PRD)
-## Sistem Penelitian Terintegrasi
+## Sistem Penelitian Terintegrasi (Kelas B)
 
-Dokumen ini berisi spesifikasi kebutuhan untuk 6 modul utama Sistem Penelitian Terintegrasi, disusun menggunakan standar format analisis kebutuhan (berdasarkan entitas modul utama).
+Dokumen ini berisi spesifikasi kebutuhan untuk 6 modul utama Sistem Penelitian Terintegrasi, disusun menggunakan standar format analisis kebutuhan (berdasarkan entitas modul utama). Dokumen ini telah diselaraskan dengan spesifikasi teknis dan antarmuka pada file penugasan.
+
+---
+
+### Manajemen Hak Akses (RBAC)
+Sistem ini menggunakan mekanisme Role-Based Access Control (RBAC) dengan pembagian peran yang ketat untuk menjaga keamanan dan alur bisnis. Terdapat beberapa peran utama dalam sistem:
+- **Super Admin**: Memiliki hak akses penuh (*global*) ke sistem. Mengelola pengaturan identitas aplikasi (`SettingsCtrl`) dan memantau seluruh log aktivitas sistem (`LogController`).
+- **Admin Kampus (LPPM)**: Mengelola operasi dan alur akademik penelitian (Path: `Admin/`). Tugasnya meliputi verifikasi awal proposal, mem-plotting/menunjuk Reviewer, mengatur jadwal dan kriteria Monev, serta memverifikasi pengajuan Luaran Dosen.
+- **Admin Keuangan**: Secara spesifik menangani alur dana penelitian (Path: `Finance/`). Bertugas me-generate kontrak, mengatur termin pencairan, dan melakukan validasi bukti transfer.
+- **Reviewer**: Pakar yang ditugaskan (diplot) oleh Admin Kampus untuk mengevaluasi substansi proposal dan memberikan rekomendasi Diterima/Ditolak/Revisi.
+- **Peneliti / Dosen**: Pengguna reguler yang mengajukan proposal, melaporkan progres (Monev), mengklaim pengeluaran dana, dan menyumbangkan luaran penelitian.
 
 ---
 
@@ -13,7 +23,7 @@ Modul ini digunakan untuk memfasilitasi dan mengelola proses pengajuan proposal 
 **2. Data Requirements**
 - `id_proposal` (Primary Key, Auto-increment)
 - `id_pengusul` (Foreign Key ke tabel `users`, Required)
-- `id_skema_pendanaan` (Foreign Key ke tabel `skema`, Required)
+- `id_skema_pendanaan` (Foreign Key ke tabel `schemas`, Required)
 - `judul_penelitian` (String, Required, Max: 255 karakter, Unique per pengusul di tahun pendanaan yang sama)
 - `abstrak` (Text, Required, Max: 2000 karakter)
 - `latar_belakang` (Text, Required)
@@ -23,27 +33,33 @@ Modul ini digunakan untuk memfasilitasi dan mengelola proses pengajuan proposal 
 
 **3. Business Rules**
 - Hanya pengguna dengan peran (role) **Peneliti/Dosen** yang dapat mengajukan proposal.
-- Admin/Operator melakukan proses verifikasi kelengkapan administrasi sebelum proposal masuk tahapan *review*.
+- **Admin Kampus / LPPM** melakukan proses verifikasi kelengkapan administrasi sebelum proposal masuk tahapan *review*.
 - Proposal hanya dapat diedit jika status masih *Draft* atau sedang dalam perbaikan administrasi (dikembalikan oleh Admin).
 - Tidak diperbolehkan ada duplikasi judul penelitian dari pengusul yang sama dalam satu tahun pendanaan.
 
 **4. Functional Requirements**
-- **Create**: Formulir pembuatan pengajuan (input field metadata dan *upload file* proposal).
-- **Read**: Menampilkan daftar riwayat proposal bagi Peneliti (hanya proposal miliknya) dan Admin (seluruh proposal dengan opsi filter).
-- **Update**: Pemrosesan *edit* metadata dan pergantian *file upload* saat revisi draft/administrasi.
-- **Delete**: Fasilitas *soft-delete* atau pembatalan pengajuan hanya saat berstatus *Draft*.
+- **Create**: Formulir pembuatan pengajuan (input field metadata dan *upload file* proposal). Di-handle oleh `ProposalController@create` dan `store`.
+- **Read**: Menampilkan daftar riwayat proposal bagi Peneliti (di `ProposalController@index`) dan Admin Kampus (di `Admin/ProposalController@index`).
+- **Update**: Pemrosesan *edit* metadata (`ProposalController@edit`, `update`) dan pergantian *file upload* (`DocumentController@upload`).
+- **Delete**: Fasilitas *soft-delete* atau pembatalan pengajuan hanya saat berstatus *Draft* (`ProposalController@destroy`).
 
 **5. Validation Rules**
-- *Required*: Judul, Abstrak, Latar Belakang, Skema Pendanaan, File Dokumen wajib diisi. Pesan: "Field [Nama Field] tidak boleh kosong."
+- *Required*: Judul, Abstrak, Latar Belakang, Skema Pendanaan, File Dokumen wajib diisi via `StoreProposalRequest`. Pesan: "Field [Nama Field] tidak boleh kosong."
 - *File Upload*: Ekstensi diwajibkan `.pdf` dengan ukuran maksimal 10MB. Pesan: "Dokumen harus berupa PDF maksimal 10MB."
 - *Unique*: Judul duplikat. Pesan: "Anda sudah memiliki pengajuan dengan judul tersebut di periode ini."
 
 **6. User Interface Requirements**
-- **Peneliti**: Form *wizard* input pengajuan (Step-by-step), daftar riwayat proposal dalam tabel berfitur *pagination*, dilengkapi indikator/badge warna status (*Draft: Abu-abu, Submitted: Biru, Valid: Hijau*).
-- **Admin**: Halaman verifikasi dokumen dengan tampilan *side-by-side* (*PDF viewer* interaktif di sebelah kiri, form *checklist* validasi di sebelah kanan).
+- **Peneliti**: 
+  - Halaman daftar pengajuan (`resources/js/pages/Proposal/Index.tsx`): Menampilkan tabel riwayat proposal yang diajukan oleh dosen beserta badge statusnya (Draft, Submitted, dll) dan tombol aksi (Edit/Hapus untuk Draft, Lihat untuk lainnya). Berfungsi untuk melacak progres proposal.
+  - Halaman pengajuan / form baru (`resources/js/pages/Proposal/Create.tsx`) dan edit (`Edit.tsx`): Menampilkan formulir input (judul, abstrak, skema) yang responsif dengan validasi form. Berfungsi sebagai antarmuka utama pengisian data proposal.
+  - Komponen file uploader (`resources/js/components/FileUploader.tsx`): Area *Dropzone* (Drag & Drop) interaktif yang memberikan *feedback* visual saat file ditarik ke dalamnya, lengkap dengan indikator proses unggah. Berfungsi untuk mengunggah dokumen PDF.
+- **Admin Kampus**: 
+  - Halaman verifikasi dan list (`resources/js/pages/Admin/Proposal/Index.tsx`): Tabel daftar seluruh proposal masuk dari dosen. Berfungsi untuk memudahkan admin menyaring dan mencari proposal yang butuh verifikasi administrasi.
+  - Komponen verifikasi (`resources/js/components/ActionButtons.tsx`): Berupa tombol grup interaktif (Approve warna hijau, Reject warna merah) yang memunculkan pop-up konfirmasi (dan isian alasan penolakan). Berfungsi untuk mengeksekusi putusan verifikasi administrasi.
 
 **7. Integration Requirements**
-- Terintegrasi secara data master pengguna (Dosen), Skema Pendanaan, dan menjadi penyuplai target data untuk Modul Reviewer dan Penilaian.
+- Integrasi *backend* API untuk Skema di `SchemaResource.php`.
+- Tersedia integrasi dengan Kelas G jika diperlukan (opsional). Modul ini memasok data referensi untuk plotting Reviewer di Modul 2.
 
 ---
 
@@ -54,94 +70,106 @@ Modul ini bertugas mengatur penunjukan (plotting) proposal ke reviewer, serta al
 
 **2. Data Requirements**
 - `id_plot_reviewer` (Primary Key, Auto-increment)
-- `id_proposal` (Foreign Key ke tabel `proposal`, Required)
+- `id_proposal` (Foreign Key ke tabel `proposals`, Required)
 - `id_reviewer` (Foreign Key ke tabel `users`, Required)
 - `tanggal_mulai_review` (Date, Required)
 - `tanggal_selesai_review` (Date, Required)
-- `komponen_penilaian` (JSON/Tabel relasi skor indikator)
+- `komponen_penilaian` (JSON/Tabel relasi `assessment_criteria`)
 - `catatan_evaluasi` (Text, Required jika ada revisi/penolakan)
 - `skor_total` (Numeric/Float, Default: 0)
 - `keputusan_rekomendasi` (Enum: Diterima, Ditolak, Revisi)
 
 **3. Business Rules**
-- Pendelegasian (plotting) reviewer terhadap suatu proposal dilakukan mutlak oleh **Admin/LPPM**.
-- Sebuah proposal dapat dinilai oleh lebih dari satu reviewer (nilai final akan dirata-rata).
+- Pendelegasian (plotting) reviewer terhadap suatu proposal dilakukan mutlak oleh **Admin Kampus/LPPM**.
+- Sebuah proposal dapat dinilai oleh lebih dari satu reviewer (nilai final akan dihitung melalui `ReviewCalculationService`).
 - Reviewer terikat *timeline*; penilaian tidak dapat di-*submit* apabila tenggat waktu penilaian sudah lewat.
 - Keputusan final persetujuan (Diterima/Ditolak) ada pada kewenangan pimpinan LPPM berdasarkan hasil skor reviewer.
 
 **4. Functional Requirements**
-- **Create**: Admin membuat penugasan reviewer. Reviewer mengisi format form rubrik nilai.
-- **Read**: Daftar plot tugas penilaian (*To do list*) untuk akun Reviewer. Rekap kalkulasi hasil score untuk Admin.
-- **Update**: Admin mengganti pendelegasian reviewer. Reviewer memperbarui nilai (*Save Draft*) sebelum batas waktu berakhir dan melakukan submit final.
-- **Delete**: Admin bisa membatalkan/menghapus *assignment* reviewer dengan *soft-delete* apabila reviewer berhalangan.
+- **Create**: Admin Kampus menunjuk reviewer via `Admin/AssignController@assign`. Admin Kampus dapat menentukan kriteria evaluasi baru via `Admin/CriteriaController@store`.
+- **Read**: Reviewer memiliki dashboard (*To do list*) dari penugasan via `ReviewerController@index`.
+- **Update**: Reviewer melakukan penyimpanan / kalkulasi poin via `ReviewController@storeAssessment` dan `updateAssessment`.
+- **Delete**: Admin Kampus dapat mencabut pendelegasian via `Admin/AssignController@unassign`.
 
 **5. Validation Rules**
-- *Required*: Setiap indikator penilaian form rubrik wajib diisi angka skor. Pesan: "Nilai indikator [Nama Indikator] harus diisi."
-- *Range limit*: Skor indikator minimal 0 dan maksimal 100. Pesan: "Skor tidak sah, harus berada di angka 0 - 100."
+- *Required*: Setiap indikator penilaian wajib diisi melalui `StoreReviewRequest`.
+- *Range limit*: Skor indikator disesuaikan kriteria, misalnya 1-10 atau persentase, total harus valid 0-100.
 - *Required (Conditional)*: Catatan evaluasi diwajibkan bila status rekomendasi adalah *Revisi* atau *Ditolak*.
 
 **6. User Interface Requirements**
-- **Reviewer**: Dashboard mini daftar penugasan evaluasi (*To-Do List*), *Dynamic rubrik form* dengan auto-kalkulasi skor agregat secara *real-time*.
-- **Admin**: Matriks *plotting* tabel untuk pengawasan riwayat penugasan, matriks perbandingan nilai (jika *multiple reviewer*), dan tombol aksi "Keputusan Final".
+- **Admin Kampus**:
+  - Tampilan *plotting* (`resources/js/pages/Admin/Reviewer/Assign.tsx`): Halaman yang menyandingkan daftar proposal dengan *dropdown* pencarian Reviewer, memudahkan admin memasangkan proposal dengan pakar yang tepat.
+  - Modal konfirmasi penugasan (`resources/js/components/AssignModal.tsx`): Pop-up dialog untuk mengkonfirmasi penugasan reviewer yang berisi ringkasan data, berfungsi untuk menghindari kesalahan klik *assign*.
+  - Halaman penjadwalan review (`resources/js/pages/Admin/Reviewer/Schedule.tsx`) terintegrasi `DatePicker.tsx`: Halaman khusus dengan antarmuka kalender interaktif untuk memilih rentang tanggal mulai dan selesai *review*. Berfungsi untuk menetapkan *timeline* evaluasi secara intuitif.
+  - Tabel rekapitulasi penilaian akhir (`resources/js/pages/Admin/Reviewer/Summary.tsx`): Tabel analitik yang meringkas nilai rata-rata dari multi-reviewer beserta warna status kelulusan. Berfungsi untuk membantu pimpinan LPPM memutus hasil akhir.
+  - Pengelolaan parameter kriteria penilaian (`resources/js/pages/Admin/Criteria/Index.tsx`) dan input dinamis (`resources/js/components/DynamicInput.tsx`): Antarmuka pengaturan master data di mana admin bisa menambah/mengurangi kriteria penilaian (tambah baris dinamis). Berfungsi membangun form rubrik secara kustom.
+- **Reviewer**:
+  - Halaman daftar evaluasi (`resources/js/pages/Reviewer/Index.tsx`): Dashboard minimalis berisikan *To-do List* proposal yang perlu dinilai, lengkap dengan indikator sisa hari (countdown). Berfungsi mengorganisasi beban kerja reviewer.
+  - Halaman pengisian skor (`resources/js/pages/Reviewer/FormReview.tsx`): Form rubrik interaktif yang melakukan kalkulasi total skor agregat secara *real-time* saat Reviewer mengetik/memilih nilai. Berfungsi memberikan pengalaman penilaian yang efisien.
+- **Umum**: 
+  - Lonceng notifikasi (`resources/js/components/NotificationBell.tsx`): Ikon lonceng di *Navbar* atas dengan indikator angka merah *unread*. Berfungsi memberi peringatan seketika (alert) kepada pengguna saat ada penugasan baru.
 
 **7. Integration Requirements**
-- Mengubah otomatis `status_proposal` di Modul Proposal jika telah ada penetapan pimpinan.
-- Mengirim notifikasi (email/in-app) kepada *Reviewer* (penugasan baru) dan *Peneliti* (hasil penilaian).
+- Fitur penarikan data notifikasi secara otomatis oleh sistem saat *Assign* dilakukan (`NotificationController@notifyReviewer`).
 
 ---
 
 ### 3. Manajemen Kontrak dan Pendanaan
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul untuk mengelola data kontrak, legalitas, rincian anggaran yang disetujui LPPM, penyusunan tahapan pencairan, serta pencatatan administrasi keuangan proyek riset yang bersangkutan (proposal lulus seleksi).
+Modul untuk mengelola data kontrak, legalitas, rincian anggaran yang disetujui, penyusunan tahapan pencairan, serta pencatatan administrasi keuangan oleh peran **Admin Keuangan**.
 
 **2. Data Requirements**
 - `id_kontrak` (Primary Key)
 - `nomor_kontrak` (String, Required, Unique)
-- `tanggal_kontrak` (Date, Required)
-- `id_proposal_diterima` (Foreign Key, Required, Unique One-to-One)
-- `pihak_1` (String, Required / Pihak LPPM)
-- `pihak_2` (String, Required / Pihak Peneliti Utama)
+- `id_proposal_diterima` (Foreign Key ke `proposals`, Required, Unique)
 - `total_pendanaan_disetujui` (Numeric/Decimal, Required)
-- `termin_pencairan` (JSON/Relational Table - rincian tahapan: persentase, nominal, status)
-- `bukti_dokumen_keuangan` (String/URL berkas Slip Transfer, Optional/Required Conditionally)
+- `termin_pencairan` (Relasi tabel `fundings` - persentase, nominal, status)
+- `bukti_dokumen_keuangan` (String/URL berkas, Optional/Required Conditionally)
 - `status_kontrak` (Enum: Aktif, Selesai, Ditangguhkan)
 
 **3. Business Rules**
 - Modul Kontrak ini eksklusif untuk proposal yang sudah diputuskan "Diterima" oleh LPPM.
-- Total kumulatif nominal per tahap termin jika dijumlahkan **wajib** sama persis (100%) dengan angka `total_pendanaan_disetujui`.
-- Fitur administrasi pelunasan (input slip dan mengubah status tahapan dana) eksklusif untuk bagian **Keuangan / Operator / LPPM**.
-- Pencairan untuk termin-termin lanjutan (misal: Tahap 2, Tahap 3) akan tertahan apabila *prerequisite* Laporan Kemajuan (Antara) belum disetujui di Modul Monev.
+- Pihak **Admin Keuangan** menyusun draft dan tahapan (termin) dari kontrak ini. Total kumulatif nominal per tahap harus sama persis (100%) dengan angka `total_pendanaan_disetujui`.
+- Pencairan untuk termin lanjutan (Tahap 2 dst) akan tertahan apabila *prerequisite* Laporan Kemajuan (Antara) belum disetujui di Modul Monev.
+- Peneliti harus melengkapi data Bank/Rekening.
 
 **4. Functional Requirements**
-- **Create**: *Generate* / pembuatan draf kontrak baru dan penentuan alokasi pembayaran termin pencairan.
-- **Read**: Tabel list seluruh data administrasi riset beserta riwayat / progres mutasi pembayarannya.
-- **Update**: *Upload* nota kuitansi pencairan dana (oleh keuangan) dan pengubahan status termin.
-- **Delete**: Sangat dibatasi (Hanya fitur *Suspend/Ditangguhkan*), guna menjaga integritas data kontrak riil.
+- **Create**: *Generate* draft kontrak (`ContractController@generate`) dan penambahan data termin (`FundingController@storeTermin`).
+- **Read**: Tabel *monitoring* keuangan bagi Admin Keuangan (`FinanceReportController@summary`) dan tampilan info dana bagi Dosen (`UserFundingController@index`).
+- **Update**: Upload bukti pencairan dana transfer (`FundingController@uploadBukti`) dan verifikasi kelengkapan.
+- **Delete**: Sangat dibatasi (Hanya penangguhan status), guna menjaga integritas *ledger* / audit.
 
 **5. Validation Rules**
-- *Unique*: `nomor_kontrak` tidak boleh ganda di database. Pesan: "Nomor Kontrak sudah terdaftar sebelumnya."
-- *Calculated Allocation*: Nominal tahapan jika di-sum nilainya di bawah/di atas nilai total dana → error message: "Total alokasi termin pencairan tidak sama dengan 100% total pendanaan yang disetujui."
-- *File Upload*: File bukti pencairan hanya boleh berformat `.jpg`, `.png`, atau `.pdf` dengan ukuran maksimal 5MB. 
+- *Unique*: `nomor_kontrak` tidak boleh ganda di database.
+- *Calculated Allocation*: Di-validasi oleh `StoreFundingRequest`. Jika nilai tidak genap 100%, sistem akan menolak submit.
+- *File Upload*: File bukti PDF/JPG maks 5MB.
 
 **6. User Interface Requirements**
-- Halaman *Digital Agreement* / Detil Kontrak dilengkapi tombol *download*/cetak dokumen PDF.
-- *Progress bar* status serapan keuangan peneliti untuk melacak persentase serapan dana (yang sudah cair vs sisa).
-- *Confirmation Dialog box* konfirmasi aksi pelunasan termin setiap kali staf keuangan memproses tahap pencairan.
+- **Admin Keuangan**:
+  - Halaman sentral manajemen Kontrak (`resources/js/pages/Finance/Contract/Index.tsx` & `Show.tsx`): Daftar tabular seluruh ikatan kontrak beserta halaman rincian detail digital (*Digital Agreement*). Berfungsi mengarsipkan dan melihat detail kontrak yang sah.
+  - Halaman upload dan review dokumen pencairan (`resources/js/pages/Finance/Contract/Upload.tsx`) dengan lencana status (`resources/js/components/StatusBadge.tsx`): Halaman form pelunasan yang menampilkan lencana warna-warni (Aktif/Selesai). Berfungsi menandakan state/status pencairan tiap tahapan secara visual.
+  - Halaman pembuatan termin (`resources/js/pages/Finance/Funding/Create.tsx`) dan log finansial (`resources/js/pages/Finance/Funding/Logs.tsx`): Form interaktif alokasi persentase dana dan riwayat tabel *audit trail* aliran dana. Berfungsi memastikan rincian pembiayaan terekam sempurna 100%.
+  - Komponen penyaring laporan keuangan (`resources/js/components/FilterBar.tsx`): Boks kumpulan menu tarik-turun (*dropdown*) untuk menyaring data berdasar Tahun/Skema. Berfungsi memudahkan pencarian cepat data finansial.
+- **Peneliti**:
+  - Halaman informasi pencairan dana (`resources/js/pages/Proposal/FundingInfo.tsx`): Panel visual berupa *progress bar* serapan finansial (Cair vs Sisa). Berfungsi memberi transparansi posisi keuangan kepada dosen.
+  - Modal bukti penerimaan (`resources/js/components/ReceiptModal.tsx`): Pop-up yang menampilkan *image/PDF viewer* dari slip transfer dana. Berfungsi agar dosen bisa men-download bukti kuitansi tanpa harus meninggalkan halaman utama.
+  - Form pembaruan profil bank (`resources/js/pages/Profile/BankForm.tsx`): Formulir terpisah khusus untuk *update* nama Bank, nomor rekening, dan cabang. Berfungsi menjamin akurasi tujuan transfer.
 
 **7. Integration Requirements**
-- Terintegrasi erat dengan penyelesaian target di **Modul Monev** (Laporan Antara) yang memvalidasi pembukaan akses pencairan termin lanjutan.
+- Layanan kalkulasi saldo dengan `FundingService@calculateSisa` dan formatting rupiah client-side di `currency.ts`.
+- Menyediakan endpoint API riwayat finansial untuk Modul Dashboard (`Api/BudgetController@getStats`).
 
 ---
 
 ### 4. Monitoring dan Evaluasi (Monev) Penelitian
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul ini memfasilitasi pelaporan operasional riset di lapangan (*progress tracking*). Pemantauannya dilakukan secara berkala menggunakan logbook dan laporan (Laporan Kemajuan & Laporan Akhir) untuk menjamin akuntabilitas serta pemenuhan roadmap kegiatan.
+Modul ini memfasilitasi pelaporan operasional riset di lapangan (*progress tracking*). Pemantauannya dilakukan berkala melalui pelaporan kemajuan dan evaluasi kelanjutan proyek.
 
 **2. Data Requirements**
 - `id_monev` (Primary Key)
-- `id_kontrak` (Foreign Key ke tabel `kontrak`, Required)
+- `id_kontrak` (Foreign Key ke tabel `contracts`, Required)
 - `jenis_laporan` (Enum: Logbook, Laporan_Kemajuan, Laporan_Akhir, Required)
 - `tanggal_pelaporan` (Date, Required)
 - `persentase_progres` (Numeric, Range 0-100, Required)
@@ -151,103 +179,109 @@ Modul ini memfasilitasi pelaporan operasional riset di lapangan (*progress track
 - `status_monev` (Enum: Pending, Direview, Diterima, Ditolak; Default: Pending)
 
 **3. Business Rules**
-- Setiap peneliti wajib mendokumentasikan progres historis melalui entri logbook.
-- Persetujuan terhadap dokumen *Laporan Kemajuan / Laporan Antara* merupakan prasyarat mutlak untuk pencairan termin pendanaan berikutnya (terintegrasi ke Modul 3).
-- Proses validasi atau evaluasi laporan dilakukan oleh evaluator yang ditunjuk oleh LPPM (atau reviewer bawaan).
-- Pergeseran `persentase_progres` dari entri logbook yang baru tidak boleh mundur nilainya dari riwayat input sebelumnya (progres proyek harus terakumulasi maju).
+- Peneliti mendokumentasikan progres historis via logbook / Laporan Kemajuan.
+- Dokumen *Laporan Kemajuan* wajib disetujui evaluator / LPPM sebagai trigger *unlock* tahapan termin Modul Keuangan.
+- Persentase kumulatif entri logbook (`persentase_progres`) bersifat *incremental* (tidak dapat mundur nilainya).
+- Terdapat sistem *reminder* peringatan jatuh tempo pelaporan.
 
 **4. Functional Requirements**
-- **Create**: *Submit* unggah entri logbook harian/mingguan dan laporan kemajuan proyek. 
-- **Read**: *Timeline* histori jejak pelaporan kegiatan (logbook list) yang dapat dipantau oleh Admin LPPM.
-- **Update**: Penambahan catatan *feedback*/revisi evaluator pada logbook/laporan yang sudah di-*submit*. 
-- **Delete**: Mengoreksi atau membatalkan draf logbook hanya dalam rentang waktu yang diizinkan (misal: 24 jam setelah input).
+- **Create**: Dosen men-*submit* dokumen laporan (`ProgressController@store`) dan upload file (`ProgressDocController@upload`).
+- **Read**: Dosen memantau histori logbooknya (`Progress/Index.tsx`). Admin Kampus melihat rekap Monev global (`Admin/MonevReportCtrl@index`).
+- **Update**: Evaluator/Reviewer memberikan catatan dan melakukan verifikasi (`EvaluationController@storeNote` dan `updateStatus`).
+- **System**: Otomatis menjalankan *Cron Job* `SendMonevReminder.php` jika jadwal hampir jatuh tempo.
 
 **5. Validation Rules**
-- *Number Range*: `persentase_progres` harus berada di nilai integer 0 - 100. Pesan: "Nilai progres harus antara rentang 0 hingga 100."
-- *File Upload Required*: Setiap *submit* Laporan Kemajuan / Akhir wajib menyertakan bukti. Pesan: "Bukti file dokumentasi laporan wajib dilampirkan."
-- *Logical Validation*: Persentase entri logbook terbaru harus >= record logbook sebelumnya untuk ID Kontrak yang sama.
+- *Number Range*: `persentase_progres` di antara 0 - 100.
+- *File Upload Required*: Setiap *submit* Laporan Kemajuan wajib menyertakan lampiran bukti.
 
 **6. User Interface Requirements**
-- **Peneliti**: Dashboard *Monev* dilengkapi presentasi visual *Gantt Chart* atau grafik progress. Antarmuka input form logbook dibuat mobile-friendly agar entri lapangan mudah diproses.
-- **LPPM**: Tabel pemantauan data grid *Monev* yang menampilkan peringatan visual/badge bagi proyek yang progres-nya sangat lambat / stagnan, serta ditunjang oleh *real-time live search*.
+- **Peneliti**: 
+  - Halaman entri laporan (`resources/js/pages/Progress/Create.tsx`): Antarmuka *mobile-friendly* berisi *Rich Text Editor* (`resources/js/components/RichTextEditor.tsx`) layaknya MS Word. Berfungsi mewadahi deskripsi panjang dan *formatting* teks saat dosen mengisi catatan *logbook* harian di lapangan.
+- **Admin / Evaluator**: 
+  - Halaman evaluasi progres (`resources/js/pages/Reviewer/Evaluation/Index.tsx`): Tabel pemantauan dengan fitur pencarian cepat (*live search*), berfungsi memetakan mana saja laporan antara yang harus dinilai.
+  - Indikator linimasa dan batang progres (`resources/js/components/ProgressTimeline.tsx` & `ProgressBar.tsx`): Representasi visual grafis horisontal yang menunjukkan milestone/pencapaian dari 0% ke 100%. Berfungsi mempercepat pemahaman posisi pengerjaan proyek hanya dengan sekilas pandang.
+  - Peringatan keterlambatan (`resources/js/components/AlertWarning.tsx`): Komponen kotak peringatan berwarna merah muda atau kuning terang yang muncul jika terdeteksi stagnasi proyek. Berfungsi memicu atensi LPPM untuk melakukan teguran.
+  - Tombol Kirim Pengingat manual (`resources/js/pages/Admin/Monev/RemindBtn.tsx`): Sebuah tombol aksi *quick action* di dalam tabel. Berfungsi mem-by-pass sistem *cron* otomatis untuk mengirim peringatan email/Notifikasi *in-app* pada satu kali klik.
 
 **7. Integration Requirements**
-- Menjadi kunci / saklar trigger pada sistem Modul 3 (Kontrak dan Pendanaan) untuk *unlock* termin pencairan lanjutan.
+- Laporan evaluasi akhir Monev bisa diekspor dan dicetak dengan `printRekap()` berformat cetak Blade (`print/evaluasi.blade.php`).
+- Terkoneksi API Grafik Kemajuan (`Api/TimelineController`).
 
 ---
 
 ### 5. Manajemen Luaran Penelitian
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul pencatatan seluruh rekam jejak capaian akhir produk atau karya intelektual (output fungsional riset) yang dihasilkan dari sebuah penelitian (seperti Publikasi, Buku, Paten, atau Prototipe).
+Modul pencatatan capaian luaran fungsional riset (Publikasi, HKI, Buku, Prototipe) dari sebuah penelitian.
 
 **2. Data Requirements**
 - `id_luaran` (Primary Key)
 - `id_kontrak` (Foreign Key, Required)
-- `jenis_luaran` (Enum: Jurnal_Nasional, Jurnal_Internasional, Prosiding, HKI, Buku, Prototipe, Required)
+- `jenis_luaran` (Enum: Jurnal, HKI, Buku, Produk/Prototipe, Required)
 - `judul_luaran` (String, Max 255, Required)
 - `tahun_capaian` (Year, Required)
-- `penulis_atau_pencipta` (String/Text, Required)
-- `tautan_publikasi` (String URL / DOI; Required conditionally berdasar jenis luaran)
-- `file_sertifikat_atau_cover` (String/URL dokumen otentikasi, Required)
+- `tautan_publikasi` (String URL / DOI; Required conditionally)
+- `file_sertifikat_atau_cover` (String/URL dokumen otentikasi)
 - `status_verifikasi` (Enum: Draft, Menunggu_Verifikasi, Terverifikasi_LPPM, Ditolak)
 
 **3. Business Rules**
-- Target luaran penelitian wajib dipenuhi sesuai dengan roadmap usulan proposal awal.
-- Peneliti mendatar luaran sebagai *Draft* / *Pending*. Pihak LPPM wajib melakukan *Verified / Approve* proses tersebut sebelum poin kinerja luaran tersebut masuk ke pencatatan sistem agregat universitas.
-- Aturan validasi (verifikasi LPPM) dikerjakan secara eksklusif untuk mencegah klaim tumpang-tindih (duplikasi) dari penelitian-penelitian ganda.
+- Peneliti mendaftar luaran fungsional yang diverifikasi oleh **Admin Kampus / LPPM** (untuk menghindari klaim ganda antar Dosen).
+- Form isian untuk luaran bersifat sangat *dynamic* tergantung dari Dropdown "Jenis Luaran" yang dipilih.
+- Menyediakan konektivitas ke ekosistem referensi (*Google Scholar*) untuk memanajemen H-Index dosen.
 
 **4. Functional Requirements**
-- **Create**: Formulir untuk mendeklarasikan wujud pencapaian *output*.
-- **Read**: Membangun katalog arsip atau etalase portofolio produk karya ilmiah, bisa di-*filter* berdasarkan peneliti, jenis, dan rentang tahun.
-- **Update**: Peneliti mengedit field tautan dan berkas meta jika ditolak keabsahannya (dikembalikan statusnya) oleh verifikator LPPM.
-- **Delete**: Pembatalan / hapus draf pengusulan luaran sebelum sempat diverifikasi.
+- **Create**: Dosen menambahkan luaran sesuai form jenis (*Jurnal/HKI/Buku/Prototipe*). Tersedia method-method peruntukan khusus seperti `storeJournal`, `storeHKI`, dsb.
+- **Read**: Admin Kampus meninjau pada antrean verifikasi (`Admin/OutputVerifyCtrl@index`). Tersedia portal landing page umum bagi public / guest (`PublicOutputController@show`).
+- **Update**: Admin Kampus memverifikasi dan merubah status. Dosen mengedit entri yang di-*reject* via `OutputController@update`.
+- **Sync**: Tarik data otomatis (`CitationController@sync`) melalui `ScholarService`.
 
 **5. Validation Rules**
-- *Dependency Validation*: Apabila `jenis_luaran` bernilai Jurnal / Prosiding, maka field `tautan_publikasi` wajib berbentuk URL (Regex validator tautan HTTP/HTTPS/DOI) yang valid. Pesan: "Tautan URL Jurnal / DOI invalid atau kosong."
-- *File Validation*: Dokumen sertifikat atau sampul PDF/Gambar wajib kurang dari 5MB.
+- *Dependency Validation*: Apabila `jenis_luaran` adalah "Jurnal", field tautan/DOI *wajib* URL.
+- Dokumen pendukung disyaratkan ukuran terbatas.
 
 **6. User Interface Requirements**
-- **Form Input Dinamis**: Field isian bereaksi secara reaktif / dinamis bergantung pada state pilihan drop-down `jenis_luaran`. (Misal: tidak menanyakan tautan DOI jika yang dipilih jenis "Prototipe", tapi menampilkan input "Deskripsi Prototipe").
-- Tampilan Katalog atau Galeri Portofolio dalam *Grid/Bento* layout atau *Table* dilengkapi alat *filter* untuk pencarian cepat jenis *output*.
+- Formulir dinamis pendaftaran luaran (`resources/js/pages/Output/Create.tsx`): Antarmuka yang cerdas di mana *field input* otomatis berganti struktur (Misal: Memunculkan *JournalForm.tsx* untuk form DOI, atau *BookForm.tsx* untuk form ISBN) dipandu oleh fungsi logika `OutputFormSelector.ts`. Berfungsi menyederhanakan *user experience* agar dosen tidak dihadapkan pada form kaku yang tidak relevan.
+- Modal verifikasi admin (`resources/js/components/VerifyModal.tsx`): Pop-up penyetujuan luaran (*Approve/Reject*) yang memuat kolom isian *mandatory* pesan perbaikan penolakan. Berfungsi melancarkan komunikasi dua arah jika berkas invalid.
+- Pratinjau bukti dokumen (`resources/js/components/FilePreview.tsx`): Modul penampil mini (gambar/sertifikat/PDF) tersemat (inline). Berfungsi mengefisienkan proses pengecekan keaslian tanpa admin harus bolak-balik men-*download* file.
+- Penjelajah luaran publik (`resources/js/components/GlobalSearch.tsx`): Baris pencarian melayang (*Search Bar*) di halaman etalase *landing page*. Berfungsi sebagai mesin telusur portofolio luaran universitas oleh pihak luar (tamu).
+- Profil Portofolio Dosen (`resources/js/pages/Profile/Citation.tsx`): Lembar profil mirip dasbor analitik kecil yang memperlihatkan grafik garis publikasi tahunan, H-Index, dan total kutipan dari Google Scholar. Berfungsi mengangkat rekam jejak prestise akademis peneliti.
 
 **7. Integration Requirements**
-- Modul ini adalah pemasok data pokok bagi statistik kinerja dan luaran pada Modul Eksekutif / Modul Dashboard Pelaporan.
+- Mengekspor data laporan ke spreadsheet `OutputsExport.php` dengan Laravel Excel.
 
 ---
 
 ### 6. Dashboard dan Pelaporan
 
 **1. Definisi Entitas / Deskripsi Awal**
-Modul analitik konklusif dan representasi grafis tingkat tinggi di platform. Dashboard berfokus memberikan metrik, pelaporan rekapitulasi, dan statistik performa penelitian berdasar pada data nyata (real-time) sehingga mendongkrak kemampuan *Decision Making* bagi pimpinan maupun memonitor portofolio individual dosen.
+Modul analitik konklusif dan representasi grafis *real-time*. Menyediakan metrik untuk *Decision Making* Pimpinan LPPM dan rangkuman performa untuk individual Dosen.
 
 **2. Data Requirements**
-Sebagai entitas *Read-Only Data View* (agregasi fungsional dari query antar modul di atas):
-- Data Statistik Pengajuan: Total Proposal, Diterima, Ditolak (COUNT filter berdasar Skema & Tahun).
-- Partisi Data Kontrak: Proposal Aktif berjalan, Skema Ditangguhkan, dan Selesai.
-- Data Metrik Finansial: Serapan Anggaran Keseluruhan vs Disetujui (SUM termin).
-- Indikator Luaran: Hitungan Pie Chart total sebaran Jenis Luaran (HKI, Jurnal, dsb).
+Hanya berbasis Query (*Read-Only Data View*), mem-filter data log dari sistem.
+- Data Total Proposal Masuk, Diterima, Ditolak per Skema (`DashboardController@getProposalStat`).
+- Metrik Finansial Serapan Dana (`Admin/DashboardCtrl@getFundingChart`).
+- Performa Fakultas / Prodi (`Admin/DashboardCtrl@getFacultyStat`).
 
 **3. Business Rules**
-- Dibatasi oleh *Tenant-scoping* atau hierarki RBAC:
-  - **Pimpinan Universitas / LPPM**: Bisa memantau cakupan laporan statistik penuh seluruh fakultas / universitas.
-  - **Dosen / Peneliti**: Hanya diperbolehkan memantau panel analitik capaian kinerjanya miliknya sendiri (H-index mandiri, jumlah riset pribadi didanai, persentase keberhasilan individunya).
-- Kinerja dapat dikalkulasi basis per tahun, sehingga fungsi cetak laporan tahunan berjalan krusial.
+- Akses dan visibilitas diatur secara global (Modul Dashboard Admin berbeda dengan Dashboard Dosen). Pimpinan/Admin Kampus melihat seluruh data universitas, Dosen melihat rekap pribadi.
+- Dapat di-*export* ke *Custom Report Generator* berformat Excel / PDF secara on-demand oleh Admin.
+- Rekam Jejak Sistem (*System Log*) dicatat di balik layar via Observer pola `created`/`updated` untuk mendata log aktivitas.
 
 **4. Functional Requirements**
-- **Create**: Mem-produksi dan mengekspor dokumen laporan statik (Generate ke `.pdf`, `.xls`, `.csv`). 
-- **Read**: Menampilkan angka metrik indikator kinerja, rekapitulasi data *Query JOIN* terurut tanpa memungkinkan mutasi data di sisi ini.
-- **Update**: Tidak terpakai (Hanya merubah filter state tahun / parameter *client side*).
-- **Delete**: Tidak terpakai.
+- **Create**: Mengekspor data dalam format berkas. PDF menggunakan DOMPDF (`exportPdf()`) dan Excel (`exportExcel()`).
+- **Read**: Menyajikan *Chart*, Daftar Top Researches, dan Log aktivitas (`LogController@index`).
+- **Update**: (Hanya Super Admin) Pembaharuan pengaturan sistem, logo / nama web via `Admin/SettingsCtrl@update`.
 
 **5. Validation Rules**
-- *Filter Date Validation*: Batas limit opsi pencarian parameter *range* waktu. Tahun `Filter Awal` tidak boleh lebih lambat daripada `Filter Akhir`. Pesan: "Periode waktu awal dan akhir pencarian data tidak valid."
-- *Data Scope Verification*: Setiap reuest API Dashboard mem-validasi kembali via middleware `user_id` session auth, periksa relasi dosen terkait agar terhindar bypass celah keamanan pengikatan institusi fakultas.
+- Validasi form eksportir memastikan filter _Date / Year_ valid (`MultiSelectFilter.tsx`).
 
 **6. User Interface Requirements**
-- **KPI Score Cards**: Posisi teratas dashboard meletakkan *Top Metric Blok* (Highlight angka esensial terangkum).
-- **Interactive Data Visualization**: *Client-side charting* (Line, Bar, Doughnut chart) berbasis pada lib grafik, di mana saat tooltip di-hover menunjukkan data interaktif.
-- **Tabel Pelaporan Generik**: Menampilkan *Data Grid* yang memiliki kolom serbaguna dan utilitas faset pencarian _Advanced Filter_ multifungsi (Dropdown, Checkbox centang status, Pilihan skema). Semua *grid search* selaras dengan tombol "Eksport Laporan".
+- Dua pintu dasbor terpisah: `resources/js/pages/Dashboard/User.tsx` (Panel ringkasan prestasi spesifik milik dosen terkait) dan `resources/js/pages/Dashboard/Admin.tsx` (Panel pemantauan *helicopter view* dengan metrik kampus global). Berfungsi menjamin fokus informasi berdasarkan kapabilitas perannya.
+- Bagan data grafik statistik (`resources/js/components/Charts/BarChart.tsx` & `PieChart.tsx`): Diagram visual interaktif di mana *tooltip* tampil saat kursor diarahkan ke area diagram. Berfungsi memvisualisasikan tren data berderet seperti anggaran tahunan dan persentase luaran.
+- Modul klasemen peringkat (`resources/js/components/TopResearchList.tsx` & `TopLecturerList.tsx`): Daftar *Leaderboard* 5 besar proyek teraktif dan dosen paling produktif. Berfungsi membangkitkan kompetisi positif (*gamification*) antar akademisi.
+- Fasilitas Kustom Cetak Laporan (`resources/js/pages/Admin/Report/Generator.tsx`): Antarmuka dengan filter pilihan ganda (`MultiSelectFilter.tsx`) dan grup tombol ekstrak (`ExportButtons.tsx` untuk Excel/PDF). Berfungsi mengakomodasi kebutuhan LPPM saat rapat pimpinan atau akreditasi.
+- Komponen penyempurna UX: `SkeletonLoader.tsx` (Efek pemuatan bayangan kerangka yang mengurangi sensasi lemot saat jaringan lambat) dan `ActivityLog.tsx` (Kotak riwayat aliran aktivitas di sisi layar layaknya *timeline* Facebook untuk transparansi audit rekam jejak).
 
 **7. Integration Requirements**
-- Memanfaatkan dan mengkonsolidasikan data secara murni *Read Only* dari Modul Spesifik 1, Modul 2, Modul 3, Modul 4, hingga Modul 5.
+- Mengkonsolidasikan data secara murni *Read Only* dari Modul 1 sampai Modul 5.
+- Tersedia pengaturan *route redirect* di `LoginController@authenticated` agar Dosen dan Admin/Keuangan langsung dilempar ke panel Dashboard yang tepat pasca-Login.
