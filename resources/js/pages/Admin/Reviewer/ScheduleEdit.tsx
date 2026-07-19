@@ -37,7 +37,7 @@ interface User {
 
 interface ReviewSchedule {
     id: number;
-    journal_assessment_id: number;
+    proposal_id: number;
     reviewer_id: number;
     scheduled_at: string;
     ended_at?: string;
@@ -57,7 +57,7 @@ interface Props {
 
 export default function ScheduleEdit({ schedule, assessments, reviewers }: Props) {
     const { data, setData, put, processing, errors } = useForm({
-        journal_assessment_id: String(schedule.journal_assessment_id),
+        proposal_id: String(schedule.proposal_id),
         reviewer_id: String(schedule.reviewer_id),
         scheduled_at: schedule.scheduled_at ? schedule.scheduled_at.slice(0, 16) : '',
         ended_at: schedule.ended_at ? schedule.ended_at.slice(0, 16) : '',
@@ -105,12 +105,12 @@ export default function ScheduleEdit({ schedule, assessments, reviewers }: Props
                     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="journal_assessment_id">
+                                <Label htmlFor="proposal_id">
                                     Assessment (Proposal) <span className="text-destructive">*</span>
                                 </Label>
                                 <Select
-                                    value={data.journal_assessment_id}
-                                    onValueChange={(value) => setData('journal_assessment_id', value)}
+                                    value={data.proposal_id}
+                                    onValueChange={(value) => setData('proposal_id', value)}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select an assessment" />
@@ -123,8 +123,8 @@ export default function ScheduleEdit({ schedule, assessments, reviewers }: Props
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                {errors.journal_assessment_id && (
-                                    <p className="text-sm text-destructive">{errors.journal_assessment_id}</p>
+                                {errors.proposal_id && (
+                                    <p className="text-sm text-destructive">{errors.proposal_id}</p>
                                 )}
                             </div>
 

@@ -440,7 +440,7 @@ export interface ReviewerAssignment {
 // Review Schedule types
 export interface ReviewSchedule {
     id: number;
-    journal_assessment_id: number;
+    proposal_id: number;
     reviewer_id: number;
     scheduled_at: string;
     ended_at?: string;

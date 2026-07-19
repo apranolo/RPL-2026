@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('review_schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('journal_assessment_id')
+            $table->foreignId('proposal_id')
                 ->constrained('journal_assessments')
                 ->cascadeOnDelete();
             $table->foreignId('reviewer_id')

@@ -11,8 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { type BreadcrumbItem, type PageProps } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { ArrowLeft, Clock, Edit, ExternalLink, Globe, MapPin, User } from 'lucide-react';
@@ -25,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface ReviewSchedule {
     id: number;
-    journal_assessment_id: number;
+    proposal_id: number;
     reviewer_id: number;
     scheduled_at: string;
     ended_at?: string;
@@ -68,6 +68,9 @@ interface Props {
 }
 
 export default function ScheduleShow({ schedule }: Props) {
+    const { auth } = usePage<PageProps>().props;
+    const isSuperAdmin = auth.user?.role?.name === 'Super Admin';
+
     const getStatusBadge = (status: string) => {
         const variants: Record<string, string> = {
             scheduled: 'default',
@@ -104,12 +107,14 @@ export default function ScheduleShow({ schedule }: Props) {
                                     {getStatusBadge(schedule.status)}
                                 </div>
                             </div>
-                            <Button asChild className="flex items-center gap-2">
-                                <Link href={route('admin.schedules.edit', schedule.id)}>
-                                    <Edit className="h-4 w-4" />
-                                    Edit Schedule
-                                </Link>
-                            </Button>
+                            {isSuperAdmin && (
+                                <Button asChild className="flex items-center gap-2">
+                                    <Link href={route('admin.schedules.edit', schedule.id)}>
+                                        <Edit className="h-4 w-4" />
+                                        Edit Schedule
+                                    </Link>
+                                </Button>
+                            )}
                         </div>
                     </div>
 

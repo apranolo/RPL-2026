@@ -52,7 +52,7 @@ interface Props {
 
 export default function ScheduleCreate({ assessments, reviewers }: Props) {
     const { data, setData, post, processing, errors } = useForm({
-        journal_assessment_id: '',
+        proposal_id: '',
         reviewer_id: '',
         scheduled_at: '',
         ended_at: '',
@@ -97,12 +97,12 @@ export default function ScheduleCreate({ assessments, reviewers }: Props) {
                     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="journal_assessment_id">
+                                <Label htmlFor="proposal_id">
                                     Assessment (Proposal) <span className="text-destructive">*</span>
                                 </Label>
                                 <Select
-                                    value={data.journal_assessment_id}
-                                    onValueChange={(value) => setData('journal_assessment_id', value)}
+                                    value={data.proposal_id}
+                                    onValueChange={(value) => setData('proposal_id', value)}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select an assessment to review" />
@@ -115,8 +115,8 @@ export default function ScheduleCreate({ assessments, reviewers }: Props) {
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                {errors.journal_assessment_id && (
-                                    <p className="text-sm text-destructive">{errors.journal_assessment_id}</p>
+                                {errors.proposal_id && (
+                                    <p className="text-sm text-destructive">{errors.proposal_id}</p>
                                 )}
                             </div>
 

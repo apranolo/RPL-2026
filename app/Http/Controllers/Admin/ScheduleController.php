@@ -32,10 +32,12 @@ class ScheduleController extends Controller
         }
 
         if ($request->filled('search')) {
-            $query->whereHas('proposal.journal', function ($q) use ($request) {
-                $q->where('title', 'like', "%{$request->search}%");
-            })->orWhereHas('reviewer', function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%");
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('proposal.journal', function ($q) use ($request) {
+                    $q->where('title', 'like', "%{$request->search}%");
+                })->orWhereHas('reviewer', function ($q) use ($request) {
+                    $q->where('name', 'like', "%{$request->search}%");
+                });
             });
         }
 

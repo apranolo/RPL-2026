@@ -11,7 +11,7 @@ class ReviewSchedule extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'journal_assessment_id',
+        'proposal_id',
         'reviewer_id',
         'scheduled_at',
         'ended_at',
@@ -34,7 +34,7 @@ class ReviewSchedule extends Model
 
     public function proposal()
     {
-        return $this->belongsTo(JournalAssessment::class, 'journal_assessment_id');
+        return $this->belongsTo(JournalAssessment::class, 'proposal_id');
     }
 
     public function reviewer()

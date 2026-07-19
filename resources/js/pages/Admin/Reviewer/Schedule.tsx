@@ -33,8 +33,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type PaginatedData } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { type BreadcrumbItem, type PaginatedData, type PageProps } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { CalendarDays, ChevronLeft, ChevronRight, Clock, Edit, Eye, ExternalLink, MapPin, Plus, Search, Trash2, User } from 'lucide-react';
@@ -48,7 +48,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface ReviewSchedule {
     id: number;
-    journal_assessment_id: number;
+    proposal_id: number;
     reviewer_id: number;
     scheduled_at: string;
     ended_at?: string;
@@ -75,6 +75,8 @@ interface Props {
 }
 
 export default function ScheduleIndex({ schedules, filters }: Props) {
+    const { auth } = usePage<PageProps>().props;
+    const isSuperAdmin = auth.user?.role?.name === 'Super Admin';
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || '');
     const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -150,12 +152,14 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
                                 <h1 className="text-3xl font-bold tracking-tight">Review Schedules</h1>
                                 <p className="mt-1 text-muted-foreground">Manage review scheduling for journal assessments</p>
                             </div>
-                            <Button asChild className="flex items-center gap-2">
-                                <Link href={route('admin.schedules.create')}>
-                                    <Plus className="h-4 w-4" />
-                                    Create Schedule
-                                </Link>
-                            </Button>
+                            {isSuperAdmin && (
+                                <Button asChild className="flex items-center gap-2">
+                                    <Link href={route('admin.schedules.create')}>
+                                        <Plus className="h-4 w-4" />
+                                        Create Schedule
+                                    </Link>
+                                </Button>
+                            )}
                         </div>
                     </div>
 
@@ -296,19 +300,23 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
                                                             <Eye className="h-4 w-4" />
                                                         </Link>
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" asChild title="Edit Schedule">
-                                                        <Link href={route('admin.schedules.edit', schedule.id)}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => setDeleteId(schedule.id)}
-                                                        title="Delete Schedule"
-                                                    >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </Button>
+                                                    {isSuperAdmin && (
+                                                        <Button variant="ghost" size="icon" asChild title="Edit Schedule">
+                                                            <Link href={route('admin.schedules.edit', schedule.id)}>
+                                                                <Edit className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+                                                    )}
+                                                    {isSuperAdmin && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => setDeleteId(schedule.id)}
+                                                            title="Delete Schedule"
+                                                        >
+                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -377,19 +385,23 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
                                                     <Eye className="h-4 w-4" />
                                                 </Link>
                                             </Button>
-                                            <Button variant="ghost" size="icon" asChild title="Edit Schedule">
-                                                <Link href={route('admin.schedules.edit', schedule.id)}>
-                                                    <Edit className="h-4 w-4" />
-                                                </Link>
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => setDeleteId(schedule.id)}
-                                                title="Delete Schedule"
-                                            >
-                                                <Trash2 className="h-4 w-4 text-destructive" />
-                                            </Button>
+                                            {isSuperAdmin && (
+                                                <Button variant="ghost" size="icon" asChild title="Edit Schedule">
+                                                    <Link href={route('admin.schedules.edit', schedule.id)}>
+                                                        <Edit className="h-4 w-4" />
+                                                    </Link>
+                                                </Button>
+                                            )}
+                                            {isSuperAdmin && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => setDeleteId(schedule.id)}
+                                                    title="Delete Schedule"
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </CardContent>
                                 </Card>

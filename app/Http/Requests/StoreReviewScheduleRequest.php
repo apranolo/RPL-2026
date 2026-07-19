@@ -14,7 +14,7 @@ class StoreReviewScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'journal_assessment_id' => 'required|exists:journal_assessments,id',
+            'proposal_id' => 'required|exists:journal_assessments,id',
             'reviewer_id' => 'required|exists:users,id',
             'scheduled_at' => 'required|date',
             'ended_at' => 'nullable|date|after:scheduled_at',
