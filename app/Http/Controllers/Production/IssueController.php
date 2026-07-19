@@ -70,8 +70,8 @@ class IssueController extends Controller
             'issue' => [
                 'id' => $issue->id,
                 'volume' => $issue->volume,
-                'nomor' => $issue->nomor,
-                'tahun' => $issue->tahun,
+                'number' => $issue->nomor,       // petakan nomor ke number untuk frontend
+                'year' => $issue->tahun,          // petakan tahun ke year untuk frontend
                 'judul_tematik' => $issue->judul_tematik,
                 'deskripsi' => $issue->deskripsi,
                 'status' => $issue->status,
@@ -91,13 +91,20 @@ class IssueController extends Controller
 
         $validated = $request->validate([
             'volume' => 'required|string|max:50',
-            'nomor' => 'required|string|max:50',
-            'tahun' => 'required|integer|min:1900|max:2100',
+            'number' => 'required|string|max:50',  // frontend mengirim 'number'
+            'year' => 'required|integer|min:1900|max:2100',  // frontend mengirim 'year'
             'judul_tematik' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string|max:2000',
         ]);
 
-        $issue->update($validated);
+        // Petakan kembali field frontend ke kolom database
+        $issue->update([
+            'volume' => $validated['volume'],
+            'nomor' => $validated['number'],
+            'tahun' => $validated['year'],
+            'judul_tematik' => $validated['judul_tematik'] ?? null,
+            'deskripsi' => $validated['deskripsi'] ?? null,
+        ]);
 
         return redirect()
             ->route('production.issue.edit', $issue)
