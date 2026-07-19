@@ -38,8 +38,6 @@ class Submission extends Model
 
     /**
      * Relation to author (User)
-     *
-     * @return BelongsTo
      */
     public function author(): BelongsTo
     {
@@ -48,8 +46,6 @@ class Submission extends Model
 
     /**
      * Alias relation to user (User) for backward compatibility.
-     *
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -58,8 +54,6 @@ class Submission extends Model
 
     /**
      * Relation to Journal (Multi-tenancy).
-     *
-     * @return BelongsTo
      */
     public function journal(): BelongsTo
     {
@@ -68,8 +62,6 @@ class Submission extends Model
 
     /**
      * Relation to SubmissionFile.
-     *
-     * @return HasMany
      */
     public function files(): HasMany
     {
@@ -78,12 +70,18 @@ class Submission extends Model
 
     /**
      * Relation to SubmissionContributor.
-     *
-     * @return HasMany
      */
     public function contributors(): HasMany
     {
         return $this->hasMany(SubmissionContributor::class);
+    }
+
+    /**
+     * Relation to RevisionRound.
+     */
+    public function revisionRounds(): HasMany
+    {
+        return $this->hasMany(RevisionRound::class, 'id_submission', 'id');
     }
 
     /**
