@@ -159,9 +159,6 @@ class Contract extends Model
             self::STATUS_CANCELLED => 'red',
             default => 'gray',
         };
-                        ->orWhere('short_name', 'like', "%{$search}%");
-                });
-        });
     }
 
     /*
