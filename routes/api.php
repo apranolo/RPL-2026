@@ -62,7 +62,7 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // Output Statistics
     Route::prefix('stats/outputs')->group(function () {
         Route::get('/by-category', [OutputStatsController::class, 'getCategory']);
-        Route::get('/yearly',      [OutputStatsController::class, 'getYearly']);
+        Route::get('/yearly', [OutputStatsController::class, 'getYearly']);
     });
 
     // Budget Stats
