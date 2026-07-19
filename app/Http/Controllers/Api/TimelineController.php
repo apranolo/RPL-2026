@@ -42,19 +42,19 @@ class TimelineController extends Controller
         // -----------------------------------------------------------------
         // Monthly counts
         $monthlyCounts = (clone $baseQuery)
-            ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
-            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->select(DB::raw(DB::connection()->getDriverName() === 'sqlite' ? "strftime('%m', created_at) as month" : 'MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
+            ->groupBy(DB::raw(DB::connection()->getDriverName() === 'sqlite' ? "strftime('%m', created_at)" : 'MONTH(created_at)'))
             ->pluck('count', 'month')->toArray();
 
         // Monthly scores (menggunakan 'percentage' sebagai nilai skor persentase)
         $monthlyScores = (clone $baseQuery)->whereNotNull('percentage')
             ->select(
-                DB::raw('MONTH(created_at) as month'),
+                DB::raw(DB::connection()->getDriverName() === 'sqlite' ? "strftime('%m', created_at) as month" : 'MONTH(created_at) as month'),
                 DB::raw('AVG(percentage) as avg_score'),
                 DB::raw('MAX(percentage) as max_score'),
                 DB::raw('MIN(percentage) as min_score')
             )
-            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->groupBy(DB::raw(DB::connection()->getDriverName() === 'sqlite' ? "strftime('%m', created_at)" : 'MONTH(created_at)'))
             ->get()->keyBy('month')->toArray();
 
         // Status distribution

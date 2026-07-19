@@ -20,13 +20,14 @@ class TopResearchController extends Controller
 
         $topResearch = Proposal::select(
             'proposals.id',
-            'proposals.judul',
+            'proposals.title',
             DB::raw('COUNT(research_outputs.id) as citations')
         )
             ->join('users', 'proposals.user_id', '=', 'users.id')
-            ->leftJoin('research_outputs', 'proposals.id', '=', 'research_outputs.proposal_id')
+            ->leftJoin('contracts', 'proposals.id', '=', 'contracts.proposal_id')
+            ->leftJoin('research_outputs', 'contracts.id', '=', 'research_outputs.contract_id')
             ->where('users.university_id', $universityId)
-            ->groupBy('proposals.id', 'proposals.judul')
+            ->groupBy('proposals.id', 'proposals.title')
             ->orderByDesc('citations')
             ->limit(5)
             ->get();

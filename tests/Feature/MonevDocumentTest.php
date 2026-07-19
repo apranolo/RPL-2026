@@ -20,16 +20,16 @@ class MonevDocumentTest extends TestCase
 
         // Setup Roles
         Role::insert([
-            ['id' => Role::SUPER_ADMIN, 'name' => 'Super Admin', 'guard_name' => 'web'],
-            ['id' => Role::ADMIN_KAMPUS, 'name' => 'Admin Kampus', 'guard_name' => 'web'],
-            ['id' => Role::REVIEWER, 'name' => 'Reviewer', 'guard_name' => 'web'],
-            ['id' => Role::USER, 'name' => 'User', 'guard_name' => 'web'],
+            ['name' => Role::SUPER_ADMIN, 'display_name' => 'Super Admin'],
+            ['name' => Role::ADMIN_KAMPUS, 'display_name' => 'Admin Kampus'],
+            ['name' => Role::REVIEWER, 'display_name' => 'Reviewer'],
+            ['name' => Role::USER, 'display_name' => 'User'],
         ]);
     }
 
     public function test_print_rekap_is_accessible_by_super_admin()
     {
-        $superAdmin = User::factory()->create(['role_id' => Role::SUPER_ADMIN]);
+        $superAdmin = User::factory()->superAdmin()->create();
 
         $response = $this->actingAs($superAdmin)->get(route('monev.printRekap'));
 
@@ -43,10 +43,7 @@ class MonevDocumentTest extends TestCase
         $university1 = University::factory()->create();
         $university2 = University::factory()->create();
 
-        $adminKampus = User::factory()->create([
-            'role_id' => Role::ADMIN_KAMPUS,
-            'university_id' => $university1->id,
-        ]);
+        $adminKampus = User::factory()->adminKampus($university1->id)->create();
 
         $journal1 = Journal::factory()->create(['university_id' => $university1->id]);
         $journal2 = Journal::factory()->create(['university_id' => $university2->id]);
@@ -65,8 +62,8 @@ class MonevDocumentTest extends TestCase
 
     public function test_print_rekap_filters_by_user()
     {
-        $user1 = User::factory()->create(['role_id' => Role::USER]);
-        $user2 = User::factory()->create(['role_id' => Role::USER]);
+        $user1 = User::factory()->user()->create();
+        $user2 = User::factory()->user()->create();
 
         JournalAssessment::factory()->create(['user_id' => $user1->id]);
         JournalAssessment::factory()->create(['user_id' => $user2->id]);

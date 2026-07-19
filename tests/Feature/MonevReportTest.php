@@ -28,7 +28,7 @@ beforeEach(function () {
         'university_id' => $this->univA->id,
         'is_active' => true,
     ]);
-    $this->adminA->roles()->attach($adminRole->id);
+    $this->adminA->roles()->syncWithoutDetaching([$adminRole->id]);
 
     // Create Admin Kampus Univ B
     $this->adminB = User::factory()->create([
@@ -36,14 +36,14 @@ beforeEach(function () {
         'university_id' => $this->univB->id,
         'is_active' => true,
     ]);
-    $this->adminB->roles()->attach($adminRole->id);
+    $this->adminB->roles()->syncWithoutDetaching([$adminRole->id]);
 
     // Create Super Admin for checks
     $this->superAdmin = User::factory()->create([
         'role_id' => $superRole->id,
         'is_active' => true,
     ]);
-    $this->superAdmin->roles()->attach($superRole->id);
+    $this->superAdmin->roles()->syncWithoutDetaching([$superRole->id]);
 });
 
 it('allows super admin to access monev rekap-keseluruhan', function () {
@@ -75,7 +75,7 @@ it('aborts with 403 if admin kampus has no university assigned', function () {
         'university_id' => null,
         'is_active' => true,
     ]);
-    $invalidAdmin->roles()->attach($adminRole->id);
+    $invalidAdmin->roles()->syncWithoutDetaching([$adminRole->id]);
 
     $response = actingAs($invalidAdmin)
         ->get('/admin-kampus/monev/rekap-keseluruhan');
@@ -92,6 +92,7 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
 
     DB::table('contracts')->insert([
         [
+            'contract_number' => 'CTR-A2', 'party_1' => 'Pihak 1', 'party_2' => 'Pihak 2', 
             'university_id' => $this->univA->id,
             'proposal_id' => $proposalA->id,
             'title' => 'Penelitian Univ A',
@@ -101,6 +102,7 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
             'updated_at' => now(),
         ],
         [
+            'contract_number' => 'CTR-B2', 'party_1' => 'Pihak 1', 'party_2' => 'Pihak 2', 
             'university_id' => $this->univB->id,
             'proposal_id' => $proposalB->id,
             'title' => 'Penelitian Univ B',
@@ -149,6 +151,9 @@ it('allows admin kampus to change research status using decide-action', function
     $proposalA = Proposal::factory()->create(['user_id' => $dosenA->id]);
 
     $contractId = DB::table('contracts')->insertGetId([
+        'contract_number' => 'C154',
+        'party_1' => 'A',
+        'party_2' => 'B',
         'university_id' => $this->univA->id,
         'proposal_id' => $proposalA->id,
         'title' => 'Penelitian Univ A',
@@ -176,6 +181,9 @@ it('prevents admin kampus from changing research status of another university', 
     $proposalB = Proposal::factory()->create(['user_id' => $dosenB->id]);
 
     $contractId = DB::table('contracts')->insertGetId([
+        'contract_number' => 'C181',
+        'party_1' => 'A',
+        'party_2' => 'B',
         'university_id' => $this->univB->id,
         'proposal_id' => $proposalB->id,
         'title' => 'Penelitian Univ B',

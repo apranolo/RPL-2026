@@ -363,6 +363,11 @@ class Journal extends Model
             return $query;
         }
 
+        if (\DB::getDriverName() === 'sqlite') {
+            return $query->whereNotNull('indexations')
+                ->where('indexations', 'like', '%"'.$platform.'"%');
+        }
+
         return $query->whereNotNull('indexations')
             ->whereNotNull('indexations->'.$platform);
     }
@@ -373,6 +378,11 @@ class Journal extends Model
      */
     public function scopeIndexedInScopus($query)
     {
+        if (\DB::getDriverName() === 'sqlite') {
+            return $query->whereNotNull('indexations')
+                ->where('indexations', 'like', '%"Scopus"%');
+        }
+
         return $query->whereNotNull('indexations')
             ->whereNotNull('indexations->Scopus');
     }

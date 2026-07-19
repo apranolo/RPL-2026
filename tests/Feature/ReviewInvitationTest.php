@@ -1,18 +1,26 @@
 <?php
 
-use App\Models\PembinaanRegistration;
-use App\Models\ReviewerAssignment;
+use App\Models\ReviewAssignment;
+use App\Models\Submission;
 use App\Models\User;
+use App\Models\Journal;
+use App\Models\University;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 it('allows reviewer to accept invitation', function () {
     // Arrange
     $reviewer = User::factory()->create();
-    $registration = PembinaanRegistration::factory()->create();
-    $assignment = ReviewerAssignment::create([
+    $university = University::factory()->create();
+    $journal = Journal::factory()->create(['university_id' => $university->id]);
+    $submission = Submission::factory()->create(['journal_id' => $journal->id]);
+    
+    $assignment = ReviewAssignment::create([
         'reviewer_id' => $reviewer->id,
-        'registration_id' => $registration->id,
-        'assigned_by' => User::factory()->create()->id,
-        'status' => 'assigned',
+        'submission_id' => $submission->id,
+        'status' => 'Pending',
+        'round' => 1,
     ]);
 
     // Act
@@ -22,21 +30,24 @@ it('allows reviewer to accept invitation', function () {
     $response->assertRedirect();
     $response->assertSessionHas('success', 'Undangan review berhasil diterima.');
 
-    $this->assertDatabaseHas('reviewer_assignments', [
+    $this->assertDatabaseHas('review_assignments', [
         'id' => $assignment->id,
-        'status' => 'accepted',
+        'status' => 'Accepted',
     ]);
 });
 
 it('allows reviewer to decline invitation with reason', function () {
     // Arrange
     $reviewer = User::factory()->create();
-    $registration = PembinaanRegistration::factory()->create();
-    $assignment = ReviewerAssignment::create([
+    $university = University::factory()->create();
+    $journal = Journal::factory()->create(['university_id' => $university->id]);
+    $submission = Submission::factory()->create(['journal_id' => $journal->id]);
+
+    $assignment = ReviewAssignment::create([
         'reviewer_id' => $reviewer->id,
-        'registration_id' => $registration->id,
-        'assigned_by' => User::factory()->create()->id,
-        'status' => 'assigned',
+        'submission_id' => $submission->id,
+        'status' => 'Pending',
+        'round' => 1,
     ]);
 
     // Act
@@ -48,10 +59,10 @@ it('allows reviewer to decline invitation with reason', function () {
     $response->assertRedirect();
     $response->assertSessionHas('success', 'Undangan review berhasil ditolak.');
 
-    $this->assertDatabaseHas('reviewer_assignments', [
+    $this->assertDatabaseHas('review_assignments', [
         'id' => $assignment->id,
-        'status' => 'declined',
-        'reason' => 'Saya sedang sibuk dengan proyek lain.',
+        'status' => 'Declined',
+        'decline_reason' => 'Saya sedang sibuk dengan proyek lain.',
     ]);
 });
 
@@ -59,12 +70,15 @@ it('prevents unauthorized user from accepting invitation', function () {
     // Arrange
     $reviewer = User::factory()->create();
     $otherUser = User::factory()->create();
-    $registration = PembinaanRegistration::factory()->create();
-    $assignment = ReviewerAssignment::create([
+    $university = University::factory()->create();
+    $journal = Journal::factory()->create(['university_id' => $university->id]);
+    $submission = Submission::factory()->create(['journal_id' => $journal->id]);
+
+    $assignment = ReviewAssignment::create([
         'reviewer_id' => $reviewer->id,
-        'registration_id' => $registration->id,
-        'assigned_by' => User::factory()->create()->id,
-        'status' => 'assigned',
+        'submission_id' => $submission->id,
+        'status' => 'Pending',
+        'round' => 1,
     ]);
 
     // Act
@@ -78,12 +92,15 @@ it('prevents unauthorized user from declining invitation', function () {
     // Arrange
     $reviewer = User::factory()->create();
     $otherUser = User::factory()->create();
-    $registration = PembinaanRegistration::factory()->create();
-    $assignment = ReviewerAssignment::create([
+    $university = University::factory()->create();
+    $journal = Journal::factory()->create(['university_id' => $university->id]);
+    $submission = Submission::factory()->create(['journal_id' => $journal->id]);
+
+    $assignment = ReviewAssignment::create([
         'reviewer_id' => $reviewer->id,
-        'registration_id' => $registration->id,
-        'assigned_by' => User::factory()->create()->id,
-        'status' => 'assigned',
+        'submission_id' => $submission->id,
+        'status' => 'Pending',
+        'round' => 1,
     ]);
 
     // Act

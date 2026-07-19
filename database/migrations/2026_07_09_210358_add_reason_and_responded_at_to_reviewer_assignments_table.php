@@ -19,8 +19,10 @@ return new class extends Migration
             // But wait, the existing enum already caused issues. Let's change it to string for simplicity.
         });
 
-        // Change enum to include new statuses
-        DB::statement("ALTER TABLE reviewer_assignments MODIFY COLUMN status ENUM('assigned', 'accepted', 'declined', 'in_progress', 'completed') DEFAULT 'assigned'");
+        // Update the enum values for the status column
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE reviewer_assignments MODIFY COLUMN status ENUM('assigned', 'accepted', 'declined', 'in_progress', 'completed') DEFAULT 'assigned'");
+        }
     }
 
     /**
@@ -32,6 +34,8 @@ return new class extends Migration
             $table->dropColumn(['reason', 'responded_at']);
         });
 
-        DB::statement("ALTER TABLE reviewer_assignments MODIFY COLUMN status ENUM('assigned', 'in_progress', 'completed') DEFAULT 'assigned'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE reviewer_assignments MODIFY COLUMN status ENUM('assigned', 'in_progress', 'completed') DEFAULT 'assigned'");
+        }
     }
 };

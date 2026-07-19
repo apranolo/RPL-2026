@@ -214,7 +214,7 @@ class PublicJournalController extends Controller
         // Get article statistics by year
         $articlesCount = $journal->articles()->count();
         $articlesByYear = $journal->articles()
-            ->selectRaw('YEAR(publication_date) as year, COUNT(*) as count')
+            ->selectRaw(\DB::connection()->getDriverName() === 'sqlite' ? "strftime('%Y', publication_date) as year, COUNT(*) as count" : 'YEAR(publication_date) as year, COUNT(*) as count')
             ->groupBy('year')
             ->orderBy('year', 'desc')
             ->limit(5)

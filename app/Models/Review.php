@@ -21,14 +21,7 @@ class Review extends Model
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'proposal_id',
-        'reviewer_id',
-        'score',
-        'feedback',
-        'recommendation',
-        'reviewed_at',
-    ];
+
 
     /**
      * The attributes that should be cast.
@@ -54,6 +47,9 @@ class Review extends Model
     protected $fillable = [
         'proposal_id',
         'reviewer_id',
+        'score',
+        'feedback',
+        'reviewed_at',
         'status',
         'notes',
         'start_date',

@@ -27,13 +27,7 @@ class Submission extends Model
         'author_notes',
     ];
 
-    /**
-     * Get the journal that owns this submission
-     */
-    public function journal()
-    {
-        return $this->belongsTo(Journal::class);
-    }
+
 
     /**
      * The accessors to append to the model's array form.
@@ -90,6 +84,11 @@ class Submission extends Model
     public function revisionRounds(): HasMany
     {
         return $this->hasMany(RevisionRound::class, 'id_submission', 'id');
+    }
+
+    public function editorialDecisions(): HasMany
+    {
+        return $this->hasMany(EditorialDecision::class, 'submission_id');
     }
 
     /**

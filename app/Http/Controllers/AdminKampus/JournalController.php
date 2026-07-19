@@ -193,7 +193,7 @@ class JournalController extends Controller
             ->values();
 
         $pembinaanYears = PembinaanRegistration::query()
-            ->selectRaw('YEAR(registered_at) as year')
+            ->selectRaw(\DB::connection()->getDriverName() === 'sqlite' ? "strftime('%Y', registered_at) as year" : 'YEAR(registered_at) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year')

@@ -19,34 +19,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+        if (DB::getDriverName() === 'sqlite') {
+            try {
+                DB::statement('DROP INDEX IF EXISTS journals_accreditation_expiry_date_index');
+            } catch (Throwable $e) {
+                // Ignore
+            }
+        } elseif (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
             try {
                 Schema::table('journals', function (Blueprint $table) {
                     $table->dropIndex('journals_accreditation_expiry_date_index');
                 });
-            } catch (Throwable) {
-                // Index already absent — safe to continue.
+            } catch (Throwable $e) {
+                // Ignore
             }
         }
 
         Schema::table('journals', function (Blueprint $table) {
-            if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
-                try {
-                    $table->dropIndex('journals_accreditation_expiry_date_index');
-                } catch (Throwable $e) {
-                    // Ignore
-                }
-            }
-
             $columnsToDrop = array_filter(
                 ['dikti_accreditation_number', 'accreditation_issued_date', 'accreditation_expiry_date'],
                 fn ($col) => Schema::hasColumn('journals', $col)
             );
 
             if (! empty($columnsToDrop)) {
-                if (DB::getDriverName() === 'sqlite' && in_array('accreditation_expiry_date', $columnsToDrop)) {
-                    $table->dropIndex(['accreditation_expiry_date']);
-                }
                 $table->dropColumn(array_values($columnsToDrop));
             }
         });

@@ -187,7 +187,7 @@ Route::middleware(['auth'])->group(function () {
     // revisi ded code
     Route::get('/monev/cetak-rekap', [MonevDocumentController::class, 'printRekap'])
         ->name('monev.printRekap')
-        ->middleware('role:'.Role::SUPER_ADMIN.'|'.Role::ADMIN_KAMPUS.'|'.Role::USER);
+        ->middleware('role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS.','.Role::USER);
 
     // Author Submission Wizard Step 4 Routes
     Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
@@ -634,7 +634,13 @@ Route::middleware(['auth'])->group(function () {
             ->name('journals.harvest');
 
         // =====================================================
-        // Issue Preview & Publish
+        // End of strictly User routes
+        // =====================================================
+    });
+
+    Route::middleware(['role:'.Role::USER.','.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])->prefix('user')->name('user.')->group(function () {
+        // =====================================================
+        // Issue Preview & Publish (Accessible by User, Admin Kampus, Super Admin)
         // =====================================================
 
         // Daftar Issues
@@ -884,7 +890,7 @@ Route::middleware(['auth'])->group(function () {
     | Finance & Funding Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
+    Route::middleware(['role:Keuangan,'.Role::ADMIN_KAMPUS])->group(function () {
 
         Route::get('/finance/funding/logs', [FundingLogController::class, 'index'])
             ->name('finance.funding.logs.index');
@@ -904,7 +910,7 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     | Akses untuk Keuangan dan Admin Kampus
     */
-    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
+    Route::middleware(['role:Keuangan,'.Role::ADMIN_KAMPUS])->group(function () {
 
         // Rute untuk menampilkan halaman log perubahan termin
         Route::get('/finance/funding/logs', [FundingLogController::class, 'index'])
@@ -996,7 +1002,7 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
-    Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
+    Route::middleware(['auth', 'role:' . \App\Models\Role::PENGELOLA_JURNAL])
         ->prefix('editorial')
         ->name('editorial.')
         ->group(function () {

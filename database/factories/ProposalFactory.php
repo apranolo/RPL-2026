@@ -25,8 +25,8 @@ class ProposalFactory extends Factory
             //
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
-            'user_id' => User::inRandomOrder()->first()->id ?? 1,
-            'research_schema_id' => ResearchSchema::inRandomOrder()->first()->id ?? 1,
+            'user_id' => User::factory(),
+            'research_schema_id' => ResearchSchema::factory(),
             'status_proposal' => $status,
             'rejection_reason' => $status === 'Ditolak' ? $this->faker->sentence : null,
             'file_dokumen_proposal' => 'proposals/dummy_proposal.pdf',
