@@ -22,6 +22,7 @@ class OutputController extends Controller
         abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data HKI.');
 
         $validated = $request->validate([
+            'contract_id' => 'required|exists:contracts,id',
             'judul_luaran' => 'required|string|max:255',
             'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
             'penulis_atau_pencipta' => 'required|string',
@@ -31,6 +32,7 @@ class OutputController extends Controller
             'tautan_publikasi' => 'nullable|url',
             'file_sertifikat_atau_cover' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120',
         ], [
+            'contract_id.required' => 'Kontrak penelitian wajib dipilih.',
             'judul_luaran.required' => 'Judul luaran wajib diisi.',
             'tahun_capaian.required' => 'Tahun capaian wajib diisi.',
             'penulis_atau_pencipta.required' => 'Penulis atau pencipta wajib diisi.',
@@ -43,6 +45,33 @@ class OutputController extends Controller
             'file_sertifikat_atau_cover.max' => 'Ukuran file sertifikat atau cover maksimal 5MB.',
             'tautan_publikasi.url' => 'Tautan publikasi harus berupa URL yang valid.',
         ]);
+
+        if ($request->hasFile('file_sertifikat_atau_cover')) {
+            $validated['file_sertifikat_atau_cover'] = $request->file('file_sertifikat_atau_cover')
+                ->store('outputs', 'public');
+        }
+
+        $output = ResearchOutput::create([
+            'contract_id' => $validated['contract_id'],
+            'user_id' => auth()->id(),
+            'jenis_luaran' => 'HKI',
+            'judul_luaran' => $validated['judul_luaran'],
+            'tahun_capaian' => $validated['tahun_capaian'],
+            'penulis_atau_pencipta' => $validated['penulis_atau_pencipta'],
+            'tautan_publikasi' => $validated['tautan_publikasi'] ?? null,
+            'keterangan' => $validated['deskripsi'] ?? null,
+            'file_sertifikat_atau_cover' => $validated['file_sertifikat_atau_cover'] ?? null,
+            'status_verifikasi' => 'Draft',
+        ]);
+
+        $output->outputable()->create([
+            'patent_number' => $validated['nomor_paten'],
+            'patent_type' => $validated['jenis_hki'],
+            'inventors' => $validated['penulis_atau_pencipta'],
+        ]);
+
+        return redirect()->route('user.outputs.index')
+            ->with('message', 'Data HKI berhasil disimpan');
     }
 
     public function edit(ResearchOutput $output)
@@ -64,12 +93,13 @@ class OutputController extends Controller
     }
 
     /**
-     * Store a newly created Book/Module output in storage.
+     * Update the specified research output in storage.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\ResearchOutput  $output
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function storeBook(Request $request)
+    public function update(Request $request, ResearchOutput $output)
     {
         $this->authorize('update', $output);
 
@@ -112,6 +142,50 @@ class OutputController extends Controller
         $this->syncOutputable($output, $request->input('outputable', []));
 
         return redirect()->route('user.outputs.index')->with('message', 'Luaran penelitian berhasil diperbarui');
+    }
+
+    public function storeBook(Request $request)
+    {
+        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data buku.');
+
+        $validated = $request->validate([
+            'contract_id' => 'required|exists:contracts,id',
+            'jenis_luaran' => 'required|string|in:Buku',
+            'judul_luaran' => 'required|string|max:255',
+            'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'penulis_atau_pencipta' => 'required|string|max:255',
+            'file_sertifikat_atau_cover' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'keterangan' => 'nullable|string',
+            'tautan_publikasi' => 'nullable|url|max:255',
+            'outputable' => 'nullable|array',
+            'outputable.isbn' => 'nullable|string|max:50',
+            'outputable.publisher' => 'nullable|string|max:255',
+            'outputable.pages' => 'nullable|string|max:50',
+            'outputable.tipe_buku' => 'nullable|string|max:100',
+        ]);
+
+        if ($request->hasFile('file_sertifikat_atau_cover')) {
+            $validated['file_sertifikat_atau_cover'] = $request->file('file_sertifikat_atau_cover')
+                ->store('outputs', 'public');
+        }
+
+        $output = ResearchOutput::create([
+            'contract_id' => $validated['contract_id'],
+            'user_id' => auth()->id(),
+            'jenis_luaran' => 'Buku',
+            'judul_luaran' => $validated['judul_luaran'],
+            'tahun_capaian' => $validated['tahun_capaian'],
+            'penulis_atau_pencipta' => $validated['penulis_atau_pencipta'],
+            'tautan_publikasi' => $validated['tautan_publikasi'] ?? null,
+            'keterangan' => $validated['keterangan'] ?? null,
+            'file_sertifikat_atau_cover' => $validated['file_sertifikat_atau_cover'] ?? null,
+            'status_verifikasi' => 'Draft',
+        ]);
+
+        $this->syncOutputable($output, $request->input('outputable', []));
+
+        return redirect()->route('user.outputs.index')
+            ->with('message', 'Data buku berhasil disimpan');
     }
 
     private function syncOutputable(ResearchOutput $output, array $outputableData): void
