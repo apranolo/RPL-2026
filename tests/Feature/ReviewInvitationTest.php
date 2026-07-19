@@ -1,10 +1,10 @@
 <?php
 
+use App\Models\Journal;
 use App\Models\ReviewAssignment;
 use App\Models\Submission;
-use App\Models\User;
-use App\Models\Journal;
 use App\Models\University;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -15,7 +15,7 @@ it('allows reviewer to accept invitation', function () {
     $university = University::factory()->create();
     $journal = Journal::factory()->create(['university_id' => $university->id]);
     $submission = Submission::factory()->create(['journal_id' => $journal->id]);
-    
+
     $assignment = ReviewAssignment::create([
         'reviewer_id' => $reviewer->id,
         'submission_id' => $submission->id,

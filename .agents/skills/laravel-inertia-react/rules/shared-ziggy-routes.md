@@ -16,19 +16,17 @@ Use Ziggy to share Laravel named routes with your React frontend, enabling type-
 import { Link } from '@inertiajs/react';
 
 export default function UserList({ users }) {
-  return (
-    <ul>
-      {users.map(user => (
-        <li key={user.id}>
-          <Link href={`/users/${user.id}`}>{user.name}</Link>
-          <Link href={`/users/${user.id}/edit`}>Edit</Link>
-          <button onClick={() => deleteUser(`/users/${user.id}`)}>
-            Delete
-          </button>
-        </li>
-      ))}
-    </ul>
-  );
+    return (
+        <ul>
+            {users.map((user) => (
+                <li key={user.id}>
+                    <Link href={`/users/${user.id}`}>{user.name}</Link>
+                    <Link href={`/users/${user.id}/edit`}>Edit</Link>
+                    <button onClick={() => deleteUser(`/users/${user.id}`)}>Delete</button>
+                </li>
+            ))}
+        </ul>
+    );
 }
 
 // Anti-pattern: String concatenation for complex routes
@@ -46,206 +44,168 @@ const searchUrl = `/users?search=${search}&role=${role}&page=${page}`;
 import { Config, RouteParamsWithQueryOverload, Router } from 'ziggy-js';
 
 declare module 'ziggy-js' {
-  export function route<T extends keyof ZiggyRoutes>(
-    name: T,
-    params?: RouteParamsWithQueryOverload,
-    absolute?: boolean,
-    config?: Config
-  ): string;
+    export function route<T extends keyof ZiggyRoutes>(name: T, params?: RouteParamsWithQueryOverload, absolute?: boolean, config?: Config): string;
 
-  export function route(): Router;
+    export function route(): Router;
 }
 
 declare global {
-  function route<T extends keyof ZiggyRoutes>(
-    name: T,
-    params?: RouteParamsWithQueryOverload,
-    absolute?: boolean
-  ): string;
+    function route<T extends keyof ZiggyRoutes>(name: T, params?: RouteParamsWithQueryOverload, absolute?: boolean): string;
 
-  function route(): Router;
+    function route(): Router;
 }
 
 // Generate types for your routes
 // resources/js/types/ziggy-routes.d.ts (auto-generated with: php artisan ziggy:generate)
 interface ZiggyRoutes {
-  'home': [];
-  'dashboard': [];
-  'users.index': [];
-  'users.create': [];
-  'users.store': [];
-  'users.show': [{ user: number | string }];
-  'users.edit': [{ user: number | string }];
-  'users.update': [{ user: number | string }];
-  'users.destroy': [{ user: number | string }];
-  'posts.index': [];
-  'posts.show': [{ post: number | string }];
-  'profile.edit': [];
-  'profile.update': [];
+    home: [];
+    dashboard: [];
+    'users.index': [];
+    'users.create': [];
+    'users.store': [];
+    'users.show': [{ user: number | string }];
+    'users.edit': [{ user: number | string }];
+    'users.update': [{ user: number | string }];
+    'users.destroy': [{ user: number | string }];
+    'posts.index': [];
+    'posts.show': [{ post: number | string }];
+    'profile.edit': [];
+    'profile.update': [];
 }
 
 // resources/js/Pages/Users/Index.tsx
 import { Link, router } from '@inertiajs/react';
 
 interface User {
-  id: number;
-  name: string;
-  email: string;
+    id: number;
+    name: string;
+    email: string;
 }
 
 interface UsersIndexProps {
-  users: PaginatedData<User>;
-  filters: {
-    search: string;
-    role: string;
-  };
+    users: PaginatedData<User>;
+    filters: {
+        search: string;
+        role: string;
+    };
 }
 
 export default function Index({ users, filters }: UsersIndexProps) {
-  const handleDelete = (user: User) => {
-    if (confirm(`Delete ${user.name}?`)) {
-      router.delete(route('users.destroy', { user: user.id }));
-    }
-  };
+    const handleDelete = (user: User) => {
+        if (confirm(`Delete ${user.name}?`)) {
+            router.delete(route('users.destroy', { user: user.id }));
+        }
+    };
 
-  const handleSearch = (search: string) => {
-    router.get(
-      route('users.index'),
-      { ...filters, search },
-      { preserveState: true }
+    const handleSearch = (search: string) => {
+        router.get(route('users.index'), { ...filters, search }, { preserveState: true });
+    };
+
+    return (
+        <div>
+            <div className="mb-4 flex justify-between">
+                <input type="search" defaultValue={filters.search} onChange={(e) => handleSearch(e.target.value)} placeholder="Search users..." />
+
+                {/* Link with route helper */}
+                <Link href={route('users.create')} className="rounded bg-blue-600 px-4 py-2 text-white">
+                    Add User
+                </Link>
+            </div>
+
+            <table className="w-full">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {users.data.map((user) => (
+                        <tr key={user.id}>
+                            <td>
+                                {/* Route with parameter */}
+                                <Link href={route('users.show', { user: user.id })}>{user.name}</Link>
+                            </td>
+                            <td>{user.email}</td>
+                            <td className="flex gap-2">
+                                <Link href={route('users.edit', { user: user.id })} className="text-blue-600">
+                                    Edit
+                                </Link>
+                                <button onClick={() => handleDelete(user)} className="text-red-600">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
-  };
-
-  return (
-    <div>
-      <div className="mb-4 flex justify-between">
-        <input
-          type="search"
-          defaultValue={filters.search}
-          onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search users..."
-        />
-
-        {/* Link with route helper */}
-        <Link
-          href={route('users.create')}
-          className="rounded bg-blue-600 px-4 py-2 text-white"
-        >
-          Add User
-        </Link>
-      </div>
-
-      <table className="w-full">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.data.map((user) => (
-            <tr key={user.id}>
-              <td>
-                {/* Route with parameter */}
-                <Link href={route('users.show', { user: user.id })}>
-                  {user.name}
-                </Link>
-              </td>
-              <td>{user.email}</td>
-              <td className="flex gap-2">
-                <Link
-                  href={route('users.edit', { user: user.id })}
-                  className="text-blue-600"
-                >
-                  Edit
-                </Link>
-                <button
-                  onClick={() => handleDelete(user)}
-                  className="text-red-600"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
 }
 
 // Using route() helper for various scenarios
 function RouteExamples() {
-  // Simple route
-  const homeUrl = route('home');
+    // Simple route
+    const homeUrl = route('home');
 
-  // Route with parameters
-  const userUrl = route('users.show', { user: 1 });
+    // Route with parameters
+    const userUrl = route('users.show', { user: 1 });
 
-  // Route with query parameters
-  const searchUrl = route('users.index', {
-    _query: {
-      search: 'john',
-      role: 'admin',
-      page: 2,
-    },
-  });
+    // Route with query parameters
+    const searchUrl = route('users.index', {
+        _query: {
+            search: 'john',
+            role: 'admin',
+            page: 2,
+        },
+    });
 
-  // Check current route
-  const isOnDashboard = route().current('dashboard');
-  const isOnUserPages = route().current('users.*');
-  const isOnUserEdit = route().current('users.edit', { user: 1 });
+    // Check current route
+    const isOnDashboard = route().current('dashboard');
+    const isOnUserPages = route().current('users.*');
+    const isOnUserEdit = route().current('users.edit', { user: 1 });
 
-  // Get current route name
-  const currentRoute = route().current();
+    // Get current route name
+    const currentRoute = route().current();
 
-  // Check if route exists
-  const hasRoute = route().has('users.index');
+    // Check if route exists
+    const hasRoute = route().has('users.index');
 
-  return (
-    <nav>
-      <Link
-        href={route('dashboard')}
-        className={route().current('dashboard') ? 'font-bold' : ''}
-      >
-        Dashboard
-      </Link>
-      <Link
-        href={route('users.index')}
-        className={route().current('users.*') ? 'font-bold' : ''}
-      >
-        Users
-      </Link>
-    </nav>
-  );
+    return (
+        <nav>
+            <Link href={route('dashboard')} className={route().current('dashboard') ? 'font-bold' : ''}>
+                Dashboard
+            </Link>
+            <Link href={route('users.index')} className={route().current('users.*') ? 'font-bold' : ''}>
+                Users
+            </Link>
+        </nav>
+    );
 }
 
 // Reusable navigation component with active state
 interface NavLinkProps {
-  routeName: string;
-  params?: Record<string, unknown>;
-  children: React.ReactNode;
-  activePattern?: string;
+    routeName: string;
+    params?: Record<string, unknown>;
+    children: React.ReactNode;
+    activePattern?: string;
 }
 
 function NavLink({ routeName, params, children, activePattern }: NavLinkProps) {
-  const isActive = route().current(activePattern || routeName);
+    const isActive = route().current(activePattern || routeName);
 
-  return (
-    <Link
-      href={route(routeName, params)}
-      className={`px-4 py-2 ${isActive ? 'bg-blue-100 text-blue-800' : 'text-gray-600'}`}
-    >
-      {children}
-    </Link>
-  );
+    return (
+        <Link href={route(routeName, params)} className={`px-4 py-2 ${isActive ? 'bg-blue-100 text-blue-800' : 'text-gray-600'}`}>
+            {children}
+        </Link>
+    );
 }
 
 // Usage
 <NavLink routeName="users.index" activePattern="users.*">
-  Users
-</NavLink>
+    Users
+</NavLink>;
 ```
 
 ## Why

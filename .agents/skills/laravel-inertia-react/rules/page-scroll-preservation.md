@@ -16,32 +16,32 @@ Control scroll behavior during Inertia navigation to maintain user context and p
 import { useEffect } from 'react';
 
 export default function ProductList({ products }) {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
-  return (
-    <div>
-      {products.map(product => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-    </div>
-  );
+    return (
+        <div>
+            {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+            ))}
+        </div>
+    );
 }
 
 // Anti-pattern: Using Link without considering scroll behavior
 import { Link } from '@inertiajs/react';
 
 function Pagination({ links }) {
-  return (
-    <div>
-      {links.map(link => (
-        <Link key={link.label} href={link.url}>
-          {link.label}
-        </Link>
-      ))}
-    </div>
-  );
+    return (
+        <div>
+            {links.map((link) => (
+                <Link key={link.label} href={link.url}>
+                    {link.label}
+                </Link>
+            ))}
+        </div>
+    );
 }
 ```
 
@@ -52,81 +52,77 @@ function Pagination({ links }) {
 import { Link, router } from '@inertiajs/react';
 
 interface ProductListProps {
-  products: Product[];
-  filters: Filters;
+    products: Product[];
+    filters: Filters;
 }
 
 export default function ProductList({ products, filters }: ProductListProps) {
-  const handleSort = (sortBy: string) => {
-    router.get(
-      route('products.index'),
-      { ...filters, sort: sortBy },
-      { preserveScroll: true }
+    const handleSort = (sortBy: string) => {
+        router.get(route('products.index'), { ...filters, sort: sortBy }, { preserveScroll: true });
+    };
+
+    return (
+        <div>
+            <select onChange={(e) => handleSort(e.target.value)}>
+                <option value="name">Name</option>
+                <option value="price">Price</option>
+            </select>
+
+            {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+            ))}
+
+            {/* Preserve scroll for pagination */}
+            <Pagination preserveScroll />
+        </div>
     );
-  };
-
-  return (
-    <div>
-      <select onChange={(e) => handleSort(e.target.value)}>
-        <option value="name">Name</option>
-        <option value="price">Price</option>
-      </select>
-
-      {products.map(product => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-
-      {/* Preserve scroll for pagination */}
-      <Pagination preserveScroll />
-    </div>
-  );
 }
 
 // Pagination component with scroll preservation
 function Pagination({ links, preserveScroll = false }) {
-  return (
-    <div className="flex gap-2">
-      {links.map((link, index) => (
-        <Link
-          key={index}
-          href={link.url ?? '#'}
-          preserveScroll={preserveScroll}
-          className={link.active ? 'font-bold' : ''}
-          dangerouslySetInnerHTML={{ __html: link.label }}
-        />
-      ))}
-    </div>
-  );
+    return (
+        <div className="flex gap-2">
+            {links.map((link, index) => (
+                <Link
+                    key={index}
+                    href={link.url ?? '#'}
+                    preserveScroll={preserveScroll}
+                    className={link.active ? 'font-bold' : ''}
+                    dangerouslySetInnerHTML={{ __html: link.label }}
+                />
+            ))}
+        </div>
+    );
 }
 
 // Reset scroll to top for new page visits
 import { Link } from '@inertiajs/react';
 
 function Navigation() {
-  return (
-    <nav>
-      {/* Default behavior: scroll resets to top */}
-      <Link href={route('dashboard')}>Dashboard</Link>
+    return (
+        <nav>
+            {/* Default behavior: scroll resets to top */}
+            <Link href={route('dashboard')}>Dashboard</Link>
 
-      {/* Explicit scroll reset */}
-      <Link href={route('products.index')} preserveScroll={false}>
-        Products
-      </Link>
-    </nav>
-  );
+            {/* Explicit scroll reset */}
+            <Link href={route('products.index')} preserveScroll={false}>
+                Products
+            </Link>
+        </nav>
+    );
 }
 
 // Scroll to specific element after navigation
 import { router } from '@inertiajs/react';
 
 function jumpToSection(sectionId: string) {
-  router.visit(route('page.show'), {
-    onSuccess: () => {
-      document.getElementById(sectionId)?.scrollIntoView({
-        behavior: 'smooth'
-      });
-    },
-  });
+    router.visit(route('page.show'), {
+        onSuccess: () => {
+            document.getElementById(sectionId)?.scrollIntoView({
+                behavior: 'smooth',
+            });
+        },
+    });
 }
 ```
 

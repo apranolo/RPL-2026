@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\ProgressReport;
 use App\Models\Proposal;
+use App\Models\ResearchSchema;
 use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
@@ -71,7 +72,7 @@ class EvaluationControllerTest extends TestCase
     {
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
-            'research_schema_id' => \App\Models\ResearchSchema::create(['name'=>'S', 'max_funding'=>1])->id,
+            'research_schema_id' => ResearchSchema::create(['name' => 'S', 'max_funding' => 1])->id,
             'title' => 'Proposal Test',
             'description' => 'Deskripsi test',
             'status_proposal' => 'Draft',
@@ -103,7 +104,7 @@ class EvaluationControllerTest extends TestCase
     {
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
-            'research_schema_id' => \App\Models\ResearchSchema::create(['name'=>'S', 'max_funding'=>1])->id,
+            'research_schema_id' => ResearchSchema::create(['name' => 'S', 'max_funding' => 1])->id,
             'title' => 'Proposal Test',
             'description' => 'Deskripsi test',
             'status_proposal' => 'Draft',

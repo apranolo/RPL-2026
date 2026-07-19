@@ -22,7 +22,6 @@ class Review extends Model
      * @var list<string>
      */
 
-
     /**
      * The attributes that should be cast.
      *

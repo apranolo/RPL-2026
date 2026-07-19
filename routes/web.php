@@ -1002,7 +1002,7 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
-    Route::middleware(['auth', 'role:' . \App\Models\Role::PENGELOLA_JURNAL])
+    Route::middleware(['auth', 'role:'.Role::PENGELOLA_JURNAL])
         ->prefix('editorial')
         ->name('editorial.')
         ->group(function () {

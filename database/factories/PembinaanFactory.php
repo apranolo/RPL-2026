@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PembinaanFactory extends Factory
@@ -9,7 +10,7 @@ class PembinaanFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Program Pembinaan ' . $this->faker->year(),
+            'name' => 'Program Pembinaan '.$this->faker->year(),
             'description' => $this->faker->paragraph(),
             'category' => 'akreditasi',
             'registration_start' => now()->subDays(10),
@@ -18,8 +19,8 @@ class PembinaanFactory extends Factory
             'assessment_end' => now()->addDays(20),
             'quota' => 50,
             'status' => 'draft',
-            'created_by' => \App\Models\User::factory(),
-            'updated_by' => \App\Models\User::factory(),
+            'created_by' => User::factory(),
+            'updated_by' => User::factory(),
         ];
     }
 }

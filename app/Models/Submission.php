@@ -27,8 +27,6 @@ class Submission extends Model
         'author_notes',
     ];
 
-
-
     /**
      * The accessors to append to the model's array form.
      *

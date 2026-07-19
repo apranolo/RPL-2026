@@ -17,32 +17,33 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 
 export default function CreatePost() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [errors, setErrors] = useState({});
-  const [processing, setProcessing] = useState(false);
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const [errors, setErrors] = useState({});
+    const [processing, setProcessing] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setProcessing(true);
-    setErrors({});
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setProcessing(true);
+        setErrors({});
 
-    router.post('/posts', { title, content }, {
-      onError: (errors) => setErrors(errors),
-      onFinish: () => setProcessing(false),
-    });
-  };
+        router.post(
+            '/posts',
+            { title, content },
+            {
+                onError: (errors) => setErrors(errors),
+                onFinish: () => setProcessing(false),
+            },
+        );
+    };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-      />
-      {errors.title && <span>{errors.title}</span>}
-      {/* ... more fields */}
-    </form>
-  );
+    return (
+        <form onSubmit={handleSubmit}>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} />
+            {errors.title && <span>{errors.title}</span>}
+            {/* ... more fields */}
+        </form>
+    );
 }
 ```
 
@@ -58,84 +59,77 @@ import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 
 interface CreatePostForm {
-  title: string;
-  content: string;
-  category_id: number | '';
-  published: boolean;
-  tags: string[];
+    title: string;
+    content: string;
+    category_id: number | '';
+    published: boolean;
+    tags: string[];
 }
 
 export default function Create() {
-  const { data, setData, post, processing, errors, reset } = useForm<CreatePostForm>({
-    title: '',
-    content: '',
-    category_id: '',
-    published: false,
-    tags: [],
-  });
-
-  const submit: FormEventHandler = (e) => {
-    e.preventDefault();
-    post(route('posts.store'), {
-      onSuccess: () => reset(),
+    const { data, setData, post, processing, errors, reset } = useForm<CreatePostForm>({
+        title: '',
+        content: '',
+        category_id: '',
+        published: false,
+        tags: [],
     });
-  };
 
-  return (
-    <form onSubmit={submit} className="space-y-6">
-      <div>
-        <InputLabel htmlFor="title" value="Title" />
-        <TextInput
-          id="title"
-          type="text"
-          value={data.title}
-          onChange={(e) => setData('title', e.target.value)}
-          className="mt-1 block w-full"
-        />
-        <InputError message={errors.title} className="mt-2" />
-      </div>
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post(route('posts.store'), {
+            onSuccess: () => reset(),
+        });
+    };
 
-      <div>
-        <InputLabel htmlFor="content" value="Content" />
-        <textarea
-          id="content"
-          value={data.content}
-          onChange={(e) => setData('content', e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300"
-          rows={6}
-        />
-        <InputError message={errors.content} className="mt-2" />
-      </div>
+    return (
+        <form onSubmit={submit} className="space-y-6">
+            <div>
+                <InputLabel htmlFor="title" value="Title" />
+                <TextInput
+                    id="title"
+                    type="text"
+                    value={data.title}
+                    onChange={(e) => setData('title', e.target.value)}
+                    className="mt-1 block w-full"
+                />
+                <InputError message={errors.title} className="mt-2" />
+            </div>
 
-      <div>
-        <InputLabel htmlFor="category" value="Category" />
-        <select
-          id="category"
-          value={data.category_id}
-          onChange={(e) => setData('category_id', Number(e.target.value) || '')}
-          className="mt-1 block w-full rounded-md border-gray-300"
-        >
-          <option value="">Select a category</option>
-          {/* Category options */}
-        </select>
-        <InputError message={errors.category_id} className="mt-2" />
-      </div>
+            <div>
+                <InputLabel htmlFor="content" value="Content" />
+                <textarea
+                    id="content"
+                    value={data.content}
+                    onChange={(e) => setData('content', e.target.value)}
+                    className="mt-1 block w-full rounded-md border-gray-300"
+                    rows={6}
+                />
+                <InputError message={errors.content} className="mt-2" />
+            </div>
 
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="published"
-          checked={data.published}
-          onChange={(e) => setData('published', e.target.checked)}
-        />
-        <InputLabel htmlFor="published" value="Publish immediately" />
-      </div>
+            <div>
+                <InputLabel htmlFor="category" value="Category" />
+                <select
+                    id="category"
+                    value={data.category_id}
+                    onChange={(e) => setData('category_id', Number(e.target.value) || '')}
+                    className="mt-1 block w-full rounded-md border-gray-300"
+                >
+                    <option value="">Select a category</option>
+                    {/* Category options */}
+                </select>
+                <InputError message={errors.category_id} className="mt-2" />
+            </div>
 
-      <PrimaryButton disabled={processing}>
-        {processing ? 'Creating...' : 'Create Post'}
-      </PrimaryButton>
-    </form>
-  );
+            <div className="flex items-center gap-2">
+                <input type="checkbox" id="published" checked={data.published} onChange={(e) => setData('published', e.target.checked)} />
+                <InputLabel htmlFor="published" value="Publish immediately" />
+            </div>
+
+            <PrimaryButton disabled={processing}>{processing ? 'Creating...' : 'Create Post'}</PrimaryButton>
+        </form>
+    );
 }
 ```
 

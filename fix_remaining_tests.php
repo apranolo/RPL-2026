@@ -1,7 +1,10 @@
 <?php
 
-function replace_in_file($path, $search, $replace) {
-    if (!file_exists($path)) return;
+function replace_in_file($path, $search, $replace)
+{
+    if (! file_exists($path)) {
+        return;
+    }
     $content = file_get_contents($path);
     $new_content = str_replace($search, $replace, $content);
     if ($content !== $new_content) {
@@ -12,20 +15,20 @@ function replace_in_file($path, $search, $replace) {
 
 // 1. MonevReportTest: add contract_number
 $monev = 'tests/Feature/MonevReportTest.php';
-replace_in_file($monev, 
-    "'university_id' => \$this->univA->id,", 
+replace_in_file($monev,
+    "'university_id' => \$this->univA->id,",
     "'contract_number' => 'CTR-001', 'university_id' => \$this->univA->id,"
 );
-replace_in_file($monev, 
-    "'university_id' => \$this->univB->id,", 
+replace_in_file($monev,
+    "'university_id' => \$this->univB->id,",
     "'contract_number' => 'CTR-002', 'university_id' => \$this->univB->id,"
 );
-replace_in_file($monev, 
-    "'university_id' => \$univA->id,", 
+replace_in_file($monev,
+    "'university_id' => \$univA->id,",
     "'contract_number' => 'CTR-001', 'university_id' => \$univA->id,"
 );
-replace_in_file($monev, 
-    "'university_id' => \$univB->id,", 
+replace_in_file($monev,
+    "'university_id' => \$univB->id,",
     "'contract_number' => 'CTR-002', 'university_id' => \$univB->id,"
 );
 // In test: it allows admin kampus to change research status using delay
@@ -46,8 +49,7 @@ $eval = 'tests/Feature/EvaluationControllerTest.php';
 $c = file_get_contents($eval);
 $c = str_replace(
     "'user_id' => \$this->dosen->id,\n            'judul' => 'Proposal Test',\n            'deskripsi' => 'Deskripsi test',",
-    "'user_id' => \$this->dosen->id,\n            'research_schema_id' => \App\Models\ResearchSchema::create(['name'=>'S', 'max_funding'=>1])->id,\n            'title' => 'Proposal Test',\n            'description' => 'Deskripsi test',"
-    , $c
+    "'user_id' => \$this->dosen->id,\n            'research_schema_id' => \App\Models\ResearchSchema::create(['name'=>'S', 'max_funding'=>1])->id,\n            'title' => 'Proposal Test',\n            'description' => 'Deskripsi test',", $c
 );
 file_put_contents($eval, $c);
 echo "Updated $eval\n";
@@ -58,4 +60,3 @@ replace_in_file($prop,
     "'title' => 'Implementasi Machine Learning Pada IoT',",
     "'title' => 'Implementasi Machine Learning Pada IoT',\n        'description' => 'Desc',"
 );
-

@@ -1,35 +1,38 @@
 # Panduan Global Gaya Visual & Standar Implementasi View (React Inertia)
+
 ## Proyek RPL 2026 — Sistem Penelitian Terintegrasi (Kelas B) & Submission System (Kelas G)
 
-Dokumen ini adalah acuan standar UI/UX, styling, dan pola coding frontend menggunakan **React, Inertia.js, Tailwind CSS v4, dan shadcn/ui**. Seluruh mahasiswa Kelas B dan Kelas G wajib mengikuti panduan ini saat membuat halaman (*view*) dan komponen agar tampilan akhir aplikasi konsisten, terintegrasi, dan memiliki nilai estetika premium.
+Dokumen ini adalah acuan standar UI/UX, styling, dan pola coding frontend menggunakan **React, Inertia.js, Tailwind CSS v4, dan shadcn/ui**. Seluruh mahasiswa Kelas B dan Kelas G wajib mengikuti panduan ini saat membuat halaman (_view_) dan komponen agar tampilan akhir aplikasi konsisten, terintegrasi, dan memiliki nilai estetika premium.
 
 ---
 
 ## 1. Sistem Desain & Estetika Visual (Design Tokens)
 
-Semua styling wajib memanfaatkan variabel CSS yang sudah dikonfigurasi pada file `resources/css/app.css` (Tema: *The Progressive Aurora*). Jangan menuliskan kode warna Hex secara manual di class HTML/React.
+Semua styling wajib memanfaatkan variabel CSS yang sudah dikonfigurasi pada file `resources/css/app.css` (Tema: _The Progressive Aurora_). Jangan menuliskan kode warna Hex secara manual di class HTML/React.
 
 ### A. Palet Warna Utama
-*   **Muhammadiyah Green (`--primary`)**: `#00853c`
-    *   *Penggunaan*: Tombol aksi utama (Submit/Simpan), tautan aktif, tab aktif, dan penanda fokus penting.
-    *   *Tailwind Class*: `bg-primary`, `text-primary`, `border-primary`.
-*   **Progressive Teal (`--secondary`)**: `#04a64b`
-    *   *Penggunaan*: Tombol sekunder, lencana/badge bernilai positif, aksen visual penunjang.
-    *   *Tailwind Class*: `bg-secondary`, `text-secondary`.
-*   **Surya Gold (`--accent`)**: `#fcee1f`
-    *   *Penggunaan*: Rating bintang, lencana status khusus, dan teks sorotan penting (gunakan secara hemat).
-    *   *Tailwind Class*: `bg-accent`, `text-accent`.
-*   **Accent Red (`--destructive` / `--accent-red`)**: `#dc2626` / `#ef4444`
-    *   *Penggunaan*: Aksi berisiko tinggi seperti Delete/Hapus, Revoke/Cabut, Reject/Tolak, dan pesan error validasi.
-    *   *Tailwind Class*: `bg-destructive`, `text-destructive`, `bg-accent-red`.
+
+- **Muhammadiyah Green (`--primary`)**: `#00853c`
+    - _Penggunaan_: Tombol aksi utama (Submit/Simpan), tautan aktif, tab aktif, dan penanda fokus penting.
+    - _Tailwind Class_: `bg-primary`, `text-primary`, `border-primary`.
+- **Progressive Teal (`--secondary`)**: `#04a64b`
+    - _Penggunaan_: Tombol sekunder, lencana/badge bernilai positif, aksen visual penunjang.
+    - _Tailwind Class_: `bg-secondary`, `text-secondary`.
+- **Surya Gold (`--accent`)**: `#fcee1f`
+    - _Penggunaan_: Rating bintang, lencana status khusus, dan teks sorotan penting (gunakan secara hemat).
+    - _Tailwind Class_: `bg-accent`, `text-accent`.
+- **Accent Red (`--destructive` / `--accent-red`)**: `#dc2626` / `#ef4444`
+    - _Penggunaan_: Aksi berisiko tinggi seperti Delete/Hapus, Revoke/Cabut, Reject/Tolak, dan pesan error validasi.
+    - _Tailwind Class_: `bg-destructive`, `text-destructive`, `bg-accent-red`.
 
 ### B. Tipografi & Sudut Elemen
-*   **Font Utama**: **Plus Jakarta Sans** (diatur otomatis secara global).
-*   **Border Radius**: Gunakan `rounded-lg` (setara dengan `10px` / `0.625rem`) untuk tombol, kartu (*card*), modal/dialog, dan input form.
-*   **Ketebalan Font**:
-    *   Judul Halaman: `font-bold` atau `font-extrabold`
-    *   Sub-judul / Label Form: `font-semibold`
-    *   Deskripsi / Teks Utama: `font-normal` atau `text-muted-foreground` untuk keterangan tambahan.
+
+- **Font Utama**: **Plus Jakarta Sans** (diatur otomatis secara global).
+- **Border Radius**: Gunakan `rounded-lg` (setara dengan `10px` / `0.625rem`) untuk tombol, kartu (_card_), modal/dialog, dan input form.
+- **Ketebalan Font**:
+    - Judul Halaman: `font-bold` atau `font-extrabold`
+    - Sub-judul / Label Form: `font-semibold`
+    - Deskripsi / Teks Utama: `font-normal` atau `text-muted-foreground` untuk keterangan tambahan.
 
 ---
 
@@ -38,6 +41,7 @@ Semua styling wajib memanfaatkan variabel CSS yang sudah dikonfigurasi pada file
 Setiap halaman utama yang dibuat mahasiswa wajib dibungkus dengan komponen `<AppLayout>` dan diatur secara semantik menggunakan Grid/Flexbox dengan margin yang konsisten.
 
 ### Contoh Implementasi Halaman Standar:
+
 ```tsx
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
@@ -57,30 +61,21 @@ export default function ProposalIndex({}: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Daftar Proposal Penelitian" />
-            
+
             {/* Wrapper utama halaman dengan padding yang responsif */}
-            <div className="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-                
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-8">
                 {/* 1. Header Halaman (Judul & Tombol Aksi Kanan) */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
+                <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                            Daftar Proposal
-                        </h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Kelola pengajuan proposal penelitian Anda di sini.
-                        </p>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Daftar Proposal</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">Kelola pengajuan proposal penelitian Anda di sini.</p>
                     </div>
                     {/* Area Aksi Kanan, misal tombol tambah */}
-                    <div className="flex items-center gap-2">
-                        {/* <Button>Tambah Proposal</Button> */}
-                    </div>
+                    <div className="flex items-center gap-2">{/* <Button>Tambah Proposal</Button> */}</div>
                 </div>
 
                 {/* 2. Area Konten Halaman */}
-                <div className="grid gap-6">
-                    {/* Letakkan tabel, list card, atau form di sini */}
-                </div>
+                <div className="grid gap-6">{/* Letakkan tabel, list card, atau form di sini */}</div>
             </div>
         </AppLayout>
     );
@@ -93,18 +88,19 @@ export default function ProposalIndex({}: Props) {
 
 Status dokumen/proses di Kelas B dan Kelas G wajib diseragamkan warnanya agar mempermudah pemahaman pengguna. Gunakan variasi warna berikut:
 
-| Status | Makna | Kombinasi Warna Tailwind |
-| :--- | :--- | :--- |
-| **Draft / Pending** | Dokumen baru dibuat, belum dikirim, atau menunggu antrean | `bg-slate-100 text-slate-800 border-slate-200` |
-| **Active / In Review** | Sedang dalam proses review, penilaian, atau pengerjaan aktif | `bg-amber-50 text-amber-800 border-amber-200` |
-| **Accepted / Published** | Disetujui, lolos administrasi, atau diterbitkan ke publik | `bg-emerald-50 text-emerald-800 border-emerald-200` |
-| **Rejected / Declined** | Ditolak, dibatalkan, atau dicabut hak aksesnya | `bg-rose-50 text-rose-800 border-rose-200` |
+| Status                   | Makna                                                        | Kombinasi Warna Tailwind                            |
+| :----------------------- | :----------------------------------------------------------- | :-------------------------------------------------- |
+| **Draft / Pending**      | Dokumen baru dibuat, belum dikirim, atau menunggu antrean    | `bg-slate-100 text-slate-800 border-slate-200`      |
+| **Active / In Review**   | Sedang dalam proses review, penilaian, atau pengerjaan aktif | `bg-amber-50 text-amber-800 border-amber-200`       |
+| **Accepted / Published** | Disetujui, lolos administrasi, atau diterbitkan ke publik    | `bg-emerald-50 text-emerald-800 border-emerald-200` |
+| **Rejected / Declined**  | Ditolak, dibatalkan, atau dicabut hak aksesnya               | `bg-rose-50 text-rose-800 border-rose-200`          |
 
 ---
 
 ## 4. Pola Coding React & Inertia (Code Standards)
 
 ### A. TypeScript Interface untuk Props
+
 Setiap file `.tsx` di dalam folder `resources/js/pages/` wajib mencantumkan type/interface TypeScript yang presisi. Jangan menggunakan type `any`.
 
 ```typescript
@@ -128,9 +124,11 @@ export interface Props extends PageProps {
 ```
 
 ### B. Pengelolaan Form & Validasi (Inertia `useForm`)
-Semua pengiriman formulir (*submit form*) ke backend wajib menggunakan helper `useForm` dari `@inertiajs/react` untuk menangani status loading, asinkronus, dan validasi secara otomatis.
 
-*Aturan Form:*
+Semua pengiriman formulir (_submit form_) ke backend wajib menggunakan helper `useForm` dari `@inertiajs/react` untuk menangani status loading, asinkronus, dan validasi secara otomatis.
+
+_Aturan Form:_
+
 1.  Tombol submit wajib memiliki atribut `disabled={processing}` dan menampilkan feedback visual saat loading.
 2.  Tampilkan pesan error validasi di bawah setiap input menggunakan komponen `<InputError />`.
 
@@ -161,7 +159,7 @@ export function CreateProposalForm() {
                 <Input
                     id="judul"
                     value={data.judul_penelitian}
-                    onChange={e => setData('judul_penelitian', e.target.value)}
+                    onChange={(e) => setData('judul_penelitian', e.target.value)}
                     placeholder="Masukkan judul lengkap..."
                 />
                 <InputError message={errors.judul_penelitian} />
@@ -176,8 +174,10 @@ export function CreateProposalForm() {
 ```
 
 ### C. Toast Feedback & Notifikasi
-*   Sistem telah terintegrasi dengan **Sonner**. Flash message dari controller Laravel akan otomatis dipicu oleh komponen global `<FlashToast />`.
-*   Jika Anda perlu memicu notifikasi toast secara manual di sisi client, gunakan:
+
+- Sistem telah terintegrasi dengan **Sonner**. Flash message dari controller Laravel akan otomatis dipicu oleh komponen global `<FlashToast />`.
+- Jika Anda perlu memicu notifikasi toast secara manual di sisi client, gunakan:
+
     ```typescript
     import { toast } from 'sonner';
 
@@ -186,13 +186,16 @@ export function CreateProposalForm() {
     ```
 
 ### D. Penggunaan Ikon Lucide
+
 Gunakan pustaka ikon `lucide-react` secara seragam untuk menjaga konsistensi ukuran visual:
-*   Ikon di dalam tombol atau menu sebaris: `className="mr-2 h-4 w-4"` atau `className="h-4 w-4"`.
-*   Ikon di dalam tajuk card atau navigasi besar: `className="h-5 w-5"`.
+
+- Ikon di dalam tombol atau menu sebaris: `className="mr-2 h-4 w-4"` atau `className="h-4 w-4"`.
+- Ikon di dalam tajuk card atau navigasi besar: `className="h-5 w-5"`.
 
 ---
 
 ## 5. Larangan Utama dalam Pengembangan View
-*   ❌ **Dilarang keras meletakkan query Eloquent / database** di dalam file React (`.tsx`). Seluruh pengolahan data harus diselesaikan di Controller Laravel dan dikirim dalam bentuk props yang siap saji.
-*   ❌ **Dilarang keras melakukan fetch data manual menggunakan `axios.get` atau `fetch()`** untuk memuat data halaman utama. Gunakan metode bawaan Inertia.js (`router.get` atau request props dari controller).
-*   ❌ **Dilarang mengubah atau memodifikasi file layout global (`app-layout.tsx` dsb)** tanpa koordinasi lintas kelas. Jika membutuhkan menu sidebar baru, tambahkan rute Anda di `resources/js/components/app-sidebar.tsx` sesuai dengan *grup peran* Anda.
+
+- ❌ **Dilarang keras meletakkan query Eloquent / database** di dalam file React (`.tsx`). Seluruh pengolahan data harus diselesaikan di Controller Laravel dan dikirim dalam bentuk props yang siap saji.
+- ❌ **Dilarang keras melakukan fetch data manual menggunakan `axios.get` atau `fetch()`** untuk memuat data halaman utama. Gunakan metode bawaan Inertia.js (`router.get` atau request props dari controller).
+- ❌ **Dilarang mengubah atau memodifikasi file layout global (`app-layout.tsx` dsb)** tanpa koordinasi lintas kelas. Jika membutuhkan menu sidebar baru, tambahkan rute Anda di `resources/js/components/app-sidebar.tsx` sesuai dengan _grup peran_ Anda.

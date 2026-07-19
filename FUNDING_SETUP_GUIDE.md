@@ -5,55 +5,68 @@
 Semua file infrastruktur untuk modul Pendanaan (Funding) telah berhasil dibuat. Berikut daftar lengkapnya:
 
 ### 1. **Database Migrations** (2 files)
+
 - ✅ `database/migrations/2026_05_13_000001_create_contracts_table.php`
 - ✅ `database/migrations/2026_05_13_000002_create_funding_terms_table.php`
 
 **What it does:**
+
 - Creates `contracts` table dengan fields untuk kontrak penelitian
 - Creates `funding_terms` table dengan fields untuk termin pencairan
 
 ### 2. **Models** (2 files)
+
 - ✅ `app/Models/Contract.php` - Model kontrak dengan relationships dan scopes
 - ✅ `app/Models/FundingTerm.php` - Model termin pencairan
 
 **Features:**
+
 - Relationships ke User, FundingTerms
 - Scopes: `forResearcher()`, `active()`, `withFundingTerms()`
 - Accessors untuk kalkulasi otomatis
 
 ### 3. **Controllers** (1 file)
+
 - ✅ `app/Http/Controllers/User/UserFundingController.php`
 
 **Methods:**
+
 - `index()` - Menampilkan daftar pendanaan per dosen dengan pagination
 
 ### 4. **Authorization Policies** (1 file)
+
 - ✅ `app/Policies/ContractPolicy.php`
 
 **Authorization rules:**
+
 - View: User hanya lihat kontrak mereka sendiri
 - Create/Update: Hanya admin/super_admin
 - Delete: Hanya super_admin
 
 ### 5. **Validation Requests** (4 files)
+
 - ✅ `app/Http/Requests/StoreContractRequest.php`
 - ✅ `app/Http/Requests/UpdateContractRequest.php`
 - ✅ `app/Http/Requests/StoreFundingTermRequest.php`
 - ✅ `app/Http/Requests/UpdateFundingTermRequest.php`
 
 **Validations:**
+
 - Contract: nomor unique, tanggal valid, dana numeric
 - FundingTerm: persentase 0-100, nominal >= 0, status valid
 
 ### 6. **Custom Validation Rules** (1 file)
+
 - ✅ `app/Rules/FundingTermPercentageRule.php`
 
 **Purpose:** Memvalidasi bahwa total persentase termin = 100%
 
 ### 7. **Services** (1 file)
+
 - ✅ `app/Services/FundingService.php`
 
 **Methods:**
+
 - `getResearcherFundingStats()` - Hitung statistik pendanaan
 - `validateTermPercentages()` - Validasi persentase
 - `getContractDisbursementRate()` - Hitung rate pencairan
@@ -61,10 +74,12 @@ Semua file infrastruktur untuk modul Pendanaan (Funding) telah berhasil dibuat. 
 - `formatContractResponse()` - Format data untuk API
 
 ### 8. **Factories** (2 files)
+
 - ✅ `database/factories/ContractFactory.php`
 - ✅ `database/factories/FundingTermFactory.php`
 
 **Usage:**
+
 ```php
 // Create test data
 $contract = Contract::factory()->create();
@@ -72,17 +87,21 @@ $terms = FundingTerm::factory()->count(3)->disbursed()->create();
 ```
 
 ### 9. **Database Seeders** (1 file)
+
 - ✅ `database/seeders/ContractSeeder.php`
 
 **Generates:**
+
 - 5 kontrak untuk 5 peneliti
 - 2-4 termin per kontrak
 - Realistic data dengan status bervariasi
 
 ### 10. **React Components** (1 file)
+
 - ✅ `resources/js/pages/Proposal/FundingInfo.tsx`
 
 **Features:**
+
 - Dashboard dengan 4 info cards
 - Expandable contract list
 - Detail termin table
@@ -91,31 +110,38 @@ $terms = FundingTerm::factory()->count(3)->disbursed()->create();
 - Empty state
 
 ### 11. **Utility Functions** (1 file)
+
 - ✅ `resources/js/lib/format.ts`
 
 **Functions:**
+
 - `formatCurrency()` - Format Rupiah
 - `formatPercentage()` - Format %
 - `formatDateID()` - Format tanggal Indonesia
 - `formatFileSize()` - Format ukuran file
 
 ### 12. **Routes** (Updated)
+
 - ✅ Updated `routes/web.php` - Added funding routes
 
 **Routes:**
+
 ```
 GET /user/funding               -> UserFundingController@index (name: user.funding.index)
 ```
 
 ### 13. **Service Provider** (1 file)
+
 - ✅ `app/Providers/AuthServiceProvider.php`
 
 **Purpose:** Mendaftarkan ContractPolicy untuk authorization
 
 ### 14. **Tests** (1 file)
+
 - ✅ `tests/Feature/User/FundingTest.php`
 
 **Test cases:**
+
 - User dapat akses funding page
 - User hanya lihat kontrak mereka
 - Statistik dihitung benar
@@ -124,6 +150,7 @@ GET /user/funding               -> UserFundingController@index (name: user.fundi
 - Percentage dihitung benar
 
 ### 15. **Documentation** (1 file)
+
 - ✅ `docs/FUNDING_MODULE.md` - Dokumentasi lengkap
 
 ---
@@ -137,6 +164,7 @@ php artisan migrate
 ```
 
 **Output:**
+
 ```
 Migration table created successfully.
 Creating table: contracts... ✓
@@ -154,6 +182,7 @@ php artisan db:seed
 ```
 
 **Output:**
+
 ```
 Contract KTK-2026-001 created with 3 funding terms.
 Contract KTK-2026-002 created with 2 funding terms.
@@ -390,18 +419,18 @@ $this->authorize('update', $contract);   // Check if can update
 
 ### ContractPolicy
 
-| Method | User | Admin Kampus | Super Admin |
-|--------|------|-------------|-------------|
-| viewAny | ✓ | ✓ | ✓ |
-| view (own) | ✓ | ✓ | ✓ |
-| view (other) | ✗ | ✓* | ✓ |
-| create | ✗ | ✓ | ✓ |
-| update | ✗ | ✓* | ✓ |
-| delete | ✗ | ✗ | ✓ |
-| restore | ✗ | ✗ | ✓ |
-| forceDelete | ✗ | ✗ | ✓ |
+| Method       | User | Admin Kampus | Super Admin |
+| ------------ | ---- | ------------ | ----------- |
+| viewAny      | ✓    | ✓            | ✓           |
+| view (own)   | ✓    | ✓            | ✓           |
+| view (other) | ✗    | ✓\*          | ✓           |
+| create       | ✗    | ✓            | ✓           |
+| update       | ✗    | ✓\*          | ✓           |
+| delete       | ✗    | ✗            | ✓           |
+| restore      | ✗    | ✗            | ✓           |
+| forceDelete  | ✗    | ✗            | ✓           |
 
-*Only for their own university
+\*Only for their own university
 
 ---
 
@@ -409,28 +438,28 @@ $this->authorize('update', $contract);   // Check if can update
 
 ### Contract Rules
 
-| Field | Rule | Message |
-|-------|------|---------|
-| researcher_id | required, exists, unique | Peneliti harus dipilih, sudah ada |
-| contract_number | required, unique, max:50 | Nomor kontrak... sudah terdaftar |
-| contract_date | required, date | Tanggal harus valid |
-| party_1 | required, max:255 | Pihak LPPM harus diisi |
-| party_2 | required, max:255 | Pihak Peneliti harus diisi |
-| total_approved_funding | required, numeric, min:0 | Dana harus berupa angka |
-| contract_status | required, in:aktif,selesai,ditangguhkan | Status tidak valid |
-| financial_document | nullable, file, pdf/jpg, max:5MB | File hanya PDF/JPG, max 5MB |
+| Field                  | Rule                                    | Message                           |
+| ---------------------- | --------------------------------------- | --------------------------------- |
+| researcher_id          | required, exists, unique                | Peneliti harus dipilih, sudah ada |
+| contract_number        | required, unique, max:50                | Nomor kontrak... sudah terdaftar  |
+| contract_date          | required, date                          | Tanggal harus valid               |
+| party_1                | required, max:255                       | Pihak LPPM harus diisi            |
+| party_2                | required, max:255                       | Pihak Peneliti harus diisi        |
+| total_approved_funding | required, numeric, min:0                | Dana harus berupa angka           |
+| contract_status        | required, in:aktif,selesai,ditangguhkan | Status tidak valid                |
+| financial_document     | nullable, file, pdf/jpg, max:5MB        | File hanya PDF/JPG, max 5MB       |
 
 ### FundingTerm Rules
 
-| Field | Rule | Message |
-|-------|------|---------|
-| order | required, integer, unique per contract | Urutan... sudah ada |
-| term_name | required, max:255 | Nama termin harus diisi |
-| percentage | required, numeric, 0-100 | Persentase 0-100 |
-| nominal | required, numeric, min:0 | Nominal dana... tidak valid |
-| status | required, in:cair,menunggu,ditangguhkan,batal | Status tidak valid |
-| disbursement_date | nullable, date | Format tanggal tidak valid |
-| receipt_file | nullable, file, pdf/jpg, max:5MB | File hanya PDF/JPG, max 5MB |
+| Field             | Rule                                          | Message                     |
+| ----------------- | --------------------------------------------- | --------------------------- |
+| order             | required, integer, unique per contract        | Urutan... sudah ada         |
+| term_name         | required, max:255                             | Nama termin harus diisi     |
+| percentage        | required, numeric, 0-100                      | Persentase 0-100            |
+| nominal           | required, numeric, min:0                      | Nominal dana... tidak valid |
+| status            | required, in:cair,menunggu,ditangguhkan,batal | Status tidak valid          |
+| disbursement_date | nullable, date                                | Format tanggal tidak valid  |
+| receipt_file      | nullable, file, pdf/jpg, max:5MB              | File hanya PDF/JPG, max 5MB |
 
 ---
 
@@ -441,6 +470,7 @@ $this->authorize('update', $contract);   // Check if can update
 **Problem:** `SQLSTATE[42S01]: Table 'contracts' already exists`
 
 **Solution:**
+
 ```bash
 php artisan migrate:reset
 php artisan migrate
@@ -451,6 +481,7 @@ php artisan migrate
 **Problem:** `No users with role "user" found. Skipping ContractSeeder.`
 
 **Solution:**
+
 ```bash
 # Create users first with role 'user'
 php artisan tinker
@@ -465,6 +496,7 @@ php artisan tinker
 **Problem:** `Authorization failure` even though user should have access
 
 **Solution:**
+
 1. Clear cache: `php artisan cache:clear`
 2. Check user role: `php artisan tinker` → `User::find(1)->roles`
 3. Check policy: Review `app/Policies/ContractPolicy.php`
@@ -474,6 +506,7 @@ php artisan tinker
 **Problem:** Tests not finding data
 
 **Solution:**
+
 ```bash
 # Use RefreshDatabase trait in tests
 # It automatically runs migrations before each test
@@ -502,6 +535,7 @@ php artisan test --env=testing
 ## 📞 Support
 
 For issues or questions about the Funding Module:
+
 1. Check `docs/FUNDING_MODULE.md` for detailed documentation
 2. Review test cases in `tests/Feature/User/FundingTest.php` for examples
 3. Check authorization in `app/Policies/ContractPolicy.php`

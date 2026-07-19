@@ -1,7 +1,10 @@
 <?php
 
-function replace_in_file($path, $search, $replace) {
-    if (!file_exists($path)) return;
+function replace_in_file($path, $search, $replace)
+{
+    if (! file_exists($path)) {
+        return;
+    }
     $content = file_get_contents($path);
     $new_content = str_replace($search, $replace, $content);
     if ($content !== $new_content) {
@@ -41,9 +44,9 @@ $rev_test = 'tests/Feature/RevisionCopyeditingTest.php';
 $rt_content = file_get_contents($rev_test);
 // Let's print out what is there around Role::firstOrCreate
 $lines = explode("\n", $rt_content);
-foreach($lines as $i => $line) {
+foreach ($lines as $i => $line) {
     if (strpos($line, 'Role::') !== false) {
-        echo "Line " . ($i+1) . ": " . $line . "\n";
+        echo 'Line '.($i + 1).': '.$line."\n";
     }
 }
 
@@ -65,4 +68,3 @@ $mt_content = str_replace(
 );
 file_put_contents($monev_test, $mt_content);
 echo "Fixed MonevReportTest.php\n";
-

@@ -13,6 +13,7 @@
 ### Task 1: Database Migration
 
 **Files:**
+
 - Create: `database/migrations/2026_07_09_000000_add_journal_fields_to_user_roles_table.php`
 
 - [ ] **Step 1: Create migration file**
@@ -85,6 +86,7 @@ git commit -m "migration: add journal fields to user_roles table"
 ### Task 2: Eloquent Model & Relations
 
 **Files:**
+
 - Create: `app/Models/UserRole.php`
 - Modify: `app/Models/User.php`
 - Modify: `app/Models/Journal.php`
@@ -93,6 +95,7 @@ git commit -m "migration: add journal fields to user_roles table"
 - [ ] **Step 1: Create app/Models/UserRole.php**
 
 Write code:
+
 ```php
 <?php
 
@@ -142,6 +145,7 @@ class UserRole extends Model
 - [ ] **Step 2: Modify app/Models/User.php**
 
 Add relationship and helper methods:
+
 ```php
     /**
      * Get journal roles of this user
@@ -178,6 +182,7 @@ Add relationship and helper methods:
 - [ ] **Step 3: Modify app/Models/Journal.php**
 
 Add relationship:
+
 ```php
     /**
      * Get user roles for this journal
@@ -191,6 +196,7 @@ Add relationship:
 - [ ] **Step 4: Create Model Tests**
 
 Create `tests/Feature/UserRoleModelTest.php`:
+
 ```php
 <?php
 
@@ -243,6 +249,7 @@ git commit -m "feat: implement UserRole model and relations"
 ### Task 3: RoleMiddleware
 
 **Files:**
+
 - Create: `app/Http/Middleware/RoleMiddleware.php`
 - Modify: `bootstrap/app.php`
 - Create: `tests/Feature/RoleMiddlewareTest.php`
@@ -250,6 +257,7 @@ git commit -m "feat: implement UserRole model and relations"
 - [ ] **Step 1: Create RoleMiddleware**
 
 Write code in `app/Http/Middleware/RoleMiddleware.php`:
+
 ```php
 <?php
 
@@ -319,6 +327,7 @@ class RoleMiddleware
 - [ ] **Step 2: Register in bootstrap/app.php**
 
 Modify `bootstrap/app.php`:
+
 ```php
         // Register middleware aliases
         $middleware->alias([
@@ -333,6 +342,7 @@ Modify `bootstrap/app.php`:
 - [ ] **Step 3: Create middleware tests**
 
 Create `tests/Feature/RoleMiddlewareTest.php`:
+
 ```php
 <?php
 
@@ -364,7 +374,7 @@ class RoleMiddlewareTest extends TestCase
 
         $request = Request::create('/journals/' . $journal->id, 'GET');
         $request->setUserResolver(fn () => $user);
-        
+
         // Mock route parameter
         $request->setRouteResolver(fn () => new class($journal) {
             private $journal;
@@ -399,6 +409,7 @@ git commit -m "feat: implement RoleMiddleware and register alias"
 ### Task 4: Controller & Routes
 
 **Files:**
+
 - Create: `app/Http/Controllers/Admin/UserRoleController.php`
 - Modify: `routes/web.php`
 - Create: `tests/Feature/UserRoleControllerTest.php`
@@ -406,6 +417,7 @@ git commit -m "feat: implement RoleMiddleware and register alias"
 - [ ] **Step 1: Create UserRoleController**
 
 Write code in `app/Http/Controllers/Admin/UserRoleController.php`:
+
 ```php
 <?php
 
@@ -450,15 +462,18 @@ class UserRoleController extends Controller
 - [ ] **Step 2: Add Web Routes**
 
 Add to `routes/web.php` in the `auth` middleware group:
+
 ```php
         // Journal User Role Management
         Route::get('/admin/users', [\App\Http\Controllers\Admin\UserRoleController::class, 'index'])->name('admin.users.index');
 ```
-*Note: Make sure to place this before any general `/admin/users` resource route or replace the index route specifically so it uses UserRoleController.*
+
+_Note: Make sure to place this before any general `/admin/users` resource route or replace the index route specifically so it uses UserRoleController._
 
 - [ ] **Step 3: Create Controller Tests**
 
 Create `tests/Feature/UserRoleControllerTest.php`:
+
 ```php
 <?php
 
@@ -500,11 +515,13 @@ git commit -m "feat: implement UserRoleController and add route"
 ### Task 5: Frontend Page Index.tsx
 
 **Files:**
+
 - Modify: `resources/js/pages/Admin/Users/Index.tsx`
 
 - [ ] **Step 1: Write UI component**
 
 Rewrite `resources/js/pages/Admin/Users/Index.tsx`:
+
 ```tsx
 import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
@@ -545,13 +562,11 @@ export default function Index({ users }: IndexProps) {
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Pengelola Jurnal</h1>
-                        <p className="text-muted-foreground text-sm">
-                            Daftar seluruh pengguna dan peran mereka di dalam sistem JurnalMu.
-                        </p>
+                        <p className="text-sm text-muted-foreground">Daftar seluruh pengguna dan peran mereka di dalam sistem JurnalMu.</p>
                     </div>
                     <div>
                         <Link href="/admin/users/invite">
-                            <Button className="bg-primary hover:bg-primary/95 text-white flex items-center gap-2">
+                            <Button className="flex items-center gap-2 bg-primary text-white hover:bg-primary/95">
                                 <UserPlus className="h-4 w-4" />
                                 Undang Peran Baru
                             </Button>
@@ -574,7 +589,7 @@ export default function Index({ users }: IndexProps) {
                             <TableBody>
                                 {users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                                        <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                                             Tidak ada pengguna ditemukan.
                                         </TableCell>
                                     </TableRow>
@@ -587,13 +602,11 @@ export default function Index({ users }: IndexProps) {
                                                 <div className="flex flex-col gap-2">
                                                     {user.roles.map((role) => (
                                                         <div key={role.id} className="flex flex-col items-start gap-1">
-                                                            <span className="px-2 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800">
+                                                            <span className="rounded bg-slate-100 px-2 py-1 text-xs font-semibold dark:bg-slate-800">
                                                                 {role.role_name}
                                                             </span>
                                                             {role.journal && (
-                                                                <span className="text-xs text-muted-foreground italic pl-1">
-                                                                    {role.journal.name}
-                                                                </span>
+                                                                <span className="pl-1 text-xs text-muted-foreground italic">{role.journal.name}</span>
                                                             )}
                                                         </div>
                                                     ))}
@@ -603,11 +616,15 @@ export default function Index({ users }: IndexProps) {
                                                 <div className="flex flex-col gap-2">
                                                     {user.roles.map((role) => (
                                                         <div key={role.id} className="flex items-center">
-                                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                                                role.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                                                                role.status === 'Invited' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' :
-                                                                'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'
-                                                            }`}>
+                                                            <span
+                                                                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                                                                    role.status === 'Active'
+                                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                                                        : role.status === 'Invited'
+                                                                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                                                                          : 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'
+                                                                }`}
+                                                            >
                                                                 {role.status}
                                                             </span>
                                                         </div>
@@ -615,7 +632,7 @@ export default function Index({ users }: IndexProps) {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <div className="flex flex-col gap-2 items-end">
+                                                <div className="flex flex-col items-end gap-2">
                                                     {user.roles.map((role) => (
                                                         <div key={role.id} className="flex items-center">
                                                             <Button

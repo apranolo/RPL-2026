@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Models\ResearchOutput;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -17,7 +17,7 @@ class OutputReportTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(\Database\Seeders\RoleSeeder::class);
+        $this->seed(RoleSeeder::class);
     }
 
     public function test_super_admin_can_access_report_page()
@@ -90,7 +90,7 @@ class OutputReportTest extends TestCase
                 'status' => 'verified',
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ],
         ]);
 
         $responseCategory = $this->actingAs($superAdmin)->getJson('/api/stats/outputs/by-category');

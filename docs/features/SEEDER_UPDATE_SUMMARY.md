@@ -3,7 +3,9 @@
 ## 📅 Update Date: January 18, 2026
 
 ## 🎯 Tujuan Update
+
 Memperbarui seeder untuk menampilkan contoh data lengkap dari sistem Borang Indikator v1.1 yang menggunakan struktur hierarki:
+
 - **Templates** (Accreditation Templates)
 - **Categories** (Evaluation Categories - Level 1)
 - **Sub-Categories** (Evaluation Sub-Categories - Level 2)
@@ -15,42 +17,46 @@ Memperbarui seeder untuk menampilkan contoh data lengkap dari sistem Borang Indi
 ## 📦 Database Seeding Flow
 
 ### 1. **RoleSeeder** ✅
+
 - Membuat 3 roles: Super Admin, Admin Kampus, User
 
 ### 2. **ScientificFieldSeeder** ✅
+
 - Membuat 10 bidang ilmiah (Teknik, Kesehatan, Sosial, dll)
 
 ### 3. **UniversitySeeder** ✅
+
 - Membuat 5 universitas PTM sample
 
 ### 4. **UserSeeder** ✅
+
 - Membuat 10 users dengan berbagai role
 - **Super Admin**: `superadmin@ajm.ac.id` / `password123`
 
 ### 5. **EvaluationIndicatorSeeder** ✅ (UPDATED)
+
 - Membuat **12 indicators** legacy (v1.0 format)
 - **Kategori yang dibuat:**
-  - **Kelengkapan Administrasi** (4 indicators, 6.50 points)
-    - ADM-01: ISSN valid ✅
-    - ADM-02: Website aktif ✅
-    - ADM-03: Dewan redaksi lengkap (min 10 anggota) ✅
-    - ADM-04: Pedoman penulisan lengkap ✅
-  
-  - **Kualitas Konten** (4 indicators, 8.50 points)
-    - KON-01: Peer review (double-blind) ✅
-    - KON-02: Keberagaman penulis eksternal (scale 1-5) ✅
-    - KON-03: Sitasi artikel (Google Scholar) ✅
-    - KON-04: Standarisasi format (IMRAD) ✅
-  
-  - **Proses Editorial** (4 indicators, 9.00 points)
-    - EDT-01: SOP review terdokumentasi ✅
-    - EDT-02: Kecepatan review (scale 1-5) ✅
-    - EDT-03: Sistem manajemen elektronik (OJS, dll) ✅
-    - EDT-04: Pengecekan plagiasi (Turnitin, dll) ✅
+    - **Kelengkapan Administrasi** (4 indicators, 6.50 points)
+        - ADM-01: ISSN valid ✅
+        - ADM-02: Website aktif ✅
+        - ADM-03: Dewan redaksi lengkap (min 10 anggota) ✅
+        - ADM-04: Pedoman penulisan lengkap ✅
+    - **Kualitas Konten** (4 indicators, 8.50 points)
+        - KON-01: Peer review (double-blind) ✅
+        - KON-02: Keberagaman penulis eksternal (scale 1-5) ✅
+        - KON-03: Sitasi artikel (Google Scholar) ✅
+        - KON-04: Standarisasi format (IMRAD) ✅
+    - **Proses Editorial** (4 indicators, 9.00 points)
+        - EDT-01: SOP review terdokumentasi ✅
+        - EDT-02: Kecepatan review (scale 1-5) ✅
+        - EDT-03: Sistem manajemen elektronik (OJS, dll) ✅
+        - EDT-04: Pengecekan plagiasi (Turnitin, dll) ✅
 
 **Total Weight: 24 points**
 
 #### 🆕 Perubahan Penting:
+
 - ✅ Deskripsi indicator diperluas dan lebih detail
 - ✅ ADM-03: Weight dinaikkan dari 1.50 → 2.00 (requirement: min 10 anggota)
 - ✅ KON-02: Weight dinaikkan dari 2.00 → 2.50 (scale scoring lebih kompleks)
@@ -58,42 +64,49 @@ Memperbarui seeder untuk menampilkan contoh data lengkap dari sistem Borang Indi
 - ✅ Semua field match dengan `StoreIndicatorRequest` validation
 
 ### 6. **AccreditationTemplateSeeder** ✅
+
 - Membuat **2 templates:**
-  
-  **Template 1: BAN-PT 2024 (Active)**
-  - Type: `akreditasi`
-  - Status: Active ✅
-  - Version: `2024.1`
-  - Description: Template penilaian akreditasi jurnal berdasarkan standar BAN-PT
-  
-  **Template 2: Scopus 2024 (Inactive)**
-  - Type: `indeksasi`
-  - Status: Inactive ⏸️
-  - Version: `2024.0-draft`
-  - Description: Template kriteria indeksasi Scopus (untuk referensi)
+
+    **Template 1: BAN-PT 2024 (Active)**
+    - Type: `akreditasi`
+    - Status: Active ✅
+    - Version: `2024.1`
+    - Description: Template penilaian akreditasi jurnal berdasarkan standar BAN-PT
+
+    **Template 2: Scopus 2024 (Inactive)**
+    - Type: `indeksasi`
+    - Status: Inactive ⏸️
+    - Version: `2024.0-draft`
+    - Description: Template kriteria indeksasi Scopus (untuk referensi)
 
 ### 7. **DataMigrationSeeder** ✅
+
 **Proses migrasi otomatis v1.0 → v1.1:**
 
 #### Step 1: Create Categories
+
 - Extract unique categories dari 12 indicators
 - Link ke BAN-PT template
 - Result: **3 categories** created
 
 #### Step 2: Create Sub-Categories
+
 - Extract unique sub_categories per category
 - Result: **12 sub-categories** created (1 per indicator)
 
 #### Step 3: Migrate Indicators
+
 - Populate `sub_category_id` untuk semua indicators
 - Result: **12 indicators** migrated ✅
 
 #### Step 4: Validation
+
 - ✅ All indicators migrated (no NULL sub_category_id)
 - ✅ No orphaned sub-categories
 - ✅ Category weight consistency validated
 
 **Migration Summary:**
+
 - Categories created: 3
 - Sub-categories created: 12
 - Indicators migrated: 12
@@ -102,21 +115,25 @@ Memperbarui seeder untuk menampilkan contoh data lengkap dari sistem Borang Indi
 ### 8. **EssayQuestionSeeder** ✅
 
 **BAN-PT Template Essays (3 active):**
+
 1. **ESSAY-ADM-01**: Sejarah & perkembangan jurnal (500 words, required)
 2. **ESSAY-KON-01**: Proses peer review (600 words, required)
 3. **ESSAY-VIS-01**: Strategi visibility & citation (500 words, optional)
 
 **Scopus Template Essays (3 inactive draft):**
+
 1. **ESSAY-SCOPUS-QUA-01**: Editorial board composition (400 words)
 2. **ESSAY-SCOPUS-ETH-01**: Ethics policies (450 words)
 3. **ESSAY-SCOPUS-CIT-01**: Citation impact evidence (350 words)
 
 **New Scopus Placeholder Categories:**
+
 - SCOPUS-QUA: Journal Quality & Policy (30%)
 - SCOPUS-PUB: Publication Ethics (25%)
 - SCOPUS-VIS: Visibility & Citation (45%)
 
 ### 9. **JournalSeeder** ✅
+
 - Membuat 5 sample journals untuk testing
 
 ---
@@ -126,7 +143,9 @@ Memperbarui seeder untuk menampilkan contoh data lengkap dari sistem Borang Indi
 Semua modal form telah diperbaiki agar sesuai dengan Form Request validation di backend:
 
 ### 1. **CategoryFormModal** ✅
+
 **Required fields:**
+
 - `code` (e.g., "A")
 - `name` (e.g., "Manajemen Editorial")
 - `description` (optional)
@@ -135,7 +154,9 @@ Semua modal form telah diperbaiki agar sesuai dengan Form Request validation di 
 - `template_id` (hidden)
 
 ### 2. **SubCategoryFormModal** ✅
+
 **Required fields:**
+
 - `code` (e.g., "A.1")
 - `name` (e.g., "Efektivitas Pengelolaan")
 - `description` (optional)
@@ -143,7 +164,9 @@ Semua modal form telah diperbaiki agar sesuai dengan Form Request validation di 
 - `category_id` (hidden)
 
 ### 3. **IndicatorFormModal** ✅ (Completely rebuilt)
+
 **Required fields:**
+
 - `code` (e.g., "A.1.1")
 - `question` (text - bukan `name`)
 - `description` (optional)
@@ -155,7 +178,9 @@ Semua modal form telah diperbaiki agar sesuai dengan Form Request validation di 
 - `sub_category_id` (hidden)
 
 ### 4. **EssayQuestionFormModal** ✅
+
 **Required fields:**
+
 - `code` (e.g., "ESSAY-ADM-01")
 - `question` (textarea)
 - `guidance` (optional - bukan `description`)
@@ -166,7 +191,9 @@ Semua modal form telah diperbaiki agar sesuai dengan Form Request validation di 
 - `category_id` (hidden)
 
 ### 5. **TemplateFormModal** ✅
+
 **No schema changes**, only:
+
 - ✅ Added toast notifications
 - ✅ Added proper error handling
 - ✅ Added loading state
@@ -176,10 +203,12 @@ Semua modal form telah diperbaiki agar sesuai dengan Form Request validation di 
 ## 🎨 Frontend Features
 
 ### Pages Created:
+
 1. **`/admin/borang-indikator`** (Index) - List all templates
 2. **`/admin/templates/{id}/structure`** (Tree) - Manage hierarchy with drag & drop
 
 ### UI Components:
+
 - ✅ **TreeItems.tsx**: Sortable drag-and-drop items (CategoryItem, SubCategoryItem, IndicatorItem, EssayItem)
 - ✅ All modals with toast notifications
 - ✅ Form validation with error messages
@@ -190,6 +219,7 @@ Semua modal form telah diperbaiki agar sesuai dengan Form Request validation di 
 ## 🧪 Testing Checklist
 
 ### Database:
+
 - [x] Run `php artisan migrate:fresh --seed` successfully
 - [x] Verify 12 indicators created with correct weights
 - [x] Verify 3 categories created
@@ -199,6 +229,7 @@ Semua modal form telah diperbaiki agar sesuai dengan Form Request validation di 
 - [x] Verify 2 templates created (1 active, 1 inactive)
 
 ### Frontend (Manual Testing Required):
+
 - [ ] Open `/admin/borang-indikator` and verify template list
 - [ ] Click "Create Template" and test form submission
 - [ ] Click "Manage Structure" button on BAN-PT template
@@ -282,5 +313,6 @@ Scopus 2024 Template (Inactive Draft)
 ---
 
 ## 👤 Developed By
+
 **GitHub Copilot + Human Developer**
 Date: January 18, 2026

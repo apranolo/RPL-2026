@@ -92,7 +92,7 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
 
     DB::table('contracts')->insert([
         [
-            'contract_number' => 'CTR-A2', 'party_1' => 'Pihak 1', 'party_2' => 'Pihak 2', 
+            'contract_number' => 'CTR-A2', 'party_1' => 'Pihak 1', 'party_2' => 'Pihak 2',
             'university_id' => $this->univA->id,
             'proposal_id' => $proposalA->id,
             'title' => 'Penelitian Univ A',
@@ -102,7 +102,7 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
             'updated_at' => now(),
         ],
         [
-            'contract_number' => 'CTR-B2', 'party_1' => 'Pihak 1', 'party_2' => 'Pihak 2', 
+            'contract_number' => 'CTR-B2', 'party_1' => 'Pihak 1', 'party_2' => 'Pihak 2',
             'university_id' => $this->univB->id,
             'proposal_id' => $proposalB->id,
             'title' => 'Penelitian Univ B',

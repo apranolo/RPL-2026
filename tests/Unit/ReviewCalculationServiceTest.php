@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Journal;
+use App\Models\User;
 use App\Services\ReviewCalculationService;
 use Illuminate\Support\Facades\DB;
 
@@ -23,8 +25,8 @@ test('calculate() returns default empty statistics when no assessments exist', f
 test('calculateSingle() computes correct scores for a given assessment', function () {
     $service = new ReviewCalculationService;
 
-    $user = \App\Models\User::factory()->create();
-    $journal = \App\Models\Journal::factory()->create(['user_id' => $user->id]);
+    $user = User::factory()->create();
+    $journal = Journal::factory()->create(['user_id' => $user->id]);
 
     DB::table('journal_assessments')->insert([
         [
