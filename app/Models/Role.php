@@ -21,6 +21,7 @@ class Role extends Model
 
     public const REVIEWER = 'Reviewer';
 
+
     /**
      * The attributes that are mass assignable.
      *
@@ -124,4 +125,5 @@ class Role extends Model
     {
         return $this->name === self::REVIEWER;
     }
+
 }
