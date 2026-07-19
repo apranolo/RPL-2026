@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('proposals', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->text('description');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            // INI PENTING
+            $table->foreignId('research_schema_id')
+                ->constrained('research_schemas')
+                ->onDelete('cascade');
+
+            $table->string('status_proposal')->default('Draft');
+            $table->text('rejection_reason')->nullable();
+            $table->string('file_dokumen_proposal')->nullable();
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('proposals');
+    }
+};

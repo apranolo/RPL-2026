@@ -4,40 +4,71 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
- * Stub model untuk Submission (naskah ilmiah ajuan OJS).
- * Model resmi akan dibuat oleh Dzaky Muayyad (PR #140).
- */
 class Submission extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'journal_id',
+        'author_id',
         'title',
         'abstract',
-        'author_id',
-        'journal_id',
+        'keywords',
         'status',
-        'submitted_at',
+        'file_path',
+        'author_notes',
     ];
 
-    protected $casts = [
-        'submitted_at' => 'datetime',
+    protected $appends = [
+        'user_id',
     ];
 
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
     }
 
-    public function journal()
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function journal(): BelongsTo
     {
         return $this->belongsTo(Journal::class);
     }
 
-    public function copyeditingTask()
+    public function files(): HasMany
     {
-        return $this->hasOne(CopyeditingTask::class);
+        return $this->hasMany(SubmissionFile::class);
+    }
+
+    public function contributors(): HasMany
+    {
+        return $this->hasMany(SubmissionContributor::class);
+    }
+
+    public function revisionRounds(): HasMany
+    {
+        return $this->hasMany(RevisionRound::class, 'id_submission', 'id');
+    }
+
+    public function copyeditingTask(): HasOne
+    {
+        return $this->hasOne(CopyeditingTask::class, 'id_submission', 'id');
+    }
+
+    public function getUserIdAttribute(): ?int
+    {
+        return $this->author_id;
+    }
+
+    public function setUserIdAttribute($value): void
+    {
+        $this->attributes['author_id'] = $value;
     }
 }
