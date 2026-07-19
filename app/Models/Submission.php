@@ -23,6 +23,8 @@ class Submission extends Model
         'abstract',
         'keywords',
         'status',
+        'file_path',
+        'author_notes',
     ];
 
     /**
@@ -32,9 +34,6 @@ class Submission extends Model
     {
         return $this->belongsTo(Journal::class);
     }
-        'file_path',
-        'author_notes',
-    ];
 
     /**
      * The accessors to append to the model's array form.

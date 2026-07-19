@@ -15,8 +15,10 @@ class ReviewAssignment extends Model
         'submission_id',
         'reviewer_id',
         'assigner_id',
+        'round',
         'status',
         'assigned_at',
+        'due_date',
         'decline_reason',
     ];
 
@@ -24,14 +26,26 @@ class ReviewAssignment extends Model
         'assigned_at' => 'datetime',
     ];
 
-    public function submission()
+    protected $appends = ['id_submission', 'id_reviewer', 'reviewer_name'];
+
+    public function submission(): BelongsTo
     {
         return $this->belongsTo(Submission::class);
     }
 
-    public function assigner()
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewer_id');
+    }
+
+    public function assigner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigner_id');
+    }
+
+    public function forms(): HasMany
+    {
+        return $this->hasMany(ReviewForm::class);
     }
 
     public function scopeForReviewer($query, $reviewerId)
@@ -41,7 +55,7 @@ class ReviewAssignment extends Model
 
     public function getStatusLabelAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'assigned' => 'Menunggu Dimulai',
             'in_progress' => 'Sedang Direview',
             'Accepted' => 'Diterima',
@@ -53,7 +67,7 @@ class ReviewAssignment extends Model
 
     public function getStatusColorAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'assigned' => 'amber',
             'in_progress' => 'blue',
             'Accepted' => 'green',
@@ -62,47 +76,19 @@ class ReviewAssignment extends Model
             default => 'gray',
         };
     }
-}
-        'round',
-        'status',
-        'due_date',
-        'decline_reason',
-    ];
 
-    // --- TAMBAHAN DARI REVIEWER (ACCESSORS & APPENDS) ---
-    
-    // HAPUS 'decline_reason' DARI SINI
-    protected $appends = ['id_submission', 'id_reviewer', 'reviewer_name'];
-
-    public function getIdSubmissionAttribute() 
+    public function getIdSubmissionAttribute()
     {
         return $this->submission_id;
     }
 
-    public function getIdReviewerAttribute() 
+    public function getIdReviewerAttribute()
     {
         return $this->reviewer_id;
     }
 
-    public function getReviewerNameAttribute() 
+    public function getReviewerNameAttribute()
     {
         return $this->reviewer ? $this->reviewer->name : '';
-    }
-    // FUNGSI getDeclineReasonAttribute SUDAH DIHAPUS TOTAL
-    // ----------------------------------------------------
-
-    public function reviewer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'reviewer_id');
-    }
-
-    public function submission(): BelongsTo
-    {
-        return $this->belongsTo(Submission::class);
-    }
-
-    public function forms(): HasMany
-    {
-        return $this->hasMany(ReviewForm::class);
     }
 }

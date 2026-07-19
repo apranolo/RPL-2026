@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\ReviewAssignment;
 use App\Models\ReviewerAssignment;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ReviewAssignmentController
@@ -71,14 +71,14 @@ class ReviewAssignmentController extends Controller
     public function invite(Request $request)
     {
         // Pengecekan Otorisasi (Hanya Editor yang boleh)
-        if (!auth()->user()->hasRole('Editor')) {
+        if (! auth()->user()->hasRole('Editor')) {
             abort(403, 'Akses ditolak: Hanya Editor yang berhak mengundang Reviewer.');
         }
 
         // 1. Validasi Input Keamanan
         $validated = $request->validate([
             'submission_id' => 'required|exists:submissions,id',
-            'reviewer_id'   => 'required|exists:users,id',
+            'reviewer_id' => 'required|exists:users,id',
         ]);
 
         // 2. Pencegahan Duplikasi Undangan
@@ -95,10 +95,10 @@ class ReviewAssignmentController extends Controller
         // 3. Simpan Data (SLA 7 Hari)
         ReviewAssignment::create([
             'submission_id' => $validated['submission_id'],
-            'reviewer_id'   => $validated['reviewer_id'],
-            'round'         => 1,
-            'status'        => 'Pending',
-            'due_date'      => now()->addDays(7),
+            'reviewer_id' => $validated['reviewer_id'],
+            'round' => 1,
+            'status' => 'Pending',
+            'due_date' => now()->addDays(7),
         ]);
 
         // Catatan: Email notifikasi akan di-handle oleh Event/Observer dari Modul 7.
@@ -112,10 +112,6 @@ class ReviewAssignmentController extends Controller
      *
      * Memvalidasi input dan memperbarui kolom due_date pada
      * reviewer_assignments untuk assignment yang diberikan.
-     *
-     * @param  Request             $request
-     * @param  ReviewerAssignment  $reviewerAssignment
-     * @return RedirectResponse
      */
     public function extendDue(Request $request, ReviewerAssignment $reviewerAssignment): RedirectResponse
     {

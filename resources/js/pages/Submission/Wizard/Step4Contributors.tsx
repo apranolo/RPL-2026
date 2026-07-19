@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import ContributorForm from '@/components/ContributorForm';
 import { Button } from '@/components/ui/button';

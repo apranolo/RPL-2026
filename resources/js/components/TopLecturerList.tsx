@@ -22,8 +22,6 @@ import { useEffect, useState } from 'react';
  * @filepath /resources/js/components/TopLecturerList.tsx
  */
 
-import { Award } from 'lucide-react';
-
 interface Lecturer {
     name: string;
     score: number;
@@ -137,4 +135,3 @@ export default function TopLecturerList({ data }: Props) {
         </div>
     );
 }
-

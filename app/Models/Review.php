@@ -124,6 +124,8 @@ class Review extends Model
                 $model->reviewed_at = now();
             }
         });
+    }
+
     public function assessmentCriteria()
     {
         return $this->hasMany(AssessmentCriteria::class, 'review_id');
