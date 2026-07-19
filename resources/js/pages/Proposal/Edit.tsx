@@ -1,10 +1,6 @@
-/**
- * Komponen Edit Halaman Proposal.
- * 
- * Digunakan untuk menampilkan form edit proposal dan menangani proses pembaruan data.
- */
 import AppLayout from '@/layouts/app/app-sidebar-layout';
-import { useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
+//import { useForm } from '@inertiajs/react'; // ini punya akbarzaqi
 import React from 'react';
 import { route } from 'ziggy-js';
 
@@ -30,6 +26,12 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
         return <div className="p-6">Data tidak ditemukan</div>;
     }
 
+    const breadcrumbs = [
+        { title: 'Dashboard', href: route('dashboard') },
+        { title: 'Proposal', href: route('proposal.index') },
+        { title: 'Edit Proposal', href: '#' },
+    ];
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -41,10 +43,15 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
     };
 
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Edit Proposal" />
             <div className="mx-auto max-w-2xl p-6">
-                <div className="rounded-xl bg-white p-6 shadow">
-                    <h1 className="mb-6 text-2xl font-bold">Edit Proposal</h1>
+                <div className="rounded-xl bg-card p-6 shadow text-card-foreground">
+
+                        {/*punya akbarzaqi*/
+                     /*<div className="mx-auto max-w-2xl p-6">
+                    <div className="rounded-xl bg-white p-6 shadow">
+                    <h1 className="mb-6 text-2xl font-bold">Edit Proposal</h1> */}
 
                     <form onSubmit={submit} className="space-y-6">
                         {/* Judul */}
@@ -58,12 +65,13 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
                                 type="text"
                                 value={data.judul}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('judul', e.target.value)}
-                                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none ${
-                                    errors.judul ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                                className={`w-full rounded-lg border bg-transparent px-3 py-2 focus:ring-2 focus:outline-none ${
+                                    errors.judul 
+                                        ? 'border-destructive focus:ring-destructive' 
+                                        : 'border-input focus:ring-primary'
                                 }`}
                             />
-
-                            {errors.judul && <p className="mt-1 text-sm text-red-500">{errors.judul}</p>}
+                            <InputError message={errors.judul} />
                         </div>
 
                         {/* Deskripsi */}
@@ -77,12 +85,14 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
                                 value={data.deskripsi}
                                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setData('deskripsi', e.target.value)}
                                 rows={4}
-                                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none ${
-                                    errors.deskripsi ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                                className={`w-full rounded-lg border bg-transparent px-3 py-2 focus:ring-2 focus:outline-none ${
+                                    errors.deskripsi 
+                                        ? 'border-destructive focus:ring-destructive' 
+                                        : 'border-input focus:ring-primary'
                                 }`}
                             />
 
-                            {errors.deskripsi && <p className="mt-1 text-sm text-red-500">{errors.deskripsi}</p>}
+                            <InputError message={errors.deskripsi} />
                         </div>
 
                         {/* Button */}
@@ -90,7 +100,7 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                                className="rounded-lg bg-primary px-5 py-2 text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
                             >
                                 {processing ? 'Updating...' : 'Update'}
                             </button>
