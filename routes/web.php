@@ -766,6 +766,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
         Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
 
+        Route::get('/editorial/decision/history/{submissionId}', [DecisionController::class, 'history'])->name('editorial.decision.history');
         Route::post('/editorial/desk/{id}/plagiarism', [PlagiarismController::class, 'store'])->name('editorial.desk.plagiarism');
         Route::post('/editorial/desk/{id}/assign-editor', [DeskController::class, 'assignEditor'])->name('editorial.desk.assign-editor');
         Route::post('/editorial/desk/{id}/desk-review', [DeskController::class, 'deskReview'])->name('editorial.desk.review');
@@ -871,26 +872,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /*
-    |--------------------------------------------------------------------------
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Finance & Funding Routes
-    |--------------------------------------------------------------------------
-    | Akses untuk Keuangan dan Admin Kampus
-    */
-    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
-
-        // Rute untuk menampilkan halaman log perubahan termin
-        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
-            ->name('finance.funding.logs.index');
-
-        // Rute BARU untuk mencetak kwitansi PDF
-        Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
-            ->name('finance.funding.print-kwitansi');
-
-    });
 
     /*
     |--------------------------------------------------------------------------
