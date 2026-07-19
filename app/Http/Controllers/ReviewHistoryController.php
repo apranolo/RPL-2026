@@ -22,11 +22,8 @@ class ReviewHistoryController extends Controller
     public function index(Request $request, ?User $dosen = null)
     {
         // --- AUTHORIZATION CHECK ---
-        if ($dosen && $dosen->id !== $request->user()->id) {
-            // Hanya Super Admin atau Admin Kampus yang diperbolehkan melihat riwayat review dosen lain
-            if (!$request->user()->isSuperAdmin() && !$request->user()->isAdminKampus()) {
-                abort(403, 'Anda tidak memiliki otorisasi untuk melihat riwayat review dosen lain.');
-            }
+        if ($dosen && $request->user()->isAdminKampus() && $dosen->university_id !== $request->user()->university_id) {
+            abort(403, 'Anda hanya dapat melihat riwayat dosen dari universitas Anda sendiri.');
         }
 
         // Tentukan ID reviewer: dari parameter jika ada, jika tidak dari user login
@@ -34,20 +31,18 @@ class ReviewHistoryController extends Controller
 
         // Riwayat Review (Review Selesai)
         $reviewsQuery = Review::with([
-            'registration.pembinaan',
-            'registration.journal.university',
-            'registration.journal.scientificField',
-            'registration.user'
+            'proposal.user.university',
+            'proposal.researchSchema',
+            'reviewer'
         ])
         ->byReviewer($reviewerId)
         ->orderBy('reviewed_at', 'desc');
 
         // Riwayat Jadwal/Penugasan Review (Schedules)
         $reviewSchedulesQuery = ReviewSchedule::with([
-            'registration.pembinaan',
-            'registration.journal.university',
-            'registration.journal.scientificField',
-            'registration.user'
+            'proposal.user.university',
+            'proposal.researchSchema',
+            'reviewer'
         ])
         ->forReviewer($reviewerId)
         ->orderBy('assigned_at', 'desc');

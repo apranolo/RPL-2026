@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berita Acara Review - {{ $journal->title ?? 'Jurnal' }}</title>
+    <title>Berita Acara Review Proposal - {{ $proposal->title ?? 'Proposal' }}</title>
     <style>
         /* General styling for screen and print */
         body {
@@ -265,7 +265,7 @@
 
     <!-- Screen Toolbar -->
     <div class="no-print-toolbar">
-        <span style="font-family: sans-serif; font-size: 14px; color: #4b5563;">Pratinjau Cetak Berita Acara</span>
+        <span style="font-family: sans-serif; font-size: 14px; color: #4b5563;">Pratinjau Cetak Berita Acara Review Proposal</span>
         <div style="display: flex; gap: 10px;">
             <button onclick="window.print()" class="btn">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-2-9v12H8V9h8z"/></svg>
@@ -283,20 +283,16 @@
             </div>
             <div class="kop-text">
                 <h1>Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi</h1>
-                <h2>Direktorat Jenderal Pendidikan Tinggi, Riset, dan Teknologi</h2>
-                <h3>Tim Reviewer Akreditasi & Pembinaan Jurnal Nasional</h3>
-                <p>Gedung D Kemendikbudristek, Jl. Jenderal Sudirman, Senayan, Jakarta 10270</p>
+                <h2>{{ strtoupper($proposal->user->university->name ?? 'Lembaga Penelitian dan Pengabdian kepada Masyarakat') }}</h2>
+                <h3>Tim Reviewer Proposal Penelitian</h3>
+                <p>{{ $proposal->user->university->address ?? 'Gedung LPPM, Kampus Pusat JurnalMu' }}</p>
             </div>
         </div>
 
         <!-- Document Header -->
         <div class="doc-title">
-            @if ($type === 'pembinaan')
-                <h2>BERITA ACARA HASIL REVIEW PROGRAM PEMBINAAN JURNAL</h2>
-            @else
-                <h2>BERITA ACARA HASIL PENILAIAN JURNAL ILMIAH</h2>
-            @endif
-            <p>Nomor: BA-REV/{{ \Carbon\Carbon::parse($review->reviewed_at ?? now())->format('Y') }}/{{ str_pad($review->id, 4, '0', STR_PAD_LEFT) }}</p>
+            <h2>BERITA ACARA HASIL REVIEW PROPOSAL PENELITIAN</h2>
+            <p>Nomor: BA-REV/PROP/{{ \Carbon\Carbon::parse($review->reviewed_at ?? now())->format('Y') }}/{{ str_pad($review->id, 4, '0', STR_PAD_LEFT) }}</p>
         </div>
 
         @php
@@ -316,71 +312,52 @@
 
         <!-- Preamble -->
         <p class="preamble">
-            Pada hari ini, <strong>{{ $hari }}</strong>, tanggal <strong>{{ $tanggal }}</strong>, telah dilaksanakan proses review/penilaian terhadap dokumen pengusulan jurnal dalam sistem informasi pengelolaan jurnal. Hasil review komprehensif dirinci sebagai berikut:
+            Pada hari ini, <strong>{{ $hari }}</strong>, tanggal <strong>{{ $tanggal }}</strong>, telah dilaksanakan proses review substansi terhadap usulan proposal penelitian dalam sistem informasi penelitian terintegrasi. Hasil evaluasi komprehensif dirinci sebagai berikut:
         </p>
 
-        <!-- Section 1: Data Jurnal -->
-        <div class="section-title">I. Identitas Jurnal dan Pengusul</div>
+        <!-- Section 1: Identitas Proposal -->
+        <div class="section-title">I. Identitas Proposal dan Pengusul</div>
         <table class="table-data">
             <tr>
-                <td class="label">Judul Jurnal</td>
+                <td class="label">Judul Proposal</td>
                 <td class="colon">:</td>
-                <td><strong>{{ $journal->title ?? '-' }}</strong></td>
+                <td><strong>{{ $proposal->title ?? '-' }}</strong></td>
             </tr>
             <tr>
-                <td class="label">ISSN (Print) / E-ISSN</td>
+                <td class="label">Skema Penelitian</td>
                 <td class="colon">:</td>
-                <td>{{ $journal->issn ?? '-' }} / {{ $journal->e_issn ?? '-' }}</td>
+                <td>{{ $proposal->researchSchema->name ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Penerbit / Universitas</td>
+                <td class="label">Universitas / Penerbit</td>
                 <td class="colon">:</td>
-                <td>{{ $journal->publisher ?? '-' }} / {{ $journal->university?->name ?? '-' }}</td>
+                <td>{{ $proposal->user->university->name ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Bidang Keilmuan</td>
+                <td class="label">Nama Pengusul (Dosen)</td>
                 <td class="colon">:</td>
-                <td>{{ $journal->scientificField?->name ?? '-' }}</td>
+                <td>{{ $proposal->user->name ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Nama Pengusul / Pengelola</td>
+                <td class="label">NIDN / NIP / Posisi</td>
                 <td class="colon">:</td>
-                <td>
-                    @if ($type === 'pembinaan')
-                        {{ $review->registration?->user?->name ?? '-' }}
-                    @else
-                        {{ $review->user?->name ?? '-' }}
-                    @endif
-                </td>
+                <td>{{ $proposal->user->position ?? '-' }}</td>
             </tr>
         </table>
 
         <!-- Section 2: Detail Evaluasi -->
         <div class="section-title">II. Informasi Pelaksanaan Evaluasi</div>
         <table class="table-data">
-            @if ($type === 'pembinaan')
-                <tr>
-                    <td class="label">Nama Program Pembinaan</td>
-                    <td class="colon">:</td>
-                    <td>{{ $review->registration?->pembinaan?->name ?? 'Program Pembinaan' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Kategori Program</td>
-                    <td class="colon">:</td>
-                    <td>{{ ucfirst($review->registration?->pembinaan?->category ?? '-') }}</td>
-                </tr>
-            @else
-                <tr>
-                    <td class="label">Jenis Penilaian</td>
-                    <td class="colon">:</td>
-                    <td>Penilaian Mandiri Jurnal Ilmiah (Self-Assessment)</td>
-                </tr>
-                <tr>
-                    <td class="label">Periode Penilaian</td>
-                    <td class="colon">:</td>
-                    <td>{{ $review->period ?? '-' }}</td>
-                </tr>
-            @endif
+            <tr>
+                <td class="label">Jenis Evaluasi</td>
+                <td class="colon">:</td>
+                <td>Evaluasi Substansi Proposal Penelitian</td>
+            </tr>
+            <tr>
+                <td class="label">Reviewer / Penilai</td>
+                <td class="colon">:</td>
+                <td>{{ $review->reviewer->name ?? 'Reviewer' }}</td>
+            </tr>
             <tr>
                 <td class="label">Tanggal Selesai Review</td>
                 <td class="colon">:</td>
@@ -393,56 +370,27 @@
         <table class="table-bordered">
             <thead>
                 <tr>
-                    <th style="width: 40%;">Parameter</th>
-                    <th style="width: 30%;">Nilai / Persentase</th>
-                    <th style="width: 30%;">Hasil Rekomendasi</th>
+                    <th style="width: 50%;">Parameter Penilaian</th>
+                    <th style="width: 25%;">Skor Kelayakan (0 - 100)</th>
+                    <th style="width: 25%;">Rekomendasi</th>
                 </tr>
             </thead>
             <tbody>
-                @if ($type === 'pembinaan')
-                    <tr>
-                        <td>Skor Kelayakan (0 - 100)</td>
-                        <td style="text-align: center; font-size: 13pt; font-weight: bold;">
-                            {{ number_format($review->score, 2) }}
-                        </td>
-                        <td style="text-align: center; font-weight: bold;">
-                            {{ $review->score_label }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Status Kelayakan</td>
-                        <td colspan="2" style="text-align: center; font-weight: bold; color: #16a34a;">
-                            Dapat Direkomendasikan
-                        </td>
-                    </tr>
-                @else
-                    <tr>
-                        <td>Skor Total / Maksimum</td>
-                        <td style="text-align: center; font-size: 13pt; font-weight: bold;">
-                            {{ number_format($review->total_score, 2) }} / {{ number_format($review->max_score, 2) }}
-                        </td>
-                        <td rowspan="2" style="text-align: center; font-weight: bold; font-size: 13pt; vertical-align: middle;">
-                            {{ $review->grade }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Persentase Pencapaian</td>
-                        <td style="text-align: center; font-size: 13pt; font-weight: bold;">
-                            {{ number_format($review->percentage, 2) }}%
-                        </td>
-                    </tr>
-                @endif
+                <tr>
+                    <td>Penilaian Substansi dan Rekomendasi Reviewer</td>
+                    <td style="text-align: center; font-size: 13pt; font-weight: bold;">
+                        {{ number_format($review->score, 2) }}
+                    </td>
+                    <td style="text-align: center; font-weight: bold; font-size: 12pt;">
+                        {{ $review->recommendation ?? '-' }}
+                    </td>
+                </tr>
             </tbody>
         </table>
 
         <!-- Feedback & Recommendation Notes -->
-        <div class="section-title">Catatan Dan Rekomendasi Reviewer:</div>
-        <div class="feedback-content">{!! nl2br(e($review->feedback ?? $review->admin_notes ?? 'Tidak ada catatan tambahan.')) !!}</div>
-
-        @if ($type === 'pembinaan' && !empty($review->recommendation))
-            <div class="section-title">Rekomendasi Tindak Lanjut:</div>
-            <div class="feedback-content">{!! nl2br(e($review->recommendation)) !!}</div>
-        @endif
+        <div class="section-title">Catatan Masukan Dan Uraian Evaluasi Reviewer:</div>
+        <div class="feedback-content">{!! nl2br(e($review->feedback ?? 'Tidak ada catatan tambahan.')) !!}</div>
 
         <!-- Signatures -->
         <div class="signatures">
@@ -458,17 +406,13 @@
             
             <div class="signature-col">
                 <div class="signature-title">
-                    Pengusul Jurnal,
+                    Pengusul Proposal,
                 </div>
                 <div>
                     <div class="signature-name">
-                        @if ($type === 'pembinaan')
-                            {{ $review->registration?->user?->name ?? '-' }}
-                        @else
-                            {{ $review->user?->name ?? '-' }}
-                        @endif
+                        {{ $proposal->user?->name ?? '-' }}
                     </div>
-                    <div class="signature-id">Pengelola Jurnal</div>
+                    <div class="signature-id">NIDN/NIP: {{ $proposal->user?->position ?? '-' }}</div>
                 </div>
             </div>
         </div>
@@ -477,9 +421,7 @@
     <script>
         // Auto trigger browser print window on load
         window.onload = function() {
-            // Check if not inside an iframe to prevent recursive printing issues
             if (window.self === window.top) {
-                // Short timeout to allow CSS/images rendering
                 setTimeout(function() {
                     window.print();
                 }, 500);

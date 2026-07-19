@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JournalAssessment;
-use App\Models\PembinaanReview;
+use App\Models\Review;
 use Illuminate\Http\Request;
 
 class ReviewDocumentController extends Controller
@@ -20,35 +19,20 @@ class ReviewDocumentController extends Controller
     {
         $user = $request->user();
         $review = null;
-        $journal = null;
+        $proposal = null;
         $reviewerId = null;
         $proposerId = null;
 
-        if ($type === 'pembinaan') {
-            $review = PembinaanReview::with([
-                'registration.pembinaan',
-                'registration.journal.university',
-                'registration.journal.scientificField',
-                'registration.user',
+        if ($type === 'proposal') {
+            $review = Review::with([
+                'proposal.user.university',
+                'proposal.researchSchema',
                 'reviewer'
             ])->findOrFail($id);
 
-            $journal = $review->registration?->journal;
+            $proposal = $review->proposal;
             $reviewerId = $review->reviewer_id;
-            $proposerId = $review->registration?->user_id;
-
-        } elseif ($type === 'assessment' || $type === 'journal_assessment') {
-            $review = JournalAssessment::with([
-                'journal.university',
-                'journal.scientificField',
-                'user',
-                'reviewer'
-            ])->findOrFail($id);
-
-            $journal = $review->journal;
-            $reviewerId = $review->reviewed_by;
-            $proposerId = $review->user_id;
-            $type = 'assessment'; // normalize type to assessment for view
+            $proposerId = $proposal?->user_id;
         } else {
             abort(404, 'Tipe review tidak valid.');
         }
@@ -64,12 +48,12 @@ class ReviewDocumentController extends Controller
         elseif ($reviewerId && (int) $user->id === (int) $reviewerId) {
             $isAuthorized = true;
         }
-        // 3. The proposer who owns/registered the journal is authorized
+        // 3. The proposer who owns/submitted the proposal is authorized
         elseif ($proposerId && (int) $user->id === (int) $proposerId) {
             $isAuthorized = true;
         }
-        // 4. Admin Kampus from the same university is authorized
-        elseif ($user->isAdminKampus() && $journal && (int) $journal->university_id === (int) $user->university_id) {
+        // 4. Admin Kampus from the same university as the proposer is authorized
+        elseif ($user->isAdminKampus() && $proposal && $proposal->user && (int) $proposal->user->university_id === (int) $user->university_id) {
             $isAuthorized = true;
         }
 
@@ -80,7 +64,7 @@ class ReviewDocumentController extends Controller
         return view('print.berita_acara', [
             'type' => $type,
             'review' => $review,
-            'journal' => $journal,
+            'proposal' => $proposal,
         ]);
     }
 }

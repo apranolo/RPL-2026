@@ -15,22 +15,22 @@ import { Award, BookOpen, Calendar, ChevronLeft, ChevronRight, ClipboardList, Ey
 
 export interface Review {
     id: number;
-    registration_id: number;
+    proposal_id: number;
     reviewer_id: number;
     score?: number;
     feedback?: string;
     recommendation?: string;
     reviewed_at: string;
-    score_label?: string;
-    registration?: {
-        pembinaan?: {
-            name: string;
-            category: string;
-        };
-        journal?: {
-            title: string;
-        };
+    proposal?: {
+        title: string;
+        description: string;
         user?: {
+            name: string;
+            university?: {
+                name: string;
+            };
+        };
+        research_schema?: {
             name: string;
         };
     };
@@ -40,23 +40,21 @@ export interface Review {
 export interface ReviewSchedule {
     id: number;
     reviewer_id: number;
-    registration_id: number;
+    proposal_id: number;
     assigned_at: string;
     status: 'assigned' | 'in_progress' | 'completed';
     status_label: string;
     status_color: string;
-    registration?: {
-        pembinaan?: {
+    proposal?: {
+        title: string;
+        description: string;
+        user?: {
             name: string;
-            category: string;
-        };
-        journal?: {
-            title: string;
             university?: {
                 name: string;
             };
         };
-        user?: {
+        research_schema?: {
             name: string;
         };
     };
@@ -91,8 +89,9 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
 
     const getScoreBadgeVariant = (score?: number) => {
         if (!score) return 'secondary';
-        if (score >= 80) return 'default'; // primary / success equivalent
-        if (score >= 60) return 'warning';
+        const numScore = Number(score);
+        if (numScore >= 80) return 'default'; // primary / success equivalent
+        if (numScore >= 60) return 'warning';
         return 'destructive';
     };
 
@@ -172,15 +171,15 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                                     <CardHeader>
                                                         <div className="flex items-start justify-between gap-2">
                                                             <div className="flex-1">
-                                                                <CardTitle className="line-clamp-2">
-                                                                    {review.registration?.pembinaan?.name || 'Program Pembinaan'}
+                                                                 <CardTitle className="line-clamp-2 text-lg font-bold">
+                                                                    {review.proposal?.title || 'Proposal Penelitian'}
                                                                 </CardTitle>
                                                                 <CardDescription className="mt-1 flex items-center gap-2">
                                                                     <BookOpen className="h-3 w-3" />
-                                                                    {review.registration?.journal?.title || 'Jurnal'}
+                                                                    {review.proposal?.research_schema?.name || 'Skema Penelitian'}
                                                                 </CardDescription>
                                                             </div>
-                                                            {review.score && (
+                                                            {review.score !== undefined && (
                                                                 <Badge variant={getScoreBadgeVariant(review.score) as any} className="text-sm">
                                                                     Nilai: {review.score}
                                                                 </Badge>
@@ -200,7 +199,7 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                                                 <span className="text-muted-foreground">Pengusul:</span>
                                                                 <span className="flex items-center gap-1">
                                                                     <UserIcon className="h-3 w-3" />
-                                                                    {review.registration?.user?.name || '-'}
+                                                                    {review.proposal?.user?.name || '-'}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -208,19 +207,26 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                                         {review.recommendation && (
                                                             <div className="rounded-lg bg-muted p-3 text-sm">
                                                                 <span className="font-semibold">Rekomendasi: </span>
-                                                                <p className="mt-1 line-clamp-3 text-muted-foreground">{review.recommendation}</p>
+                                                                <Badge variant="outline" className="ml-1 capitalize">
+                                                                    {review.recommendation}
+                                                                </Badge>
+                                                                {review.feedback && (
+                                                                    <p className="mt-2 line-clamp-3 text-muted-foreground text-xs italic">
+                                                                        "{review.feedback}"
+                                                                    </p>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </CardContent>
                                                     <CardFooter className="mt-auto grid grid-cols-2 gap-2 pt-4">
                                                         <Button variant="outline" size="sm" asChild className="w-full">
-                                                            <Link href={route('reviewer.assignments.show', review.registration_id)}>
+                                                            <Link href={route('proposal.show', review.proposal_id)}>
                                                                 <Eye className="mr-2 h-4 w-4" />
                                                                 Detail
                                                             </Link>
                                                         </Button>
                                                         <Button variant="default" size="sm" asChild className="w-full">
-                                                            <a href={route('review.print', { type: 'pembinaan', id: review.id })} target="_blank" rel="noopener noreferrer">
+                                                            <a href={route('review.print', { type: 'proposal', id: review.id })} target="_blank" rel="noopener noreferrer">
                                                                 <FileText className="mr-2 h-4 w-4" />
                                                                 Cetak BA
                                                             </a>
@@ -282,12 +288,12 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                                     <CardHeader>
                                                         <div className="flex items-start justify-between gap-2">
                                                             <div className="flex-1">
-                                                                <CardTitle className="line-clamp-2">
-                                                                    {schedule.registration?.pembinaan?.name || 'Program Pembinaan'}
+                                                                <CardTitle className="line-clamp-2 text-lg font-bold">
+                                                                    {schedule.proposal?.title || 'Proposal Penelitian'}
                                                                 </CardTitle>
                                                                 <CardDescription className="mt-1 flex items-center gap-2">
                                                                     <BookOpen className="h-3 w-3" />
-                                                                    {schedule.registration?.journal?.title || 'Jurnal'}
+                                                                    {schedule.proposal?.research_schema?.name || 'Skema Penelitian'}
                                                                 </CardDescription>
                                                             </div>
                                                             <Badge variant={getStatusBadgeVariant(schedule.status) as any} className="text-sm">
@@ -308,22 +314,22 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                                                 <span className="text-muted-foreground">Pengusul:</span>
                                                                 <span className="flex items-center gap-1">
                                                                     <UserIcon className="h-3 w-3" />
-                                                                    {schedule.registration?.user?.name || '-'}
+                                                                    {schedule.proposal?.user?.name || '-'}
                                                                 </span>
                                                             </div>
-                                                            {schedule.registration?.journal?.university?.name && (
+                                                            {schedule.proposal?.user?.university?.name && (
                                                                 <div className="flex justify-between">
                                                                     <span className="text-muted-foreground">Universitas:</span>
-                                                                    <span>{schedule.registration.journal.university.name}</span>
+                                                                    <span>{schedule.proposal.user.university.name}</span>
                                                                 </div>
                                                             )}
                                                         </div>
                                                     </CardContent>
                                                     <CardFooter className="mt-auto pt-4">
                                                         <Button variant="outline" size="sm" asChild className="w-full">
-                                                            <Link href={route('reviewer.assignments.show', schedule.id)}>
+                                                            <Link href={route('proposal.show', schedule.proposal_id)}>
                                                                 <Eye className="mr-2 h-4 w-4" />
-                                                                Lihat Penugasan
+                                                                Lihat Proposal
                                                             </Link>
                                                         </Button>
                                                     </CardFooter>
