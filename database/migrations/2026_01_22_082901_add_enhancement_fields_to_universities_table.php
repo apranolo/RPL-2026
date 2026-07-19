@@ -32,6 +32,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('universities', function (Blueprint $table) {
+            try {
+                $table->dropUnique('universities_ptm_code_unique');
+            } catch (\Throwable $e) {
+                // Ignore
+            }
+
             $table->dropColumn([
                 'ptm_code',
                 'accreditation_status',

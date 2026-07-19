@@ -69,11 +69,16 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('evaluation_indicators', function (Blueprint $table) {
-            // MUST drop foreign key before dropping column
-            if (DB::getDriverName() !== 'sqlite') {
+            try {
                 $table->dropForeign(['sub_category_id']);
+            } catch (\Throwable $e) {
+                // Ignore if not supported or not found
             }
-            $table->dropIndex(['sub_category_id']);
+            try {
+                $table->dropIndex(['sub_category_id']);
+            } catch (\Throwable $e) {
+                // Ignore
+            }
             $table->dropColumn('sub_category_id');
         });
 
