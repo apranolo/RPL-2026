@@ -1,11 +1,18 @@
 <?php
 
+use App\Models\AccreditationTemplate;
+use App\Models\EssayQuestion;
+use App\Models\EvaluationCategory;
+use App\Models\EvaluationIndicator;
+use App\Models\EvaluationSubCategory;
+use Illuminate\Contracts\Console\Kernel;
+
 // Quick test script for Step 3 models and relationships
 
 require __DIR__.'/../../../vendor/autoload.php';
 
 $app = require_once __DIR__.'/../../../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
 echo '=== STEP 3: Models & Relationships Test ==='.PHP_EOL.PHP_EOL;
@@ -28,7 +35,7 @@ echo '   ✓ EvaluationIndicatorPolicy: '.(class_exists('App\Policies\Evaluation
 
 // 3. Test EvaluationIndicator methods
 echo '3. EvaluationIndicator New Methods:'.PHP_EOL;
-$indicator = App\Models\EvaluationIndicator::first();
+$indicator = EvaluationIndicator::first();
 if ($indicator) {
     echo '   Sample Indicator ID: '.$indicator->id.PHP_EOL;
     echo '   ✓ subCategory() method: '.(method_exists($indicator, 'subCategory') ? 'EXISTS' : 'MISSING').PHP_EOL;
@@ -45,37 +52,37 @@ echo PHP_EOL;
 
 // 4. Test Model Fillable/Casts
 echo '4. Model Configuration:'.PHP_EOL;
-$template = new App\Models\AccreditationTemplate;
+$template = new AccreditationTemplate;
 $fillable = $template->getFillable();
 echo '   AccreditationTemplate fillable fields: '.count($fillable).' ('.implode(', ', $fillable).')'.PHP_EOL;
 
-$category = new App\Models\EvaluationCategory;
+$category = new EvaluationCategory;
 echo '   EvaluationCategory fillable fields: '.count($category->getFillable()).PHP_EOL;
 
-$subCategory = new App\Models\EvaluationSubCategory;
+$subCategory = new EvaluationSubCategory;
 echo '   EvaluationSubCategory fillable fields: '.count($subCategory->getFillable()).PHP_EOL;
 
-$essay = new App\Models\EssayQuestion;
+$essay = new EssayQuestion;
 echo '   EssayQuestion fillable fields: '.count($essay->getFillable()).PHP_EOL;
 echo PHP_EOL;
 
 // 5. Test Relationship Methods Exist
 echo '5. Relationship Methods:'.PHP_EOL;
-$template = new App\Models\AccreditationTemplate;
+$template = new AccreditationTemplate;
 echo '   AccreditationTemplate:'.PHP_EOL;
 echo '     ✓ categories(): '.(method_exists($template, 'categories') ? 'YES' : 'NO').PHP_EOL;
 echo '     ✓ subCategories(): '.(method_exists($template, 'subCategories') ? 'YES' : 'NO').PHP_EOL;
 echo '     ✓ indicators(): '.(method_exists($template, 'indicators') ? 'YES' : 'NO').PHP_EOL;
 echo '     ✓ essayQuestions(): '.(method_exists($template, 'essayQuestions') ? 'YES' : 'NO').PHP_EOL;
 
-$category = new App\Models\EvaluationCategory;
+$category = new EvaluationCategory;
 echo '   EvaluationCategory:'.PHP_EOL;
 echo '     ✓ template(): '.(method_exists($category, 'template') ? 'YES' : 'NO').PHP_EOL;
 echo '     ✓ subCategories(): '.(method_exists($category, 'subCategories') ? 'YES' : 'NO').PHP_EOL;
 echo '     ✓ essayQuestions(): '.(method_exists($category, 'essayQuestions') ? 'YES' : 'NO').PHP_EOL;
 echo '     ✓ indicators(): '.(method_exists($category, 'indicators') ? 'YES' : 'NO').PHP_EOL;
 
-$subCategory = new App\Models\EvaluationSubCategory;
+$subCategory = new EvaluationSubCategory;
 echo '   EvaluationSubCategory:'.PHP_EOL;
 echo '     ✓ category(): '.(method_exists($subCategory, 'category') ? 'YES' : 'NO').PHP_EOL;
 echo '     ✓ indicators(): '.(method_exists($subCategory, 'indicators') ? 'YES' : 'NO').PHP_EOL;

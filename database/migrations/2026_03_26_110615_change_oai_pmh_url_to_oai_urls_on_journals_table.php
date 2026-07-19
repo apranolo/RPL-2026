@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -16,13 +17,13 @@ return new class extends Migration
         });
 
         // Copy existing data to the new column
-        \Illuminate\Support\Facades\DB::table('journals')
+        DB::table('journals')
             ->whereNotNull('oai_pmh_url')
             ->where('oai_pmh_url', '!=', '')
             ->orderBy('id')
             ->chunk(100, function ($journals) {
                 foreach ($journals as $journal) {
-                    \Illuminate\Support\Facades\DB::table('journals')
+                    DB::table('journals')
                         ->where('id', $journal->id)
                         ->update([
                             'oai_urls' => json_encode([$journal->oai_pmh_url]),
@@ -45,13 +46,13 @@ return new class extends Migration
         });
 
         // Revert data
-        \Illuminate\Support\Facades\DB::table('journals')
+        DB::table('journals')
             ->whereNotNull('oai_urls')
             ->orderBy('id')
             ->chunk(100, function ($journals) {
                 foreach ($journals as $journal) {
                     $urls = json_decode($journal->oai_urls, true);
-                    \Illuminate\Support\Facades\DB::table('journals')
+                    DB::table('journals')
                         ->where('id', $journal->id)
                         ->update([
                             'oai_pmh_url' => ! empty($urls) ? $urls[0] : '',

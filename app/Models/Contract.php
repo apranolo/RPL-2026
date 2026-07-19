@@ -141,7 +141,6 @@ class Contract extends Model
         return $query->where('status', $status);
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Accessors & Helpers

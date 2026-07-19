@@ -39,7 +39,7 @@ class ProposalController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'judul'     => 'required|string|max:255',
+            'judul' => 'required|string|max:255',
             'deskripsi' => 'required|string',
         ]);
 

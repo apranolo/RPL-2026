@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\User;
-use App\Models\ReviewerAssignment;
 use App\Models\PembinaanRegistration;
+use App\Models\ReviewerAssignment;
+use App\Models\User;
 
 it('allows reviewer to accept invitation', function () {
     // Arrange
@@ -21,7 +21,7 @@ it('allows reviewer to accept invitation', function () {
     // Assert
     $response->assertRedirect();
     $response->assertSessionHas('success', 'Undangan review berhasil diterima.');
-    
+
     $this->assertDatabaseHas('reviewer_assignments', [
         'id' => $assignment->id,
         'status' => 'accepted',
@@ -47,7 +47,7 @@ it('allows reviewer to decline invitation with reason', function () {
     // Assert
     $response->assertRedirect();
     $response->assertSessionHas('success', 'Undangan review berhasil ditolak.');
-    
+
     $this->assertDatabaseHas('reviewer_assignments', [
         'id' => $assignment->id,
         'status' => 'declined',

@@ -5,8 +5,8 @@ namespace Database\Seeders;
 use App\Models\Proposal;
 use App\Models\Review;
 use App\Models\ReviewSchedule;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ProposalSeeder extends Seeder
@@ -25,8 +25,8 @@ class ProposalSeeder extends Seeder
         if ($reviewers->isEmpty()) {
             $reviewers = User::take(3)->get();
         }
-        
-        $admin = User::whereHas('roles', function($q) {
+
+        $admin = User::whereHas('roles', function ($q) {
             $q->where('name', Role::ADMIN_KAMPUS);
         })->first() ?? User::first();
 

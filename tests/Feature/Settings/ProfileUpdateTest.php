@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ScientificField;
 use App\Models\User;
 
 test('profile page is displayed', function () {
@@ -176,7 +177,7 @@ test('profile update saves phone and position fields', function () {
 test('profile update with valid scientific field assigns it correctly', function () {
     $this->seedRoles();
     $user = User::factory()->user()->create();
-    $field = \App\Models\ScientificField::factory()->create(['is_active' => true]);
+    $field = ScientificField::factory()->create(['is_active' => true]);
 
     $this->actingAs($user)
         ->patch('/settings/profile', [

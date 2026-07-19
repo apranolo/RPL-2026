@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\AccreditationTemplate;
+use App\Models\EvaluationCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\EvaluationCategory>
+ * @extends Factory<EvaluationCategory>
  */
 class EvaluationCategoryFactory extends Factory
 {
@@ -17,7 +19,7 @@ class EvaluationCategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'template_id' => \App\Models\AccreditationTemplate::factory(),
+            'template_id' => AccreditationTemplate::factory(),
             'code' => 'K'.fake()->unique()->numberBetween(1, 99),
             'name' => fake()->words(3, true),
             'description' => fake()->sentence(),

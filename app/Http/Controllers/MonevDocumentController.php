@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\JournalAssessment;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class MonevDocumentController extends Controller
 {
@@ -19,7 +19,7 @@ class MonevDocumentController extends Controller
      * - Admin Kampus → evaluations within their university
      * - User         → only their own evaluations
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function printRekap(Request $request)
     {
@@ -65,24 +65,24 @@ class MonevDocumentController extends Controller
         // 4. Aggregate statistics
         // -----------------------------------------------------------------
         $statistics = [
-            'total'         => $evaluations->count(),
+            'total' => $evaluations->count(),
             'average_score' => $evaluations->avg('percentage') ?? 0,
-            'max_score'     => $evaluations->max('percentage') ?? 0,
-            'min_score'     => $evaluations->min('percentage') ?? 0,
-            'by_status'     => $evaluations->groupBy('status')->map->count(),
-            'by_grade'      => $evaluations->groupBy('grade')->map->count(),
+            'max_score' => $evaluations->max('percentage') ?? 0,
+            'min_score' => $evaluations->min('percentage') ?? 0,
+            'by_status' => $evaluations->groupBy('status')->map->count(),
+            'by_grade' => $evaluations->groupBy('grade')->map->count(),
         ];
 
         // -----------------------------------------------------------------
         // 5. Render the print-optimised Blade view
         // -----------------------------------------------------------------
         return view('print.evaluasi', [
-            'evaluations' => $evaluations, 
+            'evaluations' => $evaluations,
             'assessments' => $evaluations, // Alias for blade compatibility
-            'statistics'  => $statistics,
-            'user'        => $user,
-            'filters'     => $request->only(['period', 'status']),
-            'printDate'   => now()->translatedFormat('d F Y, H:i'),
+            'statistics' => $statistics,
+            'user' => $user,
+            'filters' => $request->only(['period', 'status']),
+            'printDate' => now()->translatedFormat('d F Y, H:i'),
         ]);
     }
 }

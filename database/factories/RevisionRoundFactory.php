@@ -7,7 +7,7 @@ use App\Models\Submission;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RevisionRound>
+ * @extends Factory<RevisionRound>
  */
 class RevisionRoundFactory extends Factory
 {

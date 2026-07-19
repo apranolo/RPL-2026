@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewerAssignment extends Model
 {
@@ -234,8 +234,8 @@ class ReviewerAssignment extends Model
                 $model->assigned_at = now();
             }
 
-            if (auth::check() && ! $model->assigned_by) {
-                $model->assigned_by = auth::id();
+            if (Auth::check() && ! $model->assigned_by) {
+                $model->assigned_by = Auth::id();
             }
         });
 
@@ -248,8 +248,8 @@ class ReviewerAssignment extends Model
 
         // Auto-fill deleted_by on soft delete
         static::deleting(function ($model) {
-            if (auth::check() && ! $model->isForceDeleting()) {
-                $model->deleted_by = auth::id();
+            if (Auth::check() && ! $model->isForceDeleting()) {
+                $model->deleted_by = Auth::id();
                 $model->save();
             }
         });

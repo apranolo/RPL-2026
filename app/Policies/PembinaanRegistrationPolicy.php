@@ -2,6 +2,8 @@
 
 namespace App\Policies;
 
+use App\Models\Journal;
+use App\Models\Pembinaan;
 use App\Models\PembinaanRegistration;
 use App\Models\User;
 
@@ -92,13 +94,13 @@ class PembinaanRegistrationPolicy
         }
 
         // Check journal ownership
-        $journal = \App\Models\Journal::find($journalId);
+        $journal = Journal::find($journalId);
         if (! $journal || $journal->user_id !== $user->id) {
             return false;
         }
 
         // Check pembinaan
-        $pembinaan = \App\Models\Pembinaan::find($pembinaanId);
+        $pembinaan = Pembinaan::find($pembinaanId);
         if (! $pembinaan) {
             return false;
         }

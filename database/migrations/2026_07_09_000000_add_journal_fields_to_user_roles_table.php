@@ -34,7 +34,7 @@ return new class extends Migration
     public function down(): void
     {
         // Delete records with null role_id first to prevent rollback failure
-        \DB::table('user_roles')->whereNull('role_id')->delete();
+        DB::table('user_roles')->whereNull('role_id')->delete();
 
         Schema::table('user_roles', function (Blueprint $table) {
             $table->dropUnique('user_journal_role_unique');

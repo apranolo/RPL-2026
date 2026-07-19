@@ -36,28 +36,28 @@ class ReviewerDashboardController extends Controller
             ->get()
             ->map(function ($assignment) {
                 return [
-                    'id'          => $assignment->id,
-                    'status'      => $assignment->status,
+                    'id' => $assignment->id,
+                    'status' => $assignment->status,
                     'status_label' => $assignment->status_label ?? $assignment->status,
                     'status_color' => $assignment->status_color ?? 'gray',
                     'assigned_at' => $assignment->assigned_at,
-                    'assigner'    => $assignment->assigner ? [
-                        'id'    => $assignment->assigner->id,
-                        'name'  => $assignment->assigner->name,
+                    'assigner' => $assignment->assigner ? [
+                        'id' => $assignment->assigner->id,
+                        'name' => $assignment->assigner->name,
                         'email' => $assignment->assigner->email,
                     ] : null,
                     'submission' => $assignment->submission ? [
-                        'id'         => $assignment->submission->id,
-                        'title'      => $assignment->submission->title,
+                        'id' => $assignment->submission->id,
+                        'title' => $assignment->submission->title,
                         'journal' => $assignment->submission->journal ? [
-                            'id'         => $assignment->submission->journal->id,
-                            'title'      => $assignment->submission->journal->title,
-                            'issn'       => $assignment->submission->journal->issn,
-                            'e_issn'     => $assignment->submission->journal->e_issn,
+                            'id' => $assignment->submission->journal->id,
+                            'title' => $assignment->submission->journal->title,
+                            'issn' => $assignment->submission->journal->issn,
+                            'e_issn' => $assignment->submission->journal->e_issn,
                             'sinta_rank' => $assignment->submission->journal->sinta_rank,
                             'university' => $assignment->submission->journal->university ? [
-                                'id'         => $assignment->submission->journal->university->id,
-                                'name'       => $assignment->submission->journal->university->name,
+                                'id' => $assignment->submission->journal->university->id,
+                                'name' => $assignment->submission->journal->university->name,
                                 'short_name' => $assignment->submission->journal->university->short_name,
                             ] : null,
                         ] : null,
@@ -67,14 +67,14 @@ class ReviewerDashboardController extends Controller
 
         // Hitung ringkasan statistik untuk dashboard
         $stats = [
-            'total_active'      => $activeAssignments->count(),
-            'total_assigned'    => $activeAssignments->where('status', 'assigned')->count(),
+            'total_active' => $activeAssignments->count(),
+            'total_assigned' => $activeAssignments->where('status', 'assigned')->count(),
             'total_in_progress' => $activeAssignments->whereIn('status', ['Accepted', 'in_progress'])->count(),
         ];
 
         return Inertia::render('Review/Dashboard', [
             'assignments' => $activeAssignments,
-            'stats'       => $stats,
+            'stats' => $stats,
         ]);
     }
 }

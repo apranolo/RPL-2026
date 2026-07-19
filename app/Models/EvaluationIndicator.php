@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class EvaluationIndicator extends Model
 {
@@ -59,7 +62,7 @@ class EvaluationIndicator extends Model
     /**
      * Get the sub-category that owns this indicator (NEW v1.1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function subCategory()
     {
@@ -69,7 +72,7 @@ class EvaluationIndicator extends Model
     /**
      * Get the category through sub-category relationship (NEW v1.1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
+     * @return HasOneThrough
      */
     public function categoryRelation()
     {
@@ -108,8 +111,8 @@ class EvaluationIndicator extends Model
     /**
      * Scope: Get indicators by sub-category ID (NEW v1.1).
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeBySubCategory($query, int $subCategoryId)
     {
@@ -119,8 +122,8 @@ class EvaluationIndicator extends Model
     /**
      * Scope: Get indicators by category ID through relationship (NEW v1.1).
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeByCategoryId($query, int $categoryId)
     {
