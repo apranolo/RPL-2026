@@ -64,6 +64,8 @@ class ResearchOutput extends Model
         'keterangan',
         'outputable_type',
         'outputable_id',
+        'penulis_atau_pencipta',
+        'tautan_publikasi',
     ];
 
     // Relasi ke User

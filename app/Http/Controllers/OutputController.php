@@ -2,9 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BookOutput;
+use App\Models\HkiOutput;
+use App\Models\JournalOutput;
+use App\Models\Proposal;
+use App\Models\ResearchOutput;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class OutputController extends Controller
 {
@@ -13,7 +22,7 @@ class OutputController extends Controller
      */
     public function index(): Response
     {
-        $outputs = ResearchOutput::with('user')
+        $outputs = ResearchOutput::with(['user', 'outputable'])
             ->where('user_id', Auth::id())
             ->latest()
             ->paginate(10);
@@ -61,14 +70,16 @@ class OutputController extends Controller
             'volume' => 'nullable|string|max:50',
             'nomor' => 'nullable|string|max:50',
             'halaman' => 'nullable|string|max:50',
-            'penulis' => 'nullable|string|max:500',
+            'penulis' => 'required|string|max:500',
             'url_publikasi' => 'nullable|url|max:500',
             'file_path' => 'nullable|file|mimes:pdf|max:5120',
+            'tahun_capaian' => 'nullable|integer',
         ], [
             'proposal_id.required' => 'Proposal wajib dipilih.',
             'proposal_id.exists' => 'Proposal yang dipilih tidak valid.',
             'judul.required' => 'Judul publikasi jurnal wajib diisi.',
             'nama_jurnal.required' => 'Nama jurnal wajib diisi.',
+            'penulis.required' => 'Penulis jurnal wajib diisi.',
             'url_publikasi.url' => 'URL publikasi harus berupa URL yang valid.',
             'file_path.mimes' => 'File harus berupa PDF.',
             'file_path.max' => 'Ukuran file maksimal 5MB.',
@@ -81,38 +92,27 @@ class OutputController extends Controller
                 $filePath = $request->file('file_path')->store('luaran/jurnal', 'public');
             }
 
-            // Build keterangan from journal-specific metadata
-            $keteranganParts = [];
-            if (!empty($validated['nama_jurnal'])) {
-                $keteranganParts[] = 'Jurnal: ' . $validated['nama_jurnal'];
-            }
-            if (!empty($validated['doi'])) {
-                $keteranganParts[] = 'DOI: ' . $validated['doi'];
-            }
-            if (!empty($validated['volume'])) {
-                $keteranganParts[] = 'Vol: ' . $validated['volume'];
-            }
-            if (!empty($validated['nomor'])) {
-                $keteranganParts[] = 'No: ' . $validated['nomor'];
-            }
-            if (!empty($validated['halaman'])) {
-                $keteranganParts[] = 'Hal: ' . $validated['halaman'];
-            }
-            if (!empty($validated['penulis'])) {
-                $keteranganParts[] = 'Penulis: ' . $validated['penulis'];
-            }
-            if (!empty($validated['url_publikasi'])) {
-                $keteranganParts[] = 'URL: ' . $validated['url_publikasi'];
-            }
+            // Create Journal-specific metadata in JournalOutput table
+            $journalOutput = JournalOutput::create([
+                'journal_name' => $validated['nama_jurnal'],
+                'doi' => $validated['doi'] ?? null,
+                'volume' => $validated['volume'] ?? null,
+                'number' => $validated['nomor'] ?? null,
+                'url' => $validated['url_publikasi'] ?? null,
+            ]);
 
-            ResearchOutput::create([
-                'proposal_id' => $validated['proposal_id'],
+            // Save polymorphic parent ResearchOutput
+            $journalOutput->researchOutput()->create([
+                'contract_id' => $validated['proposal_id'],
                 'user_id' => Auth::id(),
-                'kategori' => 'jurnal',
-                'judul' => $validated['judul'],
-                'file_path' => $filePath,
-                'status' => 'draft',
-                'keterangan' => !empty($keteranganParts) ? implode(' | ', $keteranganParts) : null,
+                'jenis_luaran' => 'Jurnal',
+                'judul_luaran' => $validated['judul'],
+                'tahun_capaian' => $validated['tahun_capaian'] ?? date('Y'),
+                'file_sertifikat_atau_cover' => $filePath,
+                'status_verifikasi' => 'Menunggu_Verifikasi',
+                'penulis_atau_pencipta' => $validated['penulis'],
+                'tautan_publikasi' => $validated['url_publikasi'] ?? null,
+                'keterangan' => !empty($validated['halaman']) ? 'Halaman: ' . $validated['halaman'] : null,
             ]);
 
             return redirect()
@@ -140,15 +140,12 @@ class OutputController extends Controller
      */
     public function storeHKI(Request $request)
     {
-        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data HKI.');
-
         $validated = $request->validate([
+            'proposal_id' => 'nullable',
             'judul_luaran' => 'required|string|max:255',
             'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
             'penulis_atau_pencipta' => 'required|string',
             'nomor_paten' => 'required|string|max:100',
-            'jenis_hki' => 'required|string|in:paten,hak_cipta,merek,desain_industri,rahasia_dagang',
-            'deskripsi' => 'nullable|string|max:1000',
             'tautan_publikasi' => 'nullable|url',
             'file_sertifikat_atau_cover' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120',
         ], [
@@ -156,9 +153,6 @@ class OutputController extends Controller
             'tahun_capaian.required' => 'Tahun capaian wajib diisi.',
             'penulis_atau_pencipta.required' => 'Penulis atau pencipta wajib diisi.',
             'nomor_paten.required' => 'Nomor paten wajib diisi.',
-            'jenis_hki.required' => 'Jenis HKI wajib dipilih.',
-            'jenis_hki.in' => 'Jenis HKI yang dipilih tidak valid.',
-            'deskripsi.max' => 'Deskripsi maksimal 1000 karakter.',
             'file_sertifikat_atau_cover.required' => 'File sertifikat atau cover wajib diunggah.',
             'file_sertifikat_atau_cover.mimes' => 'File sertifikat atau cover harus berupa PDF, JPG, PNG, atau JPEG.',
             'file_sertifikat_atau_cover.max' => 'Ukuran file sertifikat atau cover maksimal 5MB.',
@@ -171,40 +165,34 @@ class OutputController extends Controller
                 $filePath = $request->file('file_sertifikat_atau_cover')->store('luaran/hki', 'public');
             }
 
-            // 1. Save specific data to HkiOutput (patent_number, patent_type)
+            // Create HKI-specific metadata
             $hkiOutput = HkiOutput::create([
                 'patent_number' => $validated['nomor_paten'],
-                'patent_type' => $validated['jenis_hki'],
             ]);
 
-            // 2. Build keterangan from extra fields not in DB schema
-            $keteranganParts = [];
-            $keteranganParts[] = 'Penulis/Pencipta: ' . $validated['penulis_atau_pencipta'];
-            if (!empty($validated['tautan_publikasi'])) {
-                $keteranganParts[] = 'Tautan: ' . $validated['tautan_publikasi'];
-            }
-            if (!empty($validated['deskripsi'])) {
-                $keteranganParts[] = 'Deskripsi: ' . $validated['deskripsi'];
-            }
-
-            // 3. Save the rest to ResearchOutput via polymorphic relation
+            // Save polymorphic parent ResearchOutput
             $hkiOutput->researchOutput()->create([
-                'user_id' => auth()->id(),
-                'contract_id' => $request->input('contract_id', 1),
+                'contract_id' => $validated['proposal_id'] ?? null,
+                'user_id' => Auth::id(),
                 'jenis_luaran' => 'HKI',
                 'judul_luaran' => $validated['judul_luaran'],
                 'tahun_capaian' => $validated['tahun_capaian'],
                 'file_sertifikat_atau_cover' => $filePath,
-                'status_verifikasi' => 'Draft',
-                'keterangan' => implode(' | ', $keteranganParts),
+                'status_verifikasi' => 'Menunggu_Verifikasi',
+                'penulis_atau_pencipta' => $validated['penulis_atau_pencipta'],
+                'tautan_publikasi' => $validated['tautan_publikasi'] ?? null,
             ]);
 
             return redirect()->back()->with([
                 'success' => 'Data HKI berhasil disimpan.',
-                'data' => array_merge($validated, ['file_path' => $filePath])
             ]);
         } catch (\Exception $e) {
             Log::error('Error storing HKI: ' . $e->getMessage());
+            
+            if (isset($filePath) && $filePath) {
+                Storage::disk('public')->delete($filePath);
+            }
+            
             return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data HKI: ' . $e->getMessage());
         }
     }
@@ -217,15 +205,13 @@ class OutputController extends Controller
      */
     public function storeBook(Request $request)
     {
-        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data Buku.');
-
         $validated = $request->validate([
+            'proposal_id' => 'nullable',
             'judul_luaran' => 'required|string|max:255',
             'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
             'penulis_atau_pencipta' => 'required|string',
             'isbn' => 'required|string|max:50',
-            'tipe_buku' => 'required|string|in:monograf,referensi,modul_ajar,book_chapter',
-            'deskripsi' => 'nullable|string|max:1000',
+            'tipe_buku' => 'nullable|string|max:100',
             'tautan_publikasi' => 'nullable|url',
             'file_sertifikat_atau_cover' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120',
         ], [
@@ -233,9 +219,6 @@ class OutputController extends Controller
             'tahun_capaian.required' => 'Tahun capaian wajib diisi.',
             'penulis_atau_pencipta.required' => 'Penulis atau pencipta wajib diisi.',
             'isbn.required' => 'ISBN wajib diisi.',
-            'tipe_buku.required' => 'Tipe buku wajib dipilih.',
-            'tipe_buku.in' => 'Tipe buku yang dipilih tidak valid.',
-            'deskripsi.max' => 'Deskripsi maksimal 1000 karakter.',
             'file_sertifikat_atau_cover.required' => 'File sertifikat atau cover wajib diunggah.',
             'file_sertifikat_atau_cover.mimes' => 'File sertifikat atau cover harus berupa PDF, JPG, PNG, atau JPEG.',
             'file_sertifikat_atau_cover.max' => 'Ukuran file sertifikat atau cover maksimal 5MB.',
@@ -248,40 +231,35 @@ class OutputController extends Controller
                 $filePath = $request->file('file_sertifikat_atau_cover')->store('luaran/buku', 'public');
             }
 
-            // 2. Save specific data to BookOutput (isbn only; tipe_buku stored in keterangan)
+            // Create Book-specific metadata
             $bookOutput = BookOutput::create([
                 'isbn' => $validated['isbn'],
+                'tipe_buku' => $validated['tipe_buku'] ?? null,
             ]);
 
-            // Build keterangan from extra fields not in DB schema
-            $keteranganParts = [];
-            $keteranganParts[] = 'Penulis/Pencipta: ' . $validated['penulis_atau_pencipta'];
-            $keteranganParts[] = 'Tipe Buku: ' . $validated['tipe_buku'];
-            if (!empty($validated['tautan_publikasi'])) {
-                $keteranganParts[] = 'Tautan: ' . $validated['tautan_publikasi'];
-            }
-            if (!empty($validated['deskripsi'])) {
-                $keteranganParts[] = 'Deskripsi: ' . $validated['deskripsi'];
-            }
-
-            // 3. Save the rest to ResearchOutput via polymorphic relation
+            // Save polymorphic parent ResearchOutput
             $bookOutput->researchOutput()->create([
-                'user_id' => auth()->id(),
-                'contract_id' => $request->input('contract_id', 1),
+                'contract_id' => $validated['proposal_id'] ?? null,
+                'user_id' => Auth::id(),
                 'jenis_luaran' => 'Buku',
                 'judul_luaran' => $validated['judul_luaran'],
                 'tahun_capaian' => $validated['tahun_capaian'],
                 'file_sertifikat_atau_cover' => $filePath,
-                'status_verifikasi' => 'Draft',
-                'keterangan' => implode(' | ', $keteranganParts),
+                'status_verifikasi' => 'Menunggu_Verifikasi',
+                'penulis_atau_pencipta' => $validated['penulis_atau_pencipta'],
+                'tautan_publikasi' => $validated['tautan_publikasi'] ?? null,
             ]);
 
             return redirect()->back()->with([
                 'success' => 'Data Buku berhasil disimpan.',
-                'data' => array_merge($validated, ['file_path' => $filePath])
             ]);
         } catch (\Exception $e) {
             Log::error('Error storing Book: ' . $e->getMessage());
+            
+            if (isset($filePath) && $filePath) {
+                Storage::disk('public')->delete($filePath);
+            }
+            
             return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data Buku: ' . $e->getMessage());
         }
     }
@@ -328,8 +306,13 @@ class OutputController extends Controller
         $this->authorize('delete', $output);
 
         // Delete associated file if exists
-        if ($output->file_path) {
-            Storage::disk('public')->delete($output->file_path);
+        if ($output->file_sertifikat_atau_cover) {
+            Storage::disk('public')->delete($output->file_sertifikat_atau_cover);
+        }
+
+        // Delete specific output polymorphic relation (will trigger cascading delete if db configured, but good practice to clean up here if needed)
+        if ($output->outputable) {
+            $output->outputable->delete();
         }
 
         $output->delete();
