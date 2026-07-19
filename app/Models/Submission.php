@@ -85,6 +85,30 @@ class Submission extends Model
     }
 
     /**
+     * Relation to EditorialDecision.
+     */
+    public function editorialDecisions(): HasMany
+    {
+        return $this->hasMany(EditorialDecision::class, 'submission_id');
+    }
+
+    /**
+     * Relation to Reviewer (User).
+     */
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewer_id');
+    }
+
+    /**
+     * Relation to status histories.
+     */
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(\App\Models\StatusHistory::class, 'submission_id');
+    }
+
+    /**
      * Accessor for user_id (alias for author_id).
      */
     public function getUserIdAttribute(): ?int

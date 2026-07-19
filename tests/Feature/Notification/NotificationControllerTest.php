@@ -30,21 +30,26 @@ class NotificationControllerTest extends TestCase
         $reviewerRole = Role::firstOrCreate(['name' => Role::REVIEWER], ['display_name' => 'Reviewer']);
 
         // Create users and attach roles
-        $this->superAdmin = User::factory()->create(['is_active' => true]);
-        $this->superAdmin->roles()->attach($superAdminRole);
-        $this->superAdmin->update(['role_id' => $superAdminRole->id]);
+        $this->superAdmin = User::factory()->create([
+            'role_id' => $superAdminRole->id,
+            'is_active' => true,
+        ]);
 
-        $this->adminKampus = User::factory()->create(['is_active' => true]);
-        $this->adminKampus->roles()->attach($adminKampusRole);
-        $this->adminKampus->update(['role_id' => $adminKampusRole->id]);
+        $this->adminKampus = User::factory()->create([
+            'role_id' => $adminKampusRole->id,
+            'is_active' => true,
+        ]);
 
-        $this->regularUser = User::factory()->create(['is_active' => true]);
-        $this->regularUser->roles()->attach($userRole);
-        $this->regularUser->update(['role_id' => $userRole->id]);
+        $this->regularUser = User::factory()->create([
+            'role_id' => $userRole->id,
+            'is_active' => true,
+        ]);
 
-        $this->reviewer = User::factory()->create(['is_active' => true]);
-        $this->reviewer->roles()->attach($reviewerRole);
-        $this->reviewer->update(['role_id' => $reviewerRole->id]);
+        $this->reviewer = User::factory()->create([
+            'role_id' => $reviewerRole->id,
+            'is_active' => true,
+            'is_reviewer' => true,
+        ]);
     }
 
     /**

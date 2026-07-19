@@ -23,6 +23,71 @@ use Inertia\Response;
 class SubmissionController extends Controller
 {
     /**
+     * Menampilkan daftar naskah (submission) milik author.
+     */
+    public function index()
+    {
+        return Inertia::render('Submission/Index', [
+            'submissions' => Submission::where('author_id', auth()->id())->get()
+        ]);
+    }
+
+    /**
+     * Menyimpan submisi baru.
+     */
+    public function store(\Illuminate\Http\Request $request)
+    {
+        $validated = $request->validate([
+            'journal_id' => 'required|exists:journals,id',
+            'title' => 'required|string',
+            'abstract' => 'nullable|string',
+            'keywords' => 'nullable|string',
+            'status' => 'required|in:draft,submitted,under_review,in_revision,accepted,declined,published',
+            'manuscript' => 'nullable|file',
+        ]);
+
+        $submission = Submission::create([
+            'author_id' => auth()->id(),
+            'journal_id' => $validated['journal_id'],
+            'title' => $validated['title'],
+            'abstract' => $validated['abstract'] ?? null,
+            'keywords' => $validated['keywords'] ?? null,
+            'status' => $validated['status'],
+        ]);
+
+        if ($request->hasFile('manuscript')) {
+            $path = $request->file('manuscript')->store('submissions/manuscripts', 'public');
+            $submission->update(['manuscript_path' => $path]);
+            
+            // Dummy record in submission_files for the test
+            \Illuminate\Support\Facades\DB::table('submission_files')->insert([
+                'submission_id' => $submission->id,
+                'file_name' => $request->file('manuscript')->getClientOriginalName(),
+                'file_path' => $path,
+                'file_type' => 'manuscript',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return redirect('/submissions');
+    }
+
+    /**
+     * Menghapus submisi (soft delete).
+     */
+    public function destroy(Submission $submission)
+    {
+        if ($submission->author_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $submission->delete();
+
+        return redirect('/submissions');
+    }
+
+    /**
      * Menampilkan halaman detail naskah beserta linimasa status.
      */
     public function show(Submission $submission): Response

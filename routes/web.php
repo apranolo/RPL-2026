@@ -187,9 +187,20 @@ Route::middleware(['auth'])->group(function () {
     // revisi ded code
     Route::get('/monev/cetak-rekap', [MonevDocumentController::class, 'printRekap'])
         ->name('monev.printRekap')
-        ->middleware('role:'.Role::SUPER_ADMIN.'|'.Role::ADMIN_KAMPUS.'|'.Role::USER);
+        ->middleware('role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS.','.Role::USER);
 
-    // Author Submission Wizard Step 4 Routes
+    // Author Submissions Routes
+    Route::get('submissions', [App\Http\Controllers\SubmissionController::class, 'index'])->name('submissions.index');
+    Route::post('submissions', [App\Http\Controllers\SubmissionController::class, 'store'])->name('submissions.store');
+    Route::delete('submissions/{submission}', [App\Http\Controllers\SubmissionController::class, 'destroy'])->name('submissions.destroy');
+    Route::get('submissions/{submission}', [App\Http\Controllers\SubmissionController::class, 'show'])->name('submissions.show');
+    Route::delete('submissions/{submission}/cancel', [App\Http\Controllers\SubmissionController::class, 'cancel'])->name('submissions.cancel');
+
+    // Author Submission Wizard Routes
+    Route::get('submissions/wizard/step1', [SubmissionWizardController::class, 'step1'])->name('submission.step1');
+    Route::post('submissions/wizard/step1', [SubmissionWizardController::class, 'storeStep1'])->name('submission.step1.store');
+    Route::get('submissions/wizard/step2', [SubmissionWizardController::class, 'step2'])->name('submission.step2');
+    Route::post('submissions/wizard/step2', [SubmissionWizardController::class, 'step2Upload'])->name('submission.step2.upload');
     Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
     Route::post('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'saveStep4'])->name('submissions.wizard.save-step4');
 
@@ -992,7 +1003,7 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
-    Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
+    Route::middleware(['auth', 'role:'.Role::PENGELOLA_JURNAL])
         ->prefix('editorial')
         ->name('editorial.')
         ->group(function () {
@@ -1004,6 +1015,10 @@ Route::middleware(['auth'])->group(function () {
 
         });
 });
+
+Route::post('/user/proposal/{proposal}/documents', [App\Http\Controllers\DocumentController::class, 'upload'])
+    ->middleware(['auth', 'role:'.App\Models\Role::USER])
+    ->name('document.upload');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

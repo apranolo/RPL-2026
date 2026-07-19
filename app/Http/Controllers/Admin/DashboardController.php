@@ -209,9 +209,15 @@ class DashboardController extends Controller
      */
     public function getFundingChart(bool $isAdminKampus, ?int $universityId)
     {
+        // Use driver-aware year extraction: SQLite uses strftime, MySQL uses YEAR()
+        $driver = DB::getDriverName();
+        $yearExpr = $driver === 'sqlite'
+            ? "CAST(strftime('%Y', start_date) AS INTEGER)"
+            : 'YEAR(start_date)';
+
         $query = DB::table('contracts')
             ->select(
-                DB::raw('YEAR(start_date) as year'),
+                DB::raw("{$yearExpr} as year"),
                 DB::raw('SUM(contract_value) as amount')
             )
             ->whereIn('status', ['active', 'completed']);
@@ -220,7 +226,7 @@ class DashboardController extends Controller
             $query->where('university_id', $universityId);
         }
 
-        $data = $query->groupBy(DB::raw('YEAR(start_date)'))
+        $data = $query->groupBy(DB::raw($yearExpr))
             ->orderBy('year', 'asc')
             ->get()
             ->map(function ($row) {
@@ -278,7 +284,7 @@ class DashboardController extends Controller
                 // Count research outputs (accepted/luaran)
                 $accepted = DB::table('research_outputs')
                     ->whereIn('user_id', $userIds)
-                    ->where('status', 'approved')
+                    ->where('status_verifikasi', 'Terverifikasi_LPPM')
                     ->count();
 
                 // Include if there's any activity

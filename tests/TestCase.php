@@ -12,6 +12,27 @@ use Illuminate\Support\Collection;
 
 abstract class TestCase extends BaseTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (\Illuminate\Support\Facades\DB::connection() instanceof \Illuminate\Database\SQLiteConnection) {
+            $pdo = \Illuminate\Support\Facades\DB::connection()->getPdo();
+            if (method_exists($pdo, 'sqliteCreateFunction')) {
+                $pdo->sqliteCreateFunction('JSON_CONTAINS_PATH', function ($json, $oneOrAll, $path) {
+                    if (!$json) return 0;
+                    $data = json_decode($json, true);
+                    if (!is_array($data)) return 0;
+                    
+                    // Extract key from path: '$."Scopus"' -> 'Scopus', '$.Scopus' -> 'Scopus'
+                    $key = trim(str_replace(['$.', '"', "'"], '', $path));
+                    
+                    return isset($data[$key]) ? 1 : 0;
+                });
+            }
+        }
+    }
+
     /**
      * Seed roles for testing.
      * This is required because many tests use User::factory() which needs roles to exist.

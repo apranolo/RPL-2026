@@ -452,6 +452,7 @@ class SchemaControllerTest extends TestCase
             'research_schema_id' => $schema->id,
             'user_id' => $this->superAdmin->id,
             'title' => 'Proposal Test',
+            'description' => 'Proposal Test Description',
             'status' => 'draft',
         ]);
 

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('research_outputs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('contract_id')->constrained('contracts')->cascadeOnDelete();
+            $table->foreignId('contract_id')->nullable()->constrained('contracts')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->enum('jenis_luaran', [
                 'Jurnal',

@@ -17,14 +17,14 @@ class OutputReportTest extends TestCase
     {
         parent::setUp();
         // Seed roles if necessary, or just create a user with Role::SUPER_ADMIN
-        Role::firstOrCreate(['id' => Role::SUPER_ADMIN, 'name' => 'super_admin']);
-        Role::firstOrCreate(['id' => Role::ADMIN_KAMPUS, 'name' => 'admin_kampus']);
-        Role::firstOrCreate(['id' => Role::USER, 'name' => 'user']);
+        Role::firstOrCreate(['name' => Role::SUPER_ADMIN], ['display_name' => 'Super Admin']);
+        Role::firstOrCreate(['name' => Role::ADMIN_KAMPUS], ['display_name' => 'Admin Kampus']);
+        Role::firstOrCreate(['name' => Role::USER], ['display_name' => 'User']);
     }
 
     public function test_super_admin_can_access_report_page()
     {
-        $superAdmin = User::factory()->create(['role_id' => Role::SUPER_ADMIN]);
+        $superAdmin = User::factory()->create(['role_id' => Role::where('name', Role::SUPER_ADMIN)->first()->id]);
 
         // Create dummy output
         ResearchOutput::factory()->create([
@@ -46,7 +46,7 @@ class OutputReportTest extends TestCase
 
     public function test_super_admin_can_download_excel()
     {
-        $superAdmin = User::factory()->create(['role_id' => Role::SUPER_ADMIN]);
+        $superAdmin = User::factory()->create(['role_id' => Role::where('name', Role::SUPER_ADMIN)->first()->id]);
 
         $response = $this->actingAs($superAdmin)->get(route('admin.output.export'));
 
@@ -57,7 +57,7 @@ class OutputReportTest extends TestCase
 
     public function test_stats_api_returns_correct_data_for_super_admin()
     {
-        $superAdmin = User::factory()->create(['role_id' => Role::SUPER_ADMIN]);
+        $superAdmin = User::factory()->create(['role_id' => Role::where('name', Role::SUPER_ADMIN)->first()->id]);
 
         ResearchOutput::factory()->count(2)->create([
             'status' => 'verified',
@@ -82,12 +82,12 @@ class OutputReportTest extends TestCase
         $univ2 = University::factory()->create();
 
         $adminKampus = User::factory()->create([
-            'role_id' => Role::ADMIN_KAMPUS,
+            'role_id' => Role::where('name', Role::ADMIN_KAMPUS)->first()->id,
             'university_id' => $univ1->id,
         ]);
 
-        $user1 = User::factory()->create(['university_id' => $univ1->id, 'role_id' => Role::USER]);
-        $user2 = User::factory()->create(['university_id' => $univ2->id, 'role_id' => Role::USER]);
+        $user1 = User::factory()->create(['university_id' => $univ1->id, 'role_id' => Role::where('name', Role::USER)->first()->id]);
+        $user2 = User::factory()->create(['university_id' => $univ2->id, 'role_id' => Role::where('name', Role::USER)->first()->id]);
 
         // Output for univ1
         ResearchOutput::factory()->create([

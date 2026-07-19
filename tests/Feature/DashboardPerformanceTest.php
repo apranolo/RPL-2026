@@ -52,10 +52,10 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
         for ($i = 0; $i < 2; $i++) {
             DB::table('research_outputs')->insert([
                 'user_id' => $this->user->id,
-                'kategori' => 'jurnal',
-                'judul' => 'Luaran '.$i,
-                'file_path' => 'file'.$i.'.pdf',
-                'status' => 'approved',
+                'jenis_luaran' => 'Jurnal',
+                'judul_luaran' => 'Luaran '.$i,
+                'file_sertifikat_atau_cover' => 'file'.$i.'.pdf',
+                'status_verifikasi' => 'Terverifikasi_LPPM',
                 'keterangan' => 'test',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -65,10 +65,10 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
         // Buat 1 luaran pending — TIDAK boleh dihitung sebagai accepted
         DB::table('research_outputs')->insert([
             'user_id' => $this->user->id,
-            'kategori' => 'buku',
-            'judul' => 'Luaran Pending',
-            'file_path' => 'pending.pdf',
-            'status' => 'submitted',
+            'jenis_luaran' => 'Buku',
+            'judul_luaran' => 'Luaran Pending',
+            'file_sertifikat_atau_cover' => 'pending.pdf',
+            'status_verifikasi' => 'Menunggu_Verifikasi',
             'keterangan' => 'test',
             'created_at' => now(),
             'updated_at' => now(),

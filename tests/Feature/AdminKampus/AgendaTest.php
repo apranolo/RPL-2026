@@ -22,7 +22,6 @@ beforeEach(function () {
         'university_id' => $this->university->id,
         'is_active' => true,
     ]);
-    $this->adminKampus->roles()->attach($adminRole->id);
 
     // Create Super Admin for cross-checks
     $superRole = Role::where('name', Role::SUPER_ADMIN)->first();
@@ -30,7 +29,6 @@ beforeEach(function () {
         'role_id' => $superRole->id,
         'is_active' => true,
     ]);
-    $this->superAdmin->roles()->attach($superRole->id);
 });
 
 // Helper for valid payload

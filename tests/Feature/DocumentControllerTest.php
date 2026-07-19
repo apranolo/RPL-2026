@@ -9,10 +9,14 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function () {
+    $this->seed(\Database\Seeders\RoleSeeder::class);
+});
+
 test('authorized user can upload a valid proposal document', function () {
     Storage::fake('public');
 
-    $user = User::factory()->create();
+    $user = User::factory()->user()->create();
     $proposal = Proposal::factory()->create(['user_id' => $user->id]);
 
     $file = UploadedFile::fake()->create('proposal.pdf', 500, 'application/pdf');
@@ -39,10 +43,10 @@ test('authorized user can upload a valid proposal document', function () {
 test('unauthorized user cannot upload proposal document', function () {
     Storage::fake('public');
 
-    $owner = User::factory()->create();
+    $owner = User::factory()->user()->create();
     $proposal = Proposal::factory()->create(['user_id' => $owner->id]);
 
-    $otherUser = User::factory()->create();
+    $otherUser = User::factory()->user()->create();
     $file = UploadedFile::fake()->create('proposal.pdf', 500, 'application/pdf');
 
     $response = $this->actingAs($otherUser)
@@ -58,7 +62,7 @@ test('unauthorized user cannot upload proposal document', function () {
 test('document upload fails with invalid file types or oversized files', function () {
     Storage::fake('public');
 
-    $user = User::factory()->create();
+    $user = User::factory()->user()->create();
     $proposal = Proposal::factory()->create(['user_id' => $user->id]);
 
     // Test oversize file (12MB)

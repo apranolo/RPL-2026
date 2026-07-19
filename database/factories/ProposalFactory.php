@@ -22,11 +22,10 @@ class ProposalFactory extends Factory
         $status = $this->faker->randomElement(['Draft', 'Submitted', 'Administrasi_Valid', 'Ditolak']);
 
         return [
-            //
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
-            'user_id' => User::inRandomOrder()->first()->id ?? 1,
-            'research_schema_id' => ResearchSchema::inRandomOrder()->first()->id ?? 1,
+            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'research_schema_id' => ResearchSchema::inRandomOrder()->first()?->id ?? ResearchSchema::factory(),
             'status_proposal' => $status,
             'rejection_reason' => $status === 'Ditolak' ? $this->faker->sentence : null,
             'file_dokumen_proposal' => 'proposals/dummy_proposal.pdf',
