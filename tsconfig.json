@@ -109,6 +109,7 @@
         "skipLibCheck": true /* Skip type checking all .d.ts files. */,
         "ignoreDeprecations": "6.0",
         "baseUrl": ".",
+        "ignoreDeprecations": "6.0",
         "paths": {
             "@/*": ["./resources/js/*"],
             "ziggy-js": ["./vendor/tightenco/ziggy/src/js/index.d.ts"]
