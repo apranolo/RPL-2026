@@ -130,7 +130,7 @@ return new class extends Migration
                 if ($hasIndex) {
                     $table->dropIndex('journals_sinta_rank_index');
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Ignore index dropping errors
             }
             $table->dropColumn('sinta_rank');

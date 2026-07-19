@@ -71,12 +71,12 @@ return new class extends Migration
         Schema::table('evaluation_indicators', function (Blueprint $table) {
             try {
                 $table->dropForeign(['sub_category_id']);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Ignore if not supported or not found
             }
             try {
                 $table->dropIndex(['sub_category_id']);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Ignore
             }
             $table->dropColumn('sub_category_id');

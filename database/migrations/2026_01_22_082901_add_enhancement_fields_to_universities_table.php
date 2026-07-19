@@ -34,7 +34,7 @@ return new class extends Migration
         Schema::table('universities', function (Blueprint $table) {
             try {
                 $table->dropUnique('universities_ptm_code_unique');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Ignore
             }
 
