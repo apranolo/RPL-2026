@@ -51,7 +51,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => $settings['app_name'],
-            'logo' => $settings['app_logo'] ? asset('storage/' . $settings['app_logo']) : null,
+            'logo' => $settings['app_logo'] ? asset('storage/'.$settings['app_logo']) : null,
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user() ?
