@@ -747,6 +747,14 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('evaluations')->name('evaluations.')->group(function () {
             Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
                 ->name('index');
+            Route::get('/assignments', [\App\Http\Controllers\EvaluationController::class, 'assignmentIndex'])
+                ->name('assignments.index');
+            Route::get('{assignment}/note', [\App\Http\Controllers\EvaluationController::class, 'note'])
+                ->name('note');
+            Route::post('{assignment}/submit', [\App\Http\Controllers\EvaluationController::class, 'storeNote'])
+                ->name('storeNote');
+            Route::post('{assignment}/status', [\App\Http\Controllers\EvaluationController::class, 'updateStatus'])
+                ->name('update-status');
             Route::get('{report}', [\App\Http\Controllers\EvaluationController::class, 'showProgress'])
                 ->name('show');
         });
