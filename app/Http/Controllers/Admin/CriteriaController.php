@@ -9,6 +9,7 @@ use App\Models\EvaluationIndicator;
 use App\Models\EvaluationSubCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -81,15 +82,16 @@ class CriteriaController extends Controller
                 'requires_attachment' => $indicator->requires_attachment,
                 'sort_order' => $indicator->sort_order,
                 'is_active' => $indicator->is_active,
+                // Ditambahkan nullsafe operator (?->) pada nested relation mapping
                 'sub_category' => $indicator->subCategory ? [
                     'id' => $indicator->subCategory->id,
                     'name' => $indicator->subCategory->name,
                     'category' => [
-                        'id' => $indicator->subCategory->category->id,
-                        'name' => $indicator->subCategory->category->name,
+                        'id' => $indicator->subCategory->category?->id,
+                        'name' => $indicator->subCategory->category?->name,
                         'template' => [
-                            'id' => $indicator->subCategory->category->template->id,
-                            'name' => $indicator->subCategory->category->template->name,
+                            'id' => $indicator->subCategory->category?->template?->id,
+                            'name' => $indicator->subCategory->category?->template?->name,
                         ],
                     ],
                 ] : null,
@@ -139,17 +141,58 @@ class CriteriaController extends Controller
     }
 
     /**
-     * Store a newly created criterion in storage.
+     * Store a newly created criterion in storage (BATCH/DYNAMIC PROCESS).
      */
     public function store(StoreCriteriaRequest $request): RedirectResponse
     {
         $this->authorize('create', EvaluationIndicator::class);
 
-        $indicator = EvaluationIndicator::create($request->validated());
+        $validated = $request->validated();
+        $subCategoryId = $validated['sub_category_id'];
+        $count = 0;
+
+        // Memproses penyimpanan secara batch menggunakan Database Transaction jika ada parameter criteria
+        if (isset($validated['criteria']) && is_array($validated['criteria'])) {
+            DB::transaction(function () use ($validated, $subCategoryId, &$count) {
+                foreach ($validated['criteria'] as $index => $item) {
+                    // Menghitung urutan tampil otomatis jika kosong
+                    $sortOrder = $item['sort_order'] ?? 
+                        (EvaluationIndicator::where('sub_category_id', $subCategoryId)->max('sort_order') + 1 + $index);
+
+                    EvaluationIndicator::create([
+                        'sub_category_id' => $subCategoryId,
+                        'code' => $item['code'],
+                        'question' => $item['question'],
+                        'description' => $item['description'] ?? null,
+                        'weight' => $item['weight'],
+                        'answer_type' => $item['answer_type'],
+                        'requires_attachment' => $item['requires_attachment'] ?? false,
+                        'sort_order' => $sortOrder,
+                        'is_active' => $item['is_active'] ?? true,
+                    ]);
+                    $count++;
+                }
+            });
+            $successMessage = "Sebanyak {$count} Kriteria Penilaian berhasil ditambahkan.";
+        } else {
+            // Single creation fallback untuk backward-compatibility & testing
+            $indicator = EvaluationIndicator::create([
+                'sub_category_id' => $subCategoryId,
+                'code' => $validated['code'],
+                'question' => $validated['question'],
+                'description' => $validated['description'] ?? null,
+                'weight' => $validated['weight'],
+                'answer_type' => $validated['answer_type'],
+                'requires_attachment' => $validated['requires_attachment'] ?? false,
+                'sort_order' => $validated['sort_order'] ?? (EvaluationIndicator::where('sub_category_id', $subCategoryId)->max('sort_order') + 1),
+                'is_active' => $validated['is_active'] ?? true,
+            ]);
+            $successMessage = "Kriteria Penilaian '{$indicator->code}' berhasil dibuat.";
+        }
 
         return redirect()
             ->route('admin.criteria.index')
-            ->with('success', "Kriteria Penilaian '{$indicator->code}' berhasil dibuat.");
+            ->with('success', $successMessage);
     }
 
     /**
@@ -173,15 +216,16 @@ class CriteriaController extends Controller
                 'requires_attachment' => $criterion->requires_attachment,
                 'sort_order' => $criterion->sort_order,
                 'is_active' => $criterion->is_active,
+                // Ditambahkan nullsafe operator (?->) pada nested relation mapping
                 'sub_category' => $criterion->subCategory ? [
                     'id' => $criterion->subCategory->id,
                     'name' => $criterion->subCategory->name,
                     'category' => [
-                        'id' => $criterion->subCategory->category->id,
-                        'name' => $criterion->subCategory->category->name,
+                        'id' => $criterion->subCategory->category?->id,
+                        'name' => $criterion->subCategory->category?->name,
                         'template' => [
-                            'id' => $criterion->subCategory->category->template->id,
-                            'name' => $criterion->subCategory->category->template->name,
+                            'id' => $criterion->subCategory->category?->template?->id,
+                            'name' => $criterion->subCategory->category?->template?->name,
                         ],
                     ],
                 ] : null,
@@ -236,6 +280,7 @@ class CriteriaController extends Controller
         UpdateCriteriaRequest $request,
         EvaluationIndicator $criterion
     ): RedirectResponse {
+        // Ditambahkan baris instruksi otorisasi sesuai penugasan
         $this->authorize('update', $criterion);
 
         $criterion->update($request->validated());
@@ -252,7 +297,6 @@ class CriteriaController extends Controller
     {
         $this->authorize('delete', $criterion);
 
-        // Check if criterion is used in submitted assessments
         $hasSubmittedAssessments = $criterion->responses()
             ->whereHas('journalAssessment', function ($query) {
                 $query->where('status', 'submitted');

@@ -107,6 +107,48 @@ test('super admin can store a new criterion', function () {
     ]);
 });
 
+test('super admin can store new criteria in batch', function () {
+    $payload = [
+        'sub_category_id' => $this->subCategory->id,
+        'criteria' => [
+            [
+                'code' => 'BATCH-1',
+                'question' => 'Pertanyaan batch 1?',
+                'description' => 'Deskripsi batch 1',
+                'weight' => 10,
+                'answer_type' => 'boolean',
+                'requires_attachment' => false,
+                'sort_order' => 1,
+                'is_active' => true,
+            ],
+            [
+                'code' => 'BATCH-2',
+                'question' => 'Pertanyaan batch 2?',
+                'description' => 'Deskripsi batch 2',
+                'weight' => 20,
+                'answer_type' => 'scale',
+                'requires_attachment' => true,
+                'sort_order' => 2,
+                'is_active' => true,
+            ]
+        ]
+    ];
+
+    $response = actingAs($this->superAdmin)->post(route('admin.criteria.store'), $payload);
+
+    $response->assertRedirect(route('admin.criteria.index'));
+    $this->assertDatabaseHas('evaluation_indicators', [
+        'code' => 'BATCH-1',
+        'sub_category_id' => $this->subCategory->id,
+        'weight' => 10,
+    ]);
+    $this->assertDatabaseHas('evaluation_indicators', [
+        'code' => 'BATCH-2',
+        'sub_category_id' => $this->subCategory->id,
+        'weight' => 20,
+    ]);
+});
+
 test('store criteria validates required fields', function () {
     $response = actingAs($this->superAdmin)->post(route('admin.criteria.store'), []);
 
