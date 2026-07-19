@@ -670,7 +670,7 @@ Route::middleware(['auth'])->group(function () {
     | Production Routes (Journal Issue Management)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:'.Role::USER])->prefix('production')->name('production.')->group(function () {
+    Route::middleware(['role:'.Role::PENGELOLA_JURNAL])->prefix('production')->name('production.')->group(function () {
 
         // Issue Management
         Route::prefix('issues')->name('issue.')->group(function () {
