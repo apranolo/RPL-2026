@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserController extends Controller
 {
@@ -531,7 +532,7 @@ class UserController extends Controller
     /**
      * Ensure the user belongs to the admin's university and is not Super Admin.
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      */
     private function ensureUserBelongsToUniversityAndIsUser(User $user, User $authUser): void
     {

@@ -10,6 +10,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -32,7 +33,7 @@ return new class extends Migration
 
         // Make registration_id and assigned_by nullable to support proposal-review assignments
         // (these fields are Pembinaan-specific and may not exist on proposal review rows)
-        \Illuminate\Support\Facades\DB::statement(
+        DB::statement(
             'PRAGMA foreign_keys = OFF'
         );
         Schema::table('reviewer_assignments', function (Blueprint $table) {
@@ -43,7 +44,7 @@ return new class extends Migration
                 ->nullable()
                 ->change();
         });
-        \Illuminate\Support\Facades\DB::statement(
+        DB::statement(
             'PRAGMA foreign_keys = ON'
         );
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BookOutput;
 use App\Models\HkiOutput;
 use App\Models\ResearchOutput;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +15,7 @@ class OutputController extends Controller
     /**
      * Store a newly created HKI/Patent output in storage.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function storeHKI(Request $request)
     {
@@ -91,7 +92,7 @@ class OutputController extends Controller
     /**
      * Store a newly created Book/Module output in storage.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function storeBook(Request $request)
     {

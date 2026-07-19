@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contract;
 use App\Models\Journal;
 use App\Models\PembinaanRegistration;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -236,7 +237,7 @@ class ContractController extends Controller
      * Super Admins bypass this check (they manage all universities).
      * Other roles must share the same university_id as the contract.
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     private function authorizeContractAccess(Contract $contract): void
     {

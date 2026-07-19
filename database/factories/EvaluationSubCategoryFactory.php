@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\EvaluationCategory;
+use App\Models\EvaluationSubCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\EvaluationSubCategory>
+ * @extends Factory<EvaluationSubCategory>
  */
 class EvaluationSubCategoryFactory extends Factory
 {
@@ -17,7 +19,7 @@ class EvaluationSubCategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'category_id' => \App\Models\EvaluationCategory::factory(),
+            'category_id' => EvaluationCategory::factory(),
             'code' => 'SK'.fake()->unique()->numberBetween(1, 99),
             'name' => fake()->words(3, true),
             'description' => fake()->sentence(),

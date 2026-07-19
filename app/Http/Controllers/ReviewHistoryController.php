@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use App\Models\ReviewSchedule;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ReviewHistoryController extends Controller
 {
@@ -15,7 +17,7 @@ class ReviewHistoryController extends Controller
      * Jika parameter dosen diberikan, akan menampilkan riwayat dosen tersebut (untuk Admin).
      * Jika tidak, akan menampilkan riwayat user yang sedang login (untuk Reviewer/Dosen).
      *
-     * @return \Inertia\Response|\Illuminate\Http\JsonResponse
+     * @return Response|JsonResponse
      */
     public function index(Request $request, ?User $dosen = null)
     {

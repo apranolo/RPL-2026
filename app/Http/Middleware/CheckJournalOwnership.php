@@ -17,7 +17,7 @@ class CheckJournalOwnership
      * - Admin Kampus: hanya journal dari university mereka
      * - User: hanya journal milik mereka sendiri
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {

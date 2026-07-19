@@ -7,6 +7,7 @@ use App\Models\AssessmentResponse;
 use App\Models\EvaluationIndicator;
 use App\Models\JournalAssessment;
 use Faker\Factory as FakerFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -279,7 +280,7 @@ class AssessmentSeeder extends Seeder
      * Create sample responses for an assessment
      *
      * @param  int  $assessmentId  The assessment ID
-     * @param  \Illuminate\Database\Eloquent\Collection  $indicators  Collection of evaluation indicators
+     * @param  Collection  $indicators  Collection of evaluation indicators
      * @param  int  $completionRate  Percentage of indicators to fill (0-100)
      */
     private function createSampleResponses(int $assessmentId, $indicators, int $completionRate): void

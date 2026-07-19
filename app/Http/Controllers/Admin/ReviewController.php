@@ -7,7 +7,9 @@ use App\Models\EvaluationCategory;
 use App\Models\JournalAssessment;
 use App\Models\Pembinaan;
 use App\Models\University;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -190,7 +192,7 @@ class ReviewController extends Controller
     /**
      * Membangun statistik global dari query ter-filter.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      * @return array{
      *   total: int,
      *   draft: int,
@@ -263,7 +265,7 @@ class ReviewController extends Controller
      *  >= 60% → D (Cukup)
      *   < 60% → E (Perlu Perbaikan)
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      * @return array<array{grade: string, label: string, count: int, percentage: float}>
      */
     private function buildGradeDistribution($query): array
@@ -313,7 +315,7 @@ class ReviewController extends Controller
      * untuk setiap program pembinaan yang aktif (tidak tergantung filter).
      * Difilter hanya berdasarkan filter yang tidak berkaitan dengan pembinaan itu sendiri.
      */
-    private function buildPembinaanSummary(Request $request): \Illuminate\Support\Collection
+    private function buildPembinaanSummary(Request $request): Collection
     {
         return Pembinaan::query()
             ->select([
@@ -389,9 +391,9 @@ class ReviewController extends Controller
      * Menampilkan jumlah penilaian dan rata-rata persentase skor
      * per institusi (universitas) dari hasil query yang sudah ter-filter.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      */
-    private function buildUniversitySummary($query): \Illuminate\Support\Collection
+    private function buildUniversitySummary($query): Collection
     {
         $rows = (clone $query)
             ->join('journals', 'journal_assessments.journal_id', '=', 'journals.id')
@@ -433,9 +435,9 @@ class ReviewController extends Controller
      * dikelompokkan berdasarkan kategori evaluasi (level 1).
      * Berguna untuk mengidentifikasi kategori mana yang paling lemah secara rata-rata.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      */
-    private function buildCategorySummary($query): \Illuminate\Support\Collection
+    private function buildCategorySummary($query): Collection
     {
         // Collect IDs of submitted/reviewed assessments from the filtered query
         $assessmentIds = (clone $query)
@@ -544,10 +546,10 @@ class ReviewController extends Controller
      * Membangun daftar opsi untuk dropdown filter di halaman rekap.
      *
      * @return array{
-     *   pembinaan: \Illuminate\Support\Collection,
-     *   universities: \Illuminate\Support\Collection,
+     *   pembinaan: Collection,
+     *   universities: Collection,
      *   status_options: array,
-     *   periods: \Illuminate\Support\Collection
+     *   periods: Collection
      * }
      */
     private function buildFilterOptions(): array

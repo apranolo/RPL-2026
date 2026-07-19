@@ -24,14 +24,14 @@ return new class extends Migration
                 Schema::table('journals', function (Blueprint $table) {
                     $table->dropIndex('journals_accreditation_expiry_date_index');
                 });
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Ignore if index doesn't exist
             }
             try {
                 Schema::table('journals', function (Blueprint $table) {
                     $table->dropIndex(['accreditation_expiry_date']);
                 });
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Ignore if index doesn't exist
             }
         }

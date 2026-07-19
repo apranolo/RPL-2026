@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProgressReportRequest;
 use App\Models\ProgressReport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,7 +41,7 @@ class ProgressController extends Controller
      *
      * @route POST /dosen/progress
      */
-    public function store(\App\Http\Requests\StoreProgressReportRequest $request): RedirectResponse
+    public function store(StoreProgressReportRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * JournalReassignment Model
@@ -23,8 +24,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $to_user_id
  * @property int|null $reassigned_by
  * @property string|null $reason
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class JournalReassignment extends Model
 {

@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Review;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ReviewDocumentController extends Controller
 {
     /**
      * Cetak Berita Acara Review.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function print(Request $request, string $type, int $id)
     {

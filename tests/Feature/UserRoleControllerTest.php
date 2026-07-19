@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Journal;
 use App\Models\User;
+use App\Models\UserRole;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -37,9 +39,9 @@ class UserRoleControllerTest extends TestCase
         ]);
 
         $targetUser = User::factory()->create();
-        $journal = \App\Models\Journal::factory()->create();
+        $journal = Journal::factory()->create();
 
-        $userRole = \App\Models\UserRole::create([
+        $userRole = UserRole::create([
             'user_id' => $targetUser->id,
             'id_journal' => $journal->id,
             'role_name' => 'Editor',

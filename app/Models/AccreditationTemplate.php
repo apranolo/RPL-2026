@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,14 +27,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $version
  * @property string $type 'akreditasi' or 'indeksasi'
  * @property bool $is_active
- * @property \Carbon\Carbon|null $effective_date
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- * @property \Carbon\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EvaluationCategory[] $categories
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EvaluationSubCategory[] $subCategories
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EvaluationIndicator[] $indicators
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EssayQuestion[] $essayQuestions
+ * @property Carbon|null $effective_date
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Collection|EvaluationCategory[] $categories
+ * @property-read Collection|EvaluationSubCategory[] $subCategories
+ * @property-read Collection|EvaluationIndicator[] $indicators
+ * @property-read Collection|EssayQuestion[] $essayQuestions
  */
 class AccreditationTemplate extends Model
 {
@@ -100,7 +103,7 @@ class AccreditationTemplate extends Model
      * Note: Laravel's hasManyThrough only supports 2 levels.
      * Use this as a query method: $template->indicators()->where(...)->get()
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function indicators()
     {
@@ -113,7 +116,7 @@ class AccreditationTemplate extends Model
      * Get indicators attribute (cached collection).
      * Use this as a property: $template->indicators
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getIndicatorsAttribute()
     {
@@ -142,8 +145,8 @@ class AccreditationTemplate extends Model
     /**
      * Scope: Get only active templates.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeActive($query)
     {
@@ -153,9 +156,9 @@ class AccreditationTemplate extends Model
     /**
      * Scope: Get templates by type.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      * @param  string  $type  'akreditasi' or 'indeksasi'
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeByType($query, string $type)
     {
@@ -165,8 +168,8 @@ class AccreditationTemplate extends Model
     /**
      * Scope: Order by effective date (newest first).
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeLatest($query)
     {

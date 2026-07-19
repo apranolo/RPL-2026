@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\BudgetController;
 use App\Http\Controllers\Api\OutputStatsController;
+use App\Http\Controllers\Api\TimelineController;
 use App\Http\Controllers\Api\TopLecturerController;
 use App\Http\Controllers\Api\TopResearchController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -59,7 +61,7 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     Route::get('/top-research', [TopResearchController::class, 'getTop']);
 
     // revisi dead code
-    Route::get('/timeline/chart', [\App\Http\Controllers\Api\TimelineController::class, 'getChart'])->name('timeline.getChart');
+    Route::get('/timeline/chart', [TimelineController::class, 'getChart'])->name('timeline.getChart');
 
     // TODO: Add other protected routes here
     // Route::apiResource('journals', JournalController::class);
@@ -72,5 +74,5 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     });
 
     // Budget Stats
-    Route::get('/budget/stats', [\App\Http\Controllers\Api\BudgetController::class, 'getStats']);
+    Route::get('/budget/stats', [BudgetController::class, 'getStats']);
 });
