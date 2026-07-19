@@ -236,6 +236,8 @@ class CriteriaController extends Controller
         UpdateCriteriaRequest $request,
         EvaluationIndicator $criterion
     ): RedirectResponse {
+        $this->authorize('update', $criterion);
+
         $criterion->update($request->validated());
 
         return redirect()

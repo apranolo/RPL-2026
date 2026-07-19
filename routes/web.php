@@ -136,6 +136,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Reviewer Notification
     Route::post('notifications/notify-reviewer', [\App\Http\Controllers\NotificationController::class, 'notifyReviewer'])
+        ->middleware('role:Super Admin,Admin Kampus')
         ->name('notifications.notify-reviewer');
 
     // Dashboard Admin
