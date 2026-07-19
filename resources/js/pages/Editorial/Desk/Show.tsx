@@ -9,7 +9,7 @@ import DecisionHistoryPanel from '@/components/DecisionHistoryPanel';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { PageProps } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react'; // PERBAIKAN 1: Menambahkan router
 
 interface SubmissionFile {
     id_file: number;
@@ -55,8 +55,9 @@ export default function Show({ submission }: Props) {
                     <div className="rounded-lg border bg-white p-4 shadow">
                         <h2 className="mb-4 text-lg font-semibold">Aksi Editorial</h2>
                         <div className="grid gap-2">
+                            {/* PERBAIKAN 2: Menggunakan router.get dari Inertia */}
                             <Button 
-                                onClick={() => window.location.href = route('editorial.desk.plagiarism', submission.id_submission)}
+                                onClick={() => router.get(route('editorial.desk.plagiarism', submission.id_submission))}
                                 className="w-full">
                                 Cek Plagiasi
                             </Button>
