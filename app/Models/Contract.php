@@ -10,6 +10,15 @@ class Contract extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Status constants
+    public const STATUS_DRAFT = 'draft';
+
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_COMPLETED = 'selesai';
+
+    public const STATUS_CANCELLED = 'dibatalkan';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,7 +29,9 @@ class Contract extends Model
         'title',
         'pembinaan_registration_id',
         'journal_id',
+        'proposal_id',
         'university_id',
+        'signed_at',
         'start_date',
         'end_date',
         'status',
@@ -38,6 +49,7 @@ class Contract extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'signed_at' => 'date',
         'start_date' => 'date',
         'end_date' => 'date',
         'contract_value' => 'integer',
@@ -80,6 +92,41 @@ class Contract extends Model
     public function updater()
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /** Proposal this contract is linked to. */
+    public function proposal()
+    {
+        return $this->belongsTo(Proposal::class);
+    }
+
+    /** Fundings (termin) for this contract. */
+    public function fundings()
+    {
+        return $this->hasMany(Funding::class);
+    }
+
+    /** Progress reports for this contract. */
+    public function progressReports()
+    {
+        return $this->hasMany(ProgressReport::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Static Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    /** Return human-readable status options map. */
+    public static function getStatusOptions(): array
+    {
+        return [
+            self::STATUS_DRAFT => 'Draft',
+            self::STATUS_ACTIVE => 'Aktif',
+            self::STATUS_COMPLETED => 'Selesai',
+            self::STATUS_CANCELLED => 'Dibatalkan',
+        ];
     }
 
     /*

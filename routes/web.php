@@ -569,7 +569,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('funding.store-termin');
     });
 
-    Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS])
+    Route::middleware(['role:'.Role::SUPER_ADMIN])
         ->prefix('admin/contracts')
         ->name('admin.contracts.')
         ->group(function () {
