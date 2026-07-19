@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateProfileRequest;
 use App\Models\AuthorProfile;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Http\Requests\UpdateProfileRequest;
 
 /**
  * ProfileController

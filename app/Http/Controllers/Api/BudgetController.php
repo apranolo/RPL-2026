@@ -1,6 +1,7 @@
 <?php
 
 /** @author KHANSA KAMILAH LICTJELITA */
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -28,7 +29,7 @@ class BudgetController extends Controller
 
         $remainingBudget = $totalBudget - $usedBudget;
         $percentageUsed = $totalBudget > 0 ? round(($usedBudget / $totalBudget) * 100, 2) : 0;
-        
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -39,10 +40,10 @@ class BudgetController extends Controller
                 'chart_data' => [
                     'labels' => ['Digunakan', 'Sisa'],
                     'values' => [$usedBudget, $remainingBudget],
-                    'colors' => ['#ef4444', '#22c55e']
-                ]
+                    'colors' => ['#ef4444', '#22c55e'],
+                ],
             ],
-            'message' => 'Budget stats retrieved successfully'
+            'message' => 'Budget stats retrieved successfully',
         ]);
     }
 }

@@ -1,5 +1,3 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from '@inertiajs/react';
 import {
     AlertDialog,
     AlertDialogCancel,
@@ -12,8 +10,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ShieldAlert } from 'lucide-react';
 import { UserRole } from '@/pages/Admin/Users/Index';
+import { useForm } from '@inertiajs/react';
+import { ShieldAlert } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface RevokeRoleModalProps {
     isOpen: boolean;
@@ -51,16 +51,13 @@ export default function RevokeRoleModal({ isOpen, onClose, userRole }: RevokeRol
                             <ShieldAlert className="h-6 w-6" />
                             <AlertDialogTitle>Cabut Peran Pengguna</AlertDialogTitle>
                         </div>
-                        <AlertDialogDescription className="text-sm pt-2">
+                        <AlertDialogDescription className="pt-2 text-sm">
                             Tindakan ini akan menonaktifkan hak akses{' '}
-                            <span className="font-semibold text-foreground">{userRole.user_name || 'pengguna'}</span>{' '}
-                            sebagai <span className="font-semibold text-foreground">{userRole.role_name}</span>{' '}
+                            <span className="font-semibold text-foreground">{userRole.user_name || 'pengguna'}</span> sebagai{' '}
+                            <span className="font-semibold text-foreground">{userRole.role_name}</span>{' '}
                             {userRole.journal && (
                                 <>
-                                    pada{' '}
-                                    <span className="font-semibold text-foreground">
-                                        {userRole.journal.name}
-                                    </span>
+                                    pada <span className="font-semibold text-foreground">{userRole.journal.name}</span>
                                 </>
                             )}
                             .
@@ -68,7 +65,7 @@ export default function RevokeRoleModal({ isOpen, onClose, userRole }: RevokeRol
                     </AlertDialogHeader>
 
                     <div className="space-y-2">
-                        <Label htmlFor="confirm" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        <Label htmlFor="confirm" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                             Ketik &quot;CONFIRM&quot; untuk melanjutkan pencabutan peran
                         </Label>
                         <Input
@@ -88,11 +85,7 @@ export default function RevokeRoleModal({ isOpen, onClose, userRole }: RevokeRol
                                 Batal
                             </Button>
                         </AlertDialogCancel>
-                        <Button
-                            type="submit"
-                            variant="destructive"
-                            disabled={confirmText !== 'CONFIRM' || processing}
-                        >
+                        <Button type="submit" variant="destructive" disabled={confirmText !== 'CONFIRM' || processing}>
                             {processing ? 'Mencabut...' : 'Cabut Peran'}
                         </Button>
                     </AlertDialogFooter>

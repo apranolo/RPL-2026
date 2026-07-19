@@ -37,7 +37,7 @@ class ProposalController extends Controller
             ->with(['user:id,name,email', 'researchSchema:id,name']);
 
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+            $query->where('title', 'like', '%'.$request->search.'%');
         }
 
         if ($request->filled('status')) {
@@ -49,22 +49,22 @@ class ProposalController extends Controller
             ->paginate(15)
             ->withQueryString()
             ->through(fn ($proposal) => [
-                'id'                    => $proposal->id,
-                'title'                 => $proposal->title,
-                'description'           => $proposal->description,
-                'status_proposal'       => $proposal->status_proposal,
-                'rejection_reason'      => $proposal->rejection_reason,
+                'id' => $proposal->id,
+                'title' => $proposal->title,
+                'description' => $proposal->description,
+                'status_proposal' => $proposal->status_proposal,
+                'rejection_reason' => $proposal->rejection_reason,
                 'file_dokumen_proposal' => $proposal->file_dokumen_proposal,
-                'user'                  => $proposal->user ? [
-                    'id'    => $proposal->user->id,
-                    'name'  => $proposal->user->name,
+                'user' => $proposal->user ? [
+                    'id' => $proposal->user->id,
+                    'name' => $proposal->user->name,
                     'email' => $proposal->user->email,
                 ] : null,
-                'research_schema'       => $proposal->researchSchema ? [
-                    'id'   => $proposal->researchSchema->id,
+                'research_schema' => $proposal->researchSchema ? [
+                    'id' => $proposal->researchSchema->id,
                     'name' => $proposal->researchSchema->name,
                 ] : null,
-                'created_at'            => $proposal->created_at->format('Y-m-d'),
+                'created_at' => $proposal->created_at->format('Y-m-d'),
             ]);
 
         $statusOptions = collect([
@@ -75,8 +75,8 @@ class ProposalController extends Controller
         ]);
 
         return Inertia::render('Admin/Proposal/Index', [
-            'proposals'     => $proposals,
-            'filters'       => $request->only(['search', 'status']),
+            'proposals' => $proposals,
+            'filters' => $request->only(['search', 'status']),
             'statusOptions' => $statusOptions,
         ]);
     }
@@ -91,7 +91,7 @@ class ProposalController extends Controller
         $this->authorize('approve', $proposal);
 
         $proposal->update([
-            'status_proposal'  => Proposal::STATUS_ADMINISTRASI_VALID,
+            'status_proposal' => Proposal::STATUS_ADMINISTRASI_VALID,
             'rejection_reason' => null,
         ]);
 
@@ -113,12 +113,12 @@ class ProposalController extends Controller
             'rejection_reason' => ['required', 'string', 'min:10', 'max:500'],
         ], [
             'rejection_reason.required' => 'Alasan penolakan harus diisi.',
-            'rejection_reason.min'      => 'Alasan penolakan minimal 10 karakter.',
-            'rejection_reason.max'      => 'Alasan penolakan maksimal 500 karakter.',
+            'rejection_reason.min' => 'Alasan penolakan minimal 10 karakter.',
+            'rejection_reason.max' => 'Alasan penolakan maksimal 500 karakter.',
         ]);
 
         $proposal->update([
-            'status_proposal'  => Proposal::STATUS_DITOLAK,
+            'status_proposal' => Proposal::STATUS_DITOLAK,
             'rejection_reason' => $request->rejection_reason,
         ]);
 

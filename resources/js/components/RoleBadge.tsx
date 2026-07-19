@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface RoleBadgeProps {
     roleName: 'Author' | 'Editor' | 'SectionEditor' | 'Reviewer' | 'Copyeditor' | 'ProductionEditor' | 'Admin' | string;
 }
@@ -26,7 +24,7 @@ export default function RoleBadge({ roleName }: RoleBadgeProps) {
     };
 
     return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide ${getBadgeStyle(roleName)}`}>
+        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide ${getBadgeStyle(roleName)}`}>
             {roleName}
         </span>
     );

@@ -43,11 +43,11 @@ class SchemaController extends Controller
             ->paginate(10)
             ->withQueryString()
             ->through(fn ($schema) => [
-                'id'              => $schema->id,
-                'name'            => $schema->name,
-                'description'     => $schema->description,
+                'id' => $schema->id,
+                'name' => $schema->name,
+                'description' => $schema->description,
                 'proposals_count' => $schema->proposals_count,
-                'created_at'      => $schema->created_at?->format('Y-m-d H:i'),
+                'created_at' => $schema->created_at?->format('Y-m-d H:i'),
             ]);
 
         return Inertia::render('Admin/Schema/Index', [
@@ -80,12 +80,12 @@ class SchemaController extends Controller
         $this->authorize('create', ResearchSchema::class);
 
         $validated = $request->validate([
-            'name'        => 'required|string|max:255|unique:research_schemas,name',
+            'name' => 'required|string|max:255|unique:research_schemas,name',
             'description' => 'nullable|string|max:1000',
         ], [
             'name.required' => 'Nama skema wajib diisi.',
-            'name.unique'   => 'Nama skema sudah digunakan, silakan gunakan nama lain.',
-            'name.max'      => 'Nama skema maksimal 255 karakter.',
+            'name.unique' => 'Nama skema sudah digunakan, silakan gunakan nama lain.',
+            'name.max' => 'Nama skema maksimal 255 karakter.',
             'description.max' => 'Deskripsi maksimal 1000 karakter.',
         ]);
 
@@ -108,8 +108,8 @@ class SchemaController extends Controller
 
         return Inertia::render('Admin/Schema/Edit', [
             'schema' => [
-                'id'          => $schema->id,
-                'name'        => $schema->name,
+                'id' => $schema->id,
+                'name' => $schema->name,
                 'description' => $schema->description,
             ],
         ]);
@@ -126,12 +126,12 @@ class SchemaController extends Controller
         $this->authorize('update', $schema);
 
         $validated = $request->validate([
-            'name'        => 'required|string|max:255|unique:research_schemas,name,' . $schema->id,
+            'name' => 'required|string|max:255|unique:research_schemas,name,'.$schema->id,
             'description' => 'nullable|string|max:1000',
         ], [
             'name.required' => 'Nama skema wajib diisi.',
-            'name.unique'   => 'Nama skema sudah digunakan, silakan gunakan nama lain.',
-            'name.max'      => 'Nama skema maksimal 255 karakter.',
+            'name.unique' => 'Nama skema sudah digunakan, silakan gunakan nama lain.',
+            'name.max' => 'Nama skema maksimal 255 karakter.',
             'description.max' => 'Deskripsi maksimal 1000 karakter.',
         ]);
 
