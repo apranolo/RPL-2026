@@ -22,8 +22,7 @@ class Galley extends Model
         'issue_id',
         'label',
         'file_path',
-        'page_from',
-        'page_to',
+        'pages',
         'doi',
         'sequence',
     ];
@@ -34,8 +33,6 @@ class Galley extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'page_from' => 'integer',
-        'page_to' => 'integer',
         'sequence' => 'integer',
     ];
 
@@ -48,7 +45,6 @@ class Galley extends Model
         'file_url',
         'id_submission',
         'id_issue',
-        'pages',
         'file_extension',
     ];
 
@@ -79,7 +75,6 @@ class Galley extends Model
     |--------------------------------------------------------------------------
     | Accessors & Mutators
     |--------------------------------------------------------------------------
-    |
     */
 
     /**
@@ -127,25 +122,6 @@ class Galley extends Model
     }
 
     /**
-     * Get pages (formatted page range).
-     */
-    public function getPagesAttribute(): ?string
-    {
-        if ($this->page_from === null && $this->page_to === null) {
-            return null;
-        }
-
-        if ($this->page_from !== null && $this->page_to !== null) {
-            if ($this->page_from === $this->page_to) {
-                return (string) $this->page_from;
-            }
-            return "{$this->page_from}-{$this->page_to}";
-        }
-
-        return (string) ($this->page_from ?? $this->page_to);
-    }
-
-    /**
      * Get file extension (lowercase of the label, e.g., 'pdf').
      */
     public function getFileExtensionAttribute(): string
@@ -153,4 +129,3 @@ class Galley extends Model
         return strtolower($this->label);
     }
 }
-

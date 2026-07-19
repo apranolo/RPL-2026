@@ -1,12 +1,42 @@
+/**
+ * SetMeta Component
+ *
+ * @description
+ * Form page for setting metadata (page range & DOI) of a production galley.
+ * Provides two separate input boxes (Halaman Awal & Halaman Akhir) for the
+ * user to enter a page range, which are combined into a single "FROM-TO"
+ * string and saved to the `pages` column in the database on submission.
+ *
+ * @component
+ *
+ * @interface Galley
+ * @property {number} id - Unique galley identifier
+ * @property {string} label - File type label (e.g., "PDF")
+ * @property {string} file_path - Stored file path
+ * @property {string|null} pages - Page range string, e.g., "10-15" or null
+ * @property {string|null} doi - Digital Object Identifier
+ * @property {object|null} issue - Related issue data
+ *
+ * @interface Props
+ * @property {Galley} galley - The galley record to edit
+ *
+ * @param {Props} props - Component props
+ * @param {Galley} props.galley - Galley whose metadata is being set
+ *
+ * @returns The rendered metadata form page
+ *
+ * @author JurnalMU Team
+ * @filepath /resources/js/pages/Production/Galley/SetMeta.tsx
+ */
 import { useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
 
 interface Galley {
     id: number;
     label: string;
     file_path: string;
-    page_from: number | null;
-    page_to: number | null;
+    pages: string | null;
     doi: string | null;
     issue: {
         id: number;
@@ -21,10 +51,25 @@ interface Props {
     galley: Galley;
 }
 
+/**
+ * Parse the "FROM-TO" pages string back into separate from/to values for the UI.
+ */
+function parsePagesString(pages: string | null): { pageFrom: string; pageTo: string } {
+    if (!pages) return { pageFrom: '', pageTo: '' };
+    const parts = pages.split('-');
+    if (parts.length === 2) {
+        return { pageFrom: parts[0], pageTo: parts[1] };
+    }
+    // Single page number
+    return { pageFrom: pages, pageTo: pages };
+}
+
 export default function SetMeta({ galley }: Props) {
+    const { pageFrom, pageTo } = parsePagesString(galley.pages);
+
     const { data, setData, patch, processing, errors } = useForm({
-        page_from: galley.page_from ?? '',
-        page_to: galley.page_to ?? '',
+        page_from: pageFrom,
+        page_to: pageTo,
         doi: galley.doi ?? '',
     });
 
@@ -33,10 +78,22 @@ export default function SetMeta({ galley }: Props) {
         patch(route('production.galley.updateMeta', galley.id));
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Produksi', href: '/production' },
+        {
+            title: galley.issue
+                ? `Vol. ${galley.issue.volume}, No. ${galley.issue.number} (${galley.issue.year})`
+                : 'Issue',
+            href: galley.issue ? route('production.issue.show', galley.issue.id) : '/production',
+        },
+        { title: 'Penetapan Halaman & DOI', href: '#' },
+    ];
+
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <div className="max-w-2xl mx-auto p-6">
-                <h1 className="text-2xl font-bold mb-2">Penetapan Halaman & DOI</h1>
+                <h1 className="text-2xl font-bold mb-2">Penetapan Halaman &amp; DOI</h1>
 
                 {/* Info Galley */}
                 <div className="bg-gray-100 rounded p-4 mb-6">
@@ -110,7 +167,7 @@ export default function SetMeta({ galley }: Props) {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                            className="bg-primary text-white px-6 py-2 rounded hover:bg-primary/90 disabled:opacity-50"
                         >
                             {processing ? 'Menyimpan...' : 'Simpan'}
                         </button>
