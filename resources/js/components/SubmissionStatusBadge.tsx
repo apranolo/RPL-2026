@@ -28,10 +28,7 @@ const statusConfig: Record<SubmissionStatus, { label: string; classes: string }>
     },
 };
 
-export const SubmissionStatusBadge: React.FC<SubmissionStatusBadgeProps> = ({ 
-    status, 
-    className = '' 
-}) => {
+export const SubmissionStatusBadge: React.FC<SubmissionStatusBadgeProps> = ({ status, className = '' }) => {
     // Mengambil konfigurasi visual berdasarkan status, fallback ke 'draft' jika tidak ada yang cocok
     const config = statusConfig[status] || statusConfig.draft;
 

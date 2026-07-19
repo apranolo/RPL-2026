@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\BookOutput;
 use App\Models\HkiOutput;
 use App\Models\ResearchOutput;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -15,16 +14,15 @@ class OutputController extends Controller
     /**
      * Store a newly created HKI/Patent output in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function storeHKI(Request $request)
     {
-        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data HKI.');
+        abort_if(! auth()->check(), 403, 'Anda harus login untuk menyimpan data HKI.');
 
         $validated = $request->validate([
             'judul_luaran' => 'required|string|max:255',
-            'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
+            'tahun_capaian' => 'required|integer|min:1900|max:'.(date('Y') + 5),
             'penulis_atau_pencipta' => 'required|string',
             'nomor_paten' => 'required|string|max:100',
             'jenis_hki' => 'required|string|in:paten,hak_cipta,merek,desain_industri,rahasia_dagang',
@@ -59,7 +57,7 @@ class OutputController extends Controller
             // Save polymorphic parent ResearchOutput
             $hkiOutput->researchOutput()->create([
                 'contract_id' => $request->input('contract_id', 1), // Or $validated['proposal_id'] ?? null if added to request
-                'user_id' => Auth::id(),
+                'user_id' => auth()->id(),
                 'jenis_luaran' => 'HKI',
                 'judul_luaran' => $validated['judul_luaran'],
                 'tahun_capaian' => $validated['tahun_capaian'],
@@ -73,24 +71,24 @@ class OutputController extends Controller
                 'success' => 'Data HKI berhasil disimpan.',
             ]);
         } catch (\Exception $e) {
-            Log::error('Error storing HKI: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data HKI: ' . $e->getMessage());
+            Log::error('Error storing HKI: '.$e->getMessage());
+
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data HKI: '.$e->getMessage());
         }
     }
 
     /**
      * Store a newly created Book/Module output in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function storeBook(Request $request)
     {
-        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data Buku.');
+        abort_if(! auth()->check(), 403, 'Anda harus login untuk menyimpan data Buku.');
 
         $validated = $request->validate([
             'judul_luaran' => 'required|string|max:255',
-            'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
+            'tahun_capaian' => 'required|integer|min:1900|max:'.(date('Y') + 5),
             'penulis_atau_pencipta' => 'required|string',
             'isbn' => 'required|string|max:50',
             'tipe_buku' => 'required|string|in:monograf,referensi,modul_ajar,book_chapter',
@@ -126,7 +124,7 @@ class OutputController extends Controller
             // Save polymorphic parent ResearchOutput
             $bookOutput->researchOutput()->create([
                 'contract_id' => $request->input('contract_id', 1), // Or $validated['proposal_id'] ?? null if added to request
-                'user_id' => Auth::id(),
+                'user_id' => auth()->id(),
                 'jenis_luaran' => 'Buku',
                 'judul_luaran' => $validated['judul_luaran'],
                 'tahun_capaian' => $validated['tahun_capaian'],
@@ -140,8 +138,9 @@ class OutputController extends Controller
                 'success' => 'Data Buku berhasil disimpan.',
             ]);
         } catch (\Exception $e) {
-            Log::error('Error storing Book: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data Buku: ' . $e->getMessage());
+            Log::error('Error storing Book: '.$e->getMessage());
+
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data Buku: '.$e->getMessage());
         }
     }
 }

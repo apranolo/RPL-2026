@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('research_schemas')) {
+        if (! Schema::hasTable('research_schemas')) {
             Schema::create('research_schemas', function (Blueprint $table) {
                 $table->id();
                 $table->string('name'); // schema_name
@@ -22,10 +22,10 @@ return new class extends Migration
             });
         } else {
             Schema::table('research_schemas', function (Blueprint $table) {
-                if (!Schema::hasColumn('research_schemas', 'max_funding')) {
+                if (! Schema::hasColumn('research_schemas', 'max_funding')) {
                     $table->decimal('max_funding', 15, 2)->default(0)->after('description');
                 }
-                if (!Schema::hasColumn('research_schemas', 'is_active')) {
+                if (! Schema::hasColumn('research_schemas', 'is_active')) {
                     $table->boolean('is_active')->default(true)->after('max_funding');
                 }
             });

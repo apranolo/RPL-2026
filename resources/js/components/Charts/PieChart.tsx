@@ -213,32 +213,32 @@ export default function PieChart({
                 pie: {
                     donut: donut
                         ? {
-                            size: '65%',
-                            background: 'transparent',
-                            labels: {
-                                show: true,
-                                name: {
-                                    show: true,
-                                    color: themeColors.text,
-                                    fontWeight: 600,
-                                    fontSize: '13px',
-                                },
-                                value: {
-                                    show: true,
-                                    fontSize: '28px',
-                                    fontWeight: 'bold',
-                                    color: isDarkMode ? '#ffffff' : '#0f172a',
-                                },
-                                total: {
-                                    show: true,
-                                    label: centerLabel,
-                                    color: themeColors.subtleText,
-                                    fontWeight: 600,
-                                    fontSize: '12px',
-                                    formatter: () => computedTotal.toString(),
-                                },
-                            },
-                        }
+                              size: '65%',
+                              background: 'transparent',
+                              labels: {
+                                  show: true,
+                                  name: {
+                                      show: true,
+                                      color: themeColors.text,
+                                      fontWeight: 600,
+                                      fontSize: '13px',
+                                  },
+                                  value: {
+                                      show: true,
+                                      fontSize: '28px',
+                                      fontWeight: 'bold',
+                                      color: isDarkMode ? '#ffffff' : '#0f172a',
+                                  },
+                                  total: {
+                                      show: true,
+                                      label: centerLabel,
+                                      color: themeColors.subtleText,
+                                      fontWeight: 600,
+                                      fontSize: '12px',
+                                      formatter: () => computedTotal.toString(),
+                                  },
+                              },
+                          }
                         : undefined,
                 },
             },
@@ -304,10 +304,7 @@ export default function PieChart({
                     <div className="mt-4 grid grid-cols-2 gap-2 border-t pt-4 sm:grid-cols-3 md:grid-cols-4">
                         {filteredCategories.map((cat, idx) => (
                             <div key={cat.label} className="flex items-center gap-2 text-xs">
-                                <div
-                                    className="h-3 w-3 shrink-0 rounded-sm"
-                                    style={{ backgroundColor: colorPalette[idx % colorPalette.length] }}
-                                />
+                                <div className="h-3 w-3 shrink-0 rounded-sm" style={{ backgroundColor: colorPalette[idx % colorPalette.length] }} />
                                 <span className="truncate text-muted-foreground">{cat.label}</span>
                                 <span className="ml-auto font-semibold">{cat.value}</span>
                             </div>
