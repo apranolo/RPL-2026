@@ -20,10 +20,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('journals', function (Blueprint $table) {
-            try {
-                $table->dropIndex('journals_accreditation_expiry_date_index');
-            } catch (\Throwable $e) {
-                // Ignore if index doesn't exist
+            if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+                try {
+                    $table->dropIndex('journals_accreditation_expiry_date_index');
+                } catch (\Throwable $e) {
+                    // Ignore
+                }
             }
 
             $columnsToDrop = array_filter(
