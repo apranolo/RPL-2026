@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\ReviewerAssignment;
+use App\Models\ReviewAssignment;
 use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ReviewAssignmentController
  * 
  * Mengelola penerimaan dan penolakan undangan review oleh reviewer.
+ * Menggunakan model ReviewAssignment yang terhubung ke Submission (naskah ilmiah).
  */
 class ReviewAssignmentController extends Controller
 {
@@ -20,15 +21,14 @@ class ReviewAssignmentController extends Controller
     public function accept($id)
     {
         // mencari assignment berdasarkan ID
-        $assignment = ReviewerAssignment::findOrFail($id);
+        $assignment = ReviewAssignment::findOrFail($id);
 
         if ($assignment->reviewer_id !== Auth::id()) {
             abort(403, 'Unauthorized access.');
         }
 
         // ubah status menjadi accepted
-        $assignment->status = 'accepted';
-        $assignment->responded_at = now();
+        $assignment->status = 'Accepted';
         $assignment->save();
 
         return redirect()
@@ -46,16 +46,15 @@ class ReviewAssignmentController extends Controller
         ]);
 
         // mencari assignment berdasarkan ID
-        $assignment = ReviewerAssignment::findOrFail($id);
+        $assignment = ReviewAssignment::findOrFail($id);
 
         if ($assignment->reviewer_id !== Auth::id()) {
             abort(403, 'Unauthorized access.');
         }
 
         // ubah status menjadi declined
-        $assignment->status = 'declined';
-        $assignment->reason = $request->reason;
-        $assignment->responded_at = now();
+        $assignment->status = 'Declined';
+        $assignment->decline_reason = $request->reason;
         $assignment->save();
 
         return redirect()
