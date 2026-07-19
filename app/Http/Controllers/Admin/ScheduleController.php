@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReviewScheduleRequest;
 use App\Http\Requests\UpdateReviewScheduleRequest;
-use App\Models\JournalAssessment;
+use App\Models\Proposal;
 use App\Models\ReviewSchedule;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -19,26 +19,35 @@ class ScheduleController extends Controller
     {
         $this->authorize('viewAny', ReviewSchedule::class);
 
-        $query = ReviewSchedule::with(['proposal.journal', 'proposal.user', 'reviewer', 'creator']);
+        $query = ReviewSchedule::with(['proposal.journal', 'proposal.user', 'reviewer', 'creator'])->where(function ($q) use ($request) {
 
-        if ($request->user()->isAdminKampus()) {
-            $query->whereHas('proposal.journal', function ($q) use ($request) {
-                $q->where('university_id', $request->user()->university_id);
-            });
-        }
+            if ($request->user()->isAdminKampus()) {
+                $q->whereHas('proposal.journal', function ($q) use ($request) {
+                    $q->where('university_id', $request->user()->university_id);
+                });
+            }
+
+            if ($request->filled('search')) {
+                $q->where(function ($q) use ($request) {
+                    $q->whereHas('proposal.journal', function ($q) use ($request) {
+                        $q->where('title', 'like', "%{$request->search}%");
+                        if ($request->user()->isAdminKampus()) {
+                            $q->where('university_id', $request->user()->university_id);
+                        }
+                    })->orWhereHas('reviewer', function ($q) use ($request) {
+                        $q->where('name', 'like', "%{$request->search}%");
+                        if ($request->user()->isAdminKampus()) {
+                            $q->whereHas('proposal.journal', function ($q) use ($request) {
+                                $q->where('university_id', $request->user()->university_id);
+                            });
+                        }
+                    });
+                });
+            }
+        });
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
-        }
-
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->whereHas('proposal.journal', function ($q) use ($request) {
-                    $q->where('title', 'like', "%{$request->search}%");
-                })->orWhereHas('reviewer', function ($q) use ($request) {
-                    $q->where('name', 'like', "%{$request->search}%");
-                });
-            });
         }
 
         $schedules = $query->orderBy('scheduled_at', 'desc')
@@ -58,7 +67,7 @@ class ScheduleController extends Controller
     {
         $this->authorize('create', ReviewSchedule::class);
 
-        $assessments = JournalAssessment::with(['journal', 'user'])
+        $proposals = Proposal::with(['journal', 'user'])
             ->submitted()
             ->orderBy('created_at', 'desc')
             ->get(['id', 'journal_id', 'user_id', 'status']);
@@ -68,7 +77,7 @@ class ScheduleController extends Controller
             ->get(['id', 'name', 'email']);
 
         return Inertia::render('Admin/Reviewer/ScheduleCreate', [
-            'assessments' => $assessments,
+            'proposals' => $proposals,
             'reviewers' => $reviewers,
         ]);
     }
@@ -104,7 +113,7 @@ class ScheduleController extends Controller
     {
         $this->authorize('update', $schedule);
 
-        $assessments = JournalAssessment::with(['journal', 'user'])
+        $proposals = Proposal::with(['journal', 'user'])
             ->submitted()
             ->orderBy('created_at', 'desc')
             ->get(['id', 'journal_id', 'user_id', 'status']);
@@ -115,7 +124,7 @@ class ScheduleController extends Controller
 
         return Inertia::render('Admin/Reviewer/ScheduleEdit', [
             'schedule' => $schedule->load(['proposal.journal', 'proposal.user', 'reviewer']),
-            'assessments' => $assessments,
+            'proposals' => $proposals,
             'reviewers' => $reviewers,
         ]);
     }

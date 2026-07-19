@@ -330,34 +330,137 @@ test('regular user cannot access schedules', function () {
         ->assertForbidden();
 });
 
-test('search does not leak data across universities', function () {
-    // Create a schedule in university A with a distinctive title
-    $assessmentA = $this->assessmentA;
-    $assessmentA->journal->update(['title' => 'UNIQUE_TITLE_A_FOR_TESTING']);
+test('search by journal title does not leak data across universities', function () {
+    $this->assessmentA->journal->update(['title' => 'JURNAL_UNIK_A_UNTUK_TESTING']);
     ReviewSchedule::factory()->create([
-        'proposal_id' => $assessmentA->id,
+        'proposal_id' => $this->assessmentA->id,
         'reviewer_id' => $this->reviewerA->id,
     ]);
 
-    // Create a schedule in university B
     ReviewSchedule::factory()->create([
         'proposal_id' => $this->assessmentB->id,
         'reviewer_id' => $this->reviewerB->id,
     ]);
 
-    // Admin Kampus A searches for a term that matches their own schedule
     actingAs($this->adminKampusA)
-        ->get(route('admin.schedules.index', ['search' => 'UNIQUE_TITLE_A_FOR_TESTING']))
+        ->get(route('admin.schedules.index', ['search' => 'JURNAL_UNIK_A_UNTUK_TESTING']))
         ->assertInertia(fn ($page) => $page
             ->component('Admin/Reviewer/Schedule')
             ->has('schedules.data', 1)
         );
 
-    // Admin Kampus B should not see university A's schedule even without search
     actingAs($this->adminKampusB)
         ->get(route('admin.schedules.index'))
         ->assertInertia(fn ($page) => $page
             ->component('Admin/Reviewer/Schedule')
-            ->has('schedules.data', 1) // only their own
+            ->has('schedules.data', 1)
         );
+});
+
+test('search by reviewer name does not leak data across universities', function () {
+    $this->reviewerA->update(['name' => 'REVIEWER_UNIK_A_UNTUK_TESTING']);
+    ReviewSchedule::factory()->create([
+        'proposal_id' => $this->assessmentA->id,
+        'reviewer_id' => $this->reviewerA->id,
+    ]);
+
+    ReviewSchedule::factory()->create([
+        'proposal_id' => $this->assessmentB->id,
+        'reviewer_id' => $this->reviewerB->id,
+    ]);
+
+    // Admin Kampus A searches by their reviewer's name — should see 1 result
+    actingAs($this->adminKampusA)
+        ->get(route('admin.schedules.index', ['search' => 'REVIEWER_UNIK_A_UNTUK_TESTING']))
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Reviewer/Schedule')
+            ->has('schedules.data', 1)
+        );
+
+    // Admin Kampus B searches by the SAME reviewer name — should see 0 results
+    // (the reviewer belongs to university A, so its schedules should not leak to B)
+    actingAs($this->adminKampusB)
+        ->get(route('admin.schedules.index', ['search' => 'REVIEWER_UNIK_A_UNTUK_TESTING']))
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Reviewer/Schedule')
+            ->has('schedules.data', 0)
+        );
+});
+
+// ─── EDGE CASES ───────────────────────────────────────────
+
+test('search with empty string returns all schedules within scope', function () {
+    ReviewSchedule::factory()->count(2)->create([
+        'proposal_id' => $this->assessmentA->id,
+        'reviewer_id' => $this->reviewerA->id,
+    ]);
+
+    actingAs($this->superAdmin)
+        ->get(route('admin.schedules.index', ['search' => '']))
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Reviewer/Schedule')
+            ->has('schedules.data', 2)
+        );
+});
+
+test('search with special characters does not break query', function () {
+    ReviewSchedule::factory()->create([
+        'proposal_id' => $this->assessmentA->id,
+        'reviewer_id' => $this->reviewerA->id,
+    ]);
+
+    actingAs($this->superAdmin)
+        ->get(route('admin.schedules.index', ['search' => '%_%_test%']))
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Reviewer/Schedule')
+            ->has('schedules.data', 0)
+        );
+});
+
+test('search with partial title match returns correct results', function () {
+    $this->assessmentA->journal->update(['title' => 'Very Specific Journal Title For Testing']);
+    ReviewSchedule::factory()->create([
+        'proposal_id' => $this->assessmentA->id,
+        'reviewer_id' => $this->reviewerA->id,
+    ]);
+
+    actingAs($this->superAdmin)
+        ->get(route('admin.schedules.index', ['search' => 'Specific Journal']))
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Reviewer/Schedule')
+            ->has('schedules.data', 1)
+        );
+});
+
+test('search with partial reviewer name match returns correct results', function () {
+    $this->reviewerA->update(['name' => 'Dr. John Anderson Smith']);
+    ReviewSchedule::factory()->create([
+        'proposal_id' => $this->assessmentA->id,
+        'reviewer_id' => $this->reviewerA->id,
+    ]);
+
+    actingAs($this->superAdmin)
+        ->get(route('admin.schedules.index', ['search' => 'Anderson']))
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Reviewer/Schedule')
+            ->has('schedules.data', 1)
+        );
+});
+
+// ─── PROPOSAL MODEL ───────────────────────────────────────
+
+test('proposal model resolves to journal_assessments table', function () {
+    $proposal = new \App\Models\Proposal();
+    expect($proposal->getTable())->toBe('journal_assessments');
+});
+
+test('review schedule proposal relationship returns Proposal instance', function () {
+    $schedule = ReviewSchedule::factory()->create([
+        'proposal_id' => $this->assessmentA->id,
+        'reviewer_id' => $this->reviewerA->id,
+    ]);
+
+    $schedule->load('proposal');
+    expect($schedule->proposal)->toBeInstanceOf(\App\Models\Proposal::class);
+    expect($schedule->proposal->id)->toBe($this->assessmentA->id);
 });

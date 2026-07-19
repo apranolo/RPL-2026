@@ -34,7 +34,7 @@ class ReviewSchedule extends Model
 
     public function proposal()
     {
-        return $this->belongsTo(JournalAssessment::class, 'proposal_id');
+        return $this->belongsTo(Proposal::class, 'proposal_id');
     }
 
     public function reviewer()

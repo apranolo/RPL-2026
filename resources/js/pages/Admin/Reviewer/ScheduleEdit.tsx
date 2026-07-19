@@ -23,7 +23,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Edit', href: '' },
 ];
 
-interface JournalAssessment {
+interface ProposalOption {
     id: number;
     journal: { id: number; title: string; issn: string };
     user: { id: number; name: string };
@@ -51,11 +51,11 @@ interface ReviewSchedule {
 
 interface Props {
     schedule: ReviewSchedule;
-    assessments: JournalAssessment[];
+    proposals: ProposalOption[];
     reviewers: User[];
 }
 
-export default function ScheduleEdit({ schedule, assessments, reviewers }: Props) {
+export default function ScheduleEdit({ schedule, proposals, reviewers }: Props) {
     const { data, setData, put, processing, errors } = useForm({
         proposal_id: String(schedule.proposal_id),
         reviewer_id: String(schedule.reviewer_id),
@@ -116,9 +116,9 @@ export default function ScheduleEdit({ schedule, assessments, reviewers }: Props
                                         <SelectValue placeholder="Select an assessment" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {assessments.map((assessment) => (
-                                            <SelectItem key={assessment.id} value={String(assessment.id)}>
-                                                {assessment.journal.title} - {assessment.user.name}
+                                        {proposals.map((proposal) => (
+                                            <SelectItem key={proposal.id} value={String(proposal.id)}>
+                                                {proposal.journal.title} - {proposal.user.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
