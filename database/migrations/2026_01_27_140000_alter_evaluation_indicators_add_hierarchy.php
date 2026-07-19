@@ -61,12 +61,10 @@ return new class extends Migration
      * Reverse the migrations.
      *
      * CRITICAL ROLLBACK PROCEDURE:
-     * 1. Drop foreign key constraint FIRST (prevent constraint violations)
+     * 1. Drop foreign key constraint FIRST
      * 2. Drop index
      * 3. Drop column
-     * 4. Revert column comments to v1.0 state
-     *
-     * After rollback, v1.0 code can still read category/sub_category string columns.
+     * 4. Revert column comments
      */
     public function down(): void
     {

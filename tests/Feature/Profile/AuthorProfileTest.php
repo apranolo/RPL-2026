@@ -21,7 +21,6 @@ class AuthorProfileTest extends TestCase
         $response->assertStatus(200);
     }
 
-
     public function test_user_can_update_author_profile(): void
     {
         $user = User::factory()->create();

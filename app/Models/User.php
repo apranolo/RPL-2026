@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -113,6 +116,15 @@ class User extends Authenticatable
     | Relationships
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Get all submissions created by this user (Author)
+     * Sesuai dengan spesifikasi relasi PRD Modul 2
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'author_id');
+    }
 
     /**
      * Get the role of this user (backwards compatibility - returns primary role)
@@ -233,9 +245,14 @@ class User extends Authenticatable
         return $this->hasMany(AssessmentAttachment::class, 'uploaded_by');
     }
 
-/**
-     * Get the author profile of this user
+    /**
+     * Get the citation statistics record of this user
      */
+    public function citation()
+    {
+        return $this->hasOne(Citation::class);
+    }
+
     public function authorProfile()
     {
         return $this->hasOne(AuthorProfile::class);

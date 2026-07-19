@@ -2,15 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\Journal;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserRole;
-use App\Models\Role;
-use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Tests\TestCase;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Tests\TestCase;
 
 class RoleMiddlewareTest extends TestCase
 {
@@ -18,10 +18,19 @@ class RoleMiddlewareTest extends TestCase
 
     private function createRouteResolver(array $parameters)
     {
-        return fn () => new class($parameters) {
+        return fn () => new class($parameters)
+        {
             private $parameters;
-            public function __construct($parameters) { $this->parameters = $parameters; }
-            public function parameter($name, $default = null) { return $this->parameters[$name] ?? $default; }
+
+            public function __construct($parameters)
+            {
+                $this->parameters = $parameters;
+            }
+
+            public function parameter($name, $default = null)
+            {
+                return $this->parameters[$name] ?? $default;
+            }
         };
     }
 
@@ -37,11 +46,11 @@ class RoleMiddlewareTest extends TestCase
             'status' => 'Active',
         ]);
 
-        $request = Request::create('/journals/' . $journal->id, 'GET');
+        $request = Request::create('/journals/'.$journal->id, 'GET');
         $request->setUserResolver(fn () => $user);
         $request->setRouteResolver($this->createRouteResolver(['journal' => $journal]));
 
-        $middleware = new RoleMiddleware();
+        $middleware = new RoleMiddleware;
         $response = $middleware->handle($request, function () {
             return response('Access Granted');
         }, 'Editor');
@@ -54,7 +63,7 @@ class RoleMiddlewareTest extends TestCase
         $request = Request::create('/journals/1', 'GET');
         $request->setUserResolver(fn () => null);
 
-        $middleware = new RoleMiddleware();
+        $middleware = new RoleMiddleware;
         $response = $middleware->handle($request, function () {
             return response('Access Granted');
         }, 'Editor');
@@ -70,7 +79,7 @@ class RoleMiddlewareTest extends TestCase
         $request = Request::create('/journals/1', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $middleware = new RoleMiddleware();
+        $middleware = new RoleMiddleware;
         $response = $middleware->handle($request, function () {
             return response('Access Granted');
         }, 'Editor');
@@ -92,10 +101,10 @@ class RoleMiddlewareTest extends TestCase
             'status' => 'Active',
         ]);
 
-        $middleware = new RoleMiddleware();
+        $middleware = new RoleMiddleware;
 
         // 1. journal as numeric route parameter
-        $req1 = Request::create('/journals/' . $journal->id, 'GET');
+        $req1 = Request::create('/journals/'.$journal->id, 'GET');
         $req1->setUserResolver(fn () => $user);
         $req1->setRouteResolver($this->createRouteResolver(['journal' => $journal->id]));
         $res1 = $middleware->handle($req1, fn () => response('Access Granted'), 'Editor');
@@ -150,7 +159,7 @@ class RoleMiddlewareTest extends TestCase
         $request = Request::create('/some-route', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $middleware = new RoleMiddleware();
+        $middleware = new RoleMiddleware;
         $response = $middleware->handle($request, function () {
             return response('Access Granted');
         }, 'Editor');
@@ -161,7 +170,7 @@ class RoleMiddlewareTest extends TestCase
     public function test_middleware_checks_has_role_when_no_journal_id()
     {
         $user = User::factory()->create(['is_active' => true]);
-        
+
         $role = Role::create([
             'name' => 'Editor',
             'display_name' => 'Editor',
@@ -177,7 +186,7 @@ class RoleMiddlewareTest extends TestCase
         $request = Request::create('/some-route', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $middleware = new RoleMiddleware();
+        $middleware = new RoleMiddleware;
         $response = $middleware->handle($request, function () {
             return response('Access Granted');
         }, 'Editor');
@@ -190,11 +199,11 @@ class RoleMiddlewareTest extends TestCase
         $user = User::factory()->create(['is_active' => true]);
         $journal = Journal::factory()->create();
 
-        $request = Request::create('/journals/' . $journal->id, 'GET');
+        $request = Request::create('/journals/'.$journal->id, 'GET');
         $request->setUserResolver(fn () => $user);
         $request->setRouteResolver($this->createRouteResolver(['journal' => $journal]));
 
-        $middleware = new RoleMiddleware();
+        $middleware = new RoleMiddleware;
 
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Unauthorized. You do not have the required role for this journal.');
@@ -212,7 +221,7 @@ class RoleMiddlewareTest extends TestCase
         $request = Request::create('/journals', 'POST', ['journal_id' => [1, 2]]);
         $request->setUserResolver(fn () => $user);
 
-        $middleware = new RoleMiddleware();
+        $middleware = new RoleMiddleware;
 
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Unauthorized. You do not have the required role for this journal.');
@@ -222,4 +231,3 @@ class RoleMiddlewareTest extends TestCase
         }, 'Editor');
     }
 }
-

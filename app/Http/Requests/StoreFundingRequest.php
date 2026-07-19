@@ -58,7 +58,7 @@ class StoreFundingRequest extends FormRequest
                 $sisa = $service->calculateSisa($contract);
                 $validator->errors()->add(
                     'percentage',
-                    'Akumulasi persentase seluruh termin tidak boleh melebihi 100%. Sisa persentase yang tersedia: ' . $sisa['sisa_persentase'] . '%'
+                    'Akumulasi persentase seluruh termin tidak boleh melebihi 100%. Sisa persentase yang tersedia: '.$sisa['sisa_persentase'].'%'
                 );
             }
         });

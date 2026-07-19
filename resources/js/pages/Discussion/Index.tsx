@@ -100,11 +100,7 @@ export default function DiscussionIndex({ threads, submissionId, submissionTitle
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get(
-            window.location.pathname,
-            { search: search || undefined },
-            { preserveState: true, preserveScroll: true },
-        );
+        router.get(window.location.pathname, { search: search || undefined }, { preserveState: true, preserveScroll: true });
     };
 
     return (
@@ -122,9 +118,7 @@ export default function DiscussionIndex({ threads, submissionId, submissionTitle
                                     Thread Diskusi
                                 </h1>
                                 <p className="mt-1 text-muted-foreground">
-                                    {submissionTitle
-                                        ? `Diskusi untuk: ${submissionTitle}`
-                                        : 'Daftar semua thread diskusi per submission'}
+                                    {submissionTitle ? `Diskusi untuk: ${submissionTitle}` : 'Daftar semua thread diskusi per submission'}
                                 </p>
                             </div>
                             {threads.total > 0 && (
@@ -139,7 +133,7 @@ export default function DiscussionIndex({ threads, submissionId, submissionTitle
                     <div className="mb-6">
                         <form onSubmit={handleSearch} className="flex gap-2">
                             <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     type="text"
                                     placeholder="Cari diskusi..."
@@ -161,9 +155,7 @@ export default function DiscussionIndex({ threads, submissionId, submissionTitle
                                 <CardContent className="flex flex-col items-center justify-center py-12">
                                     <MessageCircle className="mb-4 h-12 w-12 text-muted-foreground" />
                                     <h3 className="mb-2 text-lg font-semibold">Belum Ada Diskusi</h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        Belum ada thread diskusi untuk submission ini.
-                                    </p>
+                                    <p className="text-sm text-muted-foreground">Belum ada thread diskusi untuk submission ini.</p>
                                 </CardContent>
                             </Card>
                         ) : (
@@ -185,18 +177,11 @@ export default function DiscussionIndex({ threads, submissionId, submissionTitle
                                                 </CardTitle>
                                                 <CardDescription className="mt-1 flex items-center gap-2">
                                                     {thread.author_role && (
-                                                        <Badge
-                                                            variant={
-                                                                getRoleBadgeVariant(thread.author_role) as any
-                                                            }
-                                                            className="text-xs"
-                                                        >
+                                                        <Badge variant={getRoleBadgeVariant(thread.author_role) as any} className="text-xs">
                                                             {thread.author_role}
                                                         </Badge>
                                                     )}
-                                                    <span className="text-xs text-muted-foreground">
-                                                        {formatDate(thread.created_at)}
-                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">{formatDate(thread.created_at)}</span>
                                                 </CardDescription>
                                             </div>
                                         </div>
@@ -241,21 +226,13 @@ export default function DiscussionIndex({ threads, submissionId, submissionTitle
                             </div>
                             <div className="flex gap-2">
                                 {threads.prev_page_url && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => router.get(threads.prev_page_url!)}
-                                    >
+                                    <Button variant="outline" size="sm" onClick={() => router.get(threads.prev_page_url!)}>
                                         <ChevronLeft className="h-4 w-4" />
                                         Sebelumnya
                                     </Button>
                                 )}
                                 {threads.next_page_url && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => router.get(threads.next_page_url!)}
-                                    >
+                                    <Button variant="outline" size="sm" onClick={() => router.get(threads.next_page_url!)}>
                                         Selanjutnya
                                         <ChevronRight className="h-4 w-4" />
                                     </Button>
