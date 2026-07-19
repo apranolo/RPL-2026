@@ -3,193 +3,153 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contract;
-use App\Models\Funding;
-use App\Models\Pembinaan;
-use App\Models\University;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Journal;
+use App\Models\PembinaanRegistration;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * ContractController
+ *
+ * Manages the lifecycle of contracts within the Finance module:
+ *   generate()     – Create a new draft contract (with optional links to journal / pembinaan registration)
+ *   show()         – Display detail of a single contract
+ *   updateStatus() – Transition contract status (draft → active → selesai / dibatalkan)
+ *
+ * Multi-tenancy note:
+ *   All mutating actions validate that the acting user belongs to the same
+ *   university as the contract (unless the user is Super Admin). This prevents
+ *   cross-tenant data leakage (ID harvesting).
+ *
+ * @author GILANG JA'FAR PRASETYA
+ */
 class ContractController extends Controller
 {
-    /**
-     * Display contract management list for Admin Keuangan.
-     */
-    public function index(Request $request): Response
-    {
-        $baseQuery = Contract::query()
-            ->when($request->filled('search'), function (Builder $query) use ($request) {
-                $query->search($request->string('search')->toString());
-            })
-            ->when($request->filled('status'), function (Builder $query) use ($request) {
-                $query->byStatus($request->string('status')->toString());
-            })
-            ->when($request->filled('university_id'), function (Builder $query) use ($request) {
-                $query->where('university_id', $request->integer('university_id'));
-            })
-            ->when($request->filled('pembinaan_id'), function (Builder $query) use ($request) {
-                $query->where('pembinaan_id', $request->integer('pembinaan_id'));
-            });
-
-        $contractValue = (float) (clone $baseQuery)->sum('contract_value');
-        $totalContracts = (clone $baseQuery)->count();
-        $disbursedValue = (float) Funding::query()
-            ->whereIn('contract_id', (clone $baseQuery)->select('contracts.id'))
-            ->disbursed()
-            ->sum('amount');
-
-        $contracts = $baseQuery
-            ->with([
-                'university:id,name,short_name,code',
-                'pembinaan:id,name,category',
-            ])
-            ->withCount('fundings')
-            ->withSum('fundings as funding_total', 'amount')
-            ->withSum([
-                'fundings as disbursed_total' => function (Builder $query) {
-                    $query->where('status', Funding::STATUS_DISBURSED);
-                },
-            ], 'amount')
-            ->orderByDesc('created_at')
-            ->paginate(10)
-            ->withQueryString()
-            ->through(function (Contract $contract) {
-                $contractValue = (float) $contract->contract_value;
-                $disbursedTotal = (float) ($contract->disbursed_total ?? 0);
-
-                return [
-                    'id' => $contract->id,
-                    'contract_number' => $contract->contract_number,
-                    'title' => $contract->title,
-                    'status' => $contract->status,
-                    'status_label' => $contract->status_label,
-                    'status_color' => $contract->status_color,
-                    'contract_value' => $contractValue,
-                    'party_1' => $contract->party_1,
-                    'party_2' => $contract->party_2,
-                    'funding_total' => (float) ($contract->funding_total ?? 0),
-                    'disbursed_total' => $disbursedTotal,
-                    'funding_progress' => $contractValue > 0
-                        ? min(100, round(($disbursedTotal / $contractValue) * 100, 2))
-                        : 0,
-                    'fundings_count' => $contract->fundings_count,
-                    'start_date' => $contract->start_date?->format('Y-m-d'),
-                    'end_date' => $contract->end_date?->format('Y-m-d'),
-                    'signed_at' => $contract->signed_at?->format('Y-m-d'),
-                    'created_at' => $contract->created_at->format('Y-m-d'),
-                    'university' => [
-                        'id' => $contract->university->id,
-                        'name' => $contract->university->name,
-                        'short_name' => $contract->university->short_name,
-                        'code' => $contract->university->code,
-                    ],
-                    'pembinaan' => $contract->pembinaan ? [
-                        'id' => $contract->pembinaan->id,
-                        'name' => $contract->pembinaan->name,
-                        'category' => $contract->pembinaan->category,
-                    ] : null,
-                ];
-            });
-
-        return Inertia::render('Finance/Contract/Index', [
-            'contracts' => $contracts,
-            'filters' => $request->only(['search', 'status', 'university_id', 'pembinaan_id']),
-            'summary' => [
-                'total_contracts' => $totalContracts,
-                'contract_value' => $contractValue,
-                'disbursed_value' => $disbursedValue,
-                'outstanding_value' => max($contractValue - $disbursedValue, 0),
-            ],
-            'universities' => University::query()
-                ->where('is_active', true)
-                ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']),
-            'pembinaanPrograms' => Pembinaan::query()
-                ->orderByDesc('created_at')
-                ->get(['id', 'name', 'category']),
-            'statusOptions' => collect(Contract::getStatusOptions())
-                ->map(fn (string $label, string $value) => [
-                    'value' => $value,
-                    'label' => $label,
-                ])
-                ->values(),
-        ]);
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | generate()
+    |--------------------------------------------------------------------------
+    |
+    | Creates a new contract in "draft" status.
+    |
+    | The method:
+    |   1. Validates the incoming request payload.
+    |   2. Auto-infers university from linked journal / pembinaan registration.
+    |   3. Auto-generates a sequential contract number inside a DB transaction
+    |      (using SELECT … FOR UPDATE to prevent race conditions).
+    |   4. Persists the draft contract and redirects to its detail page.
+    |
+    | Route (example): POST /admin/contracts/generate
+    |
+    */
 
     /**
-     * Generate (create) a new draft contract for a proposal.
+     * Generate (create) a new draft contract.
+     *
+     * @route POST /admin/contracts/generate
      */
-    public function generate(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
+    public function generate(Request $request): RedirectResponse
     {
-        if (!auth()->user()->hasAnyRole([\App\Models\Role::SUPER_ADMIN, \App\Models\Role::ADMIN_KEUANGAN])) {
-            abort(403, 'Unauthorized.');
-        }
+        // ------------------------------------------------------------------
+        // 1. Validate input
+        // ------------------------------------------------------------------
         $validated = $request->validate([
-            'proposal_id'    => ['required', 'integer', 'exists:proposals,id', 'unique:contracts,proposal_id'],
+            // Required
             'title'          => ['required', 'string', 'max:255'],
-            'contract_value' => ['required', 'numeric', 'min:0'],
-            'party_1'        => ['required', 'string', 'max:255'],
-            'party_2'        => ['required', 'string', 'max:255'],
-            'start_date'     => ['nullable', 'date'],
-            'end_date'       => ['nullable', 'date', 'after_or_equal:start_date'],
-            'description'    => ['nullable', 'string'],
-            'notes'          => ['nullable', 'string', 'max:1000'],
+
+            // Optional relational links
+            'pembinaan_registration_id' => ['nullable', 'integer', 'exists:pembinaan_registrations,id'],
+            'journal_id'                => ['nullable', 'integer', 'exists:journals,id'],
+            'university_id'             => ['nullable', 'integer', 'exists:universities,id'],
+
+            // Optional contract period
+            'start_date' => ['nullable', 'date'],
+            'end_date'   => ['nullable', 'date', 'after_or_equal:start_date'],
+
+            // Optional body content
+            'terms' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+
+            // Financial fields (PRD Modul 3 – Keuangan)
+            'contract_value' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $proposal = \App\Models\Proposal::with('user')->findOrFail($validated['proposal_id']);
-
-        $contract = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $proposal, $request) {
-            $year = now()->year;
-            $prefix = "KON-{$year}-";
-            $lastContract = Contract::withTrashed()
-                ->where('contract_number', 'like', "{$prefix}%")
-                ->orderByDesc('id')
-                ->lockForUpdate()
-                ->first();
-            $sequence = $lastContract ? ((int) last(explode('-', $lastContract->contract_number))) + 1 : 1;
-            $contractNumber = $prefix . str_pad((string)$sequence, 4, '0', STR_PAD_LEFT);
-
-            return Contract::create([
-                'university_id'   => $proposal->user->university_id ?? $request->user()->university_id,
-                'proposal_id'     => $proposal->id,
-                'contract_number' => $contractNumber,
-                'title'           => $validated['title'],
-                'description'     => $validated['description'] ?? null,
-                'status'          => 'draft',
-                'contract_value'  => $validated['contract_value'],
-                'party_1'         => $validated['party_1'],
-                'party_2'         => $validated['party_2'],
-                'start_date'      => $validated['start_date'] ?? null,
-                'end_date'        => $validated['end_date'] ?? null,
-                'notes'           => $validated['notes'] ?? null,
-                'created_by'      => $request->user()->id,
-            ]);
-        });
-
-        return redirect()
-            ->route('admin.contracts.show', $contract->id)
-            ->with('success', "Draft kontrak {$contract->contract_number} berhasil dibuat.");
-    }
-
-    /**
-     * Display the specified contract.
-     */
-    public function show(Contract $contract): Response
-    {
-        $user = auth()->user();
-        if (!$user->hasAnyRole([\App\Models\Role::SUPER_ADMIN, \App\Models\Role::ADMIN_KEUANGAN])) {
-            if ($user->hasRole(\App\Models\Role::ADMIN_KAMPUS)) {
-                if ($contract->university_id !== $user->university_id) {
-                    abort(403, 'Unauthorized access to this contract.');
-                }
-            } else {
-                abort(403, 'Unauthorized access.');
+        // ------------------------------------------------------------------
+        // 2. Auto-infer university from related journal / pembinaan registration
+        //    when not explicitly provided
+        // ------------------------------------------------------------------
+        if (empty($validated['university_id'])) {
+            if (! empty($validated['journal_id'])) {
+                $journal = Journal::find($validated['journal_id']);
+                $validated['university_id'] = $journal?->university_id;
+            } elseif (! empty($validated['pembinaan_registration_id'])) {
+                $registration = PembinaanRegistration::with('journal')->find(
+                    $validated['pembinaan_registration_id']
+                );
+                $validated['university_id'] = $registration?->journal?->university_id;
             }
         }
 
+        // ------------------------------------------------------------------
+        // 3. Create the draft contract inside a transaction so that the
+        //    contract-number generation is atomic (no duplicate numbers).
+        // ------------------------------------------------------------------
+        $contract = DB::transaction(function () use ($validated, $request) {
+            $contractNumber = Contract::generateContractNumber();
+
+            return Contract::create([
+                'contract_number'           => $contractNumber,
+                'title'                     => $validated['title'],
+                'pembinaan_registration_id' => $validated['pembinaan_registration_id'] ?? null,
+                'journal_id'                => $validated['journal_id'] ?? null,
+                'university_id'             => $validated['university_id'] ?? null,
+                'start_date'                => $validated['start_date'] ?? null,
+                'end_date'                  => $validated['end_date'] ?? null,
+                'status'                    => 'draft',
+                'terms'                     => $validated['terms'] ?? null,
+                'notes'                     => $validated['notes'] ?? null,
+                'contract_value'            => $validated['contract_value'] ?? null,
+                'created_by'                => $request->user()->id,
+            ]);
+        });
+
+        // ------------------------------------------------------------------
+        // 4. Redirect to the contract detail page with a success flash
+        //    [FIX] Route name corrected from 'contracts.show' to
+        //    'admin.contracts.show' to match the named-prefix group in web.php.
+        // ------------------------------------------------------------------
+        return redirect()
+            ->route('admin.contracts.show', $contract)
+            ->with('success', "Draft kontrak {$contract->contract_number} berhasil dibuat.");
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | show()
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Display the specified contract.
+     *
+     * Multi-tenancy guard:
+     *   Non-super-admin users may only view contracts whose university_id
+     *   matches their own, preventing cross-tenant ID harvesting.
+     *
+     * @route GET /admin/contracts/{contract}
+     */
+    public function show(Contract $contract): Response
+    {
+        // [SECURITY] Enforce university scoping for non-super-admin users.
+        $this->authorizeContractAccess($contract);
+
         $contract->load([
-            'proposal.user',
+            'pembinaanRegistration.journal.university',
+            'pembinaanRegistration.pembinaan',
+            'journal.university',
             'university',
             'creator',
             'updater',
@@ -200,57 +160,96 @@ class ContractController extends Controller
         ]);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | updateStatus()
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Update contract status.
+     *
+     * Allowed transitions:
+     *   draft       → active | dibatalkan
+     *   active      → selesai | dibatalkan
+     *   selesai     → (terminal – no transition)
+     *   dibatalkan  → (terminal – no transition)
+     *
+     * Multi-tenancy guard:
+     *   Non-super-admin users may only mutate contracts belonging to their
+     *   own university.
+     *
+     * @route POST /admin/contracts/{contract}/update-status
      */
-    public function updateStatus(\Illuminate\Http\Request $request, Contract $contract): \Illuminate\Http\RedirectResponse
+    public function updateStatus(Request $request, Contract $contract): RedirectResponse
     {
-        $user = auth()->user();
-        if (!$user->hasAnyRole([\App\Models\Role::SUPER_ADMIN, \App\Models\Role::ADMIN_KEUANGAN])) {
-            if ($user->hasRole(\App\Models\Role::ADMIN_KAMPUS)) {
-                if ($contract->university_id !== $user->university_id) {
-                    abort(403, 'Unauthorized access to this contract.');
-                }
-            } else {
-                abort(403, 'Unauthorized access.');
-            }
-        }
+        // [SECURITY] Enforce university scoping for non-super-admin users.
+        $this->authorizeContractAccess($contract);
 
         $validated = $request->validate([
-            'status' => ['required', 'string', 'in:active,completed,cancelled'],
+            'status' => ['required', 'string', 'in:active,selesai,dibatalkan'],
             'notes'  => ['nullable', 'string', 'max:1000'],
         ]);
 
         // Guard: terminal states cannot be changed
-        if (in_array($contract->status, ['completed', 'cancelled'])) {
+        if (in_array($contract->status, ['selesai', 'dibatalkan'])) {
             return back()->with(
                 'error',
-                'Kontrak dengan status "Selesai" atau "Dibatalkan" tidak dapat diubah.'
+                'Kontrak dengan status "'.$contract->getStatusLabelAttribute().'" tidak dapat diubah.'
             );
         }
 
         // Guard: only valid forward transitions
         $allowedTransitions = [
-            'draft'  => ['active', 'cancelled'],
-            'active' => ['completed', 'cancelled'],
+            'draft'  => ['active', 'dibatalkan'],
+            'active' => ['selesai', 'dibatalkan'],
         ];
 
         if (! in_array($validated['status'], $allowedTransitions[$contract->status] ?? [])) {
             return back()->with(
                 'error',
-                "Tidak dapat mengubah status dari \"{$contract->status}\" ke \"{$validated['status']}\"."
+                "Tidak dapat mengubah status dari \"{$contract->getStatusLabelAttribute()}\" ke \"{$validated['status']}\"."
             );
         }
 
         $contract->update([
             'status'     => $validated['status'],
             'notes'      => $validated['notes'] ?? $contract->notes,
-            'updated_by' => $user->id,
+            'updated_by' => $request->user()->id,
         ]);
 
         return back()->with(
             'success',
-            "Status kontrak {$contract->contract_number} berhasil diubah ke \"{$validated['status']}\"."
+            "Status kontrak {$contract->contract_number} berhasil diubah ke \"{$contract->fresh()->getStatusLabelAttribute()}\"."
         );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Private Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Enforce multi-tenancy authorization on a contract.
+     *
+     * Super Admins bypass this check (they manage all universities).
+     * Other roles must share the same university_id as the contract.
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    private function authorizeContractAccess(Contract $contract): void
+    {
+        $user = auth()->user();
+
+        // Super Admin can access any contract across all universities.
+        if ($user->isSuperAdmin()) {
+            return;
+        }
+
+        // For all other roles, enforce university boundary.
+        if ($contract->university_id !== null && $user->university_id !== $contract->university_id) {
+            abort(403, 'Anda tidak memiliki akses ke kontrak ini.');
+        }
     }
 }

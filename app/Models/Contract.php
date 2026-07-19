@@ -2,24 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contract extends Model
 {
     use HasFactory, SoftDeletes;
-
-    public const STATUS_DRAFT = 'draft';
-
-    public const STATUS_ACTIVE = 'active';
-
-    public const STATUS_COMPLETED = 'completed';
-
-    public const STATUS_CANCELLED = 'cancelled';
 
     /**
      * The attributes that are mass assignable.
@@ -27,23 +16,20 @@ class Contract extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'university_id',
-        'pembinaan_id',
-        'proposal_id',
         'contract_number',
         'title',
-        'description',
-        'status',
-        'contract_value',
-        'party_1',
-        'party_2',
+        'pembinaan_registration_id',
+        'journal_id',
+        'university_id',
         'start_date',
         'end_date',
-        'signed_at',
-        'document_path',
+        'status',
+        'terms',
         'notes',
+        'contract_value',
         'created_by',
         'updated_by',
+        'deleted_by',
     ];
 
     /**
@@ -52,19 +38,12 @@ class Contract extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'contract_value' => 'decimal:2',
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'signed_at' => 'date',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
-    ];
-
-    protected $appends = [
-        'nomor_kontrak',
-        'total_pendanaan_disetujui',
-        'status_kontrak',
+        'start_date'     => 'date',
+        'end_date'       => 'date',
+        'contract_value' => 'integer',
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
+        'deleted_at'     => 'datetime',
     ];
 
     /*
@@ -73,37 +52,32 @@ class Contract extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function university(): BelongsTo
+    /** Pembinaan registration this contract is linked to. */
+    public function pembinaanRegistration()
+    {
+        return $this->belongsTo(PembinaanRegistration::class);
+    }
+
+    /** Journal this contract is linked to. */
+    public function journal()
+    {
+        return $this->belongsTo(Journal::class);
+    }
+
+    /** University this contract is linked to. */
+    public function university()
     {
         return $this->belongsTo(University::class);
     }
 
-    public function pembinaan(): BelongsTo
-    {
-        return $this->belongsTo(Pembinaan::class);
-    }
-
-    public function proposal(): BelongsTo
-    {
-        return $this->belongsTo(Proposal::class);
-    }
-
-    public function fundings(): HasMany
-    {
-        return $this->hasMany(Funding::class);
-    }
-
-    public function documents(): HasMany
-    {
-        return $this->hasMany(ContractDocument::class);
-    }
-
-    public function creator(): BelongsTo
+    /** User who created this contract. */
+    public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function updater(): BelongsTo
+    /** User who last updated this contract. */
+    public function updater()
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
@@ -114,69 +88,123 @@ class Contract extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function scopeSearch(Builder $query, ?string $search): Builder
+    /** Only draft contracts. */
+    public function scopeDraft($query)
     {
-        if (! $search) {
-            return $query;
-        }
+        return $query->where('status', 'draft');
+    }
 
-        return $query->where(function (Builder $q) use ($search) {
-            $q->where('contract_number', 'like', "%{$search}%")
-                ->orWhere('title', 'like', "%{$search}%")
-                ->orWhereHas('university', function (Builder $universityQuery) use ($search) {
-                    $universityQuery->where('name', 'like', "%{$search}%")
-                        ->orWhere('short_name', 'like', "%{$search}%");
-                });
-        });
+    /** Only active contracts. */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    /** Only completed contracts. */
+    public function scopeSelesai($query)
+    {
+        return $query->where('status', 'selesai');
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Accessors & Mutators
+    | Accessors & Helper Methods
     |--------------------------------------------------------------------------
     */
 
-    public function getNomorKontrakAttribute(): ?string
+    /** Human-readable status label (Indonesian). */
+    public function getStatusLabelAttribute(): string
     {
-        return $this->contract_number;
+        return match ($this->status) {
+            'draft'       => 'Draft',
+            'active'      => 'Aktif',
+            'selesai'     => 'Selesai',
+            'dibatalkan'  => 'Dibatalkan',
+            default       => $this->status,
+        };
     }
 
-    public function getTotalPendanaanDisetujuiAttribute(): ?string
+    /** Badge colour mapped to shadcn/ui variant names. */
+    public function getStatusColorAttribute(): string
     {
-        return $this->contract_value;
+        return match ($this->status) {
+            'draft'      => 'secondary',
+            'active'     => 'success',
+            'selesai'    => 'default',
+            'dibatalkan' => 'destructive',
+            default      => 'default',
+        };
     }
 
-    public function getStatusKontrakAttribute(): ?string
+    /** Whether the contract is still in draft state. */
+    public function isDraft(): bool
     {
-        return $this->status;
+        return $this->status === 'draft';
     }
+
+    /** Whether the contract is currently active. */
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auto-generated Contract Number
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * @return array<string, string>
+     * Generate a sequential contract number in the format KON-{YEAR}-{XXXX}.
+     * E.g. KON-2026-0001
      */
-    public static function getStatusOptions(): array
+    public static function generateContractNumber(): string
     {
-        return [
-            self::STATUS_DRAFT => 'Draft',
-            self::STATUS_ACTIVE => 'Aktif',
-            self::STATUS_COMPLETED => 'Selesai',
-            self::STATUS_CANCELLED => 'Dibatalkan',
-        ];
+        $year  = now()->year;
+        $prefix = "KON-{$year}-";
+
+        $lastContract = static::withTrashed()
+            ->where('contract_number', 'like', "{$prefix}%")
+            ->orderByDesc('id')
+            ->lockForUpdate()
+            ->first();
+
+        $sequence = 1;
+
+        if ($lastContract && $lastContract->contract_number) {
+            $parts    = explode('-', $lastContract->contract_number);
+            $sequence = ((int) end($parts)) + 1;
+        }
+
+        return $prefix . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
-    protected static function boot()
+    /*
+    |--------------------------------------------------------------------------
+    | Model Events
+    |--------------------------------------------------------------------------
+    */
+
+    protected static function boot(): void
     {
         parent::boot();
 
-        static::creating(function (Contract $contract) {
-            if (auth()->check() && ! $contract->created_by) {
-                $contract->created_by = auth()->id();
+        static::creating(function (Contract $model) {
+            if (auth()->check()) {
+                $model->created_by = auth()->id();
             }
         });
 
-        static::updating(function (Contract $contract) {
+        static::updating(function (Contract $model) {
             if (auth()->check()) {
-                $contract->updated_by = auth()->id();
+                $model->updated_by = auth()->id();
+            }
+        });
+
+        static::deleting(function (Contract $model) {
+            if (auth()->check() && ! $model->isForceDeleting()) {
+                $model->deleted_by = auth()->id();
+                $model->save();
             }
         });
     }

@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@import './leaderboard-theme.css';
+
 @plugin 'tailwindcss-animate';
 
 @source '../views';
@@ -67,12 +69,15 @@
         0% {
             transform: translate(0px, 0px) scale(1);
         }
+
         33% {
             transform: translate(30px, -50px) scale(1.1);
         }
+
         66% {
             transform: translate(-20px, 20px) scale(0.9);
         }
+
         100% {
             transform: translate(0px, 0px) scale(1);
         }
@@ -81,8 +86,10 @@
 
 :root {
     /* Palette: "The Progressive Aurora" */
-    --background: #f8fafc; /* Slate-50 */
-    --foreground: #0f172a; /* Slate-900 */
+    --background: #f8fafc;
+    /* Slate-50 */
+    --foreground: #0f172a;
+    /* Slate-900 */
 
     --card: #ffffff;
     --card-foreground: #0f172a;
@@ -98,8 +105,10 @@
     --secondary: #04a64b;
     --secondary-foreground: #ffffff;
 
-    --muted: #f1f5f9; /* Slate-100 */
-    --muted-foreground: #64748b; /* Slate-500 */
+    --muted: #f1f5f9;
+    /* Slate-100 */
+    --muted-foreground: #64748b;
+    /* Slate-500 */
 
     /* Sang Surya Gold */
     --accent: #fcee1f;
@@ -112,7 +121,8 @@
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
 
-    --border: #e2e8f0; /* Slate-200 */
+    --border: #e2e8f0;
+    /* Slate-200 */
     --input: #e2e8f0;
     --ring: #00853c;
 
@@ -129,7 +139,8 @@
     --sidebar-foreground: #0f172a;
     --sidebar-primary: #00853c;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #f0fdf4; /* Very light green */
+    --sidebar-accent: #f0fdf4;
+    /* Very light green */
     --sidebar-accent-foreground: #00853c;
     --sidebar-border: #e2e8f0;
     --sidebar-ring: #00853c;

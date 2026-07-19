@@ -20,7 +20,7 @@ beforeEach(function () {
 });
 
 test('review can be created and has expected fillable attributes', function () {
-    $fillable = (new Review())->getFillable();
+    $fillable = (new Review)->getFillable();
 
     expect($fillable)->toContain('proposal_id')
         ->and($fillable)->toContain('reviewer_id')
