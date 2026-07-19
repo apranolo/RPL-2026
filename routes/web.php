@@ -323,6 +323,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
 
+        // Monev Report
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportController::class, 'index'])
+            ->name('monev.rekap-keseluruhan');
+        Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
+            ->name('monev.decide-action');
+
         // Rekap Hasil Penilaian (Summary)
         Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
             ->name('reviews.summary');
@@ -517,6 +523,13 @@ Route::middleware(['auth'])->group(function () {
                 'update' => 'events.update',
                 'destroy' => 'events.destroy',
             ]);
+
+        // Monev Report
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportController::class, 'index'])
+            ->name('monev.rekap-keseluruhan');
+        Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
+            ->name('monev.decide-action');
+
     });
 
     /*
