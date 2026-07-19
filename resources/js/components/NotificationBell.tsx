@@ -1,22 +1,15 @@
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { type SharedData } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import { AlertCircle, Bell, CheckCircle2, CheckCheck, Info, XCircle } from 'lucide-react';
+import { AlertCircle, Bell, CheckCheck, CheckCircle2, Info, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function NotificationBell() {
     const { auth } = usePage<SharedData>().props;
-    
+
     // Fallback to empty if not defined
     const notifications = auth.notifications || [];
     const unreadCount = auth.unread_notifications_count || 0;
@@ -34,7 +27,7 @@ export default function NotificationBell() {
                 onError: () => {
                     toast.error('Gagal menandai notifikasi');
                 },
-            }
+            },
         );
     };
 
@@ -51,7 +44,7 @@ export default function NotificationBell() {
                 onError: () => {
                     toast.error('Gagal menandai semua notifikasi');
                 },
-            }
+            },
         );
     };
 
@@ -67,7 +60,7 @@ export default function NotificationBell() {
                         router.visit(actionUrl);
                     }
                 },
-            }
+            },
         );
     };
 
@@ -85,26 +78,26 @@ export default function NotificationBell() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative group h-9 w-9 cursor-pointer">
-                    <Bell className="!size-5 opacity-80 group-hover:opacity-100 transition-opacity" />
+                <Button variant="ghost" size="icon" className="group relative h-9 w-9 cursor-pointer">
+                    <Bell className="!size-5 opacity-80 transition-opacity group-hover:opacity-100" />
                     {unreadCount > 0 && (
                         <>
                             <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
                             </span>
                             <span className="sr-only">{unreadCount} unread notifications</span>
                         </>
                     )}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80 sm:w-96 rounded-lg p-0" align="end">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-sidebar-border/50 dark:border-sidebar-border">
-                    <span className="font-semibold text-sm">Notifikasi</span>
+            <DropdownMenuContent className="w-80 rounded-lg p-0 sm:w-96" align="end">
+                <div className="flex items-center justify-between border-b border-sidebar-border/50 px-4 py-3 dark:border-sidebar-border">
+                    <span className="text-sm font-semibold">Notifikasi</span>
                     {unreadCount > 0 && (
                         <button
                             onClick={handleMarkAllAsRead}
-                            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer transition-colors"
+                            className="flex cursor-pointer items-center gap-1 text-xs font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                         >
                             <CheckCheck className="h-3.5 w-3.5" />
                             Tandai semua dibaca
@@ -112,7 +105,7 @@ export default function NotificationBell() {
                     )}
                 </div>
 
-                <div className="max-h-80 overflow-y-auto divide-y divide-sidebar-border/50 dark:divide-sidebar-border">
+                <div className="max-h-80 divide-y divide-sidebar-border/50 overflow-y-auto dark:divide-sidebar-border">
                     {notifications.length > 0 ? (
                         notifications.map((notif) => {
                             const isRead = !!notif.read_at;
@@ -125,53 +118,49 @@ export default function NotificationBell() {
                                 <div
                                     key={notif.id}
                                     onClick={() => handleNotificationClick(notif.id, notif.data?.action_url)}
-                                    className={`flex gap-3 px-4 py-3 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors ${
+                                    className={`flex cursor-pointer gap-3 px-4 py-3 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
                                         !isRead ? 'bg-blue-50/30 dark:bg-blue-900/5' : ''
                                     }`}
                                 >
-                                    <div className="flex-shrink-0 mt-0.5">
-                                        <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                            isRead ? 'bg-gray-100 dark:bg-gray-800' : 'bg-blue-50 dark:bg-blue-950/30'
-                                        }`}>
+                                    <div className="mt-0.5 flex-shrink-0">
+                                        <div
+                                            className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                                                isRead ? 'bg-gray-100 dark:bg-gray-800' : 'bg-blue-50 dark:bg-blue-950/30'
+                                            }`}
+                                        >
                                             {getNotificationIcon(notif.type)}
                                         </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-start gap-1">
-                                            <p className={`text-sm truncate ${!isRead ? 'font-semibold' : 'text-neutral-700 dark:text-neutral-300'}`}>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-start justify-between gap-1">
+                                            <p className={`truncate text-sm ${!isRead ? 'font-semibold' : 'text-neutral-700 dark:text-neutral-300'}`}>
                                                 {notif.data?.title || 'Informasi'}
                                             </p>
                                             {!isRead && (
                                                 <button
                                                     onClick={(e) => handleMarkAsRead(notif.id, e)}
-                                                    className="text-xs text-muted-foreground hover:text-neutral-900 dark:hover:text-neutral-100 p-0.5 rounded cursor-pointer transition-colors"
+                                                    className="cursor-pointer rounded p-0.5 text-xs text-muted-foreground transition-colors hover:text-neutral-900 dark:hover:text-neutral-100"
                                                     title="Tandai dibaca"
                                                 >
                                                     <CheckCheck className="h-3.5 w-3.5" />
                                                 </button>
                                             )}
                                         </div>
-                                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                                            {notif.data?.message || ''}
-                                        </p>
-                                        <span className="text-[10px] text-muted-foreground mt-1 block">
-                                            {timeAgo}
-                                        </span>
+                                        <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{notif.data?.message || ''}</p>
+                                        <span className="mt-1 block text-[10px] text-muted-foreground">{timeAgo}</span>
                                     </div>
                                 </div>
                             );
                         })
                     ) : (
-                        <div className="py-8 text-center text-muted-foreground text-xs">
-                            Tidak ada notifikasi baru
-                        </div>
+                        <div className="py-8 text-center text-xs text-muted-foreground">Tidak ada notifikasi baru</div>
                     )}
                 </div>
 
-                <div className="px-4 py-2.5 border-t border-sidebar-border/50 dark:border-sidebar-border text-center bg-neutral-50 dark:bg-neutral-900/20">
+                <div className="border-t border-sidebar-border/50 bg-neutral-50 px-4 py-2.5 text-center dark:border-sidebar-border dark:bg-neutral-900/20">
                     <Link
                         href="/user/profil?tab=notifications"
-                        className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium block w-full transition-colors"
+                        className="block w-full text-xs font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                         Lihat Semua Notifikasi
                     </Link>

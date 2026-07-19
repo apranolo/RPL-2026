@@ -1,10 +1,10 @@
-import { Head, useForm } from '@inertiajs/react';
-import { type BreadcrumbItem, type PageProps } from '@/types';
-import AppLayout from '@/layouts/app-layout';
+import InputError from '@/components/input-error';
+import RevisionNotePanel from '@/components/RevisionNotePanel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import InputError from '@/components/input-error';
-import RevisionNotePanel from '@/components/RevisionNotePanel'; 
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem, type PageProps } from '@/types';
+import { Head, useForm } from '@inertiajs/react';
 // import DocumentVersionList from '@/components/DocumentVersionList'; // Komponen milik M. Aulia Luthfi
 import { CalendarClock, History, Info, Send, UploadCloud } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
@@ -136,13 +136,11 @@ export default function AuthorRevision({ submission, currentRound, fileHistory }
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Perbaikan Naskah (Revisi)" />
 
-            <div className="flex w-full max-w-7xl mx-auto flex-col gap-6 p-4 md:p-8">
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-8">
                 {/* 1. Header Halaman */}
                 <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                            Perbaikan Naskah (Revisi)
-                        </h1>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Perbaikan Naskah (Revisi)</h1>
                         <p className="mt-1 text-sm text-muted-foreground">
                             Ronde Ke-{currentRound.round_number}
                             {submission.title ? ` · ${submission.title}` : ''}
@@ -184,17 +182,11 @@ export default function AuthorRevision({ submission, currentRound, fileHistory }
                                     >
                                         <UploadCloud className="h-8 w-8 text-muted-foreground" />
                                         {data.file ? (
-                                            <span className="text-sm font-medium text-foreground">
-                                                {data.file.name}
-                                            </span>
+                                            <span className="text-sm font-medium text-foreground">{data.file.name}</span>
                                         ) : (
                                             <>
-                                                <span className="text-sm font-medium text-foreground">
-                                                    Klik untuk memilih berkas
-                                                </span>
-                                                <span className="text-xs text-muted-foreground">
-                                                    Format PDF atau DOCX · Maks {MAX_FILE_MB}MB
-                                                </span>
+                                                <span className="text-sm font-medium text-foreground">Klik untuk memilih berkas</span>
+                                                <span className="text-xs text-muted-foreground">Format PDF atau DOCX · Maks {MAX_FILE_MB}MB</span>
                                             </>
                                         )}
                                         <input
@@ -217,9 +209,7 @@ export default function AuthorRevision({ submission, currentRound, fileHistory }
                             ) : (
                                 <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
                                     <Info className="h-8 w-8 text-muted-foreground" />
-                                    <p className="text-sm text-muted-foreground">
-                                        {CLOSED_MESSAGE[currentRound.status]}
-                                    </p>
+                                    <p className="text-sm text-muted-foreground">{CLOSED_MESSAGE[currentRound.status]}</p>
                                 </div>
                             )}
                         </CardContent>

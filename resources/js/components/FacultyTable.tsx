@@ -124,7 +124,7 @@ export default function FacultyTable({ data }: FacultyTableProps) {
                             placeholder="Cari fakultas..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full rounded-lg border border-input bg-background py-2 pr-4 pl-9 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
+                            className="w-full rounded-lg border border-input bg-background py-2 pr-4 pl-9 text-sm transition-colors outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
                         />
                     </div>
                 </div>

@@ -52,9 +52,7 @@ export default function ReviewSummary({ proposal, assignments }: Props) {
     const completedAssignments = assignments.filter((a) => a.status === 'completed');
     const scoredAssignments = completedAssignments.filter((a) => a.score !== null);
     const averageScore =
-        scoredAssignments.length > 0
-            ? Math.round(scoredAssignments.reduce((sum, a) => sum + (a.score ?? 0), 0) / scoredAssignments.length)
-            : null;
+        scoredAssignments.length > 0 ? Math.round(scoredAssignments.reduce((sum, a) => sum + (a.score ?? 0), 0) / scoredAssignments.length) : null;
 
     const recommendationCounts = assignments.reduce<Record<string, number>>((acc, a) => {
         if (a.recommendation) {
@@ -71,14 +69,20 @@ export default function ReviewSummary({ proposal, assignments }: Props) {
         rejected: 'Ditolak',
     };
 
-    const scoreColor = averageScore === null ? 'text-muted-foreground' : averageScore >= 80 ? 'text-green-600' : averageScore >= 60 ? 'text-yellow-600' : 'text-red-600';
+    const scoreColor =
+        averageScore === null
+            ? 'text-muted-foreground'
+            : averageScore >= 80
+              ? 'text-green-600'
+              : averageScore >= 60
+                ? 'text-yellow-600'
+                : 'text-red-600';
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Rekap Review - ${proposal.judul}`} />
 
             <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-
                 {/* Header Proposal */}
                 <div className="rounded-xl border bg-card p-6 shadow-sm">
                     <div className="flex items-start gap-4">
@@ -87,14 +91,12 @@ export default function ReviewSummary({ proposal, assignments }: Props) {
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="mb-1 flex flex-wrap items-center gap-2">
-                                <h1 className="text-xl font-bold leading-tight">{proposal.judul}</h1>
+                                <h1 className="text-xl leading-tight font-bold">{proposal.judul}</h1>
                                 <Badge variant="outline" className="text-xs">
                                     ID #{proposal.id}
                                 </Badge>
                             </div>
-                            {proposal.deskripsi && (
-                                <p className="mt-1 text-sm text-muted-foreground line-clamp-3">{proposal.deskripsi}</p>
-                            )}
+                            {proposal.deskripsi && <p className="mt-1 line-clamp-3 text-sm text-muted-foreground">{proposal.deskripsi}</p>}
                         </div>
                     </div>
                 </div>
@@ -108,7 +110,7 @@ export default function ReviewSummary({ proposal, assignments }: Props) {
                         </CardHeader>
                         <CardContent>
                             <div className="text-3xl font-bold">{assignments.length}</div>
-                            <p className="text-xs text-muted-foreground mt-1">reviewer ditugaskan</p>
+                            <p className="mt-1 text-xs text-muted-foreground">reviewer ditugaskan</p>
                         </CardContent>
                     </Card>
 
@@ -119,7 +121,7 @@ export default function ReviewSummary({ proposal, assignments }: Props) {
                         </CardHeader>
                         <CardContent>
                             <div className="text-3xl font-bold text-green-600">{completedAssignments.length}</div>
-                            <p className="text-xs text-muted-foreground mt-1">dari {assignments.length} reviewer</p>
+                            <p className="mt-1 text-xs text-muted-foreground">dari {assignments.length} reviewer</p>
                         </CardContent>
                     </Card>
 
@@ -129,10 +131,8 @@ export default function ReviewSummary({ proposal, assignments }: Props) {
                             <BarChart2 className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className={`text-3xl font-bold ${scoreColor}`}>
-                                {averageScore !== null ? averageScore : '—'}
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <div className={`text-3xl font-bold ${scoreColor}`}>{averageScore !== null ? averageScore : '—'}</div>
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 {scoredAssignments.length > 0 ? `dari ${scoredAssignments.length} reviewer yang menilai` : 'belum ada penilaian'}
                             </p>
                         </CardContent>
@@ -145,11 +145,9 @@ export default function ReviewSummary({ proposal, assignments }: Props) {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {dominantRecommendation
-                                    ? recommendationLabels[dominantRecommendation] ?? dominantRecommendation
-                                    : '—'}
+                                {dominantRecommendation ? (recommendationLabels[dominantRecommendation] ?? dominantRecommendation) : '—'}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 {dominantRecommendation
                                     ? `${recommendationCounts[dominantRecommendation]} dari ${completedAssignments.length} reviewer`
                                     : 'belum ada rekomendasi'}

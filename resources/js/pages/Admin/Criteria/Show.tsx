@@ -25,8 +25,8 @@ interface Criterion {
             template?: {
                 id: number;
                 name: string;
-            }
-        }
+            };
+        };
     };
     created_at?: string;
     updated_at?: string;
@@ -56,78 +56,95 @@ export default function CriteriaShow({ criterion }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Detail Kriteria - ${criterion.code}`} />
 
-            <div className="max-w-4xl mx-auto space-y-6 p-4 md:p-6">
+            <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
                 {/* Header Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-foreground">Detail Kriteria</h1>
-                        <p className="text-muted-foreground mt-1">Detail parameter kriteria penilaian rubrik proposal.</p>
+                        <p className="mt-1 text-muted-foreground">Detail parameter kriteria penilaian rubrik proposal.</p>
                     </div>
                     <div className="flex gap-3">
                         <Link href="/admin/criteria">
                             <Button variant="outline" size="sm">
-                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Kembali
                             </Button>
                         </Link>
                         <Link href={`/admin/criteria/${criterion.id}/edit`}>
                             <Button size="sm">
-                                <Edit className="w-4 h-4 mr-2" />
+                                <Edit className="mr-2 h-4 w-4" />
                                 Edit Kriteria
                             </Button>
                         </Link>
                     </div>
                 </div>
 
-                <Card className="border-border bg-card/60 backdrop-blur-sm shadow-md">
+                <Card className="border-border bg-card/60 shadow-md backdrop-blur-sm">
                     <CardHeader className="border-b border-border bg-muted/20 pb-4">
-                        <div className="flex justify-between items-start gap-4">
+                        <div className="flex items-start justify-between gap-4">
                             <div>
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary mb-2">
+                                <span className="mb-2 inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                                     {criterion.code}
                                 </span>
                                 <CardTitle className="text-xl">{criterion.question}</CardTitle>
                                 {criterion.description && (
-                                    <CardDescription className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">
+                                    <CardDescription className="mt-2 text-sm whitespace-pre-wrap text-muted-foreground">
                                         {criterion.description}
                                     </CardDescription>
                                 )}
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="pt-6 space-y-6">
+                    <CardContent className="space-y-6 pt-6">
                         {/* Detail Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div className="space-y-4">
                                 <div>
-                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bobot Nilai</h4>
-                                    <p className="text-lg font-bold text-foreground mt-1">{criterion.weight}%</p>
+                                    <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Bobot Nilai</h4>
+                                    <p className="mt-1 text-lg font-bold text-foreground">{criterion.weight}%</p>
                                 </div>
                                 <div>
-                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tipe Jawaban</h4>
-                                    <p className="text-foreground mt-1 capitalize">{criterion.answer_type_label}</p>
+                                    <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Tipe Jawaban</h4>
+                                    <p className="mt-1 text-foreground capitalize">{criterion.answer_type_label}</p>
                                 </div>
                                 <div>
-                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Wajib Lampiran Dokumen</h4>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <Paperclip className={`w-4 h-4 ${criterion.requires_attachment ? 'text-primary' : 'text-muted-foreground'}`} />
-                                        <p className="text-foreground">{criterion.requires_attachment ? 'Ya, wajib mengunggah bukti lampiran' : 'Tidak wajib'}</p>
+                                    <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Wajib Lampiran Dokumen</h4>
+                                    <div className="mt-1 flex items-center gap-2">
+                                        <Paperclip
+                                            className={`h-4 w-4 ${criterion.requires_attachment ? 'text-primary' : 'text-muted-foreground'}`}
+                                        />
+                                        <p className="text-foreground">
+                                            {criterion.requires_attachment ? 'Ya, wajib mengunggah bukti lampiran' : 'Tidak wajib'}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="space-y-4">
                                 <div>
-                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Hierarki Kriteria</h4>
-                                    <div className="mt-1 text-sm space-y-1">
+                                    <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Hierarki Kriteria</h4>
+                                    <div className="mt-1 space-y-1 text-sm">
                                         {criterion.sub_category ? (
                                             <>
-                                                <p className="text-foreground font-medium">Sub-Kategori: <span className="font-normal text-muted-foreground">{criterion.sub_category.name}</span></p>
+                                                <p className="font-medium text-foreground">
+                                                    Sub-Kategori:{' '}
+                                                    <span className="font-normal text-muted-foreground">{criterion.sub_category.name}</span>
+                                                </p>
                                                 {criterion.sub_category.category && (
-                                                    <p className="text-foreground font-medium">Kategori: <span className="font-normal text-muted-foreground">{criterion.sub_category.category.name}</span></p>
+                                                    <p className="font-medium text-foreground">
+                                                        Kategori:{' '}
+                                                        <span className="font-normal text-muted-foreground">
+                                                            {criterion.sub_category.category.name}
+                                                        </span>
+                                                    </p>
                                                 )}
                                                 {criterion.sub_category.category?.template && (
-                                                    <p className="text-foreground font-medium">Template Rubrik: <span className="font-normal text-muted-foreground">{criterion.sub_category.category.template.name}</span></p>
+                                                    <p className="font-medium text-foreground">
+                                                        Template Rubrik:{' '}
+                                                        <span className="font-normal text-muted-foreground">
+                                                            {criterion.sub_category.category.template.name}
+                                                        </span>
+                                                    </p>
                                                 )}
                                             </>
                                         ) : (
@@ -136,15 +153,17 @@ export default function CriteriaShow({ criterion }: Props) {
                                     </div>
                                 </div>
                                 <div>
-                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status Keaktifan</h4>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className={`w-2 h-2 rounded-full ${criterion.is_active ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-                                        <p className="text-foreground font-medium">{criterion.is_active ? 'Aktif' : 'Non-aktif'}</p>
+                                    <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Status Keaktifan</h4>
+                                    <div className="mt-1 flex items-center gap-2">
+                                        <span
+                                            className={`h-2 w-2 rounded-full ${criterion.is_active ? 'animate-pulse bg-green-500' : 'bg-gray-400'}`}
+                                        />
+                                        <p className="font-medium text-foreground">{criterion.is_active ? 'Aktif' : 'Non-aktif'}</p>
                                     </div>
                                 </div>
                                 <div>
-                                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Urutan</h4>
-                                    <p className="text-foreground mt-1 font-mono">{criterion.sort_order ?? 0}</p>
+                                    <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Urutan</h4>
+                                    <p className="mt-1 font-mono text-foreground">{criterion.sort_order ?? 0}</p>
                                 </div>
                             </div>
                         </div>

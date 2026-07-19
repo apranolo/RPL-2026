@@ -1,7 +1,7 @@
+import PublishChecklist from '@/components/Production/PublishChecklist';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import PublishChecklist from '@/components/Production/PublishChecklist';
 
 interface Article {
     id: number;
@@ -43,13 +43,7 @@ export default function Preview({ issue, articles }: Props) {
                     </CardHeader>
 
                     <CardContent>
-                        {issue.cover_image_url && (
-                            <img
-                                src={issue.cover_image_url}
-                                alt="Cover Issue"
-                                className="mb-4 w-48 rounded"
-                            />
-                        )}
+                        {issue.cover_image_url && <img src={issue.cover_image_url} alt="Cover Issue" className="mb-4 w-48 rounded" />}
 
                         <h2 className="text-2xl font-bold">
                             Volume {issue.volume} No. {issue.number}
@@ -57,9 +51,7 @@ export default function Preview({ issue, articles }: Props) {
 
                         <p>{issue.title}</p>
 
-                        <p className="text-gray-500">
-                            {issue.publication_date}
-                        </p>
+                        <p className="text-gray-500">{issue.publication_date}</p>
                     </CardContent>
                 </Card>
 
@@ -70,36 +62,19 @@ export default function Preview({ issue, articles }: Props) {
 
                     <CardContent>
                         {articles.length === 0 ? (
-                            <p className="text-gray-500">
-                                Belum ada artikel pada issue ini.
-                            </p>
+                            <p className="text-gray-500">Belum ada artikel pada issue ini.</p>
                         ) : (
                             articles.map((article) => (
-                                <div
-                                    key={article.id}
-                                    className="border-b py-4 last:border-b-0"
-                                >
-                                    <h3 className="font-semibold">
-                                        {article.title}
-                                    </h3>
+                                <div key={article.id} className="border-b py-4 last:border-b-0">
+                                    <h3 className="font-semibold">{article.title}</h3>
 
                                     <p className="text-sm text-gray-600">
-                                        {Array.isArray(article.authors)
-                                            ? article.authors.join(', ')
-                                            : article.authors}
+                                        {Array.isArray(article.authors) ? article.authors.join(', ') : article.authors}
                                     </p>
 
-                                    {article.pages && (
-                                        <p className="text-sm">
-                                            Halaman: {article.pages}
-                                        </p>
-                                    )}
+                                    {article.pages && <p className="text-sm">Halaman: {article.pages}</p>}
 
-                                    {article.doi && (
-                                        <p className="text-sm">
-                                            DOI: {article.doi}
-                                        </p>
-                                    )}
+                                    {article.doi && <p className="text-sm">DOI: {article.doi}</p>}
 
                                     {article.article_url && (
                                         <a
@@ -118,11 +93,7 @@ export default function Preview({ issue, articles }: Props) {
                 </Card>
 
                 <div className="flex justify-end">
-                    <PublishChecklist
-                        journalId={issue.journal_id}
-                        volume={issue.volume}
-                        issue={issue.number}
-                    />
+                    <PublishChecklist journalId={issue.journal_id} volume={issue.volume} issue={issue.number} />
                 </div>
             </div>
         </AppLayout>

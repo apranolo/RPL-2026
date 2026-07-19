@@ -1,22 +1,21 @@
 /**
-
- - @file TopResearchList.tsx
- - @description Menampilkan leaderboard 5 penelitian teraktif berdasarkan
- - jumlah luaran (research outputs). Mengambil data dari
- - `GET /api/top-research` jika prop `data` tidak diberikan, atau menampilkan
- - `data` yang dikirim langsung oleh parent component.
- 
- - Palet warna latar (surface) diambil dari CSS custom properties yang
- - didefinisikan di `resources/css/leaderboard-theme.css`, bukan hex hardcoded,
- - agar konsisten dengan TopLecturerList.tsx dan mudah diubah di satu tempat.
+ * @file TopResearchList.tsx
+ * @description Menampilkan leaderboard 5 penelitian teraktif berdasarkan
+ * jumlah luaran (research outputs). Mengambil data dari
+ * `GET /api/top-research` jika prop `data` tidak diberikan, atau menampilkan
+ * `data` yang dikirim langsung oleh parent component.
+ * Palet warna latar (surface) diambil dari CSS custom properties yang
+ * didefinisikan di `resources/css/leaderboard-theme.css`, bukan hex hardcoded,
+ * agar konsisten dengan TopLecturerList.tsx dan mudah diubah di satu tempat.
  */
 
-import { useEffect, useState } from 'react';
 import { BookOpen, Flame } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Research {
     id: number;
-    judul: string;
+    judul?: string;
+    title?: string;
     citations: number;
 }
 
@@ -36,11 +35,15 @@ export default function TopResearchList({ data }: Props) {
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        if (data !== undefined) return;
+        if (data !== undefined) {
+            setResearchList(data);
+            setLoading(false);
+            return;
+        }
 
         setLoading(true);
         fetch('/api/top-research')
-            .then(res => {
+            .then((res) => {
                 if (!res.ok) throw new Error('Network error');
                 return res.json();
             })
@@ -55,36 +58,35 @@ export default function TopResearchList({ data }: Props) {
     }, [data]);
 
     return (
-        <div className="flex flex-col h-full rounded-2xl border border-white/10 bg-[var(--color-surface-base)] shadow-lg overflow-hidden">
-
+        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-surface-base)] shadow-lg">
             {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10 bg-gradient-to-r from-[var(--color-surface-header-research)] to-[var(--color-surface-base)]">
-                <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-green-500/20 text-green-400">
+            <div className="flex items-center gap-3 border-b border-white/10 bg-gradient-to-r from-[var(--color-surface-header-research)] to-[var(--color-surface-base)] px-5 py-4">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/20 text-green-400">
                     <BookOpen size={18} strokeWidth={2.2} />
                 </span>
                 <div>
-                    <p className="text-xs font-semibold text-green-400 uppercase tracking-widest">Leaderboard</p>
+                    <p className="text-xs font-semibold tracking-widest text-green-400 uppercase">Leaderboard</p>
                     <h3 className="text-sm font-bold text-white">Top 5 Penelitian Teraktif</h3>
                 </div>
             </div>
 
             {/* Body */}
             <div className="flex-1 divide-y divide-white/5">
-
                 {/* Skeleton Loading */}
-                {loading && [1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className="flex items-start gap-3 px-5 py-4 animate-pulse">
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 space-y-2 pt-1">
-                            <div className="h-3 bg-white/10 rounded w-4/5" />
-                            <div className="h-2.5 bg-white/5 rounded w-2/5" />
+                {loading &&
+                    [1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="flex animate-pulse items-start gap-3 px-5 py-4">
+                            <div className="mt-0.5 h-8 w-8 flex-shrink-0 rounded-full bg-white/10" />
+                            <div className="flex-1 space-y-2 pt-1">
+                                <div className="h-3 w-4/5 rounded bg-white/10" />
+                                <div className="h-2.5 w-2/5 rounded bg-white/5" />
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
 
                 {/* Error State */}
                 {error && (
-                    <div className="flex flex-col items-center justify-center h-full py-10 text-white/30">
+                    <div className="flex h-full flex-col items-center justify-center py-10 text-white/30">
                         <BookOpen size={32} className="mb-2 opacity-40" />
                         <p className="text-sm">Gagal memuat data.</p>
                     </div>
@@ -92,104 +94,48 @@ export default function TopResearchList({ data }: Props) {
 
                 {/* Empty State */}
                 {!loading && !error && researchList.length === 0 && (
-                    <div className="flex flex-col items-center justify-center h-full py-10 text-white/30">
+                    <div className="flex h-full flex-col items-center justify-center py-10 text-white/30">
                         <BookOpen size={32} className="mb-2 opacity-40" />
                         <p className="text-sm">Belum ada penelitian aktif.</p>
                     </div>
                 )}
 
                 {/* Data List */}
-                {!loading && !error && researchList.map((research, index) => (
-                    <div
-                        key={research.id}
-                        className="flex items-start gap-3 px-5 py-4 hover:bg-green-500/10 transition-colors duration-150"
-                    >
-                        {/* Rank Badge */}
-                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-sm mt-0.5 ${MEDAL_STYLES[index] ?? 'bg-white/10 text-white/50 border border-white/10'}`}>
-                            {index + 1}
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-white leading-snug line-clamp-2" title={research.judul}>
-                                {research.judul}
-                            </p>
-                            <p className="text-xs text-white/40 mt-1 flex items-center gap-1">
-                                <Flame size={11} className="text-green-400" />
-                                {research.citations} Luaran Penelitian
-                            </p>
-                        </div>
-
-                        {/* Score Badge */}
-                        <span className="flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-full bg-green-500/15 text-green-400 border border-green-500/20 self-center">
-                            {research.citations}
-                        </span>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
- * TopResearchList Component
- *
- * @description
- * Leaderboard 5 Riset Teraktif berdasarkan citations.
- *
- * @author JurnalMU Team
- * @filepath /resources/js/components/TopResearchList.tsx
- */
-
-import React from 'react';
-import { BookOpen } from 'lucide-react';
-
-interface Research {
-    id: number;
-    title: string;
-    citations: number;
-}
-
-interface TopResearchListProps {
-    data: Research[];
-}
-
-export default function TopResearchList({ data }: TopResearchListProps) {
-    return (
-        <div className="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-blue-500" />
-                Top Riset Teraktif
-            </h3>
-            <div className="flow-root">
-                <ul className="divide-y divide-gray-100 dark:divide-neutral-800">
-                    {data.slice(0, 5).map((research, idx) => {
-                        const rankColors = [
-                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400', // Gold
-                            'bg-slate-100 text-slate-800 dark:bg-slate-500/20 dark:text-slate-400', // Silver
-                            'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400', // Bronze
-                        ];
-                        const defaultColor = 'bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-400';
-                        const badgeColor = idx < 3 ? rankColors[idx] : defaultColor;
-
+                {!loading &&
+                    !error &&
+                    researchList.map((research, index) => {
+                        const displayTitle = research.judul ?? research.title ?? 'Tanpa Judul';
                         return (
-                            <li key={idx} className="py-3 flex items-start justify-between gap-4">
-                                <div className="flex items-start gap-3">
-                                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${badgeColor}`}>
-                                        {idx + 1}
-                                    </span>
-                                    <span className="text-sm font-medium text-gray-955 dark:text-white line-clamp-2">
-                                        {research.title}
-                                    </span>
+                            <div
+                                key={research.id ?? index}
+                                className="flex items-start gap-3 px-5 py-4 transition-colors duration-150 hover:bg-green-500/10"
+                            >
+                                {/* Rank Badge */}
+                                <div
+                                    className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm ${MEDAL_STYLES[index] ?? 'border border-white/10 bg-white/10 text-white/50'}`}
+                                >
+                                    {index + 1}
                                 </div>
-                                <span className="shrink-0 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-neutral-900 px-2 py-1 rounded whitespace-nowrap">
-                                    Sitasi: {research.citations}
+
+                                {/* Info */}
+                                <div className="min-w-0 flex-1">
+                                    <p className="line-clamp-2 text-sm leading-snug font-semibold text-white" title={displayTitle}>
+                                        {displayTitle}
+                                    </p>
+                                    <p className="mt-1 flex items-center gap-1 text-xs text-white/40">
+                                        <Flame size={11} className="text-green-400" />
+                                        {research.citations} Luaran Penelitian
+                                    </p>
+                                </div>
+
+                                {/* Score Badge */}
+                                <span className="flex-shrink-0 self-center rounded-full border border-green-500/20 bg-green-500/15 px-2.5 py-1 text-xs font-bold text-green-400">
+                                    {research.citations}
                                 </span>
-                            </li>
+                            </div>
                         );
                     })}
-                </ul>
             </div>
         </div>
     );
 }
-

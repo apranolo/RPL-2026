@@ -21,7 +21,6 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { GripVertical, Plus, Trash2 } from 'lucide-react';
-import React from 'react';
 
 // --- Answer Type Preview ---
 
@@ -37,7 +36,7 @@ interface AnswerTypePreviewProps {
 export function AnswerTypePreview({ answerType, className }: AnswerTypePreviewProps) {
     return (
         <div className={cn('rounded-lg border border-dashed bg-muted/30 p-4', className)}>
-            <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Pratinjau Input Jawaban</p>
+            <p className="mb-3 text-xs font-medium tracking-wider text-muted-foreground uppercase">Pratinjau Input Jawaban</p>
 
             {answerType === 'boolean' && (
                 <div className="flex items-center gap-3">
@@ -75,7 +74,7 @@ export function AnswerTypePreview({ answerType, className }: AnswerTypePreviewPr
                 <Textarea disabled placeholder="Jawaban teks akan diisi di sini..." rows={3} className="resize-none opacity-60" />
             )}
 
-            {!answerType && <p className="text-sm italic text-muted-foreground">Pilih tipe jawaban untuk melihat pratinjau</p>}
+            {!answerType && <p className="text-sm text-muted-foreground italic">Pilih tipe jawaban untuk melihat pratinjau</p>}
         </div>
     );
 }
@@ -195,7 +194,7 @@ function DynamicFieldRow({ index, value, onChange, onRemove, errors, canRemove }
                     variant="ghost"
                     size="icon"
                     onClick={() => onRemove(index)}
-                    className="mt-1 h-8 w-8 flex-shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    className="mt-1 h-8 w-8 flex-shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
                 >
                     <Trash2 className="h-4 w-4" />
                 </Button>
@@ -270,9 +269,7 @@ export function DynamicInput({ items, onChange, errors, maxItems = 20 }: Dynamic
                 </Button>
             )}
 
-            {items.length >= maxItems && (
-                <p className="text-center text-sm text-muted-foreground">Maksimal {maxItems} kriteria per batch.</p>
-            )}
+            {items.length >= maxItems && <p className="text-center text-sm text-muted-foreground">Maksimal {maxItems} kriteria per batch.</p>}
         </div>
     );
 }

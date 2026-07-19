@@ -45,19 +45,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type PaginatedData } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import {
-    ClipboardList,
-    Edit,
-    Filter,
-    Layers,
-    MoreVertical,
-    Paperclip,
-    Plus,
-    RefreshCw,
-    Search,
-    SlidersHorizontal,
-    Trash2,
-} from 'lucide-react';
+import { ClipboardList, Edit, Filter, Layers, MoreVertical, Paperclip, Plus, RefreshCw, Search, SlidersHorizontal, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -89,8 +77,8 @@ interface Criterion {
             template?: {
                 id: number;
                 name: string;
-            }
-        }
+            };
+        };
     } | null;
 }
 
@@ -217,11 +205,9 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                             </div>
                             <h2 className="text-2xl font-bold tracking-tight">Kriteria Penilaian</h2>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                            Kelola parameter rubrik kriteria penilaian untuk evaluasi proposal jurnal
-                        </p>
+                        <p className="text-sm text-muted-foreground">Kelola parameter rubrik kriteria penilaian untuk evaluasi proposal jurnal</p>
                     </div>
-                    <Button asChild className="gap-2 self-start sm:self-auto shadow-md hover:shadow-lg transition-all duration-300">
+                    <Button asChild className="gap-2 self-start shadow-md transition-all duration-300 hover:shadow-lg sm:self-auto">
                         <Link href={route('admin.criteria.create')}>
                             <Plus className="h-4 w-4" /> Tambah Kriteria
                         </Link>
@@ -233,10 +219,8 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                     <CardContent className="p-4">
                         <form onSubmit={handleSearch} className="space-y-4">
                             <div className="flex flex-wrap items-center gap-2">
-                                <SlidersHorizontal className="h-4 w-4 text-muted-foreground mr-1" />
-                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                    Filter Pencarian
-                                </span>
+                                <SlidersHorizontal className="mr-1 h-4 w-4 text-muted-foreground" />
+                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Filter Pencarian</span>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
                                 {/* Search */}
@@ -245,7 +229,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                     <Input
                                         type="search"
                                         placeholder="Cari kode, pertanyaan, deskripsi..."
-                                        className="pl-8 bg-background/50 focus:bg-background transition-all duration-200"
+                                        className="bg-background/50 pl-8 transition-all duration-200 focus:bg-background"
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         disabled={isLoading}
@@ -255,14 +239,14 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                 {/* Sub Category */}
                                 <div>
                                     <Select value={subCategoryId} onValueChange={setSubCategoryId}>
-                                        <SelectTrigger className="bg-background/50 focus:bg-background transition-all duration-200">
+                                        <SelectTrigger className="bg-background/50 transition-all duration-200 focus:bg-background">
                                             <SelectValue placeholder="Semua Sub-Kategori" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="all">Semua Sub-Kategori</SelectItem>
                                             {Object.entries(groupedSubCategories).map(([groupName, subs]) => (
                                                 <SelectGroup key={groupName}>
-                                                    <SelectLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground bg-accent/40 px-2 py-1.5 rounded-sm">
+                                                    <SelectLabel className="rounded-sm bg-accent/40 px-2 py-1.5 text-xs font-bold tracking-wider text-muted-foreground uppercase">
                                                         {groupName}
                                                     </SelectLabel>
                                                     {subs.map((sub) => (
@@ -279,7 +263,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                 {/* Status */}
                                 <div>
                                     <Select value={isActive} onValueChange={setIsActive}>
-                                        <SelectTrigger className="bg-background/50 focus:bg-background transition-all duration-200">
+                                        <SelectTrigger className="bg-background/50 transition-all duration-200 focus:bg-background">
                                             <SelectValue placeholder="Semua Status" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -293,7 +277,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                 {/* Answer Type */}
                                 <div>
                                     <Select value={answerType} onValueChange={setAnswerType}>
-                                        <SelectTrigger className="bg-background/50 focus:bg-background transition-all duration-200">
+                                        <SelectTrigger className="bg-background/50 transition-all duration-200 focus:bg-background">
                                             <SelectValue placeholder="Tipe Jawaban" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -306,7 +290,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                 </div>
                             </div>
 
-                            <div className="flex flex-col sm:flex-row gap-2 justify-end pt-2 border-t border-border/30">
+                            <div className="flex flex-col justify-end gap-2 border-t border-border/30 pt-2 sm:flex-row">
                                 {(search || subCategoryId !== 'all' || isActive !== 'all' || answerType !== 'all') && (
                                     <Button
                                         type="button"
@@ -314,7 +298,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                         size="sm"
                                         onClick={handleClearFilters}
                                         disabled={isLoading}
-                                        className="h-9 gap-1.5 hover:bg-accent text-muted-foreground hover:text-foreground"
+                                        className="h-9 gap-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
                                     >
                                         <RefreshCw className="h-3.5 w-3.5" />
                                         Reset Filter
@@ -330,52 +314,54 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                 </Card>
 
                 {/* Table list */}
-                <div className="rounded-lg border border-border/50 bg-card overflow-hidden shadow-sm">
+                <div className="overflow-hidden rounded-lg border border-border/50 bg-card shadow-sm">
                     <Table>
                         <TableHeader className="bg-muted/40">
                             <TableRow>
                                 <TableHead className="w-[100px] font-semibold text-foreground/80">Kode</TableHead>
                                 <TableHead className="min-w-[280px] font-semibold text-foreground/80">Pertanyaan & Detail</TableHead>
                                 <TableHead className="w-[180px] font-semibold text-foreground/80">Klasifikasi</TableHead>
-                                <TableHead className="w-[110px] font-semibold text-foreground/80 text-center">Bobot</TableHead>
+                                <TableHead className="w-[110px] text-center font-semibold text-foreground/80">Bobot</TableHead>
                                 <TableHead className="w-[140px] font-semibold text-foreground/80">Tipe Jawaban</TableHead>
-                                <TableHead className="w-[130px] font-semibold text-foreground/80 text-center">Dok. Lampiran</TableHead>
-                                <TableHead className="w-[110px] font-semibold text-foreground/80 text-center">Status</TableHead>
+                                <TableHead className="w-[130px] text-center font-semibold text-foreground/80">Dok. Lampiran</TableHead>
+                                <TableHead className="w-[110px] text-center font-semibold text-foreground/80">Status</TableHead>
                                 <TableHead className="w-[80px] text-right"></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {criteria.data.length > 0 ? (
                                 criteria.data.map((item) => (
-                                    <TableRow key={item.id} className="group hover:bg-muted/20 transition-colors">
+                                    <TableRow key={item.id} className="group transition-colors hover:bg-muted/20">
                                         {/* Code */}
-                                        <TableCell className="font-semibold align-top pt-4">
-                                            <Badge variant="outline" className="font-mono bg-background shadow-sm py-1 border-primary/20 text-primary">
+                                        <TableCell className="pt-4 align-top font-semibold">
+                                            <Badge
+                                                variant="outline"
+                                                className="border-primary/20 bg-background py-1 font-mono text-primary shadow-sm"
+                                            >
                                                 {item.code}
                                             </Badge>
                                         </TableCell>
 
                                         {/* Question & Description */}
-                                        <TableCell className="align-top pt-4">
+                                        <TableCell className="pt-4 align-top">
                                             <div className="space-y-1">
-                                                <p className="font-medium text-foreground leading-relaxed">
-                                                    {item.question}
-                                                </p>
+                                                <p className="leading-relaxed font-medium text-foreground">{item.question}</p>
                                                 {item.description && (
-                                                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                                        {item.description}
-                                                    </p>
+                                                    <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{item.description}</p>
                                                 )}
                                             </div>
                                         </TableCell>
 
                                         {/* Classification */}
-                                        <TableCell className="align-top pt-4 text-xs">
+                                        <TableCell className="pt-4 align-top text-xs">
                                             {item.sub_category ? (
                                                 <div className="space-y-1 text-muted-foreground">
                                                     <div className="flex items-center gap-1.5">
                                                         <Layers className="h-3 w-3 text-primary/60" />
-                                                        <span className="font-medium text-foreground/75 truncate max-w-[150px]" title={item.sub_category.name}>
+                                                        <span
+                                                            className="max-w-[150px] truncate font-medium text-foreground/75"
+                                                            title={item.sub_category.name}
+                                                        >
                                                             {item.sub_category.name}
                                                         </span>
                                                     </div>
@@ -386,40 +372,52 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                                     )}
                                                 </div>
                                             ) : (
-                                                <span className="text-muted-foreground italic text-[11px]">Legacy (Flat)</span>
+                                                <span className="text-[11px] text-muted-foreground italic">Legacy (Flat)</span>
                                             )}
                                         </TableCell>
 
                                         {/* Weight */}
-                                        <TableCell className="align-top pt-4 text-center font-bold">
-                                            <Badge variant="secondary" className="px-2.5 py-0.5 font-mono text-purple-700 bg-purple-50 border-purple-100 hover:bg-purple-50">
+                                        <TableCell className="pt-4 text-center align-top font-bold">
+                                            <Badge
+                                                variant="secondary"
+                                                className="border-purple-100 bg-purple-50 px-2.5 py-0.5 font-mono text-purple-700 hover:bg-purple-50"
+                                            >
                                                 {Number(item.weight).toFixed(2)}
                                             </Badge>
                                         </TableCell>
 
                                         {/* Answer Type */}
-                                        <TableCell className="align-top pt-4">
+                                        <TableCell className="pt-4 align-top">
                                             {item.answer_type === 'boolean' && (
-                                                <Badge className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-50 shadow-sm" variant="outline">
+                                                <Badge
+                                                    className="border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm hover:bg-indigo-50"
+                                                    variant="outline"
+                                                >
                                                     Ya / Tidak
                                                 </Badge>
                                             )}
                                             {item.answer_type === 'scale' && (
-                                                <Badge className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-50 shadow-sm" variant="outline">
+                                                <Badge
+                                                    className="border-purple-200 bg-purple-50 text-purple-700 shadow-sm hover:bg-purple-50"
+                                                    variant="outline"
+                                                >
                                                     Skala 1-5
                                                 </Badge>
                                             )}
                                             {item.answer_type === 'text' && (
-                                                <Badge className="bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-50 shadow-sm" variant="outline">
+                                                <Badge
+                                                    className="border-amber-200 bg-amber-50 text-amber-700 shadow-sm hover:bg-amber-50"
+                                                    variant="outline"
+                                                >
                                                     Teks Bebas
                                                 </Badge>
                                             )}
                                         </TableCell>
 
                                         {/* Attachment */}
-                                        <TableCell className="align-top pt-4 text-center">
+                                        <TableCell className="pt-4 text-center align-top">
                                             {item.requires_attachment ? (
-                                                <div className="inline-flex items-center gap-1 text-xs text-rose-700 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-full font-medium">
+                                                <div className="inline-flex items-center gap-1 rounded-full border border-rose-100 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700">
                                                     <Paperclip className="h-3 w-3" />
                                                     Wajib
                                                 </div>
@@ -429,14 +427,14 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                         </TableCell>
 
                                         {/* Status */}
-                                        <TableCell className="align-top pt-4 text-center">
+                                        <TableCell className="pt-4 text-center align-top">
                                             {item.is_active ? (
-                                                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-medium px-2 py-0.5 bg-emerald-50 border border-emerald-100 rounded-full">
-                                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
                                                     Aktif
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground font-medium px-2 py-0.5 bg-secondary border rounded-full">
+                                                <span className="inline-flex items-center gap-1.5 rounded-full border bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
                                                     <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
                                                     Nonaktif
                                                 </span>
@@ -444,25 +442,32 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                         </TableCell>
 
                                         {/* Actions */}
-                                        <TableCell className="align-top pt-3 text-right">
+                                        <TableCell className="pt-3 text-right align-top">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted/80 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 opacity-60 transition-opacity group-hover:opacity-100 hover:bg-muted/80"
+                                                    >
                                                         <MoreVertical className="h-4 w-4" />
                                                         <span className="sr-only">Actions</span>
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-[140px] shadow-md border-border/50">
+                                                <DropdownMenuContent align="end" className="w-[140px] border-border/50 shadow-md">
                                                     <DropdownMenuLabel className="text-[11px] text-muted-foreground">Opsi Aksi</DropdownMenuLabel>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem asChild>
-                                                        <Link href={route('admin.criteria.edit', item.id)} className="flex items-center gap-2 cursor-pointer">
+                                                        <Link
+                                                            href={route('admin.criteria.edit', item.id)}
+                                                            className="flex cursor-pointer items-center gap-2"
+                                                        >
                                                             <Edit className="h-3.5 w-3.5 text-muted-foreground" />
                                                             Edit
                                                         </Link>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
-                                                        className="flex items-center gap-2 text-destructive focus:bg-destructive/10 cursor-pointer"
+                                                        className="flex cursor-pointer items-center gap-2 text-destructive focus:bg-destructive/10"
                                                         onClick={() => handleDelete(item)}
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
@@ -473,18 +478,16 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                         </TableCell>
                                     </TableRow>
                                 ))
-                             ) : (
+                            ) : (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="h-48 text-center bg-muted/5">
+                                    <TableCell colSpan={8} className="h-48 bg-muted/5 text-center">
                                         <div className="flex flex-col items-center justify-center gap-3">
                                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-muted-foreground">
                                                 <ClipboardList className="h-6 w-6" />
                                             </div>
                                             <div>
-                                                <p className="font-semibold text-foreground text-sm">Kriteria tidak ditemukan</p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    Coba ubah kueri pencarian atau buat kriteria baru
-                                                </p>
+                                                <p className="text-sm font-semibold text-foreground">Kriteria tidak ditemukan</p>
+                                                <p className="text-xs text-muted-foreground">Coba ubah kueri pencarian atau buat kriteria baru</p>
                                             </div>
                                             <Button variant="outline" size="sm" asChild className="mt-1">
                                                 <Link href={route('admin.criteria.create')}>
@@ -507,7 +510,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                             <span className="font-semibold text-foreground">{criteria.to || 0}</span> dari{' '}
                             <span className="font-semibold text-foreground">{criteria.total || 0}</span> kriteria
                         </span>
-                        <Pagination className="w-auto mx-0">
+                        <Pagination className="mx-0 w-auto">
                             <PaginationContent>
                                 {criteria.links.map((link, i: number) => {
                                     if (!link.url && !link.label) return null;
@@ -529,9 +532,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                                     {linkText}
                                                 </PaginationLink>
                                             ) : (
-                                                <span className="px-3 py-1.5 text-xs text-muted-foreground/60 select-none">
-                                                    {linkText}
-                                                </span>
+                                                <span className="px-3 py-1.5 text-xs text-muted-foreground/60 select-none">{linkText}</span>
                                             )}
                                         </PaginationItem>
                                     );
@@ -548,8 +549,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                     <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Kriteria Penilaian</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus kriteria penilaian{' '}
-                            <strong className="text-foreground">"{deleteDialog?.code}"</strong>?
+                            Apakah Anda yakin ingin menghapus kriteria penilaian <strong className="text-foreground">"{deleteDialog?.code}"</strong>?
                             <br />
                             <br />
                             Tindakan ini tidak dapat dibatalkan. Kriteria ini tidak akan dapat digunakan lagi di rubrik baru.
@@ -557,7 +557,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                        <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                             Hapus Kriteria
                         </AlertDialogAction>
                     </AlertDialogFooter>
