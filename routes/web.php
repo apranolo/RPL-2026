@@ -556,6 +556,27 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Review Summary & Assignment Routes (v1.1 - Multi Reviewer)
+    | MOCK LOKAL - hapus setelah model resmi di-merge ke development.
+    |--------------------------------------------------------------------------
+    */
+    // NOTE: Authorization enforced via ProposalPolicy in the controllers.
+    Route::middleware(['auth'])->name('review.')->group(function () {
+        // Rekap summary review multi-reviewer per proposal
+        Route::get(
+            'proposals/{proposal}/summary',
+            [\App\Http\Controllers\Review\ReviewSummaryController::class, 'index']
+        )->name('summary.index');
+
+        // Perpanjang due date reviewer assignment
+        Route::post(
+            'reviewer-assignments/{reviewerAssignment}/extend-due',
+            [\App\Http\Controllers\Review\ReviewAssignmentController::class, 'extendDue']
+        )->name('assignment.extend-due');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Editor Routes (v1.1 - Submission Editorial)
     |--------------------------------------------------------------------------
     */
