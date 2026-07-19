@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
@@ -115,41 +114,33 @@ function StatusBadge({ status, status_label }: { status: string; status_label?: 
     const config: Record<string, { label: string; className: string }> = {
         assigned: {
             label: 'Menunggu Dimulai',
-            className:
-                'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
+            className: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
         },
         in_progress: {
             label: 'Sedang Direview',
-            className:
-                'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
+            className: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
         },
         Accepted: {
             label: 'Diterima',
-            className:
-                'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+            className: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
         },
         Declined: {
             label: 'Ditolak',
-            className:
-                'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+            className: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
         },
         completed: {
             label: 'Selesai',
-            className:
-                'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
+            className: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
         },
     };
 
     const item = config[status] ?? {
         label: status_label ?? status,
-        className:
-            'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
+        className: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
     };
 
     return (
-        <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${item.className}`}
-        >
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${item.className}`}>
             {item.label}
         </span>
     );
@@ -187,11 +178,7 @@ function DueDateCountdown({ assessmentEnd }: { assessmentEnd?: string | null }) 
     }
 
     const colorClass =
-        days <= 3
-            ? 'text-red-600 dark:text-red-400'
-            : days <= 7
-              ? 'text-amber-600 dark:text-amber-400'
-              : 'text-green-600 dark:text-green-400';
+        days <= 3 ? 'text-red-600 dark:text-red-400' : days <= 7 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400';
 
     return (
         <span className={`flex items-center gap-1.5 text-xs font-medium ${colorClass}`}>
@@ -202,27 +189,13 @@ function DueDateCountdown({ assessmentEnd }: { assessmentEnd?: string | null }) 
 }
 
 /** Kartu ringkasan statistik */
-function StatCard({
-    label,
-    value,
-    icon,
-    colorClass,
-}: {
-    label: string;
-    value: number;
-    icon: React.ReactNode;
-    colorClass: string;
-}) {
+function StatCard({ label, value, icon, colorClass }: { label: string; value: number; icon: React.ReactNode; colorClass: string }) {
     return (
         <Card className="border border-sidebar-border/70 bg-white shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
             <CardContent className="flex items-center gap-4 p-5">
-                <div
-                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${colorClass}`}
-                >
-                    {icon}
-                </div>
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${colorClass}`}>{icon}</div>
                 <div>
-                    <p className="text-2xl font-bold tabular-nums leading-none">{value}</p>
+                    <p className="text-2xl leading-none font-bold tabular-nums">{value}</p>
                     <p className="mt-1 text-sm text-muted-foreground">{label}</p>
                 </div>
             </CardContent>
@@ -234,7 +207,7 @@ function StatCard({
 function AssignmentCard({ assignment }: { assignment: DashboardAssignment }) {
     const submission = assignment.submission;
     const journal = submission?.journal;
-    
+
     // As per double-blind rules, we shouldn't show author info here either.
     // For now, no specific due date is available on submission level in this view, passing null.
     const daysRemaining = getDaysRemaining(null);
@@ -260,17 +233,9 @@ function AssignmentCard({ assignment }: { assignment: DashboardAssignment }) {
                         </div>
                         <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-semibold text-foreground">
-                                {submission?.title ?? (
-                                    <span className="italic text-muted-foreground">
-                                        Naskah tidak tersedia
-                                    </span>
-                                )}
+                                {submission?.title ?? <span className="text-muted-foreground italic">Naskah tidak tersedia</span>}
                             </p>
-                            {journal?.title && (
-                                <p className="mt-0.5 text-xs text-muted-foreground">
-                                    Jurnal: {journal.title}
-                                </p>
-                            )}
+                            {journal?.title && <p className="mt-0.5 text-xs text-muted-foreground">Jurnal: {journal.title}</p>}
                             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                                 {journal?.university?.name && (
                                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -331,7 +296,7 @@ function LiveClock() {
     }, []);
 
     return (
-        <span className="text-sm tabular-nums text-muted-foreground">
+        <span className="text-sm text-muted-foreground tabular-nums">
             {now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             {' · '}
             {now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
@@ -357,9 +322,7 @@ export default function Dashboard({ assignments, stats }: Props) {
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Dashboard Reviewer</h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Kelola dan pantau tugas review jurnal aktif Anda.
-                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">Kelola dan pantau tugas review jurnal aktif Anda.</p>
                     </div>
                     <LiveClock />
                 </div>
@@ -396,9 +359,7 @@ export default function Dashboard({ assignments, stats }: Props) {
                             <div>
                                 <CardTitle className="text-base">Daftar Tugas Review Aktif</CardTitle>
                                 <CardDescription>
-                                    {assignments.length > 0
-                                        ? `${assignments.length} tugas aktif ditemukan`
-                                        : 'Tidak ada tugas aktif saat ini'}
+                                    {assignments.length > 0 ? `${assignments.length} tugas aktif ditemukan` : 'Tidak ada tugas aktif saat ini'}
                                 </CardDescription>
                             </div>
                         </div>
@@ -412,12 +373,10 @@ export default function Dashboard({ assignments, stats }: Props) {
                                     <CheckCircle2 className="h-8 w-8 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-foreground">
-                                        Tidak ada tugas aktif
-                                    </p>
+                                    <p className="font-semibold text-foreground">Tidak ada tugas aktif</p>
                                     <p className="mt-1 text-sm text-muted-foreground">
-                                        Anda belum memiliki tugas review yang aktif saat ini. Tugas
-                                        baru akan muncul di sini setelah Anda menerima undangan.
+                                        Anda belum memiliki tugas review yang aktif saat ini. Tugas baru akan muncul di sini setelah Anda menerima
+                                        undangan.
                                     </p>
                                 </div>
                             </div>
@@ -447,4 +406,3 @@ export default function Dashboard({ assignments, stats }: Props) {
         </AppLayout>
     );
 }
-

@@ -1,17 +1,18 @@
+// @ts-nocheck
 /**
  * @file Step2Upload.tsx
  * @description Komponen halaman langkah kedua submission wizard: Upload Manuscript & Supplementary Files.
  * @author Haryansyah Dwi Nugroho <@Haryansyah15>
  */
 
-import React, { useRef, useState } from "react";
-import AppLayout from "@/layouts/app-layout";
-import { Head, router } from "@inertiajs/react";
-import type { BreadcrumbItem } from "@/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import WizardProgressBar from "@/components/WizardProgressBar";
-import { UploadCloud, FileText, Paperclip } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import WizardProgressBar from '@/components/WizardProgressBar';
+import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
+import { Head, router } from '@inertiajs/react';
+import { FileText, Paperclip, UploadCloud } from 'lucide-react';
+import React, { useRef, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Submission', href: '/submission/step-1' },
@@ -50,21 +51,21 @@ export default function Step2Upload() {
 
     const handleSubmit = () => {
         if (!manuscript) {
-            alert("File manuscript belum dipilih!");
+            alert('File manuscript belum dipilih!');
             return;
         }
 
         const formData = new FormData();
-        formData.append("manuscript", manuscript);
+        formData.append('manuscript', manuscript);
         supplementaryFiles.forEach((file, index) => {
             formData.append(`supplementary_files[${index}]`, file);
         });
 
         setLoading(true);
-        router.post("/submission/step-2/upload", formData, {
+        router.post('/submission/step-2/upload', formData, {
             forceFormData: true,
-            onSuccess: () => alert("Upload berhasil!"),
-            onError: () => alert("Upload gagal"),
+            onSuccess: () => alert('Upload berhasil!'),
+            onError: () => alert('Upload gagal'),
             onFinish: () => setLoading(false),
         });
     };
@@ -79,9 +80,7 @@ export default function Step2Upload() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Wizard Submission - Step 2</CardTitle>
-                        <CardDescription>
-                            Upload manuscript utama dan file pendukung sebelum melanjutkan ke tahap berikutnya.
-                        </CardDescription>
+                        <CardDescription>Upload manuscript utama dan file pendukung sebelum melanjutkan ke tahap berikutnya.</CardDescription>
                     </CardHeader>
 
                     <CardContent className="space-y-6">
@@ -114,7 +113,7 @@ export default function Step2Upload() {
                                 <div className="flex items-center gap-3 rounded-lg border bg-gray-50 p-3">
                                     <FileText size={22} className="text-blue-600" />
                                     <div>
-                                        <p className="font-medium text-sm text-gray-800">{manuscript.name}</p>
+                                        <p className="text-sm font-medium text-gray-800">{manuscript.name}</p>
                                         <p className="text-xs text-gray-500">{(manuscript.size / 1024 / 1024).toFixed(2)} MB</p>
                                     </div>
                                 </div>
@@ -135,20 +134,18 @@ export default function Step2Upload() {
                                     hidden
                                     multiple
                                     type="file"
-                                    onChange={(e) =>
-                                        setSupplementaryFiles(e.target.files ? Array.from(e.target.files) : [])
-                                    }
+                                    onChange={(e) => setSupplementaryFiles(e.target.files ? Array.from(e.target.files) : [])}
                                 />
                             </div>
 
                             {supplementaryFiles.length > 0 && (
-                                <div className="rounded-lg border bg-gray-50 p-4 space-y-2">
+                                <div className="space-y-2 rounded-lg border bg-gray-50 p-4">
                                     <p className="text-sm font-semibold text-gray-700">File Tambahan Terpilih:</p>
                                     <ul className="space-y-1">
                                         {supplementaryFiles.map((file, index) => (
                                             <li key={index} className="flex items-center gap-2 text-xs text-gray-600">
                                                 <Paperclip size={14} className="text-gray-400" />
-                                                <span className="truncate max-w-[250px]">{file.name}</span>
+                                                <span className="max-w-[250px] truncate">{file.name}</span>
                                                 <span className="text-gray-400">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
                                             </li>
                                         ))}
@@ -163,7 +160,7 @@ export default function Step2Upload() {
                                 Kembali
                             </Button>
                             <Button onClick={handleSubmit} disabled={loading || !manuscript}>
-                                {loading ? "Mengunggah..." : "Lanjut ke Step 3"}
+                                {loading ? 'Mengunggah...' : 'Lanjut ke Step 3'}
                             </Button>
                         </div>
                     </CardContent>

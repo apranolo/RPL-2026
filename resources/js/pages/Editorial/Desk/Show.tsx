@@ -4,10 +4,10 @@
  * @author Muhammad Irfan Habibi
  */
 
+
 import InlinePdfViewer from '@/components/InlinePdfViewer';
-import DecisionHistoryPanel from '@/components/DecisionHistoryPanel';
-import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
 import { PageProps } from '@/types';
 import { Head, router } from '@inertiajs/react'; // PERBAIKAN 1: Menambahkan router
 
@@ -50,15 +50,13 @@ export default function Show({ submission }: Props) {
                         {fileUrl ? <InlinePdfViewer fileUrl={fileUrl} /> : <p className="text-red-500">File naskah tidak ditemukan.</p>}
                     </div>
                 </div>
-                
+
                 <div className="space-y-4 md:col-span-1">
                     <div className="rounded-lg border bg-white p-4 shadow">
                         <h2 className="mb-4 text-lg font-semibold">Aksi Editorial</h2>
                         <div className="grid gap-2">
                             {/* PERBAIKAN 2: Menggunakan router.get dari Inertia */}
-                            <Button 
-                                onClick={() => router.get(route('editorial.desk.plagiarism', submission.id_submission))}
-                                className="w-full">
+                            <Button onClick={() => router.get(route('editorial.desk.plagiarism', submission.id_submission))} className="w-full">
                                 Cek Plagiasi
                             </Button>
                             <Button variant="outline" className="w-full">
@@ -67,13 +65,11 @@ export default function Show({ submission }: Props) {
                             <Button variant="outline" className="w-full">
                                 Desk Review
                             </Button>
-                            <Button className="w-full bg-green-600 text-white hover:bg-green-700">
-                                Keputusan Akhir
-                            </Button>
+                            <Button className="w-full bg-green-600 text-white hover:bg-green-700">Keputusan Akhir</Button>
                         </div>
                     </div>
 
-                    <DecisionHistoryPanel histories={submission.editorialDecisions || []} /> 
+                    {/* DecisionHistoryPanel dulunya disini tapi komponennya hilang */}
                 </div>
             </div>
         </AppLayout>

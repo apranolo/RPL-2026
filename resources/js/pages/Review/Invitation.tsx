@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type PageProps } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -8,7 +7,6 @@ import {
     AlertCircle,
     BookOpen,
     Building2,
-    Calendar,
     CheckCircle2,
     ClipboardList,
     Clock,
@@ -103,9 +101,7 @@ function StatusBadge({ status }: { status: string }) {
     };
 
     return (
-        <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${config.className}`}
-        >
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${config.className}`}>
             {config.icon}
             {config.label}
         </span>
@@ -116,9 +112,7 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
     if (!value) return null;
     return (
         <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                {icon}
-            </div>
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">{icon}</div>
             <div className="min-w-0">
                 <p className="text-xs font-medium text-muted-foreground">{label}</p>
                 <p className="mt-0.5 text-sm font-medium text-foreground">{value}</p>
@@ -215,21 +209,15 @@ export default function Invitation({ assignment }: Props) {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <CardTitle className="text-lg leading-snug">
-                                            {submission?.title ?? <span className="italic text-muted-foreground">Judul Naskah Tidak Tersedia</span>}
+                                            {submission?.title ?? <span className="text-muted-foreground italic">Judul Naskah Tidak Tersedia</span>}
                                         </CardTitle>
-                                        <CardDescription className="mt-1">
-                                            Double-Blind Review: Identitas Penulis Disembunyikan
-                                        </CardDescription>
+                                        <CardDescription className="mt-1">Double-Blind Review: Identitas Penulis Disembunyikan</CardDescription>
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent className="pt-5">
                                 <div className="grid gap-4 sm:grid-cols-2">
-                                    <InfoRow
-                                        icon={<BookOpen className="h-4 w-4" />}
-                                        label="Nama Jurnal"
-                                        value={journal?.title}
-                                    />
+                                    <InfoRow icon={<BookOpen className="h-4 w-4" />} label="Nama Jurnal" value={journal?.title} />
                                     <InfoRow
                                         icon={<Building2 className="h-4 w-4" />}
                                         label="Universitas / Penerbit"
@@ -243,7 +231,9 @@ export default function Invitation({ assignment }: Props) {
                                     <InfoRow
                                         icon={<FileText className="h-4 w-4" />}
                                         label="ISSN"
-                                        value={journal?.issn ? `${journal.issn} ${journal.e_issn ? '(E-ISSN: ' + journal.e_issn + ')' : ''}` : undefined}
+                                        value={
+                                            journal?.issn ? `${journal.issn} ${journal.e_issn ? '(E-ISSN: ' + journal.e_issn + ')' : ''}` : undefined
+                                        }
                                     />
                                 </div>
                             </CardContent>
@@ -268,7 +258,9 @@ export default function Invitation({ assignment }: Props) {
                                         <p
                                             className={`font-semibold ${assignment.status === 'Accepted' ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'}`}
                                         >
-                                            {assignment.status === 'Accepted' ? 'Anda telah menerima undangan ini' : 'Anda telah menolak undangan ini'}
+                                            {assignment.status === 'Accepted'
+                                                ? 'Anda telah menerima undangan ini'
+                                                : 'Anda telah menolak undangan ini'}
                                         </p>
                                         {assignment.status === 'Declined' && assignment.reason && (
                                             <p className="mt-1.5 text-sm text-red-700 dark:text-red-400">
@@ -336,9 +328,7 @@ export default function Invitation({ assignment }: Props) {
                             <Card className="border border-sidebar-border/70 bg-white shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
                                 <CardHeader className="border-b border-sidebar-border/70 pb-4 dark:border-sidebar-border">
                                     <CardTitle className="text-base">Respons Undangan</CardTitle>
-                                    <CardDescription>
-                                        Harap merespons undangan ini untuk melanjutkan proses review.
-                                    </CardDescription>
+                                    <CardDescription>Harap merespons undangan ini untuk melanjutkan proses review.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="pt-5">
                                     {!showDeclineForm ? (
@@ -383,10 +373,7 @@ export default function Invitation({ assignment }: Props) {
                                             </div>
 
                                             <div className="flex flex-col gap-1.5">
-                                                <label
-                                                    htmlFor="decline-reason"
-                                                    className="text-sm font-medium text-foreground"
-                                                >
+                                                <label htmlFor="decline-reason" className="text-sm font-medium text-foreground">
                                                     Alasan Penolakan <span className="text-red-500">*</span>
                                                 </label>
                                                 <textarea
@@ -398,10 +385,8 @@ export default function Invitation({ assignment }: Props) {
                                                         if (errors.reason) setErrors({});
                                                     }}
                                                     placeholder="Contoh: Saya memiliki konflik jadwal pada periode ini dan tidak dapat menyelesaikan review tepat waktu..."
-                                                    className={`w-full resize-none rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 ${
-                                                        errors.reason
-                                                            ? 'border-red-400 focus:ring-red-400/50'
-                                                            : 'border-input focus:ring-primary/30'
+                                                    className={`w-full resize-none rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-1 focus:outline-none ${
+                                                        errors.reason ? 'border-red-400 focus:ring-red-400/50' : 'border-input focus:ring-primary/30'
                                                     } transition-colors`}
                                                 />
                                                 {errors.reason && (
@@ -410,9 +395,7 @@ export default function Invitation({ assignment }: Props) {
                                                         {errors.reason}
                                                     </p>
                                                 )}
-                                                <p className="text-right text-xs text-muted-foreground">
-                                                    {declineReason.length} karakter (min. 10)
-                                                </p>
+                                                <p className="text-right text-xs text-muted-foreground">{declineReason.length} karakter (min. 10)</p>
                                             </div>
 
                                             <div className="flex gap-2">
