@@ -83,26 +83,20 @@ jobs:
 
       - name: Configure Dusk Environment
         run: |
-          APP_KEY=$(php artisan --no-ansi key:show 2>/dev/null || echo "")
+          cp .env .env.dusk.local
           DB_PATH="${{ github.workspace }}/database/database.sqlite"
-          printf '%s\n' \
-            "APP_NAME=Laravel" \
-            "APP_ENV=local" \
-            "APP_KEY=${APP_KEY}" \
-            "APP_DEBUG=true" \
+          printf '\n%s\n' \
             "APP_URL=http://127.0.0.1:8000" \
             "DB_CONNECTION=sqlite" \
             "DB_DATABASE=${DB_PATH}" \
             "SESSION_DRIVER=file" \
-            "SESSION_LIFETIME=120" \
             "CACHE_STORE=file" \
             "QUEUE_CONNECTION=sync" \
             "MAIL_MAILER=log" \
             "BROADCAST_CONNECTION=log" \
             "FILESYSTEM_DISK=local" \
             "BCRYPT_ROUNDS=4" \
-            "VITE_APP_NAME=Laravel" \
-            > .env.dusk.local
+            >> .env.dusk.local
 
       - name: Seed Dusk Database
         run: php artisan migrate:fresh --seed --force --env=dusk.local
