@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
+use App\Http\Controllers\Admin\CriteriaController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataMasterController;
 use App\Http\Controllers\Admin\EmailTemplateController;
@@ -25,32 +26,36 @@ use App\Http\Controllers\AdminKampus\UserController as AdminKampusUserController
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\CitationController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractDocController;
+use App\Http\Controllers\Copyediting\CopyeditingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
+use App\Http\Controllers\FundingController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
-use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\Revision\EditorRevisionController;
+use App\Http\Controllers\Revision\RevisionController;
 use App\Http\Controllers\SchemaController;
-use App\Http\Controllers\SupportController;
 use App\Http\Controllers\SubmissionWizardController;
+use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
+use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
-use App\Http\Controllers\Revision\RevisionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\CitationController;
+use App\Http\Controllers\Production\IssueController;
 use Inertia\Inertia;
 use App\Http\Controllers\Editorial\DecisionController;
 
@@ -152,6 +157,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // revisi ded code
+    Route::get('/monev/cetak-rekap', [\App\Http\Controllers\MonevDocumentController::class, 'printRekap'])
+        ->name('monev.printRekap')
+        ->middleware('role:'.Role::SUPER_ADMIN.'|'.Role::ADMIN_KAMPUS.'|'.Role::USER);
+
     // Author Submission Wizard Step 4 Routes
     Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
     Route::post('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'saveStep4'])->name('submissions.wizard.save-step4');
@@ -196,8 +206,6 @@ Route::middleware(['auth'])->group(function () {
         // Sistem Profil (Ubah Logo/Nama App)
         Route::get('settings/profile', [SettingsCtrl::class, 'index'])->name('settings.profile');
         Route::post('settings/profile', [SettingsCtrl::class, 'update'])->name('settings.profile.update');
-
-
 
         // Data Master (Placeholder)
         Route::get('data-master', [DataMasterController::class, 'index'])
@@ -264,6 +272,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('indicators/reorder', [EvaluationIndicatorController::class, 'reorder'])
             ->name('indicators.reorder');
 
+        // Kriteria Penilaian Management (CRUD for Assessment Criteria)
+        Route::resource('criteria', CriteriaController::class)
+            ->parameters(['criteria' => 'criterion']);
+
         /*
         |--------------------------------------------------------------------------
         | v1.0 Legacy Routes
@@ -310,6 +322,12 @@ Route::middleware(['auth'])->group(function () {
         // View all assessments (read-only for monitoring)
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
+
+        // Monev Report
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportController::class, 'index'])
+            ->name('monev.rekap-keseluruhan');
+        Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
+            ->name('monev.decide-action');
 
         // Rekap Hasil Penilaian (Summary)
         Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
@@ -505,6 +523,13 @@ Route::middleware(['auth'])->group(function () {
                 'update' => 'events.update',
                 'destroy' => 'events.destroy',
             ]);
+
+        // Monev Report
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportController::class, 'index'])
+            ->name('monev.rekap-keseluruhan');
+        Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
+            ->name('monev.decide-action');
+
     });
 
     /*
@@ -548,6 +573,15 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('editorial/desk')->name('editorial.desk.')->group(function () {
             Route::get('inbox', [DeskController::class, 'inbox'])->name('inbox');
         });
+        // Editorial Revision Decision
+        Route::prefix('editorial/revision')->name('editorial.revision.')->group(function () {
+            Route::post('editor-decision/{id}', [EditorRevisionController::class, 'decide'])->name('decide');
+        });
+        // Copyediting Assignment
+        Route::prefix('editorial/copyediting')->name('editorial.copyediting.')->group(function () {
+            Route::get('assign', [CopyeditingController::class, 'index'])->name('assign.index');
+            Route::post('assign', [CopyeditingController::class, 'assign'])->name('assign.store');
+        });
 
         // Journals Management
         Route::resource('journals', UserJournalController::class)
@@ -568,6 +602,35 @@ Route::middleware(['auth'])->group(function () {
         // OAI-PMH Article Harvest
         Route::post('journals/{journal}/harvest', [UserJournalController::class, 'harvest'])
             ->name('journals.harvest');
+
+
+        // =====================================================
+        // Issue Preview & Publish
+        // =====================================================
+
+        // Daftar Issues
+        Route::get(
+            'journals/{journal}/issues',
+            [IssueController::class, 'index']
+        )->name('production.issue.index');
+
+        // Preview Table of Contents sebelum publish
+        Route::get(
+            'journals/{journal}/issues/{volume}/{issue}/preview',
+            [IssueController::class, 'preview']
+        )->name('production.issue.preview');
+
+        // Publish Issue
+        Route::post(
+            'journals/{journal}/issues/publish/{volume}/{issue}',
+            [IssueController::class, 'publish']
+        )->name('production.issue.publish');
+
+        //Back Issues
+        Route::get(
+            '/production/{journalId}/back-issues',
+            [IssueController::class, 'backIssues']
+        )->name('production.issue.back-issues');
 
         // Assessments Management
         Route::prefix('assessments')->name('assessments.')->group(function () {
@@ -633,6 +696,12 @@ Route::middleware(['auth'])->group(function () {
                 ->name('registrations.create-assessment');
         });
 
+        // Funding/Pendanaan Management
+        Route::prefix('funding')->name('funding.')->group(function () {
+            Route::get('/', [UserFundingController::class, 'index'])
+                ->name('index');
+        });
+
         // Progress Reports (Monitoring & Evaluasi)
         Route::get('progress', [ProgressController::class, 'index'])
             ->name('progress.index');
@@ -646,7 +715,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
+            //
             Route::post('{proposal}/documents', [\App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.store');
+
         });
     });
 
@@ -710,6 +781,14 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('evaluations')->name('evaluations.')->group(function () {
             Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
                 ->name('index');
+            Route::get('/assignments', [\App\Http\Controllers\EvaluationController::class, 'assignmentIndex'])
+                ->name('assignments.index');
+            Route::get('{assignment}/note', [\App\Http\Controllers\EvaluationController::class, 'note'])
+                ->name('note');
+            Route::post('{assignment}/submit', [\App\Http\Controllers\EvaluationController::class, 'storeNote'])
+                ->name('storeNote');
+            Route::post('{assignment}/status', [\App\Http\Controllers\EvaluationController::class, 'updateStatus'])
+                ->name('update-status');
             Route::get('{report}', [\App\Http\Controllers\EvaluationController::class, 'showProgress'])
                 ->name('show');
         });
@@ -720,6 +799,38 @@ Route::middleware(['auth'])->group(function () {
         Route::post('profile', [\App\Http\Controllers\ReviewerProfileController::class, 'update'])
             ->name('profile.update');
 
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Funding Terms (Super Admin & Admin Kampus)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])->group(function () {
+        Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
+            ->name('funding.upload-bukti');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Finance & Funding Routes
+    |--------------------------------------------------------------------------
+    | Akses untuk Keuangan dan Admin Kampus
+    */
+    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
+
+        // Rute untuk menampilkan halaman log perubahan termin
+        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
+            ->name('finance.funding.logs.index');
+
+        // Rute BARU untuk mencetak kwitansi PDF
+        Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
+            ->name('finance.funding.print-kwitansi');
+
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     });
 
     /*
@@ -759,7 +870,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/discussions/{message}/upload-attachment', [DiscussionController::class, 'uploadAttachment'])
             ->name('message.upload-attachment');
     });
-
     /*
     |--------------------------------------------------------------------------
     | Shared Routes (All Roles)
@@ -773,6 +883,23 @@ Route::middleware(['auth'])->group(function () {
     // Resources (Placeholder)
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
+
+
+
+    // Print Berita Acara Review
+    Route::get('/review/print/{type}/{id}', [\App\Http\Controllers\ReviewDocumentController::class, 'print'])
+        ->name('review.print');
+
+    // Review History
+    Route::get('/proposal/review-history/{dosen?}', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
+        ->name('proposal.review-history');
+
+    // Notifications (Modul 7)
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
+        Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
+    });
 
     Route::resource('proposal', ProposalController::class);
 
@@ -806,16 +933,16 @@ Route::middleware(['auth'])->group(function () {
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
     Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
-    ->prefix('editorial')
-    ->name('editorial.')
-    ->group(function () {
+        ->prefix('editorial')
+        ->name('editorial.')
+        ->group(function () {
 
-        Route::post(
-            '/submissions/{id_submission}/notify-author',
-            [RevisionController::class, 'notifyAuthor']
-        )->name('revision.notify-author');
+            Route::post(
+                '/submissions/{id_submission}/notify-author',
+                [RevisionController::class, 'notifyAuthor']
+            )->name('revision.notify-author');
 
-    });
+        });
 });
 
 require __DIR__.'/settings.php';

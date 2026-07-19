@@ -41,10 +41,19 @@ Route::middleware(['web'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
+/*
+|--------------------------------------------------------------------------
+| Protected Routes (Authentication Required)
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // Auth User Info & Logout
     Route::get('/user', [AuthenticatedSessionController::class, 'user']);
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+
+    // revisi dead code
+    Route::get('/timeline/chart', [\App\Http\Controllers\Api\TimelineController::class, 'getChart'])->name('timeline.getChart');
 
     // TODO: Add other protected routes here
     // Route::apiResource('journals', JournalController::class);
@@ -53,7 +62,7 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // Output Statistics
     Route::prefix('stats/outputs')->group(function () {
         Route::get('/by-category', [OutputStatsController::class, 'getCategory']);
-        Route::get('/yearly',      [OutputStatsController::class, 'getYearly']);
+        Route::get('/yearly', [OutputStatsController::class, 'getYearly']);
     });
 
     // Budget Stats
