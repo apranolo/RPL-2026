@@ -1,3 +1,8 @@
+/**
+ * Komponen Edit Halaman Proposal.
+ * 
+ * Digunakan untuk menampilkan form edit proposal dan menangani proses pembaruan data.
+ */
 import AppLayout from '@/layouts/app/app-sidebar-layout';
 import { useForm } from '@inertiajs/react';
 import React from 'react';
