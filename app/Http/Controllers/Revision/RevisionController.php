@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Revision;
 
 use App\Http\Controllers\Controller;
-use App\Models\JournalAssessment;
 use App\Models\RevisionRound;
+use App\Models\Submission;
 use App\Models\SubmissionFile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -15,154 +14,152 @@ use Inertia\Inertia;
 class RevisionController extends Controller
 {
     /**
-     * Menampilkan form upload file revisi dan memproses unggahan file
-     * revisi oleh Author untuk ronde revisi tertentu.
+     * Menampilkan form unggah revisi dan memproses pengiriman berkas
+     * revisi naskah oleh Author untuk ronde revisi tertentu.
      *
-     * @route GET  /user/revisions/{revisionRound}/upload
-     * @route POST /user/revisions/{revisionRound}/upload
+     * Endpoint ini merupakan bagian dari Modul 2 Kelas B (Proposal Riset).
+     * Berkas diunggah ke storage dan dicatat pada tabel submission_files
+     * yang terhubung ke id_submission (bukan journal_assessment_id).
+     *
+     * @route GET  /revision/upload/{id_round}
+     * @route POST /revision/upload/{id_round}
      */
-    public function uploadRevision(Request $request, RevisionRound $revisionRound)
+    public function uploadRevision(Request $request, $id_round)
     {
-        // Muat relasi yang diperlukan untuk otorisasi dan tampilan
-        $revisionRound->load([
-            'journalAssessment.journal',
-            'journalAssessment.user',
-            'requester',
-            'submissionFiles.uploader',
-        ]);
+        // Ambil ronde revisi beserta submission terkait menggunakan primary key id_round
+        $revisionRound = RevisionRound::where('id_round', $id_round)
+            ->with(['submission.author'])
+            ->firstOrFail();
 
-        $assessment = $revisionRound->journalAssessment;
+        $submission = $revisionRound->submission;
         $user       = $request->user();
 
-        // Pastikan hanya Author (pemilik jurnal) yang dapat mengunggah revisi
-        if ($assessment->user_id !== $user->id) {
+        // Hanya Author pemilik submission yang boleh mengunggah revisi
+        if ($submission->author_id !== $user->id) {
             abort(403, 'Anda tidak memiliki akses untuk mengunggah revisi ini.');
         }
 
-        // Ronde revisi harus dalam status pending agar dapat diunggah
-        if (! $revisionRound->isPending()) {
+        // Ronde harus masih menunggu revisi (Awaiting_Revision)
+        if ($revisionRound->status !== 'Awaiting_Revision') {
             return redirect()
-                ->route('user.assessments.show', $assessment->id)
+                ->route('submissions.show', $submission->id)
                 ->withErrors(['error' => 'Ronde revisi ini sudah tidak menerima unggahan baru.']);
         }
 
-        // -------------------------------------------------------------------------
-        // Tangani POST: proses unggahan file revisi
-        // -------------------------------------------------------------------------
+        // -----------------------------------------------------------------
+        // Tangani POST: proses unggahan berkas revisi Author
+        // -----------------------------------------------------------------
         if ($request->isMethod('POST')) {
             $validated = $request->validate([
-                'files'         => 'required|array|min:1|max:5',
-                'files.*'       => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240', // maks 10 MB
-                'notes'         => 'nullable|string|max:1000',
-                'submit_revision' => 'nullable|boolean',
+                'file'  => 'required|file|mimes:pdf,docx|max:20480', // maks 20 MB sesuai spec §3.A.3
+                'notes' => 'nullable|string|max:500',
             ], [
-                'files.required'   => 'Minimal satu file harus diunggah.',
-                'files.max'        => 'Maksimal 5 file per pengiriman.',
-                'files.*.mimes'    => 'Format file harus PDF, DOC, DOCX, JPG, JPEG, atau PNG.',
-                'files.*.max'      => 'Ukuran setiap file maksimal 10 MB.',
+                'file.required' => 'Silakan pilih berkas revisi terlebih dahulu.',
+                'file.mimes'    => 'Format berkas harus PDF atau DOCX.',
+                'file.max'      => 'Ukuran berkas maksimal 20 MB.',
             ]);
 
-            DB::beginTransaction();
             try {
-                $directory = 'revisions/'.$revisionRound->id;
+                $file             = $validated['file'];
+                $originalName     = $file->getClientOriginalName();
+                $extension        = $file->getClientOriginalExtension();
+                $storedName       = time() . '_' . uniqid() . '.' . $extension;
+                $directory        = 'revisions/' . $submission->id . '/round_' . $revisionRound->round_number;
 
-                foreach ($validated['files'] as $file) {
-                    $originalFilename = $file->getClientOriginalName();
-                    $extension        = $file->getClientOriginalExtension();
-                    $storedFilename   = time().'_'.uniqid().'.'.$extension;
+                // Simpan berkas ke disk public
+                $path = $file->storeAs($directory, $storedName, 'public');
 
-                    $path = $file->storeAs($directory, $storedFilename, 'public');
-
-                    SubmissionFile::create([
-                        'revision_round_id' => $revisionRound->id,
-                        'uploaded_by'       => $user->id,
-                        'original_filename' => $originalFilename,
-                        'stored_filename'   => $storedFilename,
-                        'file_path'         => $path,
-                        'file_size'         => $file->getSize(),
-                        'mime_type'         => $file->getMimeType(),
-                        'notes'             => $validated['notes'] ?? null,
-                    ]);
-                }
-
-                // Jika Author memilih untuk mengirimkan revisi sekarang, ubah status ronde
-                if (! empty($validated['submit_revision'])) {
-                    $revisionRound->update(['status' => 'submitted']);
-                }
-
-                DB::commit();
-
-                $message = ! empty($validated['submit_revision'])
-                    ? 'File revisi berhasil dikirim.'
-                    : 'File revisi berhasil diunggah. Klik "Kirim Revisi" saat semua file siap.';
-
-                return redirect()
-                    ->route('user.assessments.show', $assessment->id)
-                    ->with('success', $message);
-
-            } catch (\Exception $e) {
-                DB::rollBack();
-                Log::error('Gagal mengunggah file revisi', [
-                    'revision_round_id' => $revisionRound->id,
-                    'user_id'           => $user->id,
-                    'exception'         => $e->getMessage(),
-                    'trace'             => $e->getTraceAsString(),
+                // Catat file ke tabel submission_files (model resmi development)
+                SubmissionFile::create([
+                    'submission_id'    => $submission->id,
+                    'revision_round_id'=> $revisionRound->id_round,
+                    'file_name'        => $originalName,
+                    'file_path'        => $path,
+                    'file_type'        => 'ManuscriptMain',
+                    'mime_type'        => $file->getMimeType(),
+                    'file_size'        => $file->getSize(),
                 ]);
 
-                return back()->withErrors(['error' => 'Gagal mengunggah file. Silakan coba lagi.']);
+                // Ubah status ronde menjadi Submitted setelah Author mengunggah
+                $revisionRound->update(['status' => 'Submitted']);
+
+                return redirect()
+                    ->route('submissions.show', $submission->id)
+                    ->with('success', 'Berkas revisi berhasil diajukan ke Editor.');
+
+            } catch (\Exception $e) {
+                Log::error('Gagal mengunggah berkas revisi naskah', [
+                    'id_round'      => $id_round,
+                    'submission_id' => $submission->id,
+                    'user_id'       => $user->id,
+                    'exception'     => $e->getMessage(),
+                ]);
+
+                return back()->withErrors(['error' => 'Gagal mengunggah berkas. Silakan coba lagi.']);
             }
         }
 
-        // -------------------------------------------------------------------------
-        // Tampilkan form upload (GET)
-        // -------------------------------------------------------------------------
+        // -----------------------------------------------------------------
+        // Tampilkan form unggah (GET) — render ke AuthorRevision.tsx
+        // yang sudah ada di development (Modul 5 Kelas G)
+        // -----------------------------------------------------------------
         return Inertia::render('Revision/UploadRevision', [
-            'revisionRound' => $revisionRound,
-            'assessment'    => $assessment,
+            'submission'    => $submission,
+            'currentRound'  => $revisionRound,
+            'fileHistory'   => SubmissionFile::where('submission_id', $submission->id)->latest()->get(),
         ]);
     }
 
     /**
-     * Menampilkan histori semua versi file dari seluruh ronde revisi
-     * untuk sebuah assessment (versioning dokumen).
+     * Menampilkan histori semua versi berkas dari seluruh ronde revisi
+     * untuk sebuah submission (versioning dokumen naskah).
      *
-     * @route GET /user/assessments/{assessment}/version-history
+     * @route GET /revision/history/{submission}
      */
-    public function versionHistory(Request $request, JournalAssessment $assessment)
+    public function versionHistory(Request $request, Submission $submission)
     {
         $user = $request->user();
 
-        // Pastikan hanya Author yang terkait yang bisa melihat histori versi
-        if ($assessment->user_id !== $user->id) {
+        // Pastikan hanya Author submission yang bisa melihat histori versi
+        if ($submission->author_id !== $user->id) {
             abort(403, 'Anda tidak memiliki akses untuk melihat histori versi ini.');
         }
 
-        // Muat relasi journal untuk tampilan
-        $assessment->load('journal:id,title,issn');
-
-        // Ambil semua ronde revisi beserta file-file yang dikirim,
-        // diurutkan dari ronde paling awal ke paling akhir
-        $revisionRounds = RevisionRound::query()
-            ->where('journal_assessment_id', $assessment->id)
+        // Ambil semua ronde revisi beserta file yang dikirim,
+        // diurutkan dari ronde pertama ke ronde terbaru
+        $revisionRounds = RevisionRound::where('id_submission', $submission->id)
             ->with([
-                'submissionFiles.uploader:id,name',
-                'requester:id,name',
+                'submissionFiles',
             ])
             ->orderBy('round_number', 'asc')
-            ->get()
-            ->map(function (RevisionRound $round) {
-                // Tambahkan accessor computed
-                $round->append(['status_label', 'status_color']);
-                $round->submissionFiles->each(function (SubmissionFile $file) {
-                    $file->append(['file_size_human', 'download_url']);
-                });
-
-                return $round;
-            });
+            ->get();
 
         return Inertia::render('Revision/VersionHistory', [
-            'assessment'    => $assessment,
+            'submission'     => $submission,
             'revisionRounds' => $revisionRounds,
         ]);
+    }
+
+    /**
+     * Method yang sudah ada di development — dipertahankan agar tidak
+     * merusak fitur notifyAuthor milik tim lain.
+     *
+     * @route POST /revision/notify/{id_submission}
+     */
+    public function notifyAuthor(\App\Http\Requests\NotifyAuthorRevisionRequest $request, $id_submission)
+    {
+        $data      = $request->validated();
+        $nextRound = (int) RevisionRound::where('id_submission', $id_submission)->max('round_number') + 1;
+
+        RevisionRound::create([
+            'id_submission'        => $id_submission,
+            'round_number'         => $nextRound,
+            'status'               => $data['status'],
+            'editor_decision_note' => $data['editor_decision_note'],
+            'due_date'             => $data['due_date'],
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Keputusan dan catatan revisi berhasil dikirim ke Author!');
     }
 }

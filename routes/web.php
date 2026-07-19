@@ -721,16 +721,15 @@ Route::middleware(['auth'])->group(function () {
 
         });
 
-        // Revisi Dokumen (Author)
-        Route::prefix('revisions')->name('revisions.')->group(function () {
+        // Revisi Naskah Proposal (Author - Modul 2 Kelas B)
+        Route::prefix('revision')->name('revisions.')->group(function () {
             // Upload file revisi oleh Author (GET = tampil form, POST = proses upload)
-            Route::match(['GET', 'POST'], '{revisionRound}/upload', [\App\Http\Controllers\Revision\RevisionController::class, 'uploadRevision'])
+            Route::match(['GET', 'POST'], 'upload/{id_round}', [\App\Http\Controllers\Revision\RevisionController::class, 'uploadRevision'])
                 ->name('upload');
+            // Histori versi dokumen per submission
+            Route::get('history/{submission}', [\App\Http\Controllers\Revision\RevisionController::class, 'versionHistory'])
+                ->name('history');
         });
-
-        // Histori versi dokumen per assessment
-        Route::get('assessments/{assessment}/version-history', [\App\Http\Controllers\Revision\RevisionController::class, 'versionHistory'])
-            ->name('assessments.version-history');
     });
 
     /*

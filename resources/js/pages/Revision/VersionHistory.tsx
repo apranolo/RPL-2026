@@ -1,76 +1,82 @@
 import DocumentVersionList, { RevisionRoundItem } from '@/components/DocumentVersionList';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type JournalAssessment } from '@/types';
-import { router } from '@inertiajs/react';
+import { type BreadcrumbItem, type PageProps } from '@/types';
+import { Head, router } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 
-interface VersionHistoryProps {
-    assessment: JournalAssessment;
+// ---------------------------------------------------------------------------
+// Tipe lokal — subset Submission dari Modul 2 Kelas B
+// ---------------------------------------------------------------------------
+
+interface SubmissionItem {
+    id: number;
+    title: string | null;
+    author_id: number;
+    journal?: { name: string };
+}
+
+interface VersionHistoryProps extends PageProps {
+    submission: SubmissionItem;
     revisionRounds: RevisionRoundItem[];
 }
+
+// ---------------------------------------------------------------------------
+// Komponen utama: VersionHistory
+// ---------------------------------------------------------------------------
 
 /**
  * VersionHistory
  *
- * Halaman yang menampilkan seluruh histori versi dokumen revisi
- * (semua ronde) untuk sebuah assessment. Menggunakan komponen
- * DocumentVersionList untuk merender timeline berlabel per ronde.
+ * Halaman histori semua versi berkas naskah proposal riset
+ * yang dikirim Author di setiap ronde revisi.
+ *
+ * Data: GET /revision/history/{submission} → RevisionController@versionHistory
+ * Komponen: DocumentVersionList (berlabel per ronde, dengan tombol unduh)
  */
-export default function VersionHistory({ assessment, revisionRounds }: VersionHistoryProps) {
-    const journal = assessment.journal;
-
+export default function VersionHistory({ submission, revisionRounds }: VersionHistoryProps) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Assessment', href: route('user.assessments.index') },
-        { title: journal?.title ?? `Assessment #${assessment.id}`, href: route('user.assessments.show', assessment.id) },
-        { title: 'Histori Versi Dokumen', href: '#' },
+        { title: 'Dashboard',   href: '/dashboard' },
+        { title: 'Submission',  href: '/submissions' },
+        { title: submission.title ?? `Submission #${submission.id}`, href: `/submissions/${submission.id}` },
+        { title: 'Riwayat Versi Naskah', href: '#' },
     ];
-
-    // Cari ronde terakhir yang masih pending untuk tombol upload
-    const latestPendingRound = revisionRounds
-        .slice()
-        .reverse()
-        .find((r) => r.status === 'pending');
-
-    const uploadUrl = latestPendingRound
-        ? route('user.revisions.upload', latestPendingRound.id)
-        : undefined;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Riwayat Versi Naskah" />
+
             <div className="mx-auto max-w-3xl space-y-6 px-4 py-6">
                 {/* ---- Header ---- */}
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <h1 className="text-xl font-bold text-foreground">
-                            Histori Versi Dokumen
+                            Riwayat Versi Naskah
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            {journal?.title ?? `Assessment #${assessment.id}`}
-                            {journal?.issn && (
+                            {submission.title ?? `Submission #${submission.id}`}
+                            {submission.journal?.name && (
                                 <span className="ml-2 text-xs text-muted-foreground">
-                                    ISSN: {journal.issn}
+                                    &bull; {submission.journal.name}
                                 </span>
                             )}
                         </p>
                     </div>
 
                     <Button
-                        id="btn-kembali-assessment"
+                        id="btn-kembali-submission"
                         variant="outline"
                         size="sm"
-                        onClick={() => router.visit(route('user.assessments.show', assessment.id))}
+                        onClick={() => router.visit(`/submissions/${submission.id}`)}
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
                         Kembali
                     </Button>
                 </div>
 
-                {/* ---- Daftar versi per ronde ---- */}
+                {/* ---- Timeline versi per ronde (DocumentVersionList) ---- */}
                 <DocumentVersionList
                     revisionRounds={revisionRounds}
-                    uploadUrl={uploadUrl}
                 />
             </div>
         </AppLayout>

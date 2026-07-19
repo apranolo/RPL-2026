@@ -4,100 +4,45 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SubmissionFile extends Model
 {
     use HasFactory;
 
     /**
-     * Atribut yang dapat diisi secara massal.
+     * Atribut yang dapat diisi secara massal (mass assignable).
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
+        'submission_id',
         'revision_round_id',
-        'uploaded_by',
-        'original_filename',
-        'stored_filename',
+        'file_name',
         'file_path',
-        'file_size',
+        'file_type',
         'mime_type',
-        'notes',
+        'file_size',
     ];
 
     /**
-     * Casting tipe atribut.
+     * Mendefinisikan relasi inverse ke model Submission.
+     * Setiap file unggahan pasti dimiliki oleh satu entitas submission.
      *
-     * @var array<string, string>
+     * @return BelongsTo
      */
-    protected $casts = [
-        'file_size'  => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relasi
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Ronde revisi yang memiliki file ini.
-     */
-    public function revisionRound()
+    public function submission(): BelongsTo
     {
-        return $this->belongsTo(RevisionRound::class);
+        return $this->belongsTo(Submission::class);
     }
 
     /**
-     * Pengguna (Author) yang mengunggah file ini.
+     * Relasi ke RevisionRound (opsional — file bisa diunggah di luar ronde).
+     *
+     * @return BelongsTo
      */
-    public function uploader()
+    public function revisionRound(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'uploaded_by');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Accessor & Helper
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Ukuran file dalam format yang mudah dibaca.
-     */
-    public function getFileSizeHumanAttribute(): string
-    {
-        $bytes = $this->file_size ?? 0;
-
-        if ($bytes < 1024) {
-            return $bytes.' B';
-        } elseif ($bytes < 1024 * 1024) {
-            return round($bytes / 1024, 1).' KB';
-        }
-
-        return round($bytes / (1024 * 1024), 1).' MB';
-    }
-
-    /**
-     * URL unduhan file dari disk public.
-     */
-    public function getDownloadUrlAttribute(): ?string
-    {
-        if (! $this->file_path) {
-            return null;
-        }
-
-        return Storage::disk('public')->url($this->file_path);
-    }
-
-    /**
-     * Apakah file bertipe PDF.
-     */
-    public function isPdf(): bool
-    {
-        return $this->mime_type === 'application/pdf';
+        return $this->belongsTo(RevisionRound::class, 'revision_round_id', 'id_round');
     }
 }
