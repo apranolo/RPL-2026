@@ -122,7 +122,9 @@ class PublicHomeService
             return ScientificField::withCount(['journals' => function ($query) {
                 $query->where('is_active', true);
             }])
-                ->having('journals_count', '>', 0)
+                ->whereHas('journals', function ($query) {
+                    $query->where('is_active', true);
+                })
                 ->orderByDesc('journals_count')
                 ->take(12)
                 ->get(['id', 'name']);
