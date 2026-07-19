@@ -203,4 +203,3 @@ class Issue extends Model
             : $this->galleys()->count();
     }
 }
-

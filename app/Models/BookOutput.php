@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BookOutput extends Model
 {
-    protected $fillable = ['isbn', 'publisher', 'pages'];
+    protected $fillable = ['isbn', 'publisher', 'pages', 'tipe_buku'];
 
     /**
      * Mendapatkan entitas induk luaran.

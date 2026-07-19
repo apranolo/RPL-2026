@@ -39,12 +39,12 @@ class RoleMiddleware
         }
 
         if (! $journalId) {
-            $resolvedId = $request->route('journal_id') 
-                ?? $request->input('journal_id') 
-                ?? $request->route('id_journal') 
+            $resolvedId = $request->route('journal_id')
+                ?? $request->input('journal_id')
+                ?? $request->route('id_journal')
                 ?? $request->input('id_journal');
 
-            if ($resolvedId && !is_array($resolvedId)) {
+            if ($resolvedId && ! is_array($resolvedId)) {
                 $journalId = (int) $resolvedId;
             }
         }
