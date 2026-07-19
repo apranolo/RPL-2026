@@ -2,15 +2,136 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BookOutput;
-use App\Models\HkiOutput;
-use App\Models\ResearchOutput;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class OutputController extends Controller
 {
+    /**
+     * Display a listing of the user's research outputs.
+     */
+    public function index(): Response
+    {
+        $outputs = ResearchOutput::with('user')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
+
+        return Inertia::render('Output/Index', [
+            'outputs' => $outputs,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new output.
+     *
+     * Displays the main output creation page where users can select
+     * the type of scientific output they want to add.
+     */
+    public function create(): Response
+    {
+        $user = Auth::user();
+
+        // Get the user's proposals for linking
+        $proposals = Proposal::where('user_id', $user->id)
+            ->select('id', 'judul')
+            ->orderBy('judul')
+            ->get();
+
+        return Inertia::render('Output/Create', [
+            'kategoriOptions' => ResearchOutput::KATEGORI,
+            'proposals' => $proposals,
+        ]);
+    }
+
+    /**
+     * Store a newly created journal publication output.
+     *
+     * Handles the submission of the Publikasi Jurnal Ilmiah sub-form,
+     * including optional DOI-based metadata and file upload.
+     */
+    public function storeJournal(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'proposal_id' => 'required|exists:proposals,id',
+            'judul' => 'required|string|max:255',
+            'nama_jurnal' => 'required|string|max:255',
+            'doi' => 'nullable|string|max:255',
+            'volume' => 'nullable|string|max:50',
+            'nomor' => 'nullable|string|max:50',
+            'halaman' => 'nullable|string|max:50',
+            'penulis' => 'nullable|string|max:500',
+            'url_publikasi' => 'nullable|url|max:500',
+            'file_path' => 'nullable|file|mimes:pdf|max:5120',
+        ], [
+            'proposal_id.required' => 'Proposal wajib dipilih.',
+            'proposal_id.exists' => 'Proposal yang dipilih tidak valid.',
+            'judul.required' => 'Judul publikasi jurnal wajib diisi.',
+            'nama_jurnal.required' => 'Nama jurnal wajib diisi.',
+            'url_publikasi.url' => 'URL publikasi harus berupa URL yang valid.',
+            'file_path.mimes' => 'File harus berupa PDF.',
+            'file_path.max' => 'Ukuran file maksimal 5MB.',
+        ]);
+
+        try {
+            // Handle file upload
+            $filePath = null;
+            if ($request->hasFile('file_path')) {
+                $filePath = $request->file('file_path')->store('luaran/jurnal', 'public');
+            }
+
+            // Build keterangan from journal-specific metadata
+            $keteranganParts = [];
+            if (!empty($validated['nama_jurnal'])) {
+                $keteranganParts[] = 'Jurnal: ' . $validated['nama_jurnal'];
+            }
+            if (!empty($validated['doi'])) {
+                $keteranganParts[] = 'DOI: ' . $validated['doi'];
+            }
+            if (!empty($validated['volume'])) {
+                $keteranganParts[] = 'Vol: ' . $validated['volume'];
+            }
+            if (!empty($validated['nomor'])) {
+                $keteranganParts[] = 'No: ' . $validated['nomor'];
+            }
+            if (!empty($validated['halaman'])) {
+                $keteranganParts[] = 'Hal: ' . $validated['halaman'];
+            }
+            if (!empty($validated['penulis'])) {
+                $keteranganParts[] = 'Penulis: ' . $validated['penulis'];
+            }
+            if (!empty($validated['url_publikasi'])) {
+                $keteranganParts[] = 'URL: ' . $validated['url_publikasi'];
+            }
+
+            ResearchOutput::create([
+                'proposal_id' => $validated['proposal_id'],
+                'user_id' => Auth::id(),
+                'kategori' => 'jurnal',
+                'judul' => $validated['judul'],
+                'file_path' => $filePath,
+                'status' => 'draft',
+                'keterangan' => !empty($keteranganParts) ? implode(' | ', $keteranganParts) : null,
+            ]);
+
+            return redirect()
+                ->route('outputs.index')
+                ->with('success', 'Luaran publikasi jurnal berhasil disimpan.');
+        } catch (\Exception $e) {
+            Log::error('Error storing Journal Output: ' . $e->getMessage());
+
+            // Cleanup uploaded file on failure
+            if (isset($filePath) && $filePath) {
+                Storage::disk('public')->delete($filePath);
+            }
+
+            return back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan data jurnal: ' . $e->getMessage());
+        }
+    }
+
     /**
      * Store a newly created HKI/Patent output in storage.
      *
@@ -163,5 +284,56 @@ class OutputController extends Controller
             Log::error('Error storing Book: ' . $e->getMessage());
             return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data Buku: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Show the form for editing an existing output.
+     */
+    public function edit(ResearchOutput $output): Response
+    {
+        $this->authorize('update', $output);
+
+        return Inertia::render('Output/Edit', [
+            'outputs' => $output,
+        ]);
+    }
+
+    /**
+     * Update the specified output in storage.
+     */
+    public function update(Request $request, ResearchOutput $output): RedirectResponse
+    {
+        $this->authorize('update', $output);
+
+        $validated = $request->validate([
+            'proposal_id' => 'required',
+            'user_id' => 'required',
+            'kategori' => 'required|string|max:255',
+            'judul' => 'required|string|max:255',
+            'file_path' => 'nullable|string|max:255',
+            'status' => 'required|string|max:100',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $output->update($validated);
+
+        return redirect()->route('outputs.index')->with('message', 'Output updated successfully');
+    }
+
+    /**
+     * Remove the specified output from storage.
+     */
+    public function destroy(ResearchOutput $output): RedirectResponse
+    {
+        $this->authorize('delete', $output);
+
+        // Delete associated file if exists
+        if ($output->file_path) {
+            Storage::disk('public')->delete($output->file_path);
+        }
+
+        $output->delete();
+
+        return redirect()->route('outputs.index')->with('message', 'Output deleted successfully');
     }
 }

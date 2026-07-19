@@ -630,11 +630,13 @@ Route::middleware(['auth'])->group(function () {
             ->name('progress.index');
 
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::get('outputs/create', [OutputController::class, 'create'])->name('outputs.create');
+        Route::post('outputs/store-journal', [OutputController::class, 'storeJournal'])->name('outputs.store-journal');
         Route::post('/outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
         Route::post('/outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
-        Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
-        Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
-        Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
+        Route::delete('/outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
+        Route::get('/outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
+        Route::put('/outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
 
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
