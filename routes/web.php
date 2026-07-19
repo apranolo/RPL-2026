@@ -68,6 +68,7 @@ use App\Http\Controllers\ReviewHistoryController;
 use App\Http\Controllers\Revision\EditorRevisionController;
 use App\Http\Controllers\Revision\RevisionController;
 use App\Http\Controllers\SchemaController;
+use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
@@ -190,11 +191,11 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS.','.Role::USER);
 
     // Author Submissions Routes
-    Route::get('submissions', [App\Http\Controllers\SubmissionController::class, 'index'])->name('submissions.index');
-    Route::post('submissions', [App\Http\Controllers\SubmissionController::class, 'store'])->name('submissions.store');
-    Route::delete('submissions/{submission}', [App\Http\Controllers\SubmissionController::class, 'destroy'])->name('submissions.destroy');
-    Route::get('submissions/{submission}', [App\Http\Controllers\SubmissionController::class, 'show'])->name('submissions.show');
-    Route::delete('submissions/{submission}/cancel', [App\Http\Controllers\SubmissionController::class, 'cancel'])->name('submissions.cancel');
+    Route::get('submissions', [SubmissionController::class, 'index'])->name('submissions.index');
+    Route::post('submissions', [SubmissionController::class, 'store'])->name('submissions.store');
+    Route::delete('submissions/{submission}', [SubmissionController::class, 'destroy'])->name('submissions.destroy');
+    Route::get('submissions/{submission}', [SubmissionController::class, 'show'])->name('submissions.show');
+    Route::delete('submissions/{submission}/cancel', [SubmissionController::class, 'cancel'])->name('submissions.cancel');
 
     // Author Submission Wizard Routes
     Route::get('submissions/wizard/step1', [SubmissionWizardController::class, 'step1'])->name('submission.step1');
@@ -1016,8 +1017,8 @@ Route::middleware(['auth'])->group(function () {
         });
 });
 
-Route::post('/user/proposal/{proposal}/documents', [App\Http\Controllers\DocumentController::class, 'upload'])
-    ->middleware(['auth', 'role:'.App\Models\Role::USER])
+Route::post('/user/proposal/{proposal}/documents', [DocumentController::class, 'upload'])
+    ->middleware(['auth', 'role:'.Role::USER])
     ->name('document.upload');
 
 require __DIR__.'/settings.php';

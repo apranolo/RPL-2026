@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Journal;
+use App\Models\JournalAssessment;
+use App\Models\User;
 use App\Services\ReviewCalculationService;
-use Illuminate\Support\Facades\DB;
 
 test('calculate() returns default empty statistics when no assessments exist', function () {
     $service = new ReviewCalculationService;
@@ -23,10 +25,10 @@ test('calculate() returns default empty statistics when no assessments exist', f
 test('calculateSingle() computes correct scores for a given assessment', function () {
     $service = new ReviewCalculationService;
 
-    $user = \App\Models\User::factory()->create();
-    $journal = \App\Models\Journal::factory()->create();
+    $user = User::factory()->create();
+    $journal = Journal::factory()->create();
 
-    \App\Models\JournalAssessment::create([
+    JournalAssessment::create([
         'id' => 1,
         'journal_id' => $journal->id,
         'user_id' => $user->id,
@@ -35,7 +37,7 @@ test('calculateSingle() computes correct scores for a given assessment', functio
         'percentage' => 0.00,
     ]);
 
-    \App\Models\JournalAssessment::create([
+    JournalAssessment::create([
         'id' => 2,
         'journal_id' => $journal->id,
         'user_id' => $user->id,
@@ -44,7 +46,7 @@ test('calculateSingle() computes correct scores for a given assessment', functio
         'percentage' => 85.00,
     ]);
 
-    \App\Models\JournalAssessment::create([
+    JournalAssessment::create([
         'id' => 3,
         'journal_id' => $journal->id,
         'user_id' => $user->id,

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Pembinaan;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -29,7 +30,7 @@ class PembinaanFactory extends Factory
             'assessment_end' => now()->addDays(15),
             'quota' => 10,
             'status' => 'active',
-            'created_by' => \App\Models\User::factory(),
+            'created_by' => User::factory(),
         ];
     }
 }

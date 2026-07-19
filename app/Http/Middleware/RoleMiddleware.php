@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Journal;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,7 +55,7 @@ class RoleMiddleware
         }
 
         if ($user->isAdminKampus() && $journalId) {
-            $journalModel = \App\Models\Journal::find($journalId);
+            $journalModel = Journal::find($journalId);
             if ($journalModel && $journalModel->university_id === $user->university_id) {
                 return $next($request);
             }

@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface Schema {
     id: number;
     name: string;
@@ -20,7 +18,7 @@ export default function Index({ schemas, filters }: IndexProps) {
         <div>
             <h1>Daftar Skema Penelitian</h1>
             <ul>
-                {schemas.data.map(schema => (
+                {schemas.data.map((schema) => (
                     <li key={schema.id}>{schema.name}</li>
                 ))}
             </ul>

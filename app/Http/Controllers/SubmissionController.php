@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Submission;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,14 +30,14 @@ class SubmissionController extends Controller
     public function index()
     {
         return Inertia::render('Submission/Index', [
-            'submissions' => Submission::where('author_id', auth()->id())->get()
+            'submissions' => Submission::where('author_id', auth()->id())->get(),
         ]);
     }
 
     /**
      * Menyimpan submisi baru.
      */
-    public function store(\Illuminate\Http\Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'journal_id' => 'required|exists:journals,id',
@@ -58,9 +60,9 @@ class SubmissionController extends Controller
         if ($request->hasFile('manuscript')) {
             $path = $request->file('manuscript')->store('submissions/manuscripts', 'public');
             $submission->update(['manuscript_path' => $path]);
-            
+
             // Dummy record in submission_files for the test
-            \Illuminate\Support\Facades\DB::table('submission_files')->insert([
+            DB::table('submission_files')->insert([
                 'submission_id' => $submission->id,
                 'file_name' => $request->file('manuscript')->getClientOriginalName(),
                 'file_path' => $path,

@@ -105,7 +105,7 @@ class Submission extends Model
      */
     public function statusHistories(): HasMany
     {
-        return $this->hasMany(\App\Models\StatusHistory::class, 'submission_id');
+        return $this->hasMany(StatusHistory::class, 'submission_id');
     }
 
     /**

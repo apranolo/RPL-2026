@@ -7,8 +7,10 @@ use App\Models\Role;
 use App\Models\ScientificField;
 use App\Models\University;
 use App\Models\User;
+use Illuminate\Database\SQLiteConnection;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -16,17 +18,21 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        if (\Illuminate\Support\Facades\DB::connection() instanceof \Illuminate\Database\SQLiteConnection) {
-            $pdo = \Illuminate\Support\Facades\DB::connection()->getPdo();
+        if (DB::connection() instanceof SQLiteConnection) {
+            $pdo = DB::connection()->getPdo();
             if (method_exists($pdo, 'sqliteCreateFunction')) {
                 $pdo->sqliteCreateFunction('JSON_CONTAINS_PATH', function ($json, $oneOrAll, $path) {
-                    if (!$json) return 0;
+                    if (! $json) {
+                        return 0;
+                    }
                     $data = json_decode($json, true);
-                    if (!is_array($data)) return 0;
-                    
+                    if (! is_array($data)) {
+                        return 0;
+                    }
+
                     // Extract key from path: '$."Scopus"' -> 'Scopus', '$.Scopus' -> 'Scopus'
                     $key = trim(str_replace(['$.', '"', "'"], '', $path));
-                    
+
                     return isset($data[$key]) ? 1 : 0;
                 });
             }
