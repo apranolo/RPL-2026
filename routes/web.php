@@ -614,42 +614,19 @@ Route::middleware(['auth'])->group(function () {
 
         // Preview Table of Contents sebelum publish
         Route::get(
-            'journals/{journal}/issues/{volume}/{issue}/preview',
+            'journals/{journalId}/issues/{volume}/{issue}/preview',
             [IssueController::class, 'preview']
         )->name('journals.issues.preview');
 
         // Publish Issue
         Route::post(
-            'journals/{journal}/issues/publish/{volume}/{issue}',
+            'journals/{journalId}/issues/{volume}/{issue}/publish',
             [IssueController::class, 'publish']
         )->name('journals.issues.publish');
 
-
-        // =====================================================
-        // Issue Preview & Publish
-        // =====================================================
-
-        // Daftar Issues
+        // Back Issues
         Route::get(
-            'journals/{journal}/issues',
-            [IssueController::class, 'index']
-        )->name('production.issue.index');
-
-        // Preview Table of Contents sebelum publish
-        Route::get(
-            'journals/{journal}/issues/{volume}/{issue}/preview',
-            [IssueController::class, 'preview']
-        )->name('production.issue.preview');
-
-        // Publish Issue
-        Route::post(
-            'journals/{journal}/issues/publish/{volume}/{issue}',
-            [IssueController::class, 'publish']
-        )->name('production.issue.publish');
-
-        //Back Issues
-        Route::get(
-            '/production/{journalId}/back-issues',
+            'production/{journalId}/back-issues',
             [IssueController::class, 'backIssues']
         )->name('production.issue.back-issues');
 

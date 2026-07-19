@@ -1,163 +1,195 @@
 <?php
 
 namespace App\Http\Controllers\Production;
-
 use App\Http\Controllers\Controller;
-use App\Models\Submission;
-use App\Models\Galley;
 use App\Models\Issue;
-use App\Models\Journal;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class IssueController extends Controller
 {
     /**
-     * Display a listing of the issues (Draft and Published) for a journal.
+     * Preview Issue sebelum dipublish.
      */
-    public function index(Request $request, $journalId = null)
-    {
-        if (!$journalId) {
-            $journal = $request->user()->journals()->first();
-            if (!$journal) {
-                return redirect()->route('dashboard')->with('error', 'Anda belum memiliki jurnal.');
-            }
-            $journalId = $journal->id;
-        } else {
-            $journal = Journal::findOrFail($journalId);
-            $this->authorizeJournal($journal, $request->user());
-        }
+    public function preview($journalId, $volume, $issue)
+{
+    $issueModel = Issue::with([
+        'journal',
+        'galleys' => function ($query) {
+            $query->with('submission.author')
+                ->orderBy('sequence');
+        },
+    ])
+        ->where('journal_id', $journalId)
+        ->where('volume', $volume)
+        ->where('number', $issue)
+        ->firstOrFail();
 
-        $query = Issue::with('journal')
-            ->withCount('galleys')
-            ->where('journal_id', $journalId);
+    // Pastikan user berhak mengelola journal ini.
+    $this->authorize('update', $issueModel->journal);
 
-        if ($status = $request->query('status')) {
-            if (in_array($status, ['Draft', 'Published'])) {
-                $query->where('status', $status);
-            }
-        }
+    // Susun data artikel beserta Galley
+    // agar sesuai dengan kebutuhan ArticleSequencer.
+    $articles = $issueModel->galleys
+        ->filter(function ($galley) {
+            return $galley->submission !== null;
+        })
+        ->map(function ($galley) {
+            return [
+                'id' => $galley->submission->id,
+                'title' => $galley->submission->title,
+                'status' => $galley->submission->status,
+                'author' => $galley->submission->author
+                    ? [
+                        'id' => $galley->submission->author->id,
+                        'name' => $galley->submission->author->name,
+                    ]
+                    : null,
 
-        $issues = $query->orderByDesc('year')
-            ->orderByDesc('volume')
-            ->orderByDesc('number')
-            ->get();
+                'galley' => [
+                    'id' => $galley->id,
+                    'id_submission' => $galley->submission_id,
+                    'id_issue' => $galley->issue_id,
+                    'file_path' => $galley->file_path,
+                    'file_extension' => $galley->file_extension,
+                    'doi' => $galley->doi,
+                    'pages' => $galley->pages,
+                    'sequence' => $galley->sequence,
+                    'file_url' => $galley->file_url,
+                ],
+            ];
+        })
+        ->values();
 
-        return Inertia::render('Production/Issue/Index', [
-            'journal' => $journal,
-            'issues' => $issues,
-            'filters' => $request->only(['status']),
-        ]);
-    }
+    // Checklist kesiapan publish.
+    $publishReadiness = [
+        'metadataComplete' => ! empty($issueModel->volume)
+            && ! empty($issueModel->number)
+            && ! empty($issueModel->year)
+            && ! empty($issueModel->title),
+
+        'hasArticles' => $articles->isNotEmpty(),
+
+        'tocComplete' => $articles->isNotEmpty()
+            && $articles->every(function ($article) {
+                return ! empty($article['title']);
+            }),
+    ];
+
+    return Inertia::render('Production/Issue/Preview', [
+        'issue' => $issueModel,
+        'articles' => $articles,
+        'publishReadiness' => $publishReadiness,
+    ]);
+}
 
     /**
-     * Preview Issue
+     * Publish Issue beserta seluruh artikel di dalamnya.
      */
-    public function preview(Request $request, $journalId, $volume, $issue)
+    public function publish($journalId, $volume, $issue)
     {
-        $issueModel = Issue::with('journal')
-            ->where('journal_id', $journalId)
-            ->where('volume', $volume)
-            ->where('number', $issue)
-            ->firstOrFail();
+        try {
+            // Cari Issue berdasarkan journal, volume, dan nomor.
+            $issueModel = Issue::with('journal')
+                ->where('journal_id', $journalId)
+                ->where('volume', $volume)
+                ->where('number', $issue)
+                ->firstOrFail();
 
-        $this->authorizeJournal($issueModel->journal, $request->user());
+            // Pastikan user berhak mengelola journal ini.
+            $this->authorize('update', $issueModel->journal);
 
-        // Fetch submissions via galleys of this issue
-        $articles = Galley::with(['submission.contributors', 'submission.author'])
-            ->where('issue_id', $issueModel->id)
-            ->orderBy('sequence')
-            ->get()
-            ->map(function ($galley) {
-                $submission = $galley->submission;
-                $authors = $submission->contributors->pluck('name')->toArray();
-                if (empty($authors) && $submission->author) {
-                    $authors = [$submission->author->name];
+            DB::transaction(function () use ($issueModel, $journalId) {
+                // Lock Issue untuk mencegah publish bersamaan.
+                $issueModel = Issue::with('galleys.submission')
+                    ->whereKey($issueModel->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                // Cegah Issue yang sudah terbit dipublish ulang.
+                if ($issueModel->status === 'Published') {
+                    throw new \RuntimeException(
+                        'Issue ini sudah pernah dipublish.'
+                    );
                 }
 
-                return [
-                    'id' => $submission->id,
-                    'title' => $submission->title,
-                    'authors' => $authors,
-                    'pages' => $galley->pages,
-                    'doi' => $galley->doi,
-                    'article_url' => $galley->file_url,
-                ];
+                // Ambil seluruh Submission yang terhubung ke Issue.
+                $submissions = $issueModel->galleys
+                    ->pluck('submission')
+                    ->filter()
+                    ->unique('id');
+
+                // Issue harus memiliki minimal satu artikel.
+                if ($submissions->isEmpty()) {
+                    throw new \RuntimeException(
+                        'Issue tidak dapat dipublish karena belum memiliki artikel.'
+                    );
+                }
+
+                // Publish seluruh Submission dalam Issue.
+                foreach ($submissions as $submission) {
+                    // Validasi multi-tenancy.
+                    if ((int) $submission->journal_id !== (int) $journalId) {
+                        throw new \RuntimeException(
+                            'Terdapat artikel yang tidak sesuai dengan jurnal.'
+                        );
+                    }
+
+                    $submission->update([
+                        'status' => 'Published',
+                    ]);
+                }
+
+                // Publish Issue.
+                $issueModel->update([
+                    'status' => 'Published',
+                    'publication_date' => now(),
+                ]);
             });
 
-        return Inertia::render('Production/Issue/Preview', [
-            'issue' => $issueModel,
-            'articles' => $articles,
-        ]);
-    }
+            return redirect()
+                ->back()
+                ->with(
+                    'success',
+                    'Edisi jurnal dan seluruh artikel berhasil diterbitkan ke publik!'
+                );
 
-    /**
-     * Publish Issue
-     */
-    public function publish(Request $request, $journalId, $volume, $issue)
-    {
-        $issueModel = Issue::with('journal')
-            ->where('journal_id', $journalId)
-            ->where('volume', $volume)
-            ->where('number', $issue)
-            ->firstOrFail();
+        } catch (\RuntimeException $e) {
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
 
-        $this->authorizeJournal($issueModel->journal, $request->user());
-
-        DB::beginTransaction();
-
-        try {
-            $issueModel->update([
-                'status' => 'Published',
-                'publication_date' => now(),
-            ]);
-
-            DB::commit();
-
-            return redirect()->back()->with('success', "Issue Vol {$volume} No {$issue} berhasil dipublish.");
         } catch (\Throwable $e) {
-            DB::rollBack();
+            report($e);
 
-            return redirect()->back()->with('error', 'Gagal publish issue: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Gagal menerbitkan issue. Silakan coba kembali.'
+                );
         }
     }
 
     /**
-     * Menampilkan daftar Back Issues (arsip issue yang telah dipublish).
+     * Menampilkan daftar Back Issues
+     * atau arsip Issue yang telah dipublish.
      */
     public function backIssues($journalId)
     {
-        return redirect()->route('user.production.issue.index', [
-            'journal' => $journalId,
-            'status' => 'Published',
+        $issues = Issue::with('journal')
+            ->where('journal_id', $journalId)
+            ->where('status', 'Published')
+            ->orderByDesc('publication_date')
+            ->get();
+
+        // Pastikan user memiliki akses ke journal.
+        if ($issues->isNotEmpty()) {
+            $this->authorize('view', $issues->first()->journal);
+        }
+
+        return Inertia::render('Production/Issue/BackIssues', [
+            'issues' => $issues,
         ]);
-    }
-
-    /**
-     * Authorize that the user owns or can manage the journal.
-     */
-    private function authorizeJournal(Journal $journal, User $user): void
-    {
-        if ($user->isSuperAdmin()) {
-            return;
-        }
-
-        if ($user->isAdminKampus()) {
-            if ($journal->university_id !== $user->university_id) {
-                abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
-            }
-            return;
-        }
-
-        if ($user->isUser()) {
-            if ($journal->user_id !== $user->id) {
-                abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
-            }
-            return;
-        }
-
-        abort(403, 'Akses tidak sah.');
     }
 }
