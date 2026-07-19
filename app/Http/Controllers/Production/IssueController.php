@@ -3,13 +3,138 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreIssueRequest;
+use App\Models\Galley;
 use App\Models\Issue;
+use App\Models\Journal;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-use Illuminate\Validation\Rule;
 
 class IssueController extends Controller
 {
+    /**
+     * Display a listing of the issues (Draft and Published) for a journal.
+     */
+    public function index(Request $request, $journalId = null)
+    {
+        if (!$journalId) {
+            $journal = $request->user()->journals()->first();
+            if (!$journal) {
+                return redirect()->route('dashboard')->with('error', 'Anda belum memiliki jurnal.');
+            }
+            $journalId = $journal->id;
+        } else {
+            $journal = Journal::findOrFail($journalId);
+            $this->authorizeJournal($journal, $request->user());
+        }
+
+        $query = Issue::with('journal')
+            ->withCount('galleys')
+            ->where('journal_id', $journalId);
+
+        if ($status = $request->query('status')) {
+            if (in_array($status, ['Draft', 'Published'])) {
+                $query->where('status', $status);
+            }
+        }
+
+        $issues = $query->orderByDesc('year')
+            ->orderByDesc('volume')
+            ->orderByDesc('number')
+            ->get();
+
+        return Inertia::render('Production/Issue/Index', [
+            'journal' => $journal,
+            'issues' => $issues,
+            'filters' => $request->only(['status']),
+        ]);
+    }
+
+    /**
+     * Preview Issue
+     */
+    public function preview(Request $request, $journalId, $volume, $issue)
+    {
+        $issueModel = Issue::with('journal')
+            ->where('journal_id', $journalId)
+            ->where('volume', $volume)
+            ->where('number', $issue)
+            ->firstOrFail();
+
+        $this->authorizeJournal($issueModel->journal, $request->user());
+
+        // Fetch submissions via galleys of this issue
+        $articles = Galley::with(['submission.contributors', 'submission.author'])
+            ->where('issue_id', $issueModel->id)
+            ->orderBy('sequence')
+            ->get()
+            ->map(function ($galley) {
+                $submission = $galley->submission;
+                $authors = $submission->contributors->pluck('name')->toArray();
+                if (empty($authors) && $submission->author) {
+                    $authors = [$submission->author->name];
+                }
+
+                return [
+                    'id' => $submission->id,
+                    'title' => $submission->title,
+                    'authors' => $authors,
+                    'pages' => $galley->pages,
+                    'doi' => $galley->doi,
+                    'article_url' => $galley->file_url,
+                ];
+            });
+
+        return Inertia::render('Production/Issue/Preview', [
+            'issue' => $issueModel,
+            'articles' => $articles,
+        ]);
+    }
+
+    /**
+     * Publish Issue
+     */
+    public function publish(Request $request, $journalId, $volume, $issue)
+    {
+        $issueModel = Issue::with('journal')
+            ->where('journal_id', $journalId)
+            ->where('volume', $volume)
+            ->where('number', $issue)
+            ->firstOrFail();
+
+        $this->authorizeJournal($issueModel->journal, $request->user());
+
+        DB::beginTransaction();
+
+        try {
+            $issueModel->update([
+                'status' => 'Published',
+                'publication_date' => now(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', "Issue Vol {$volume} No {$issue} berhasil dipublish.");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return redirect()->back()->with('error', 'Gagal publish issue: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Menampilkan daftar Back Issues (arsip issue yang telah dipublish).
+     */
+    public function backIssues($journalId)
+    {
+        return redirect()->route('user.production.issue.index', [
+            'journal' => $journalId,
+            'status' => 'Published',
+        ]);
+    }
+
     /**
      * Show the form for creating a new production issue.
      */
@@ -21,15 +146,9 @@ class IssueController extends Controller
     /**
      * Store a newly created production issue in storage.
      */
-    public function store(Request $request)
+    public function store(StoreIssueRequest $request)
     {
-        $validated = $request->validate([
-            'volume' => 'required|integer|min:1',
-            'number' => 'required|integer|min:1',
-            'year' => 'required|integer|min:1900|max:2100',
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:2000',
-        ]);
+        $validated = $request->validated();
 
         try {
             // Get the user's first journal as default context
@@ -57,7 +176,7 @@ class IssueController extends Controller
             Issue::create([
                 ...$validated,
                 'journal_id' => $journal->id,
-                'status' => 'draft',
+                'status' => 'Draft',
             ]);
 
             return redirect()
@@ -78,7 +197,7 @@ class IssueController extends Controller
         // Verifikasi kepemilikan: issue harus milik jurnal user yang login
         $journal = request()->user()->journals()->first();
         abort_if(! $journal || $issue->journal_id !== $journal->id, 403, 'Unauthorized action.');
-        abort_if($issue->status !== 'draft', 403, 'Only draft issues can be edited.');
+        abort_if($issue->status !== 'Draft', 403, 'Only draft issues can be edited.');
 
         return Inertia::render('Production/Issue/Edit', [
             'issue' => [
@@ -101,7 +220,7 @@ class IssueController extends Controller
         // Verifikasi kepemilikan
         $journal = $request->user()->journals()->first();
         abort_if(! $journal || $issue->journal_id !== $journal->id, 403, 'Unauthorized action.');
-        abort_if($issue->status !== 'draft', 403, 'Only draft issues can be edited.');
+        abort_if($issue->status !== 'Draft', 403, 'Only draft issues can be edited.');
 
         $validated = $request->validate([
             'volume' => 'required|integer|min:1',
@@ -130,5 +249,31 @@ class IssueController extends Controller
         return redirect()
             ->route('production.issue.edit', $issue)
             ->with('success', 'Issue berhasil diperbarui');
+    }
+
+    /**
+     * Authorize that the user owns or can manage the journal.
+     */
+    private function authorizeJournal(Journal $journal, User $user): void
+    {
+        if ($user->isSuperAdmin()) {
+            return;
+        }
+
+        if ($user->isAdminKampus()) {
+            if ($journal->university_id !== $user->university_id) {
+                abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
+            }
+            return;
+        }
+
+        if ($user->isUser()) {
+            if ($journal->user_id !== $user->id) {
+                abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
+            }
+            return;
+        }
+
+        abort(403, 'Akses tidak sah.');
     }
 }

@@ -51,9 +51,12 @@ class ResearchOutput extends Model
         return $this->jenis_luaran === 'Buku' && $this->outputable ? $this->outputable->isbn : null;
     }
 
-    public function getTautanPublikasiAttribute()
+    public function getTautanPublikasiAttribute($value)
     {
-        return $this->jenis_luaran === 'Jurnal' && $this->outputable ? $this->outputable->url : null;
+        if ($this->jenis_luaran === 'Jurnal' && $this->outputable) {
+            return $this->outputable->url ?? $value;
+        }
+        return $value;
     }
 
     protected $fillable = [
@@ -62,9 +65,11 @@ class ResearchOutput extends Model
         'jenis_luaran',
         'judul_luaran',
         'tahun_capaian',
+        'penulis_atau_pencipta',
         'file_sertifikat_atau_cover',
         'status_verifikasi',
         'keterangan',
+        'tautan_publikasi',
         'outputable_type',
         'outputable_id',
         // Kolom tambahan untuk fitur report

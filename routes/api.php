@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\TopResearchController;
+use App\Http\Controllers\Api\TopLecturerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +35,7 @@ Route::middleware(['web'])->group(function () {
         // Route::get('/microsoft', [SocialAuthController::class, 'redirectToMicrosoft']);
         // Route::get('/microsoft/callback', [SocialAuthController::class, 'handleMicrosoftCallback']);
     });
+
 });
 
 /*
@@ -52,6 +55,11 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     Route::get('/user', [AuthenticatedSessionController::class, 'user']);
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
+    
+    Route::get('/top-lecturers', [TopLecturerController::class, 'getTop']);
+    Route::get('/top-research', [TopResearchController::class, 'getTop']);
+ 
+
     // revisi dead code
     Route::get('/timeline/chart', [\App\Http\Controllers\Api\TimelineController::class, 'getChart'])->name('timeline.getChart');
 
@@ -62,7 +70,7 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // Output Statistics
     Route::prefix('stats/outputs')->group(function () {
         Route::get('/by-category', [OutputStatsController::class, 'getCategory']);
-        Route::get('/yearly',      [OutputStatsController::class, 'getYearly']);
+        Route::get('/yearly', [OutputStatsController::class, 'getYearly']);
     });
 
     // Budget Stats

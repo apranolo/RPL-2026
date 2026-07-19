@@ -1,11 +1,16 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use App\Models\AuthorProfile;
 
 class User extends Authenticatable
 {
@@ -30,7 +35,7 @@ class User extends Authenticatable
             if ($user->role_id) {
                 $user->roles()->syncWithoutDetaching([$user->role_id => [
                     'assigned_at' => now(),
-                    'assigned_by' => auth()->id() ?? $user->approved_by,
+                    'assigned_by' => Auth::id() ?? $user->approved_by,
                 ]]);
             }
 
@@ -40,7 +45,7 @@ class User extends Authenticatable
                 if ($user->is_reviewer) {
                     $user->roles()->syncWithoutDetaching([$reviewerRole->id => [
                         'assigned_at' => now(),
-                        'assigned_by' => auth()->id() ?? $user->approved_by,
+                        'assigned_by' => Auth::id() ?? $user->approved_by,
                     ]]);
                 } else {
                     $user->roles()->detach($reviewerRole->id);
@@ -106,7 +111,7 @@ class User extends Authenticatable
         ];
     }
 
-   /*
+    /*
     |--------------------------------------------------------------------------
     | Relationships
     |--------------------------------------------------------------------------
@@ -253,7 +258,7 @@ class User extends Authenticatable
         return $this->hasOne(AuthorProfile::class);
     }
 
-    /**
+/**
      * Get the reviewer profile of this user
      */
     public function reviewerProfile()
@@ -395,6 +400,18 @@ class User extends Authenticatable
 
         // Check in roles relationship (multi-role)
         return $this->roles()->where('name', Role::ADMIN_KAMPUS)->exists();
+    }
+
+    /**
+     * Check if user is Admin Keuangan
+     */
+    public function isAdminKeuangan(): bool
+    {
+        if ($this->role && $this->role->name === Role::ADMIN_KEUANGAN) {
+            return true;
+        }
+
+        return $this->roles()->where('name', Role::ADMIN_KEUANGAN)->exists();
     }
 
     /**
