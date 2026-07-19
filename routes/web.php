@@ -540,6 +540,17 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('proposal')->name('proposal.')->group(function () {
             //
         });
+
+        // Revisi Dokumen (Author)
+        Route::prefix('revisions')->name('revisions.')->group(function () {
+            // Upload file revisi oleh Author (GET = tampil form, POST = proses upload)
+            Route::match(['GET', 'POST'], '{revisionRound}/upload', [\App\Http\Controllers\Revision\RevisionController::class, 'uploadRevision'])
+                ->name('upload');
+        });
+
+        // Histori versi dokumen per assessment
+        Route::get('assessments/{assessment}/version-history', [\App\Http\Controllers\Revision\RevisionController::class, 'versionHistory'])
+            ->name('assessments.version-history');
     });
 
     /*

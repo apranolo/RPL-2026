@@ -176,6 +176,23 @@ class JournalAssessment extends Model
         return $this->belongsTo(User::class, 'assigned_by');
     }
 
+    /**
+     * Get all revision rounds for this assessment (versioning dokumen)
+     */
+    public function revisionRounds()
+    {
+        return $this->hasMany(\App\Models\RevisionRound::class)
+            ->orderBy('round_number', 'asc');
+    }
+
+    /**
+     * Get the latest (current) revision round
+     */
+    public function latestRevisionRound()
+    {
+        return $this->hasOne(\App\Models\RevisionRound::class)->latestOfMany('round_number');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Scopes
