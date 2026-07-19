@@ -248,6 +248,10 @@ class OutputController extends Controller
             'document'    => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
 
+        // ── Otorisasi: pastikan user yang login boleh membuat luaran baru ──
+        // Policy: ResearchOutputPolicy@create — hanya role 'User' yang aktif & approved.
+        $this->authorize('create', ResearchOutput::class);
+
         // ── Simpan data ke DB — user_id selalu diikat ke user yang sedang login (RBAC) ──
         $product = ResearchOutput::create([
             'proposal_id' => $validated['proposal_id'] ?? null,
