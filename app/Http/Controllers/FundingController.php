@@ -7,6 +7,7 @@ use App\Models\Contract;
 use App\Models\Funding;
 use App\Services\FundingService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -72,6 +73,35 @@ class FundingController extends Controller
 
         return redirect()->route('finance.funding.create', $contract->id)
             ->with('success', 'Termin pencairan berhasil ditambahkan.');
+    }
+
+    /**
+     * Upload bukti transfer (proof of disbursement) for a funding term.
+     */
+    public function uploadBukti(Request $request, Funding $funding): RedirectResponse
+    {
+        $validated = $request->validate([
+            'proof_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'reference_number' => 'nullable|string|max:100',
+            'paid_at' => 'nullable|date',
+        ], [
+            'proof_document.required' => 'File bukti transfer harus diunggah.',
+            'proof_document.mimes' => 'File hanya boleh berformat PDF, JPG, atau PNG.',
+            'proof_document.max' => 'Ukuran file tidak boleh lebih dari 5MB.',
+        ]);
+
+        $file = $validated['proof_document'];
+        $fileName = time().'_'.$file->getClientOriginalName();
+        $filePath = $file->storeAs('funding_receipts', $fileName, 'public');
+
+        $funding->update([
+            'proof_document_path' => $filePath,
+            'reference_number' => $validated['reference_number'] ?? $funding->reference_number,
+            'paid_at' => $validated['paid_at'] ?? $funding->paid_at ?? now(),
+            'status' => Funding::STATUS_DISBURSED,
+        ]);
+
+        return back()->with('success', 'Bukti transfer dana berhasil diunggah.');
     }
 
     /**
