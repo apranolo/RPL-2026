@@ -818,6 +818,28 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Finance & Funding Routes
+    |--------------------------------------------------------------------------
+    | Akses untuk Keuangan dan Admin Kampus
+    */
+    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
+
+        // Rute untuk menampilkan halaman log perubahan termin
+        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
+            ->name('finance.funding.logs.index');
+
+        // Rute BARU untuk mencetak kwitansi PDF
+        Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
+            ->name('finance.funding.print-kwitansi');
+
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Submission Discussion Routes (v1.1)
     |--------------------------------------------------------------------------
     */
@@ -848,6 +870,23 @@ Route::middleware(['auth'])->group(function () {
     // Resources (Placeholder)
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
+
+
+
+    // Print Berita Acara Review
+    Route::get('/review/print/{type}/{id}', [\App\Http\Controllers\ReviewDocumentController::class, 'print'])
+        ->name('review.print');
+
+    // Review History
+    Route::get('/proposal/review-history/{dosen?}', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
+        ->name('proposal.review-history');
+
+    // Notifications (Modul 7)
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
+        Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
+    });
 
     Route::resource('proposal', ProposalController::class);
 
