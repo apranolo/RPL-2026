@@ -3,8 +3,8 @@
  *
  * @description
  * Detail view page for a research contract draft.
- * Displays contract metadata, related entities, terms, audit trail,
- * and allows status transitions (draft → active → selesai / dibatalkan).
+ * Displays contract metadata, related entities, terms, financial information,
+ * audit trail, and allows status transitions (draft → active → selesai / dibatalkan).
  *
  * @route GET /admin/contracts/{contract}
  *
@@ -12,11 +12,13 @@
  * - Contract header with number & status badge
  * - Related journal / pembinaan registration / university info
  * - Contract period, terms, and notes
+ * - Financial section: contract value & disbursement schedule (PRD Modul 3)
  * - Status transition actions with confirmation dialog
  * - Audit trail (created by, updated by)
  *
  * @author GILANG JA'FAR PRASETYA
  */
+import StatusBadge from '@/components/StatusBadge';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -27,7 +29,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import StatusBadge from '@/components/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -40,10 +41,12 @@ import {
     Building2,
     CalendarDays,
     CheckCircle2,
+    CircleDollarSign,
     ClipboardList,
     FileText,
     Hash,
     Info,
+    Layers,
     User2,
     XCircle,
 } from 'lucide-react';
@@ -94,6 +97,8 @@ interface Contract {
     end_date?: string;
     terms?: string;
     notes?: string;
+    /** Total nilai kontrak / pendanaan yang disetujui (IDR). PRD Modul 3. */
+    contract_value?: number | null;
     pembinaan_registration?: PembinaanRegistration;
     journal?: Journal;
     university?: University;
@@ -110,13 +115,6 @@ interface Props {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const STATUS_BADGE_VARIANT: Record<ContractStatus, 'secondary' | 'default' | 'outline' | 'destructive'> = {
-    draft: 'secondary',
-    active: 'default',
-    selesai: 'outline',
-    dibatalkan: 'destructive',
-};
 
 const STATUS_LABEL: Record<ContractStatus, string> = {
     draft: 'Draft',
@@ -145,6 +143,52 @@ function formatDateTime(dateStr?: string): string {
     });
 }
 
+/** Format currency as Indonesian Rupiah. */
+function formatIDR(value?: number | null): string {
+    if (value === null || value === undefined) return '—';
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(value);
+}
+
+/**
+ * Compute a simple 3-termin disbursement schedule based on contract value.
+ * PRD Modul 3 standard split: 40% – 40% – 20%.
+ */
+function computeDisbursementSchedule(
+    contractValue: number,
+    startDate?: string,
+    endDate?: string,
+): { label: string; percentage: number; amount: number; dueDate: string }[] {
+    const splits = [
+        { label: 'Termin 1 (Muka)', percentage: 40 },
+        { label: 'Termin 2 (Tengah)', percentage: 40 },
+        { label: 'Termin 3 (Akhir)', percentage: 20 },
+    ];
+
+    // Distribute duration equally across termins if dates are available
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+    const durationMs = start && end ? end.getTime() - start.getTime() : null;
+
+    return splits.map((split, index) => {
+        let dueDate = '—';
+        if (start && durationMs) {
+            const fraction = (index + 1) / splits.length;
+            const due = new Date(start.getTime() + durationMs * fraction);
+            dueDate = due.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        return {
+            ...split,
+            amount: Math.round((contractValue * split.percentage) / 100),
+            dueDate,
+        };
+    });
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function DetailRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: React.ReactNode }) {
@@ -152,7 +196,7 @@ function DetailRow({ icon: Icon, label, value }: { icon: React.ElementType; labe
         <div className="flex items-start gap-3">
             <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
             <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{label}</p>
                 <div className="mt-0.5 text-sm font-medium">{value}</div>
             </div>
         </div>
@@ -208,14 +252,6 @@ export default function ContractShow({ contract }: Props) {
         active: 'Aktifkan',
         selesai: 'Tandai Selesai',
         dibatalkan: 'Batalkan Kontrak',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any;
-
-    const confirmVariant: Record<ContractStatus, string> = {
-        active: '',
-        selesai: '',
-        dibatalkan: 'destructive',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     // ── Related journal (may come from direct link or via registration)
@@ -223,13 +259,18 @@ export default function ContractShow({ contract }: Props) {
     const relatedUniversity = contract.university ?? relatedJournal?.university;
     const relatedPembinaan = contract.pembinaan_registration?.pembinaan;
 
+    // ── Financial calculations
+    const hasContractValue = contract.contract_value !== null && contract.contract_value !== undefined;
+    const disbursementSchedule = hasContractValue
+        ? computeDisbursementSchedule(contract.contract_value!, contract.start_date, contract.end_date)
+        : [];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Kontrak ${contract.contract_number}`} />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-
                     {/* ── Back button ─────────────────────────────────────── */}
                     <div className="mb-6">
                         <Button variant="ghost" size="sm" className="h-auto justify-start gap-2 p-0" asChild>
@@ -264,12 +305,7 @@ export default function ContractShow({ contract }: Props) {
                     {!isTerminal && (
                         <div className="mb-6 flex flex-wrap gap-2">
                             {transitions.includes('active') && (
-                                <Button
-                                    id="btn-activate-contract"
-                                    className="gap-2"
-                                    disabled={processing}
-                                    onClick={() => setPendingStatus('active')}
-                                >
+                                <Button id="btn-activate-contract" className="gap-2" disabled={processing} onClick={() => setPendingStatus('active')}>
                                     <CheckCircle2 className="h-4 w-4" />
                                     Aktifkan Kontrak
                                 </Button>
@@ -312,10 +348,8 @@ export default function ContractShow({ contract }: Props) {
                     )}
 
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-
                         {/* ── LEFT column (2/3) ────────────────────────────── */}
                         <div className="space-y-6 lg:col-span-2">
-
                             {/* Contract detail card */}
                             <Card>
                                 <CardHeader>
@@ -327,19 +361,11 @@ export default function ContractShow({ contract }: Props) {
                                 </CardHeader>
                                 <CardContent className="space-y-5">
                                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                        <DetailRow
-                                            icon={CalendarDays}
-                                            label="Tanggal Mulai"
-                                            value={formatDate(contract.start_date)}
-                                        />
-                                        <DetailRow
-                                            icon={CalendarDays}
-                                            label="Tanggal Berakhir"
-                                            value={formatDate(contract.end_date)}
-                                        />
+                                        <DetailRow icon={CalendarDays} label="Tanggal Mulai" value={formatDate(contract.start_date)} />
+                                        <DetailRow icon={CalendarDays} label="Tanggal Berakhir" value={formatDate(contract.end_date)} />
                                     </div>
 
-                                    {(contract.start_date && contract.end_date) && (
+                                    {contract.start_date && contract.end_date && (
                                         <div className="rounded-lg border bg-muted/30 px-4 py-3">
                                             <p className="text-xs text-muted-foreground">Periode Kontrak</p>
                                             <p className="mt-0.5 text-sm font-medium">
@@ -352,7 +378,7 @@ export default function ContractShow({ contract }: Props) {
                                         <>
                                             <Separator />
                                             <div>
-                                                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
                                                     Syarat & Ketentuan
                                                 </p>
                                                 <div className="rounded-lg border bg-muted/20 p-4 text-sm leading-relaxed whitespace-pre-wrap">
@@ -366,12 +392,8 @@ export default function ContractShow({ contract }: Props) {
                                         <>
                                             <Separator />
                                             <div>
-                                                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                                    Catatan
-                                                </p>
-                                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                                    {contract.notes}
-                                                </p>
+                                                <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">Catatan</p>
+                                                <p className="text-sm leading-relaxed text-muted-foreground">{contract.notes}</p>
                                             </div>
                                         </>
                                     )}
@@ -380,6 +402,80 @@ export default function ContractShow({ contract }: Props) {
                                         <p className="text-sm text-muted-foreground italic">
                                             Belum ada syarat, ketentuan, atau catatan yang ditambahkan.
                                         </p>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* ── Financial Card (PRD Modul 3) ─────────────── */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <CircleDollarSign className="h-4 w-4" />
+                                        Informasi Keuangan
+                                    </CardTitle>
+                                    <CardDescription>Nilai kontrak dan rencana termin pencairan dana</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-5">
+                                    {/* Contract value display */}
+                                    <DetailRow
+                                        icon={CircleDollarSign}
+                                        label="Total Nilai Kontrak (Pendanaan Disetujui)"
+                                        value={
+                                            hasContractValue ? (
+                                                <span className="text-base font-bold text-primary">{formatIDR(contract.contract_value)}</span>
+                                            ) : (
+                                                <span className="text-sm text-muted-foreground italic">Belum ditentukan</span>
+                                            )
+                                        }
+                                    />
+
+                                    {/* Disbursement schedule — shown only when contract_value is set */}
+                                    {hasContractValue && disbursementSchedule.length > 0 && (
+                                        <>
+                                            <Separator />
+                                            <div>
+                                                <div className="mb-3 flex items-center gap-2">
+                                                    <Layers className="h-4 w-4 text-muted-foreground" />
+                                                    <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                                                        Rencana Termin Pencairan Dana
+                                                    </p>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {disbursementSchedule.map((termin) => (
+                                                        <div
+                                                            key={termin.label}
+                                                            className="flex items-center justify-between rounded-lg border bg-muted/20 px-4 py-3"
+                                                        >
+                                                            <div className="min-w-0">
+                                                                <p className="text-sm font-medium">{termin.label}</p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {termin.percentage}% · Estimasi: {termin.dueDate}
+                                                                </p>
+                                                            </div>
+                                                            <span className="ml-4 shrink-0 font-semibold text-primary">
+                                                                {formatIDR(termin.amount)}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* Total verification row */}
+                                                <div className="mt-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+                                                    <p className="text-sm font-semibold">Total</p>
+                                                    <span className="font-bold text-primary">{formatIDR(contract.contract_value)}</span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {!hasContractValue && (
+                                        <div className="flex items-start gap-3 rounded-lg border border-dashed bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+                                            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+                                            <span>
+                                                Nilai kontrak belum dicatat. Rencana termin pencairan akan tampil otomatis setelah nilai kontrak
+                                                diisi.
+                                            </span>
+                                        </div>
                                     )}
                                 </CardContent>
                             </Card>
@@ -429,7 +525,6 @@ export default function ContractShow({ contract }: Props) {
 
                         {/* ── RIGHT column (1/3) ───────────────────────────── */}
                         <div className="space-y-6">
-
                             {/* Parties card */}
                             <Card>
                                 <CardHeader>
@@ -446,9 +541,7 @@ export default function ContractShow({ contract }: Props) {
                                             value={relatedUniversity.short_name ?? relatedUniversity.name}
                                         />
                                     ) : (
-                                        <p className="text-sm text-muted-foreground italic">
-                                            Belum ada universitas terkait.
-                                        </p>
+                                        <p className="text-sm text-muted-foreground italic">Belum ada universitas terkait.</p>
                                     )}
 
                                     {relatedJournal && !contract.pembinaan_registration && (
@@ -459,9 +552,7 @@ export default function ContractShow({ contract }: Props) {
                                                 <span>
                                                     {relatedJournal.title}
                                                     <br />
-                                                    <span className="font-mono text-xs text-muted-foreground">
-                                                        ISSN: {relatedJournal.issn}
-                                                    </span>
+                                                    <span className="font-mono text-xs text-muted-foreground">ISSN: {relatedJournal.issn}</span>
                                                 </span>
                                             }
                                         />
@@ -514,29 +605,32 @@ export default function ContractShow({ contract }: Props) {
             </div>
 
             {/* ── Status Transition Confirmation Dialog ──────────────────── */}
-            <AlertDialog open={pendingStatus !== null} onOpenChange={(open) => { if (!open) setPendingStatus(null); }}>
+            <AlertDialog
+                open={pendingStatus !== null}
+                onOpenChange={(open) => {
+                    if (!open) setPendingStatus(null);
+                }}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>
-                            {pendingStatus && confirmLabel[pendingStatus]}?
-                        </AlertDialogTitle>
+                        <AlertDialogTitle>{pendingStatus && confirmLabel[pendingStatus]}?</AlertDialogTitle>
                         <AlertDialogDescription>
                             {pendingStatus === 'active' && (
                                 <>
-                                    Kontrak <strong>{contract.contract_number}</strong> akan diubah statusnya menjadi{' '}
-                                    <strong>Aktif</strong>. Pastikan semua data sudah benar sebelum mengaktifkan.
+                                    Kontrak <strong>{contract.contract_number}</strong> akan diubah statusnya menjadi <strong>Aktif</strong>. Pastikan
+                                    semua data sudah benar sebelum mengaktifkan.
                                 </>
                             )}
                             {pendingStatus === 'selesai' && (
                                 <>
-                                    Kontrak <strong>{contract.contract_number}</strong> akan ditandai sebagai{' '}
-                                    <strong>Selesai</strong>. Tindakan ini tidak dapat dibatalkan.
+                                    Kontrak <strong>{contract.contract_number}</strong> akan ditandai sebagai <strong>Selesai</strong>. Tindakan ini
+                                    tidak dapat dibatalkan.
                                 </>
                             )}
                             {pendingStatus === 'dibatalkan' && (
                                 <>
-                                    Kontrak <strong>{contract.contract_number}</strong> akan{' '}
-                                    <strong>dibatalkan</strong>. Tindakan ini tidak dapat dibatalkan.
+                                    Kontrak <strong>{contract.contract_number}</strong> akan <strong>dibatalkan</strong>. Tindakan ini tidak dapat
+                                    dibatalkan.
                                 </>
                             )}
                         </AlertDialogDescription>
@@ -547,9 +641,7 @@ export default function ContractShow({ contract }: Props) {
                             id="btn-confirm-status"
                             disabled={processing}
                             className={
-                                pendingStatus === 'dibatalkan'
-                                    ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                                    : undefined
+                                pendingStatus === 'dibatalkan' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : undefined
                             }
                             onClick={() => pendingStatus && handleUpdateStatus(pendingStatus)}
                         >

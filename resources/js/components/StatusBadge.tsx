@@ -4,18 +4,18 @@
  * @description
  * A reusable, premium status indicator badge designed for contract lifecycles
  * and generic state indicators (e.g. Draft, Aktif, Selesai, Dibatalkan).
- * Features sleek colors, smooth transitions, and distinct iconography.
+ * Features smooth transitions and distinct iconography.
+ *
+ * Color policy: ALL colors are derived from the project's global design
+ * tokens (CSS custom properties defined in resources/css/app.css) to stay
+ * consistent with the "The Progressive Aurora" palette. No hardcoded Tailwind
+ * color utilities (bg-emerald-*, bg-blue-*, etc.) are used here.
  *
  * @author GILANG JA'FAR PRASETYA
  */
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import {
-    CheckCircle2,
-    FileEdit,
-    PlayCircle,
-    XCircle,
-} from 'lucide-react';
+import { CheckCircle2, FileEdit, PlayCircle, XCircle } from 'lucide-react';
 
 // ─── Status Definitions ───────────────────────────────────────────────────────
 
@@ -24,39 +24,73 @@ export type ContractStatusType = 'draft' | 'active' | 'selesai' | 'dibatalkan' |
 interface StatusConfig {
     label: string;
     variant: 'secondary' | 'default' | 'outline' | 'destructive';
+    /** Semantic token-based classes only — no hardcoded palette utilities. */
     styles: string;
     icon: React.ElementType;
 }
 
+/**
+ * STATUS_CONFIGS
+ *
+ * All `styles` values use CSS-variable-backed Tailwind aliases defined in
+ * app.css (@theme block) and shadcn/ui's token conventions:
+ *
+ *   bg-muted / text-muted-foreground   → neutral grey  (--muted / --muted-foreground)
+ *   bg-primary / text-primary          → Muhammadiyah Green (#00853c)
+ *   bg-secondary / text-secondary      → Progressive Teal (#04a64b)
+ *   bg-destructive / text-destructive  → Error red  (#ef4444)
+ *   border-border                      → Global border token (--border)
+ */
 const STATUS_CONFIGS: Record<string, StatusConfig> = {
     draft: {
         label: 'Draft',
         variant: 'secondary',
-        styles: 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200 dark:bg-slate-900/50 dark:text-slate-300 dark:border-slate-800',
+        styles: [
+            'bg-muted text-muted-foreground border-border',
+            'hover:bg-muted/80',
+            'dark:bg-muted/40 dark:text-muted-foreground dark:border-border',
+        ].join(' '),
         icon: FileEdit,
     },
     active: {
         label: 'Aktif',
         variant: 'default',
-        styles: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50',
+        styles: [
+            'bg-primary/10 text-primary border-primary/30',
+            'hover:bg-primary/20',
+            'dark:bg-primary/20 dark:text-primary dark:border-primary/40',
+        ].join(' '),
         icon: PlayCircle,
     },
-    aktif: { // Fallback for indonesian variant if passed directly
+    // Indonesian spelling alias — delegates to the same config as 'active'
+    aktif: {
         label: 'Aktif',
         variant: 'default',
-        styles: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50',
+        styles: [
+            'bg-primary/10 text-primary border-primary/30',
+            'hover:bg-primary/20',
+            'dark:bg-primary/20 dark:text-primary dark:border-primary/40',
+        ].join(' '),
         icon: PlayCircle,
     },
     selesai: {
         label: 'Selesai',
         variant: 'outline',
-        styles: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50',
+        styles: [
+            'bg-secondary/10 text-secondary border-secondary/30',
+            'hover:bg-secondary/20',
+            'dark:bg-secondary/20 dark:text-secondary dark:border-secondary/40',
+        ].join(' '),
         icon: CheckCircle2,
     },
     dibatalkan: {
         label: 'Dibatalkan',
         variant: 'destructive',
-        styles: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-900/50',
+        styles: [
+            'bg-destructive/10 text-destructive border-destructive/30',
+            'hover:bg-destructive/20',
+            'dark:bg-destructive/20 dark:text-destructive dark:border-destructive/40',
+        ].join(' '),
         icon: XCircle,
     },
 };
@@ -72,17 +106,12 @@ interface StatusBadgeProps {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function StatusBadge({
-    status,
-    className,
-    showIcon = true,
-    customLabel,
-}: StatusBadgeProps) {
+export default function StatusBadge({ status, className, showIcon = true, customLabel }: StatusBadgeProps) {
     const key = status?.toLowerCase() || 'draft';
     const config = STATUS_CONFIGS[key] || {
         label: status || 'Unknown',
-        variant: 'outline',
-        styles: 'bg-slate-100 text-slate-800 dark:bg-slate-900/50 dark:text-slate-300',
+        variant: 'outline' as const,
+        styles: 'bg-muted text-muted-foreground border-border',
         icon: FileEdit,
     };
 
@@ -93,9 +122,9 @@ export default function StatusBadge({
         <Badge
             variant={config.variant}
             className={cn(
-                'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold tracking-wide transition-all duration-300 select-none border shadow-sm rounded-full',
+                'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold tracking-wide shadow-sm transition-all duration-300 select-none',
                 config.styles,
-                className
+                className,
             )}
         >
             {showIcon && <Icon className="h-3.5 w-3.5 shrink-0" />}

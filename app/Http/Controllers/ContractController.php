@@ -14,10 +14,15 @@ use Inertia\Response;
 /**
  * ContractController
  *
- * Manages the lifecycle of contracts:
+ * Manages the lifecycle of contracts within the Finance module:
  *   generate()     – Create a new draft contract (with optional links to journal / pembinaan registration)
  *   show()         – Display detail of a single contract
  *   updateStatus() – Transition contract status (draft → active → selesai / dibatalkan)
+ *
+ * Multi-tenancy note:
+ *   All mutating actions validate that the acting user belongs to the same
+ *   university as the contract (unless the user is Super Admin). This prevents
+ *   cross-tenant data leakage (ID harvesting).
  *
  * @author GILANG JA'FAR PRASETYA
  */
@@ -32,9 +37,10 @@ class ContractController extends Controller
     |
     | The method:
     |   1. Validates the incoming request payload.
-    |   2. Auto-generates a sequential contract number inside a DB transaction
+    |   2. Auto-infers university from linked journal / pembinaan registration.
+    |   3. Auto-generates a sequential contract number inside a DB transaction
     |      (using SELECT … FOR UPDATE to prevent race conditions).
-    |   3. Persists the draft contract and redirects to its detail page.
+    |   4. Persists the draft contract and redirects to its detail page.
     |
     | Route (example): POST /admin/contracts/generate
     |
@@ -52,7 +58,7 @@ class ContractController extends Controller
         // ------------------------------------------------------------------
         $validated = $request->validate([
             // Required
-            'title' => ['required', 'string', 'max:255'],
+            'title'          => ['required', 'string', 'max:255'],
 
             // Optional relational links
             'pembinaan_registration_id' => ['nullable', 'integer', 'exists:pembinaan_registrations,id'],
@@ -66,6 +72,9 @@ class ContractController extends Controller
             // Optional body content
             'terms' => ['nullable', 'string'],
             'notes' => ['nullable', 'string', 'max:1000'],
+
+            // Financial fields (PRD Modul 3 – Keuangan)
+            'contract_value' => ['nullable', 'integer', 'min:0'],
         ]);
 
         // ------------------------------------------------------------------
@@ -102,15 +111,18 @@ class ContractController extends Controller
                 'status'                    => 'draft',
                 'terms'                     => $validated['terms'] ?? null,
                 'notes'                     => $validated['notes'] ?? null,
+                'contract_value'            => $validated['contract_value'] ?? null,
                 'created_by'                => $request->user()->id,
             ]);
         });
 
         // ------------------------------------------------------------------
         // 4. Redirect to the contract detail page with a success flash
+        //    [FIX] Route name corrected from 'contracts.show' to
+        //    'admin.contracts.show' to match the named-prefix group in web.php.
         // ------------------------------------------------------------------
         return redirect()
-            ->route('contracts.show', $contract)
+            ->route('admin.contracts.show', $contract)
             ->with('success', "Draft kontrak {$contract->contract_number} berhasil dibuat.");
     }
 
@@ -123,10 +135,17 @@ class ContractController extends Controller
     /**
      * Display the specified contract.
      *
+     * Multi-tenancy guard:
+     *   Non-super-admin users may only view contracts whose university_id
+     *   matches their own, preventing cross-tenant ID harvesting.
+     *
      * @route GET /admin/contracts/{contract}
      */
     public function show(Contract $contract): Response
     {
+        // [SECURITY] Enforce university scoping for non-super-admin users.
+        $this->authorizeContractAccess($contract);
+
         $contract->load([
             'pembinaanRegistration.journal.university',
             'pembinaanRegistration.pembinaan',
@@ -156,10 +175,17 @@ class ContractController extends Controller
      *   selesai     → (terminal – no transition)
      *   dibatalkan  → (terminal – no transition)
      *
+     * Multi-tenancy guard:
+     *   Non-super-admin users may only mutate contracts belonging to their
+     *   own university.
+     *
      * @route POST /admin/contracts/{contract}/update-status
      */
     public function updateStatus(Request $request, Contract $contract): RedirectResponse
     {
+        // [SECURITY] Enforce university scoping for non-super-admin users.
+        $this->authorizeContractAccess($contract);
+
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:active,selesai,dibatalkan'],
             'notes'  => ['nullable', 'string', 'max:1000'],
@@ -194,7 +220,36 @@ class ContractController extends Controller
 
         return back()->with(
             'success',
-            "Status kontrak {$contract->contract_number} berhasil diubah ke \"{$contract->getStatusLabelAttribute()}\"."
+            "Status kontrak {$contract->contract_number} berhasil diubah ke \"{$contract->fresh()->getStatusLabelAttribute()}\"."
         );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Private Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Enforce multi-tenancy authorization on a contract.
+     *
+     * Super Admins bypass this check (they manage all universities).
+     * Other roles must share the same university_id as the contract.
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    private function authorizeContractAccess(Contract $contract): void
+    {
+        $user = auth()->user();
+
+        // Super Admin can access any contract across all universities.
+        if ($user->isSuperAdmin()) {
+            return;
+        }
+
+        // For all other roles, enforce university boundary.
+        if ($contract->university_id !== null && $user->university_id !== $contract->university_id) {
+            abort(403, 'Anda tidak memiliki akses ke kontrak ini.');
+        }
     }
 }

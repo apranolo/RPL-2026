@@ -26,6 +26,7 @@ class Contract extends Model
         'status',
         'terms',
         'notes',
+        'contract_value',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -37,11 +38,12 @@ class Contract extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'start_date' => 'date',
-        'end_date'   => 'date',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+        'start_date'     => 'date',
+        'end_date'       => 'date',
+        'contract_value' => 'integer',
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
+        'deleted_at'     => 'datetime',
     ];
 
     /*
