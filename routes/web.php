@@ -55,6 +55,7 @@ use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Production\IssueController;
 use Inertia\Inertia;
 
 /*
@@ -588,6 +589,35 @@ Route::middleware(['auth'])->group(function () {
         Route::post('journals/{journal}/harvest', [UserJournalController::class, 'harvest'])
             ->name('journals.harvest');
 
+
+        // =====================================================
+        // Issue Preview & Publish
+        // =====================================================
+
+        // Daftar Issues
+        Route::get(
+            'journals/{journal}/issues',
+            [IssueController::class, 'index']
+        )->name('production.issue.index');
+
+        // Preview Table of Contents sebelum publish
+        Route::get(
+            'journals/{journal}/issues/{volume}/{issue}/preview',
+            [IssueController::class, 'preview']
+        )->name('production.issue.preview');
+
+        // Publish Issue
+        Route::post(
+            'journals/{journal}/issues/publish/{volume}/{issue}',
+            [IssueController::class, 'publish']
+        )->name('production.issue.publish');
+
+        //Back Issues
+        Route::get(
+            '/production/{journalId}/back-issues',
+            [IssueController::class, 'backIssues']
+        )->name('production.issue.back-issues');
+
         // Assessments Management
         Route::prefix('assessments')->name('assessments.')->group(function () {
             Route::get('/', [AssessmentController::class, 'index'])
@@ -729,6 +759,14 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('evaluations')->name('evaluations.')->group(function () {
             Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
                 ->name('index');
+            Route::get('/assignments', [\App\Http\Controllers\EvaluationController::class, 'assignmentIndex'])
+                ->name('assignments.index');
+            Route::get('{assignment}/note', [\App\Http\Controllers\EvaluationController::class, 'note'])
+                ->name('note');
+            Route::post('{assignment}/submit', [\App\Http\Controllers\EvaluationController::class, 'storeNote'])
+                ->name('storeNote');
+            Route::post('{assignment}/status', [\App\Http\Controllers\EvaluationController::class, 'updateStatus'])
+                ->name('update-status');
             Route::get('{report}', [\App\Http\Controllers\EvaluationController::class, 'showProgress'])
                 ->name('show');
         });
