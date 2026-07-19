@@ -41,6 +41,8 @@ class Proposal extends Model
     protected $fillable = [
         'title',
         'description',
+        'judul',
+        'deskripsi',
         'user_id',
         'research_schema_id',
         'status_proposal',
@@ -85,6 +87,34 @@ class Proposal extends Model
     public function setProposalDocPathAttribute($value): void
     {
         $this->attributes['file_dokumen_proposal'] = $value;
+    }
+
+    /**
+     * Accessor virtual: judul → title
+     * Digunakan oleh ReviewSummaryController dan frontend Review/Summary.tsx.
+     */
+    public function getJudulAttribute(): ?string
+    {
+        return $this->attributes['title'] ?? null;
+    }
+
+    public function setJudulAttribute($value): void
+    {
+        $this->attributes['title'] = $value;
+    }
+
+    /**
+     * Accessor virtual: deskripsi → description
+     * Digunakan oleh ReviewSummaryController dan frontend Review/Summary.tsx.
+     */
+    public function getDeskripsiAttribute(): ?string
+    {
+        return $this->attributes['description'] ?? null;
+    }
+
+    public function setDeskripsiAttribute($value): void
+    {
+        $this->attributes['description'] = $value;
     }
 
     // ─── Relationships ───────────────────────────────────────────────────────
