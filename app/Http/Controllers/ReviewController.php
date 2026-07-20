@@ -16,7 +16,8 @@ class ReviewController extends Controller
 
         $review = new Review;
         $review->proposal_id = $validated['proposal_id'];
-        $review->reviewer_id = auth()->id(); // Asumsi menggunakan reviewer yang sedang login
+        $review->reviewer_id = auth()->id();
+        $review->komponen_penilaian = $validated['komponen_penilaian'];
         $review->score = $validated['score'];
         $review->comments = $validated['comments'] ?? null;
         $review->recommendation = $validated['recommendation'];
@@ -40,6 +41,7 @@ class ReviewController extends Controller
             abort(403, 'Anda tidak diizinkan mengubah penilaian ini.');
         }
 
+        $review->komponen_penilaian = $validated['komponen_penilaian'];
         $review->score = $validated['score'];
         $review->comments = $validated['comments'] ?? null;
         $review->recommendation = $validated['recommendation'];

@@ -17,6 +17,7 @@ class Review extends Model
     protected $fillable = [
         'proposal_id',
         'reviewer_id',
+        'komponen_penilaian',
         'score',
         'comments',
         'recommendation',
@@ -28,6 +29,7 @@ class Review extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'komponen_penilaian' => 'array',
         'score' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

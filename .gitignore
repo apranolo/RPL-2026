@@ -29,3 +29,5 @@ Dockerfile
 /.zed
 /.github/instructions   
 /.agents/workflows
+composer.phar
+*.sha256sum

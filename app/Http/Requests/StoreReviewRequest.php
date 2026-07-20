@@ -27,8 +27,12 @@ class StoreReviewRequest extends FormRequest
     {
         return [
             'proposal_id' => 'required|integer|exists:proposals,id',
+            'komponen_penilaian' => 'required|array|min:1',
+            'komponen_penilaian.*.kriteria' => 'required|string',
+            'komponen_penilaian.*.bobot' => 'required|numeric|min:0|max:100',
+            'komponen_penilaian.*.skor' => 'required|integer|min:1|max:5',
             'score' => 'required|numeric|min:0|max:100',
-            'comments' => 'nullable|string',
+            'comments' => 'required_if:recommendation,revision,rejected|nullable|string',
             'recommendation' => 'required|in:accepted,rejected,revision',
         ];
     }

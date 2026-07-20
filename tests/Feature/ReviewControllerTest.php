@@ -6,6 +6,20 @@ use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
 
+/**
+ * Helper: Data komponen_penilaian rubrik untuk testing
+ */
+function sampleKomponenPenilaian(int $skor = 4): array
+{
+    return [
+        ['kriteria' => 'Orisinalitas & Kebaruan', 'bobot' => 20, 'skor' => $skor],
+        ['kriteria' => 'Tinjauan Pustaka', 'bobot' => 15, 'skor' => $skor],
+        ['kriteria' => 'Metodologi Penelitian', 'bobot' => 25, 'skor' => $skor],
+        ['kriteria' => 'Luaran & Dampak', 'bobot' => 20, 'skor' => $skor],
+        ['kriteria' => 'Kelayakan Anggaran', 'bobot' => 20, 'skor' => $skor],
+    ];
+}
+
 describe('ReviewController', function () {
     beforeEach(function () {
         // Pastikan role Reviewer dan User ada di database
@@ -74,7 +88,8 @@ describe('ReviewController', function () {
 
         $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
-            'score' => 85,
+            'komponen_penilaian' => sampleKomponenPenilaian(4),
+            'score' => 80,
             'comments' => 'Proposal ini sangat baik dan memenuhi kriteria.',
             'recommendation' => 'accepted',
         ]);
@@ -85,7 +100,7 @@ describe('ReviewController', function () {
         $this->assertDatabaseHas('reviews', [
             'proposal_id' => $proposal->id,
             'reviewer_id' => $reviewer->id,
-            'score' => 85,
+            'score' => 80,
             'recommendation' => 'accepted',
         ]);
     });
@@ -96,7 +111,8 @@ describe('ReviewController', function () {
 
         $response = $this->actingAs($user)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
-            'score' => 85,
+            'komponen_penilaian' => sampleKomponenPenilaian(4),
+            'score' => 80,
             'comments' => 'Seharusnya tidak bisa.',
             'recommendation' => 'accepted',
         ]);
@@ -113,7 +129,7 @@ describe('ReviewController', function () {
 
         $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), []);
 
-        $response->assertSessionHasErrors(['proposal_id', 'score', 'recommendation']);
+        $response->assertSessionHasErrors(['proposal_id', 'komponen_penilaian', 'score', 'recommendation']);
     });
 
     it('validates score must be between 0 and 100', function () {
@@ -122,6 +138,7 @@ describe('ReviewController', function () {
 
         $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
+            'komponen_penilaian' => sampleKomponenPenilaian(4),
             'score' => 150,
             'recommendation' => 'accepted',
         ]);
@@ -135,11 +152,43 @@ describe('ReviewController', function () {
 
         $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
+            'komponen_penilaian' => sampleKomponenPenilaian(4),
             'score' => 70,
             'recommendation' => 'invalid_value',
         ]);
 
         $response->assertSessionHasErrors(['recommendation']);
+    });
+
+    it('validates komponen_penilaian skor must be between 1 and 5', function () {
+        $reviewer = createReviewerUser();
+        $proposal = createProposal();
+
+        $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
+            'proposal_id' => $proposal->id,
+            'komponen_penilaian' => [
+                ['kriteria' => 'Orisinalitas & Kebaruan', 'bobot' => 20, 'skor' => 6],
+            ],
+            'score' => 70,
+            'recommendation' => 'accepted',
+        ]);
+
+        $response->assertSessionHasErrors(['komponen_penilaian.0.skor']);
+    });
+
+    it('requires comments when recommendation is revision or rejected', function () {
+        $reviewer = createReviewerUser();
+        $proposal = createProposal();
+
+        $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
+            'proposal_id' => $proposal->id,
+            'komponen_penilaian' => sampleKomponenPenilaian(3),
+            'score' => 60,
+            'comments' => '',
+            'recommendation' => 'rejected',
+        ]);
+
+        $response->assertSessionHasErrors(['comments']);
     });
 
     /*
@@ -155,6 +204,7 @@ describe('ReviewController', function () {
         $review = Review::create([
             'proposal_id' => $proposal->id,
             'reviewer_id' => $reviewer->id,
+            'komponen_penilaian' => sampleKomponenPenilaian(3),
             'score' => 60,
             'comments' => 'Perlu perbaikan.',
             'recommendation' => 'revision',
@@ -162,6 +212,7 @@ describe('ReviewController', function () {
 
         $response = $this->actingAs($reviewer)->put(route('reviewer.assessment.update', $review->id), [
             'proposal_id' => $proposal->id,
+            'komponen_penilaian' => sampleKomponenPenilaian(4),
             'score' => 80,
             'comments' => 'Sudah diperbaiki, layak diterima.',
             'recommendation' => 'accepted',
@@ -185,6 +236,7 @@ describe('ReviewController', function () {
         $review = Review::create([
             'proposal_id' => $proposal->id,
             'reviewer_id' => $reviewer1->id,
+            'komponen_penilaian' => sampleKomponenPenilaian(3),
             'score' => 60,
             'comments' => 'Milik reviewer 1.',
             'recommendation' => 'revision',
@@ -192,6 +244,7 @@ describe('ReviewController', function () {
 
         $response = $this->actingAs($reviewer2)->put(route('reviewer.assessment.update', $review->id), [
             'proposal_id' => $proposal->id,
+            'komponen_penilaian' => sampleKomponenPenilaian(5),
             'score' => 90,
             'comments' => 'Dicoba ubah oleh reviewer 2.',
             'recommendation' => 'accepted',
