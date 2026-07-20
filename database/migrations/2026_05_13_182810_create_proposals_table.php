@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->string('title');
                 $table->text('description');
                 $table->foreignId('user_id')->constrained()->onDelete('cascade');
-                
+
                 // INI PENTING
                 $table->foreignId('research_schema_id')
                     ->constrained('research_schemas')

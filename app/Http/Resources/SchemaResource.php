@@ -21,7 +21,7 @@ class SchemaResource extends JsonResource
             'max_funding' => (float) $this->max_funding,
             'is_active' => (bool) $this->is_active,
             'proposals_count' => $this->whenCounted('proposals'),
-            
+
             // Relasi proposals jika di-load
             'proposals' => $this->whenLoaded('proposals', function () {
                 return $this->proposals->map(function ($proposal) {
