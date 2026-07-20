@@ -15,15 +15,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -64,7 +57,7 @@ interface Props {
 export default function SchemaIndex({ schemas, filters }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [search, setSearch] = useState(filters.search || '');
-    
+
     // Dialog states
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -95,11 +88,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     // Handle searching
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get(
-            route('admin.schema.index'),
-            { search },
-            { preserveState: true }
-        );
+        router.get(route('admin.schema.index'), { search }, { preserveState: true });
     };
 
     // Open create dialog
@@ -172,19 +161,19 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                 <div className="relative overflow-hidden rounded-2xl border border-sidebar-border/60 bg-gradient-to-r from-emerald-50/40 via-white to-teal-50/20 p-6 shadow-sm dark:border-sidebar-border dark:from-neutral-900/40 dark:via-neutral-950 dark:to-neutral-900/20">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="space-y-1">
-                            <h1 className="flex items-center gap-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+                            <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
                                     <ClipboardList className="h-6 w-6" />
                                 </div>
                                 Skema Penelitian
                             </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground">
+                            <p className="text-sm text-muted-foreground sm:text-base">
                                 Kelola berbagai jenis dan kategori skema penelitian untuk pengajuan proposal dosen.
                             </p>
                         </div>
-                        <Button 
-                            onClick={handleOpenCreate} 
-                            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:text-neutral-950 dark:hover:bg-emerald-400 font-semibold shadow-sm transition-all duration-300 hover:scale-[1.02] flex items-center gap-2"
+                        <Button
+                            onClick={handleOpenCreate}
+                            className="flex items-center gap-2 bg-emerald-600 font-semibold shadow-sm transition-all duration-300 hover:scale-[1.02] hover:bg-emerald-700 dark:bg-emerald-500 dark:text-neutral-950 dark:hover:bg-emerald-400"
                         >
                             <Plus className="h-4 w-4" />
                             Tambah Skema
@@ -205,7 +194,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                         placeholder="Cari berdasarkan nama skema atau deskripsi..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        className="pl-9 h-10 border-sidebar-border bg-white dark:bg-neutral-900"
+                                        className="h-10 border-sidebar-border bg-white pl-9 dark:bg-neutral-900"
                                     />
                                 </div>
                                 <Button type="submit" variant="secondary" className="h-10 px-5 font-semibold">
@@ -229,17 +218,17 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                     </Card>
 
                     {/* Table View for larger screens / Card list for mobile */}
-                    <div className="rounded-xl border border-sidebar-border/60 bg-white shadow-sm overflow-hidden dark:border-sidebar-border dark:bg-neutral-950">
+                    <div className="overflow-hidden rounded-xl border border-sidebar-border/60 bg-white shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
                         {/* Desktop Table */}
                         <div className="hidden md:block">
                             <Table>
                                 <TableHeader className="bg-neutral-50/50 dark:bg-neutral-900/30">
                                     <TableRow className="border-sidebar-border/60">
-                                        <TableHead className="w-[80px] font-semibold text-center">No</TableHead>
+                                        <TableHead className="w-[80px] text-center font-semibold">No</TableHead>
                                         <TableHead className="font-semibold">Nama Skema</TableHead>
                                         <TableHead className="font-semibold">Deskripsi</TableHead>
                                         <TableHead className="w-[180px] font-semibold">Tanggal Dibuat</TableHead>
-                                        <TableHead className="w-[120px] font-semibold text-right">Aksi</TableHead>
+                                        <TableHead className="w-[120px] text-right font-semibold">Aksi</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -251,19 +240,22 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                         </TableRow>
                                     ) : (
                                         schemas.map((schema, index) => (
-                                            <TableRow key={schema.id} className="border-sidebar-border/60 hover:bg-neutral-50/40 dark:hover:bg-neutral-900/10">
+                                            <TableRow
+                                                key={schema.id}
+                                                className="border-sidebar-border/60 hover:bg-neutral-50/40 dark:hover:bg-neutral-900/10"
+                                            >
                                                 <TableCell className="text-center font-medium text-muted-foreground">{index + 1}</TableCell>
                                                 <TableCell className="font-bold text-foreground">{schema.name}</TableCell>
-                                                <TableCell className="text-muted-foreground max-w-md truncate">
+                                                <TableCell className="max-w-md truncate text-muted-foreground">
                                                     {schema.description || <em className="text-xs text-neutral-400">Tidak ada deskripsi</em>}
                                                 </TableCell>
-                                                <TableCell className="text-muted-foreground text-sm">
+                                                <TableCell className="text-sm text-muted-foreground">
                                                     <div className="flex items-center gap-1.5">
                                                         <Calendar className="h-3.5 w-3.5 text-neutral-400" />
                                                         {new Date(schema.created_at).toLocaleDateString('id-ID', {
                                                             day: 'numeric',
                                                             month: 'short',
-                                                            year: 'numeric'
+                                                            year: 'numeric',
                                                         })}
                                                     </div>
                                                 </TableCell>
@@ -273,7 +265,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                             variant="ghost"
                                                             size="icon"
                                                             onClick={() => router.get(route('admin.schema.show', schema.id))}
-                                                            className="h-8 w-8 text-neutral-500 hover:text-blue-600 hover:bg-blue-500/10"
+                                                            className="h-8 w-8 text-neutral-500 hover:bg-blue-500/10 hover:text-blue-600"
                                                             title="Detail"
                                                         >
                                                             <Eye className="h-4 w-4" />
@@ -282,7 +274,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                             variant="ghost"
                                                             size="icon"
                                                             onClick={() => handleOpenEdit(schema)}
-                                                            className="h-8 w-8 text-neutral-500 hover:text-emerald-600 hover:bg-emerald-500/10"
+                                                            className="h-8 w-8 text-neutral-500 hover:bg-emerald-500/10 hover:text-emerald-600"
                                                             title="Edit"
                                                         >
                                                             <Edit className="h-4 w-4" />
@@ -291,7 +283,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                             variant="ghost"
                                                             size="icon"
                                                             onClick={() => handleOpenDelete(schema)}
-                                                            className="h-8 w-8 text-neutral-500 hover:text-destructive hover:bg-destructive/10"
+                                                            className="h-8 w-8 text-neutral-500 hover:bg-destructive/10 hover:text-destructive"
                                                             title="Hapus"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
@@ -306,22 +298,25 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                         </div>
 
                         {/* Mobile Cards */}
-                        <div className="block md:hidden p-4 space-y-4 bg-neutral-50/30 dark:bg-transparent">
+                        <div className="block space-y-4 bg-neutral-50/30 p-4 md:hidden dark:bg-transparent">
                             {schemas.length === 0 ? (
-                                <div className="text-center py-12 text-muted-foreground bg-white rounded-lg border border-dashed p-6 dark:bg-neutral-900">
+                                <div className="rounded-lg border border-dashed bg-white p-6 py-12 text-center text-muted-foreground dark:bg-neutral-900">
                                     Tidak ada skema penelitian yang ditemukan.
                                 </div>
                             ) : (
                                 schemas.map((schema) => (
-                                    <div key={schema.id} className="bg-white rounded-xl border border-sidebar-border/60 p-4 shadow-sm space-y-3 dark:bg-neutral-900/40">
-                                        <div className="flex justify-between items-start">
-                                            <h3 className="font-bold text-foreground leading-snug">{schema.name}</h3>
-                                            <div className="flex gap-1 shrink-0">
+                                    <div
+                                        key={schema.id}
+                                        className="space-y-3 rounded-xl border border-sidebar-border/60 bg-white p-4 shadow-sm dark:bg-neutral-900/40"
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <h3 className="leading-snug font-bold text-foreground">{schema.name}</h3>
+                                            <div className="flex shrink-0 gap-1">
                                                 <Button
                                                     variant="outline"
                                                     size="icon"
                                                     onClick={() => router.get(route('admin.schema.show', schema.id))}
-                                                    className="h-8 w-8 hover:bg-blue-500/10 hover:text-blue-600 text-neutral-500"
+                                                    className="h-8 w-8 text-neutral-500 hover:bg-blue-500/10 hover:text-blue-600"
                                                     title="Detail"
                                                 >
                                                     <Eye className="h-4 w-4" />
@@ -338,25 +333,27 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                     variant="outline"
                                                     size="icon"
                                                     onClick={() => handleOpenDelete(schema)}
-                                                    className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive text-destructive"
+                                                    className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </div>
                                         </div>
-                                        <p className="text-sm text-muted-foreground line-clamp-3">
+                                        <p className="line-clamp-3 text-sm text-muted-foreground">
                                             {schema.description || <em className="text-xs text-neutral-400">Tidak ada deskripsi</em>}
                                         </p>
-                                        <div className="flex justify-between items-center pt-2 border-t text-xs text-muted-foreground">
+                                        <div className="flex items-center justify-between border-t pt-2 text-xs text-muted-foreground">
                                             <span className="flex items-center gap-1">
                                                 <Calendar className="h-3 w-3" />
                                                 {new Date(schema.created_at).toLocaleDateString('id-ID', {
                                                     day: 'numeric',
                                                     month: 'short',
-                                                    year: 'numeric'
+                                                    year: 'numeric',
                                                 })}
                                             </span>
-                                            <Badge variant="outline" className="text-[10px]">Skema</Badge>
+                                            <Badge variant="outline" className="text-[10px]">
+                                                Skema
+                                            </Badge>
                                         </div>
                                     </div>
                                 ))
@@ -371,9 +368,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold">Tambah Skema Penelitian</DialogTitle>
-                        <DialogDescription>
-                            Isi detail informasi untuk membuat skema penelitian baru.
-                        </DialogDescription>
+                        <DialogDescription>Isi detail informasi untuk membuat skema penelitian baru.</DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleCreateSubmit} className="space-y-4 py-2">
                         <div className="space-y-2">
@@ -388,12 +383,12 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 className="h-10"
                                 disabled={createForm.processing}
                             />
-                            {createForm.errors.name && (
-                                <p className="text-xs font-semibold text-destructive">{createForm.errors.name}</p>
-                            )}
+                            {createForm.errors.name && <p className="text-xs font-semibold text-destructive">{createForm.errors.name}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="create-description" className="text-sm font-semibold">Deskripsi</Label>
+                            <Label htmlFor="create-description" className="text-sm font-semibold">
+                                Deskripsi
+                            </Label>
                             <Textarea
                                 id="create-description"
                                 value={createForm.data.description}
@@ -406,13 +401,8 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 <p className="text-xs font-semibold text-destructive">{createForm.errors.description}</p>
                             )}
                         </div>
-                        <DialogFooter className="pt-4 flex gap-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setIsCreateOpen(false)}
-                                disabled={createForm.processing}
-                            >
+                        <DialogFooter className="flex gap-2 pt-4">
+                            <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} disabled={createForm.processing}>
                                 Batal
                             </Button>
                             <Button
@@ -439,9 +429,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold">Edit Skema Penelitian</DialogTitle>
-                        <DialogDescription>
-                            Perbarui data skema penelitian yang sudah ada.
-                        </DialogDescription>
+                        <DialogDescription>Perbarui data skema penelitian yang sudah ada.</DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleEditSubmit} className="space-y-4 py-2">
                         <div className="space-y-2">
@@ -456,12 +444,12 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 className="h-10"
                                 disabled={editForm.processing}
                             />
-                            {editForm.errors.name && (
-                                <p className="text-xs font-semibold text-destructive">{editForm.errors.name}</p>
-                            )}
+                            {editForm.errors.name && <p className="text-xs font-semibold text-destructive">{editForm.errors.name}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="edit-description" className="text-sm font-semibold">Deskripsi</Label>
+                            <Label htmlFor="edit-description" className="text-sm font-semibold">
+                                Deskripsi
+                            </Label>
                             <Textarea
                                 id="edit-description"
                                 value={editForm.data.description}
@@ -470,17 +458,10 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 className="min-h-[100px] resize-none"
                                 disabled={editForm.processing}
                             />
-                            {editForm.errors.description && (
-                                <p className="text-xs font-semibold text-destructive">{editForm.errors.description}</p>
-                            )}
+                            {editForm.errors.description && <p className="text-xs font-semibold text-destructive">{editForm.errors.description}</p>}
                         </div>
-                        <DialogFooter className="pt-4 flex gap-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setIsEditOpen(false)}
-                                disabled={editForm.processing}
-                            >
+                        <DialogFooter className="flex gap-2 pt-4">
+                            <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} disabled={editForm.processing}>
                                 Batal
                             </Button>
                             <Button
@@ -506,19 +487,17 @@ export default function SchemaIndex({ schemas, filters }: Props) {
             <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="font-bold text-destructive flex items-center gap-2">
-                            Hapus Skema Penelitian?
-                        </AlertDialogTitle>
+                        <AlertDialogTitle className="flex items-center gap-2 font-bold text-destructive">Hapus Skema Penelitian?</AlertDialogTitle>
                         <AlertDialogDescription className="text-neutral-600 dark:text-neutral-400">
-                            Apakah Anda yakin ingin menghapus skema penelitian <strong>{selectedSchema?.name}</strong>? 
-                            Tindakan ini tidak dapat dibatalkan dan skema tidak dapat dihapus apabila sudah terhubung dengan proposal dosen aktif.
+                            Apakah Anda yakin ingin menghapus skema penelitian <strong>{selectedSchema?.name}</strong>? Tindakan ini tidak dapat
+                            dibatalkan dan skema tidak dapat dihapus apabila sudah terhubung dengan proposal dosen aktif.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel onClick={() => setIsDeleteOpen(false)}>Batal</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDeleteConfirm}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold"
+                            className="bg-destructive font-semibold text-destructive-foreground hover:bg-destructive/90"
                         >
                             Hapus
                         </AlertDialogAction>

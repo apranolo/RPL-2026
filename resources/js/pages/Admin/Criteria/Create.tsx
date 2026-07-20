@@ -20,11 +20,10 @@
  *
  * @author JurnalMU Team
  */
-import {
-    AnswerTypePreview,
-} from '@/components/DynamicInput';
+import { AnswerTypePreview } from '@/components/DynamicInput';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -33,10 +32,8 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, ClipboardList, Paperclip, Save } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import InputError from '@/components/input-error';
-
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -66,7 +63,13 @@ interface Props {
 }
 
 export default function CriteriaCreate({ subCategories }: Props) {
-    const { data, setData, post, processing, errors: rawErrors } = useForm({
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        errors: rawErrors,
+    } = useForm({
         sub_category_id: '',
         criteria: [
             {
@@ -120,7 +123,7 @@ export default function CriteriaCreate({ subCategories }: Props) {
                 requires_attachment: false,
                 sort_order: '',
                 is_active: true,
-            }
+            },
         ]);
     };
 
@@ -150,7 +153,9 @@ export default function CriteriaCreate({ subCategories }: Props) {
                 {/* Header (Tetap seperti kode kamu) */}
                 <div className="space-y-3">
                     <Button variant="ghost" size="sm" className="h-auto gap-2 p-0" asChild>
-                        <Link href={route('admin.criteria.index')}><ArrowLeft className="h-4 w-4" /> Kembali</Link>
+                        <Link href={route('admin.criteria.index')}>
+                            <ArrowLeft className="h-4 w-4" /> Kembali
+                        </Link>
                     </Button>
                     <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Tambah Kriteria Penilaian (Batch)</h1>
                 </div>
@@ -163,7 +168,9 @@ export default function CriteriaCreate({ subCategories }: Props) {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
-                                <Label htmlFor="sub_category_id">Sub-Kategori <span className="text-destructive">*</span></Label>
+                                <Label htmlFor="sub_category_id">
+                                    Sub-Kategori <span className="text-destructive">*</span>
+                                </Label>
                                 <Select value={data.sub_category_id} onValueChange={(val) => setData('sub_category_id', val)}>
                                     <SelectTrigger id="sub_category_id" className={errors.sub_category_id ? 'border-destructive' : ''}>
                                         <SelectValue placeholder="Pilih sub-kategori..." />
@@ -173,7 +180,9 @@ export default function CriteriaCreate({ subCategories }: Props) {
                                             <SelectGroup key={groupName}>
                                                 <SelectLabel>{groupName}</SelectLabel>
                                                 {subs.map((sub) => (
-                                                    <SelectItem key={sub.id} value={sub.id.toString()}>{sub.name}</SelectItem>
+                                                    <SelectItem key={sub.id} value={sub.id.toString()}>
+                                                        {sub.name}
+                                                    </SelectItem>
                                                 ))}
                                             </SelectGroup>
                                         ))}
@@ -192,21 +201,18 @@ export default function CriteriaCreate({ subCategories }: Props) {
                                     <CardTitle className="text-lg">Kriteria #{index + 1}</CardTitle>
                                 </div>
                                 {data.criteria.length > 1 && (
-                                    <Button 
-                                        type="button" 
-                                        variant="destructive" 
-                                        size="sm" 
-                                        onClick={() => removeCriteriaRow(index)}
-                                    >
+                                    <Button type="button" variant="destructive" size="sm" onClick={() => removeCriteriaRow(index)}>
                                         Hapus Baris
                                     </Button>
                                 )}
                             </CardHeader>
-                            
+
                             <CardContent className="space-y-6">
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
-                                        <Label>Kode Kriteria <span className="text-destructive">*</span></Label>
+                                        <Label>
+                                            Kode Kriteria <span className="text-destructive">*</span>
+                                        </Label>
                                         <Input
                                             value={item.code}
                                             onChange={(e) => updateCriteriaField(index, 'code', e.target.value)}
@@ -228,7 +234,9 @@ export default function CriteriaCreate({ subCategories }: Props) {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label>Pertanyaan <span className="text-destructive">*</span></Label>
+                                    <Label>
+                                        Pertanyaan <span className="text-destructive">*</span>
+                                    </Label>
                                     <Textarea
                                         value={item.question}
                                         onChange={(e) => updateCriteriaField(index, 'question', e.target.value)}
@@ -250,13 +258,12 @@ export default function CriteriaCreate({ subCategories }: Props) {
                                 </div>
 
                                 {/* BAGIAN DYNAMIC INPUT INTEGRATION */}
-                                <div className="grid gap-4 sm:grid-cols-2 pt-4 border-t">
+                                <div className="grid gap-4 border-t pt-4 sm:grid-cols-2">
                                     <div className="space-y-2">
-                                        <Label>Tipe Jawaban <span className="text-destructive">*</span></Label>
-                                        <Select
-                                            value={item.answer_type}
-                                            onValueChange={(val) => updateCriteriaField(index, 'answer_type', val)}
-                                        >
+                                        <Label>
+                                            Tipe Jawaban <span className="text-destructive">*</span>
+                                        </Label>
+                                        <Select value={item.answer_type} onValueChange={(val) => updateCriteriaField(index, 'answer_type', val)}>
                                             <SelectTrigger className={errors[`criteria.${index}.answer_type`] ? 'border-destructive' : ''}>
                                                 <SelectValue placeholder="Pilih tipe" />
                                             </SelectTrigger>
@@ -270,7 +277,9 @@ export default function CriteriaCreate({ subCategories }: Props) {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label>Bobot <span className="text-destructive">*</span></Label>
+                                        <Label>
+                                            Bobot <span className="text-destructive">*</span>
+                                        </Label>
                                         <Input
                                             type="number"
                                             step="0.01"
@@ -282,8 +291,8 @@ export default function CriteriaCreate({ subCategories }: Props) {
 
                                 {/* Preview Komponen dari DynamicInput */}
                                 {item.answer_type && (
-                                    <div className="bg-muted/50 p-3 rounded-lg">
-                                        <p className="text-xs font-semibold mb-2 text-muted-foreground">Live Preview Form Input:</p>
+                                    <div className="rounded-lg bg-muted/50 p-3">
+                                        <p className="mb-2 text-xs font-semibold text-muted-foreground">Live Preview Form Input:</p>
                                         <AnswerTypePreview answerType={item.answer_type} />
                                     </div>
                                 )}
@@ -310,7 +319,7 @@ export default function CriteriaCreate({ subCategories }: Props) {
                     ))}
 
                     {/* Tombol Tambah Barid Baru */}
-                    <Button type="button" variant="outline" className="w-full dashed border-2" onClick={addCriteriaRow}>
+                    <Button type="button" variant="outline" className="dashed w-full border-2" onClick={addCriteriaRow}>
                         + Tambah Kriteria Lainnya
                     </Button>
 
