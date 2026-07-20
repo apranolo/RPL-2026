@@ -219,9 +219,6 @@ Route::middleware(['auth'])->group(function () {
         Route::put('email-template/{emailTemplate}', [EmailTemplateController::class, 'update'])
             ->name('email-template.update');
 
-        // Skema Penelitian Management
-        Route::resource('schema', SchemaController::class);
-
         // Borang Indikator (Using Accreditation Templates System)
         Route::get('borang-indikator', [AccreditationTemplateController::class, 'index'])
             ->name('borang-indikator.index');
