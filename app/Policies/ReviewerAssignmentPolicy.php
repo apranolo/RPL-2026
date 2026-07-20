@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\PembinaanRegistration;
 use App\Models\ReviewerAssignment;
 use App\Models\User;
 
@@ -83,7 +84,7 @@ class ReviewerAssignmentPolicy
         }
 
         // Check registration
-        $registration = \App\Models\PembinaanRegistration::find($registrationId);
+        $registration = PembinaanRegistration::find($registrationId);
         if (! $registration) {
             return false;
         }

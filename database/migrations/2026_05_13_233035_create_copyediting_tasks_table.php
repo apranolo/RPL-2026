@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
     public function up(): void
     {
         Schema::create('copyediting_tasks', function (Blueprint $table) {
@@ -27,9 +26,8 @@ return new class extends Migration
                 'Author_Approved',
             ])->default('Assigned');
 
-
-            $table->timestamp('assigned_at')->useCurrent(); 
-            $table->timestamp('completed_at')->nullable(); 
+            $table->timestamp('assigned_at')->useCurrent();
+            $table->timestamp('completed_at')->nullable();
 
             $table->text('editor_note')->nullable();
             $table->text('copyeditor_note')->nullable();

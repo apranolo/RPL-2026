@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JournalAssessment;
 use App\Notifications\AssessmentApprovedNotification;
 use App\Notifications\AssessmentRevisionRequestedNotification;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -82,7 +83,7 @@ class AssessmentController extends Controller
         })
             ->whereNotNull('assessment_date')
             ->pluck('assessment_date')
-            ->map(fn ($date) => \Carbon\Carbon::parse($date)->year)
+            ->map(fn ($date) => Carbon::parse($date)->year)
             ->unique()
             ->sortDesc()
             ->values();

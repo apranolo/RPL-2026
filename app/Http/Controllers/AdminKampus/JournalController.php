@@ -9,15 +9,19 @@ use App\Http\Requests\UpdateJournalRequest;
 use App\Imports\JournalsImport;
 use App\Jobs\HarvestJournalArticlesJob;
 use App\Models\Journal;
+use App\Models\Pembinaan;
+use App\Models\PembinaanRegistration;
 use App\Models\Role;
 use App\Models\ScientificField;
 use App\Models\User;
 use App\Services\JournalCoverService;
 use App\Services\JournalService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -181,7 +185,7 @@ class JournalController extends Controller
             ->values();
 
         // Phase 2: Get pembinaan periods and years for filters
-        $pembinaanPeriods = \App\Models\Pembinaan::query()
+        $pembinaanPeriods = Pembinaan::query()
             ->select('name')
             ->distinct()
             ->orderBy('name')
@@ -189,10 +193,10 @@ class JournalController extends Controller
             ->map(fn ($name) => ['value' => $name, 'label' => $name])
             ->values();
 
-        $pembinaanYears = \App\Models\PembinaanRegistration::query()
+        $pembinaanYears = PembinaanRegistration::query()
             ->whereNotNull('registered_at')
             ->pluck('registered_at')
-            ->map(fn ($date) => \Carbon\Carbon::parse($date)->year)
+            ->map(fn ($date) => Carbon::parse($date)->year)
             ->unique()
             ->sortDesc()
             ->map(fn ($year) => ['value' => (string) $year, 'label' => (string) $year])
@@ -512,7 +516,7 @@ class JournalController extends Controller
             'journal_ids.*' => [
                 'integer',
                 'distinct',
-                \Illuminate\Validation\Rule::exists('journals', 'id')->where(function ($query) {
+                Rule::exists('journals', 'id')->where(function ($query) {
                     $query->where('university_id', Auth::user()->university_id);
                 }),
             ],

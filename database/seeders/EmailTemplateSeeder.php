@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\EmailTemplate;
 use Illuminate\Database\Seeder;
 
 class EmailTemplateSeeder extends Seeder
@@ -42,7 +43,7 @@ class EmailTemplateSeeder extends Seeder
         ];
 
         foreach ($templates as $template) {
-            \App\Models\EmailTemplate::create($template);
+            EmailTemplate::create($template);
         }
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreGalleyRequest;
 use App\Models\Galley;
 use App\Models\Submission;
-use App\Http\Requests\StoreGalleyRequest;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class GalleyController extends Controller
@@ -20,14 +22,14 @@ class GalleyController extends Controller
         // ================================
         // MULTI-TENANCY CHECK (EDITOR ONLY)
         // ================================
-        /** @var \App\Models\User|null $user */
+        /** @var User|null $user */
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Unauthorized');
         }
 
-        if (!$user->hasRole('editor')) {
+        if (! $user->hasRole('editor')) {
             abort(403, 'Only editor can upload galley');
         }
 
@@ -38,10 +40,10 @@ class GalleyController extends Controller
         try {
             $file = $request->file('file');
 
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
 
             $path = $file->storeAs(
-                'galleys/' . $articleId,
+                'galleys/'.$articleId,
                 $filename,
                 'public'
             );
@@ -49,33 +51,33 @@ class GalleyController extends Controller
             Galley::create([
                 'id_submission' => $articleId,
                 'file_extension' => $file->getClientOriginalExtension(),
-                'file_path'     => $path,
+                'file_path' => $path,
             ]);
 
             return back()->with('success', 'Galley uploaded successfully.');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Upload failed: ' . $e->getMessage());
+            return back()->with('error', 'Upload failed: '.$e->getMessage());
         }
     }
 
     /**
      * ASSIGN ARTICLE TO ISSUE (FIXED + SAFE)
      */
-    public function assignToIssue($articleId, \Illuminate\Http\Request $request)
+    public function assignToIssue($articleId, Request $request)
     {
         $request->validate([
             'id_issue' => 'required|exists:issues,id',
         ]);
 
         $submission = Submission::findOrFail($articleId);
-        /** @var \App\Models\User|null $user */
+        /** @var User|null $user */
         $user = Auth::user();
 
         // ================================
         // MULTI-TENANCY CHECK
         // ================================
-        if (!$user || !$user->hasRole('editor')) {
+        if (! $user || ! $user->hasRole('editor')) {
             abort(403, 'Only editor can assign article');
         }
 
@@ -85,7 +87,7 @@ class GalleyController extends Controller
 
         $submission->update([
             'id_issue' => $request->id_issue,
-            'status'   => 'Scheduled',
+            'status' => 'Scheduled',
         ]);
 
         return back()->with('success', 'Article assigned to issue successfully.');

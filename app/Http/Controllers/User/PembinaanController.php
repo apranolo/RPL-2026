@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Journal;
+use App\Models\JournalAssessment;
 use App\Models\Pembinaan;
 use App\Models\PembinaanRegistration;
 use App\Models\PembinaanRegistrationAttachment;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PembinaanController extends Controller
 {
@@ -264,7 +266,7 @@ class PembinaanController extends Controller
     /**
      * Download an attachment file.
      */
-    public function downloadAttachment(PembinaanRegistrationAttachment $attachment): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function downloadAttachment(PembinaanRegistrationAttachment $attachment): StreamedResponse
     {
         $this->authorize('downloadAttachments', $attachment->registration);
 
@@ -299,7 +301,7 @@ class PembinaanController extends Controller
         }
 
         // Create new assessment
-        $assessment = \App\Models\JournalAssessment::create([
+        $assessment = JournalAssessment::create([
             'journal_id' => $registration->journal_id,
             'user_id' => $request->user()->id,
             'pembinaan_registration_id' => $registration->id,

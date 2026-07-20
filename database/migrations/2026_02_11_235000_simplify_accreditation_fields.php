@@ -51,7 +51,7 @@ return new class extends Migration
                 Schema::table('journals', function (Blueprint $table) {
                     $table->dropIndex('journals_sinta_rank_index');
                 });
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // Index already absent — safe to continue.
             }
         }
@@ -60,7 +60,7 @@ return new class extends Migration
         Schema::table('journals', function (Blueprint $table) {
             try {
                 $table->dropIndex('journals_sinta_rank_index');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Ignore if index doesn't exist
             }
             $table->dropColumn('sinta_rank');

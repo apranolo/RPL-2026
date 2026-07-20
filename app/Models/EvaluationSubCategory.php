@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use App\Exceptions\InvalidCategoryMoveException;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,11 +24,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $name
  * @property string|null $description
  * @property int $display_order
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- * @property \Carbon\Carbon|null $deleted_at
- * @property-read \App\Models\EvaluationCategory $category
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EvaluationIndicator[] $indicators
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read EvaluationCategory $category
+ * @property-read Collection|EvaluationIndicator[] $indicators
  */
 class EvaluationSubCategory extends Model
 {
@@ -83,8 +86,8 @@ class EvaluationSubCategory extends Model
     /**
      * Scope: Order by display order.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeOrdered($query)
     {
@@ -94,8 +97,8 @@ class EvaluationSubCategory extends Model
     /**
      * Scope: Get sub-categories for a specific category.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForCategory($query, int $categoryId)
     {
@@ -132,7 +135,7 @@ class EvaluationSubCategory extends Model
      * Move this sub-category to a different category.
      * Validates that target category is in the same template.
      *
-     * @throws \App\Exceptions\InvalidCategoryMoveException
+     * @throws InvalidCategoryMoveException
      */
     public function moveToCategory(int $newCategoryId): bool
     {
