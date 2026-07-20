@@ -293,7 +293,10 @@ class PublicJournalController extends Controller
                             ->where('approval_status', 'approved');
                     },
                 ])
-                ->having('journals_count', '>', 0)
+                ->whereHas('journals', function ($query) {
+                    $query->where('is_active', true)
+                        ->where('approval_status', 'approved');
+                })
                 ->orderBy('name')
                 ->get(['id', 'name', 'code', 'short_name']);
         });

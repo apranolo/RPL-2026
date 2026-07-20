@@ -1,0 +1,16 @@
+/**
+ - Design tokens untuk komponen leaderboard (TopLecturerList, TopResearchList).
+ - Import file ini sekali di stylesheet global kamu, mis. di resources/css/app.css:
+
+ -   @import './leaderboard-theme.css';
+ */
+:root {
+    /* Latar dasar kartu leaderboard */
+    --color-surface-base: #0d1117;
+
+    /* Gradient header khusus varian "Dosen" */
+    --color-surface-header-lecturer: #1a2a1a;
+
+    /* Gradient header khusus varian "Penelitian" */
+    --color-surface-header-research: #0d1a2a;
+}

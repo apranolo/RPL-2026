@@ -142,6 +142,14 @@ class Journal extends Model
     */
 
     /**
+     * Get all submissions registered under this journal.
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'journal_id');
+    }
+
+    /**
      * Get the university that owns this journal
      */
     public function university()
@@ -155,6 +163,14 @@ class Journal extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get user roles for this journal
+     */
+    public function userRoles()
+    {
+        return $this->hasMany(UserRole::class, 'id_journal');
     }
 
     /**
@@ -203,6 +219,14 @@ class Journal extends Model
     public function articles()
     {
         return $this->hasMany(Article::class);
+    }
+
+    /**
+     * Get all issues for this journal
+     */
+    public function issues()
+    {
+        return $this->hasMany(Issue::class);
     }
 
     /**

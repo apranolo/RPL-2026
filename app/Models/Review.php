@@ -10,6 +10,13 @@ class Review extends Model
     use HasFactory;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'reviews';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -21,6 +28,13 @@ class Review extends Model
         'score',
         'comments',
         'recommendation',
+        'status',
+        'notes',
+        'start_date',
+        'end_date',
+        'total_score',
+        'feedback',
+        'reviewed_at',
     ];
 
     /**
@@ -31,6 +45,7 @@ class Review extends Model
     protected $casts = [
         'komponen_penilaian' => 'array',
         'score' => 'decimal:2',
+        'reviewed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -57,6 +72,11 @@ class Review extends Model
         return $this->belongsTo(User::class, 'reviewer_id');
     }
 
+    public function assessmentCriteria()
+    {
+        return $this->hasMany(AssessmentCriteria::class, 'review_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Scopes
@@ -67,6 +87,11 @@ class Review extends Model
      * Scope to filter by reviewer.
      */
     public function scopeForReviewer($query, int $reviewerId)
+    {
+        return $query->where('reviewer_id', $reviewerId);
+    }
+
+    public function scopeByReviewer($query, int $reviewerId)
     {
         return $query->where('reviewer_id', $reviewerId);
     }
@@ -85,5 +110,42 @@ class Review extends Model
     public function scopeByRecommendation($query, string $recommendation)
     {
         return $query->where('recommendation', $recommendation);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors & Helper Methods
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Check if review has feedback
+     */
+    public function hasFeedback(): bool
+    {
+        return ! empty($this->feedback);
+    }
+
+    /**
+     * Check if review has recommendation
+     */
+    public function hasRecommendation(): bool
+    {
+        return ! empty($this->recommendation);
+    }
+
+    /**
+     * Boot method to handle model events
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Auto-set reviewed_at on create
+        static::creating(function ($model) {
+            if (! $model->reviewed_at) {
+                $model->reviewed_at = now();
+            }
+        });
     }
 }
