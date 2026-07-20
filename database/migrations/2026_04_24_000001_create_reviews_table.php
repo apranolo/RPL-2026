@@ -22,17 +22,24 @@ return new class extends Migration
                 ->constrained('users')
                 ->cascadeOnDelete();
 
-            // Review details
+            // Review details (merged from all branches)
             $table->decimal('score', 5, 2)->default(0);
             $table->text('feedback')->nullable();
             $table->string('recommendation')->nullable(); // Diterima, Ditolak, Revisi
+            $table->string('status')->default('pending');
+            $table->text('notes')->nullable();
+            $table->text('comments')->nullable();
+            $table->decimal('total_score', 8, 2)->unsigned()->nullable();
 
             // Timeline
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
             $table->timestamp('reviewed_at')->nullable();
 
             $table->timestamps();
 
-            // Indexes
+            // Indexes & Constraints
+            $table->unique(['proposal_id', 'reviewer_id']);
             $table->index('proposal_id');
             $table->index('reviewer_id');
             $table->index('reviewed_at');
