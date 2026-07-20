@@ -10,7 +10,9 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Trophy, Star } from 'lucide-react';
+import { Trophy, Star, Award } from 'lucide-react';
+
+/**
  * TopLecturerList Component
  *
  * @description
@@ -19,9 +21,6 @@ import { Trophy, Star } from 'lucide-react';
  * @author JurnalMU Team
  * @filepath /resources/js/components/TopLecturerList.tsx
  */
-
-import React from 'react';
-import { Award } from 'lucide-react';
 
 interface Lecturer {
     name: string;
