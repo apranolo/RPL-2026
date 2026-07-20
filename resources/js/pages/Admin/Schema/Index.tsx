@@ -143,7 +143,7 @@ function SortableHead({ label, column, currentSort, currentDir, onSort, classNam
 
     return (
         <TableHead
-            className={`cursor-pointer select-none font-semibold transition-colors hover:text-foreground ${className}`}
+            className={`cursor-pointer font-semibold transition-colors select-none hover:text-foreground ${className}`}
             onClick={() => onSort(column)}
         >
             <div className="flex items-center gap-1.5">
@@ -419,13 +419,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                             <TableHeader className="bg-neutral-50/50 dark:bg-neutral-900/30">
                                 <TableRow className="border-sidebar-border/60">
                                     <TableHead className="w-[60px] text-center font-semibold">No</TableHead>
-                                    <SortableHead
-                                        label="Nama Skema"
-                                        column="name"
-                                        currentSort={sortBy}
-                                        currentDir={sortDir}
-                                        onSort={handleSort}
-                                    />
+                                    <SortableHead label="Nama Skema" column="name" currentSort={sortBy} currentDir={sortDir} onSort={handleSort} />
                                     <TableHead className="font-semibold">Deskripsi</TableHead>
                                     <SortableHead
                                         label="Pagu Dana"
@@ -486,9 +480,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                 className="group border-sidebar-border/60 transition-colors hover:bg-neutral-50/60 dark:hover:bg-neutral-900/20"
                                             >
                                                 {/* No */}
-                                                <TableCell className="text-center text-sm font-medium text-muted-foreground">
-                                                    {rowNumber}
-                                                </TableCell>
+                                                <TableCell className="text-center text-sm font-medium text-muted-foreground">{rowNumber}</TableCell>
 
                                                 {/* Nama Skema */}
                                                 <TableCell>
@@ -532,10 +524,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                             Aktif
                                                         </Badge>
                                                     ) : (
-                                                        <Badge
-                                                            variant="secondary"
-                                                            className="font-medium text-neutral-500 dark:text-neutral-400"
-                                                        >
+                                                        <Badge variant="secondary" className="font-medium text-neutral-500 dark:text-neutral-400">
                                                             Nonaktif
                                                         </Badge>
                                                     )}
@@ -566,9 +555,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    onClick={() =>
-                                                                        router.get(route('admin.schema.show', schema.id))
-                                                                    }
+                                                                    onClick={() => router.get(route('admin.schema.show', schema.id))}
                                                                     className="h-8 w-8 text-neutral-500 hover:bg-blue-500/10 hover:text-blue-600"
                                                                 >
                                                                     <Eye className="h-4 w-4" />
@@ -630,7 +617,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                     {/* Top row: name + actions */}
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="min-w-0 flex-1 space-y-1">
-                                            <h3 className="font-bold leading-snug text-foreground">{schema.name}</h3>
+                                            <h3 className="leading-snug font-bold text-foreground">{schema.name}</h3>
                                             {schema.is_active ? (
                                                 <Badge className="border-0 bg-emerald-100 text-[10px] font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
                                                     Aktif
@@ -766,9 +753,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 className="h-10"
                                 disabled={createForm.processing}
                             />
-                            {createForm.errors.name && (
-                                <p className="text-xs font-semibold text-destructive">{createForm.errors.name}</p>
-                            )}
+                            {createForm.errors.name && <p className="text-xs font-semibold text-destructive">{createForm.errors.name}</p>}
                         </div>
 
                         {/* Description */}
@@ -830,12 +815,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                         </div>
 
                         <DialogFooter className="flex gap-2 pt-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setIsCreateOpen(false)}
-                                disabled={createForm.processing}
-                            >
+                            <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} disabled={createForm.processing}>
                                 Batal
                             </Button>
                             <Button
@@ -885,9 +865,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 className="h-10"
                                 disabled={editForm.processing}
                             />
-                            {editForm.errors.name && (
-                                <p className="text-xs font-semibold text-destructive">{editForm.errors.name}</p>
-                            )}
+                            {editForm.errors.name && <p className="text-xs font-semibold text-destructive">{editForm.errors.name}</p>}
                         </div>
 
                         {/* Description */}
@@ -903,9 +881,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 className="min-h-[80px] resize-none"
                                 disabled={editForm.processing}
                             />
-                            {editForm.errors.description && (
-                                <p className="text-xs font-semibold text-destructive">{editForm.errors.description}</p>
-                            )}
+                            {editForm.errors.description && <p className="text-xs font-semibold text-destructive">{editForm.errors.description}</p>}
                         </div>
 
                         {/* Max funding */}
@@ -927,9 +903,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                     disabled={editForm.processing}
                                 />
                             </div>
-                            {editForm.errors.max_funding && (
-                                <p className="text-xs font-semibold text-destructive">{editForm.errors.max_funding}</p>
-                            )}
+                            {editForm.errors.max_funding && <p className="text-xs font-semibold text-destructive">{editForm.errors.max_funding}</p>}
                         </div>
 
                         {/* Status active */}
@@ -949,12 +923,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                         </div>
 
                         <DialogFooter className="flex gap-2 pt-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setIsEditOpen(false)}
-                                disabled={editForm.processing}
-                            >
+                            <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} disabled={editForm.processing}>
                                 Batal
                             </Button>
                             <Button
