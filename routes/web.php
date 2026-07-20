@@ -190,9 +190,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('data-master', [DataMasterController::class, 'index'])
             ->name('data-master.index');
 
-        // Skema Penelitian Management
-        Route::resource('schema', SchemaController::class);
-
         // Borang Indikator (Using Accreditation Templates System)
         Route::get('borang-indikator', [AccreditationTemplateController::class, 'index'])
             ->name('borang-indikator.index');
