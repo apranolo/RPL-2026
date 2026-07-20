@@ -23,9 +23,9 @@ interface Submission {
     contributors?: Contributor[];
 }
 
-interface Step4ContributorsProps {
+type Step4ContributorsProps = {
     submission: Submission;
-}
+};
 
 export default function Step4Contributors({ auth, submission }: PageProps<Step4ContributorsProps>) {
     // Determine initial contributors list
