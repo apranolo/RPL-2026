@@ -8,18 +8,7 @@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-    Bold,
-    Heading2,
-    Italic,
-    Link2,
-    List,
-    ListOrdered,
-    Quote,
-    RemoveFormatting,
-    Strikethrough,
-    Underline,
-} from 'lucide-react';
+import { Bold, Heading2, Italic, Link2, List, ListOrdered, Quote, RemoveFormatting, Strikethrough, Underline } from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
 
 /* ------------------------------------------------------------------ */
@@ -114,11 +103,14 @@ export default function RichTextEditor({
     }, [onChange]);
 
     /* Eksekusi perintah formatting */
-    const exec = useCallback((command: string, value?: string) => {
-        document.execCommand(command, false, value);
-        editorRef.current?.focus();
-        handleInput();
-    }, [handleInput]);
+    const exec = useCallback(
+        (command: string, value?: string) => {
+            document.execCommand(command, false, value);
+            editorRef.current?.focus();
+            handleInput();
+        },
+        [handleInput],
+    );
 
     /* Insert link */
     const handleLink = useCallback(() => {
@@ -140,10 +132,7 @@ export default function RichTextEditor({
     }, []);
 
     return (
-        <div
-            className={`overflow-hidden rounded-md border bg-background ${disabled ? 'opacity-60' : ''}`}
-            aria-disabled={disabled}
-        >
+        <div className={`overflow-hidden rounded-md border bg-background ${disabled ? 'opacity-60' : ''}`} aria-disabled={disabled}>
             {/* ── Toolbar ── */}
             <div className="flex flex-wrap items-center gap-0.5 border-b bg-muted/40 px-2 py-1">
                 <ToolbarBtn label="Bold (Ctrl+B)" onClick={() => exec('bold')} disabled={disabled}>
@@ -208,7 +197,7 @@ export default function RichTextEditor({
                     minHeight,
                     // Placeholder via CSS
                     'empty:before:pointer-events-none empty:before:text-muted-foreground',
-                    "empty:before:content-[attr(data-placeholder)]",
+                    'empty:before:content-[attr(data-placeholder)]',
                     // Styling untuk elemen hasil formatting
                     '[&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold',
                     '[&_blockquote]:border-l-4 [&_blockquote]:border-muted-foreground/30 [&_blockquote]:pl-3 [&_blockquote]:italic',

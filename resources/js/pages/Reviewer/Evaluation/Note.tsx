@@ -1,24 +1,24 @@
 /**
  * Reviewer Evaluation Note Page
- * 
+ *
  * @description Formulir input untuk reviewer memberikan catatan, rekomendasi, dan nilai evaluasi terhadap jurnal.
  * @route GET /reviewer/evaluations/{assignment}/note
  * @features Input nilai, feedback, rekomendasi, serta update status monev.
  */
 
-import AppLayout from '@/layouts/app-layout';
-import { Head, Link, useForm, router } from '@inertiajs/react';
-import { ArrowLeft, Save, CheckCircle, HelpCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import ProgressTimeline from '@/components/ProgressTimeline';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import ProgressTimeline from '@/components/ProgressTimeline';
+import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem, type PembinaanReview, type ReviewerAssignment } from '@/types';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { ArrowLeft, CheckCircle, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { type BreadcrumbItem, type ReviewerAssignment, type PembinaanReview } from '@/types';
 
 interface Props {
     assignment: ReviewerAssignment;
@@ -51,12 +51,16 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
     };
 
     const handleStatusChange = (value: string) => {
-        router.post(route('reviewer.evaluations.update-status', assignment.id), {
-            review_status: value
-        }, {
-            onSuccess: () => toast.success('Status Monev berhasil diperbarui'),
-            onError: () => toast.error('Gagal memperbarui status Monev'),
-        });
+        router.post(
+            route('reviewer.evaluations.update-status', assignment.id),
+            {
+                review_status: value,
+            },
+            {
+                onSuccess: () => toast.success('Status Monev berhasil diperbarui'),
+                onError: () => toast.error('Gagal memperbarui status Monev'),
+            },
+        );
     };
 
     const getStatusBadgeVariant = (status?: string) => {
@@ -90,15 +94,15 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Evaluasi Proposal & Catatan Reviewer" />
-            
-            <div className="container mx-auto p-6 space-y-6">
+
+            <div className="container mx-auto space-y-6 p-6">
                 {/* Navigation Header */}
                 <div className="flex items-center space-x-4">
                     <Link
                         href={route('reviewer.evaluations.index')}
                         className="inline-flex items-center justify-center rounded-md border border-input bg-background p-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
                     >
-                        <ArrowLeft className="h-4 w-4 mr-1" />
+                        <ArrowLeft className="mr-1 h-4 w-4" />
                         Kembali
                     </Link>
                     <div>
@@ -109,9 +113,9 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {/* Left Column: Details & Progress Timeline */}
-                    <div className="lg:col-span-1 space-y-6">
+                    <div className="space-y-6 lg:col-span-1">
                         {/* Info Jurnal */}
                         <Card>
                             <CardHeader>
@@ -120,30 +124,30 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-4 text-sm">
                                 <div>
-                                    <Label className="text-muted-foreground text-xs">Nama Jurnal</Label>
+                                    <Label className="text-xs text-muted-foreground">Nama Jurnal</Label>
                                     <p className="font-medium text-gray-900">{journal?.title || '-'}</p>
                                 </div>
                                 <div>
-                                    <Label className="text-muted-foreground text-xs">ISSN / E-ISSN</Label>
+                                    <Label className="text-xs text-muted-foreground">ISSN / E-ISSN</Label>
                                     <p className="font-medium text-gray-900">{journal?.issn || '-'}</p>
                                 </div>
                                 <div>
-                                    <Label className="text-muted-foreground text-xs">Program Pembinaan</Label>
+                                    <Label className="text-xs text-muted-foreground">Program Pembinaan</Label>
                                     <p className="font-medium text-gray-900">{pembinaan?.name || '-'}</p>
-                                    <Badge className="capitalize mt-1" variant="outline">
+                                    <Badge className="mt-1 capitalize" variant="outline">
                                         {pembinaan?.category || '-'}
                                     </Badge>
                                 </div>
                                 <div>
-                                    <Label className="text-muted-foreground text-xs">Universitas</Label>
+                                    <Label className="text-xs text-muted-foreground">Universitas</Label>
                                     <p className="font-medium text-gray-900">{journal?.university?.name || '-'}</p>
                                 </div>
                                 <div>
-                                    <Label className="text-muted-foreground text-xs">Bidang Ilmu</Label>
+                                    <Label className="text-xs text-muted-foreground">Bidang Ilmu</Label>
                                     <p className="font-medium text-gray-900">{journal?.scientific_field?.name || '-'}</p>
                                 </div>
-                                <div className="pt-2 border-t">
-                                    <Label className="text-muted-foreground text-xs block mb-1">Status Evaluasi Monev</Label>
+                                <div className="border-t pt-2">
+                                    <Label className="mb-1 block text-xs text-muted-foreground">Status Evaluasi Monev</Label>
                                     <Badge variant={getStatusBadgeVariant(registration?.review_status)}>
                                         {getStatusLabel(registration?.review_status)}
                                     </Badge>
@@ -160,10 +164,7 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="review_status">Status Monev</Label>
-                                    <Select
-                                        value={registration?.review_status || 'menunggu_reviewer'}
-                                        onValueChange={handleStatusChange}
-                                    >
+                                    <Select value={registration?.review_status || 'menunggu_reviewer'} onValueChange={handleStatusChange}>
                                         <SelectTrigger id="review_status">
                                             <SelectValue placeholder="Pilih Status" />
                                         </SelectTrigger>
@@ -180,12 +181,16 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
 
                         {/* Progress Timeline */}
                         {registration && (
-                            <ProgressTimeline 
-                                registration={registration} 
+                            <ProgressTimeline
+                                registration={registration}
                                 progressPercentage={
-                                    registration.status === 'approved' ? 100 :
-                                    registration.review_status === 'review_selesai' ? 50 :
-                                    registration.review_status === 'sedang_direview' ? 25 : 0
+                                    registration.status === 'approved'
+                                        ? 100
+                                        : registration.review_status === 'review_selesai'
+                                          ? 50
+                                          : registration.review_status === 'sedang_direview'
+                                            ? 25
+                                            : 0
                                 }
                             />
                         )}
@@ -224,17 +229,15 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
                                             onChange={(e) => setData('score', e.target.value)}
                                             className={errors.score ? 'border-destructive' : ''}
                                         />
-                                        {errors.score && (
-                                            <p className="text-sm text-destructive font-medium">{errors.score}</p>
-                                        )}
-                                        <p className="text-xs text-muted-foreground">
-                                            Masukkan skor penilaian kuantitatif proposal pembinaan/monev.
-                                        </p>
+                                        {errors.score && <p className="text-sm font-medium text-destructive">{errors.score}</p>}
+                                        <p className="text-xs text-muted-foreground">Masukkan skor penilaian kuantitatif proposal pembinaan/monev.</p>
                                     </div>
 
                                     {/* Feedback Input */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="feedback">Catatan Evaluasi / Masukan Reviewer <span className="text-destructive">*</span></Label>
+                                        <Label htmlFor="feedback">
+                                            Catatan Evaluasi / Masukan Reviewer <span className="text-destructive">*</span>
+                                        </Label>
                                         <Textarea
                                             id="feedback"
                                             rows={6}
@@ -244,9 +247,7 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
                                             className={errors.feedback ? 'border-destructive' : ''}
                                             required
                                         />
-                                        {errors.feedback && (
-                                            <p className="text-sm text-destructive font-medium">{errors.feedback}</p>
-                                        )}
+                                        {errors.feedback && <p className="text-sm font-medium text-destructive">{errors.feedback}</p>}
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Maksimal 2000 karakter</span>
                                             <span>{data.feedback.length}/2000</span>
@@ -264,9 +265,7 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
                                             onChange={(e) => setData('recommendation', e.target.value)}
                                             className={errors.recommendation ? 'border-destructive' : ''}
                                         />
-                                        {errors.recommendation && (
-                                            <p className="text-sm text-destructive font-medium">{errors.recommendation}</p>
-                                        )}
+                                        {errors.recommendation && <p className="text-sm font-medium text-destructive">{errors.recommendation}</p>}
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Maksimal 1000 karakter</span>
                                             <span>{data.recommendation.length}/1000</span>
@@ -274,7 +273,7 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
                                     </div>
 
                                     {/* Submit Button */}
-                                    <div className="flex justify-end pt-4 border-t">
+                                    <div className="flex justify-end border-t pt-4">
                                         <Button type="submit" disabled={processing} className="flex items-center gap-2">
                                             <Save className="h-4 w-4" />
                                             {processing ? 'Menyimpan...' : 'Simpan Catatan Evaluasi'}

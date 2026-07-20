@@ -185,7 +185,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                 <Card>
                     <CardHeader>
                         <div className="flex items-start gap-3">
-                            <FileText className="text-muted-foreground mt-0.5 h-5 w-5" />
+                            <FileText className="mt-0.5 h-5 w-5 text-muted-foreground" />
                             <div>
                                 <CardTitle>Detail Proposal</CardTitle>
                                 <CardDescription>Informasi proposal yang akan dinilai</CardDescription>
@@ -196,11 +196,11 @@ export default function FormReview({ proposal, existingReview }: Props) {
                         <div className="space-y-3">
                             <div>
                                 <span className="text-sm font-medium">Judul:</span>
-                                <p className="text-muted-foreground text-sm">{proposal.title}</p>
+                                <p className="text-sm text-muted-foreground">{proposal.title}</p>
                             </div>
                             <div>
                                 <span className="text-sm font-medium">Abstrak:</span>
-                                <p className="text-muted-foreground text-sm leading-relaxed">{proposal.abstract}</p>
+                                <p className="text-sm leading-relaxed text-muted-foreground">{proposal.abstract}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -212,7 +212,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                     <Card>
                         <CardHeader>
                             <div className="flex items-start gap-3">
-                                <ClipboardCheck className="text-muted-foreground mt-0.5 h-5 w-5" />
+                                <ClipboardCheck className="mt-0.5 h-5 w-5 text-muted-foreground" />
                                 <div>
                                     <CardTitle>Rubrik Penilaian</CardTitle>
                                     <CardDescription>Berikan skor 1–5 untuk setiap kriteria penilaian</CardDescription>
@@ -225,7 +225,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                     <div key={komponen.kriteria} className="rounded-lg border p-4">
                                         <div className="mb-3 flex items-center justify-between">
                                             <Label className="text-base font-semibold">{komponen.kriteria}</Label>
-                                            <span className="text-muted-foreground text-xs">Bobot: {komponen.bobot}%</span>
+                                            <span className="text-xs text-muted-foreground">Bobot: {komponen.bobot}%</span>
                                         </div>
 
                                         {/* Score Buttons */}
@@ -238,12 +238,10 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                                     className={`inline-flex min-w-[120px] items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-all ${
                                                         komponen.skor === skor
                                                             ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-                                                            : 'hover:bg-accent border-input bg-background hover:text-accent-foreground'
+                                                            : 'border-input bg-background hover:bg-accent hover:text-accent-foreground'
                                                     }`}
                                                 >
-                                                    <Star
-                                                        className={`h-4 w-4 ${komponen.skor === skor ? 'fill-current' : ''}`}
-                                                    />
+                                                    <Star className={`h-4 w-4 ${komponen.skor === skor ? 'fill-current' : ''}`} />
                                                     <span>
                                                         {skor} – {SKOR_LABELS[skor]}
                                                     </span>
@@ -260,9 +258,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                     </div>
                                 ))}
 
-                                {errors.komponen_penilaian && (
-                                    <InputError message={errors.komponen_penilaian} />
-                                )}
+                                {errors.komponen_penilaian && <InputError message={errors.komponen_penilaian} />}
                             </div>
 
                             {/* Aggregate Score Display */}
@@ -270,15 +266,13 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-sm font-medium">Total Skor Agregat</p>
-                                        <p className="text-muted-foreground text-xs">
-                                            Dihitung otomatis dari rubrik di atas
-                                        </p>
+                                        <p className="text-xs text-muted-foreground">Dihitung otomatis dari rubrik di atas</p>
                                     </div>
                                     <div className="text-right">
                                         <p className={`text-3xl font-bold tabular-nums ${getScoreColor(aggregateScore)}`}>
                                             {aggregateScore.toFixed(2)}
                                         </p>
-                                        <p className="text-muted-foreground text-xs">dari 100</p>
+                                        <p className="text-xs text-muted-foreground">dari 100</p>
                                     </div>
                                 </div>
                                 {!allCriteriaFilled && (
@@ -303,9 +297,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                 <Label htmlFor="recommendation">Rekomendasi</Label>
                                 <Select
                                     value={data.recommendation}
-                                    onValueChange={(value) =>
-                                        setData('recommendation', value as 'accepted' | 'revision' | 'rejected')
-                                    }
+                                    onValueChange={(value) => setData('recommendation', value as 'accepted' | 'revision' | 'rejected')}
                                 >
                                     <SelectTrigger id="recommendation">
                                         <SelectValue placeholder="Pilih Rekomendasi..." />
@@ -340,7 +332,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                 />
                                 <InputError message={errors.comments} />
                                 {(data.recommendation === 'revision' || data.recommendation === 'rejected') && (
-                                    <p className="text-muted-foreground text-xs">
+                                    <p className="text-xs text-muted-foreground">
                                         Komentar wajib diisi ketika rekomendasi adalah Revisi atau Ditolak.
                                     </p>
                                 )}
