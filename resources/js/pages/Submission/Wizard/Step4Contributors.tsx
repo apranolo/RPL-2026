@@ -23,9 +23,9 @@ interface Submission {
     contributors?: Contributor[];
 }
 
-interface Step4ContributorsProps {
+type Step4ContributorsProps = {
     submission: Submission;
-}
+} & Record<string, unknown>;
 
 export default function Step4Contributors({ auth, submission }: PageProps<Step4ContributorsProps>) {
     // Determine initial contributors list
@@ -42,7 +42,7 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
                   },
               ];
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm<{ contributors: any[] }>({
         contributors: initialContributors,
     });
 

@@ -63,7 +63,7 @@ export default function Step1Start({ journals }: Props) {
             <Head title="Submission - Step 1" />
 
             <div className="mx-auto max-w-3xl p-6">
-                <WizardProgressBar steps={wizardSteps} currentStep={0} className="mb-8" />
+                <WizardProgressBar currentStep={1} />
 
                 <Card>
                     <CardHeader>

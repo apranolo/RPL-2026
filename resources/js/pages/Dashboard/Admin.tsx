@@ -35,7 +35,7 @@ interface FacultyPerformanceItem {
 
 interface ResearchItem {
     id: number;
-    title: string;
+    judul: string;
     citations: number;
 }
 
@@ -49,7 +49,7 @@ interface ActivityLogItem {
     action: string;
     description: string;
     created_at: string;
-    user: { name: string } | null;
+    user?: { id: number; name: string; email: string } | null;
 }
 
 interface Props {

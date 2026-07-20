@@ -14,7 +14,7 @@ interface Loggable {
 
 interface ActivityLogItem {
     id: number;
-    user?: User;
+    user?: User | null;
     action: string;
     description: string;
     created_at: string;

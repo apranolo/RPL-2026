@@ -9,7 +9,7 @@
  - agar konsisten dengan TopResearchList.tsx dan mudah diubah di satu tempat.
  */
 
-import { Award, Star, Trophy } from 'lucide-react';
+import { Star, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 /**
@@ -135,4 +135,3 @@ export default function TopLecturerList({ data }: Props) {
         </div>
     );
 }
-
