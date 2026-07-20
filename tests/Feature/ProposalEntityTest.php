@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\User;
 use App\Models\Proposal;
 use App\Models\ResearchSchema;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

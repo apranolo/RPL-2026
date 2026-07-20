@@ -4,7 +4,9 @@
 
 namespace Tests\Browser;
 
+use App\Models\Journal;
 use App\Models\Role;
+use App\Models\ScientificField;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -348,8 +350,8 @@ class AdminKampusManagementTest extends DuskTestCase
         ]);
 
         // Create a journal
-        $scientificField = \App\Models\ScientificField::first();
-        \App\Models\Journal::create([
+        $scientificField = ScientificField::first();
+        Journal::create([
             'university_id' => $this->university->id,
             'user_id' => $adminKampus->id,
             'title' => 'Test Journal',

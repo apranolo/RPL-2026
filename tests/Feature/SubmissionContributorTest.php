@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Journal;
 use App\Models\Submission;
-use App\Models\SubmissionContributor;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -15,7 +14,9 @@ class SubmissionContributorTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected User $user;
+
     protected Journal $journal;
+
     protected Submission $submission;
 
     /**
@@ -81,7 +82,7 @@ class SubmissionContributorTest extends TestCase
                     'affiliation' => 'University B',
                     'is_corresponding' => false,
                 ],
-            ]
+            ],
         ];
 
         $response = $this->actingAs($this->user)
@@ -122,8 +123,8 @@ class SubmissionContributorTest extends TestCase
                     'email' => 'invalid-email', // Invalid email format
                     'affiliation' => '', // Empty affiliation
                     'is_corresponding' => true,
-                ]
-            ]
+                ],
+            ],
         ];
 
         $response = $this->actingAs($this->user)
@@ -149,7 +150,7 @@ class SubmissionContributorTest extends TestCase
                     'affiliation' => 'University C',
                     'is_corresponding' => true,
                 ],
-            ]
+            ],
         ];
 
         $response = $this->actingAs($this->user)

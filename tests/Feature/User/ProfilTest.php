@@ -12,9 +12,11 @@
  *   - Email verification reset on email change
  */
 
+use App\Models\Journal;
 use App\Models\ScientificField;
 use App\Models\University;
 use App\Models\User;
+use App\Notifications\JournalApprovedNotification;
 
 beforeEach(function () {
     $this->seedRoles();
@@ -266,8 +268,8 @@ test('user can mark a notification as read', function () {
     $user = User::factory()->user()->create();
 
     // Create a database notification
-    $user->notify(new \App\Notifications\JournalApprovedNotification(
-        \App\Models\Journal::factory()->for($user)->create()
+    $user->notify(new JournalApprovedNotification(
+        Journal::factory()->for($user)->create()
     ));
 
     $notification = $user->notifications()->first();
@@ -277,7 +279,7 @@ test('user can mark a notification as read', function () {
         ->assertRedirect();
 
     expect($user->fresh()->unreadNotifications()->count())->toBe(0);
-})->skip(fn () => ! class_exists(\App\Notifications\JournalApprovedNotification::class), 'JournalApprovedNotification does not exist');
+})->skip(fn () => ! class_exists(JournalApprovedNotification::class), 'JournalApprovedNotification does not exist');
 
 test('user can mark all notifications as read', function () {
     $user = User::factory()->user()->create();
