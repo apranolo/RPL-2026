@@ -966,7 +966,6 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
-<<<<<<< HEAD
     Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
         ->prefix('editorial')
         ->name('editorial.')
@@ -978,8 +977,6 @@ Route::middleware(['auth'])->group(function () {
             )->name('revision.notify-author');
 
         });
-=======
->>>>>>> eb78afdfef0e6895e31574326b41a3881e0e6a74
 });
 
 require __DIR__.'/settings.php';
