@@ -13,18 +13,16 @@ class TopResearchController extends Controller
     /**
      * Mengambil top 5 penelitian teraktif berdasarkan jumlah luaran (research_outputs).
      * Entitas "penelitian" dalam sistem ini diwakili oleh model Proposal.
-     *
-     * @return JsonResponse
      */
     public function getTop(): JsonResponse
     {
         $universityId = Auth::user()->university_id;
 
         $topResearch = Proposal::select(
-                'proposals.id',
-                'proposals.title',
-                DB::raw('COUNT(research_outputs.id) as citations')
-            )
+            'proposals.id',
+            'proposals.title',
+            DB::raw('COUNT(research_outputs.id) as citations')
+        )
             ->join('users', 'proposals.user_id', '=', 'users.id')
             ->leftJoin('research_outputs', 'proposals.id', '=', 'research_outputs.proposal_id')
             ->where('users.university_id', $universityId)

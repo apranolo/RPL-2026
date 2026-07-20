@@ -5,7 +5,6 @@ namespace Tests\Feature\Controllers\Production;
 use App\Models\Galley;
 use App\Models\Issue;
 use App\Models\Journal;
-use App\Models\Role;
 use App\Models\Submission;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
@@ -186,7 +185,7 @@ class IssueControllerTest extends TestCase
         ]));
 
         $response->assertRedirect();
-        $response->assertSessionHas('success', "Issue Vol 1 No 2 berhasil dipublish.");
+        $response->assertSessionHas('success', 'Issue Vol 1 No 2 berhasil dipublish.');
         $this->assertEquals('Published', $issue->fresh()->status);
     }
 
