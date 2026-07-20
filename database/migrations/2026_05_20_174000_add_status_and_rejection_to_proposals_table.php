@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('proposals', function (Blueprint $table) {
-            $table->string('status_proposal')->default('Pending')->after('research_schema_id');
-            $table->text('rejection_reason')->nullable()->after('status_proposal');
+            if (! Schema::hasColumn('proposals', 'status_proposal')) {
+                $table->string('status_proposal')->default('Pending')->after('research_schema_id');
+            }
+            if (! Schema::hasColumn('proposals', 'rejection_reason')) {
+                $table->text('rejection_reason')->nullable()->after('status_proposal');
+            }
         });
     }
 
