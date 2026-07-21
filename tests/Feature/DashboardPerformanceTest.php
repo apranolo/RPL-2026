@@ -1,352 +1,166 @@
 <?php
 
-use App\Models\Journal;
-use App\Models\ScientificField;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Models\ResearchSchema;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-uses()->group('feature', 'performance', 'statistics');
+uses()->group('feature', 'performance', 'statistics', 'modul6-kelasB');
 
 beforeEach(function () {
     $this->seedRoles();
     Cache::flush();
 
-    $this->university = University::factory()->create();
-    $this->scientificField = ScientificField::factory()->create();
-    $this->user = User::factory()->user()->create(['university_id' => $this->university->id]);
+    // Buat university sebagai proxy Fakultas
+    $this->university = University::factory()->create([
+        'name' => 'Fakultas Teknik',
+    ]);
+
+    // Buat user dosen di fakultas ini
+    $this->user = User::factory()->user()->create([
+        'university_id' => $this->university->id,
+    ]);
+
+    // Buat admin kampus
+    $this->admin = User::factory()->adminKampus()->create([
+        'university_id' => $this->university->id,
+    ]);
+
+    // Buat skema penelitian
+    $this->schema1 = ResearchSchema::factory()->create(['name' => 'Penelitian Dasar']);
+    $this->schema2 = ResearchSchema::factory()->create(['name' => 'Penelitian Terapan']);
 });
 
-describe('Cache Performance', function () {
-    test('cold cache loads statistics within acceptable time', function () {
-        // Create 100 journals
-        Journal::factory()->count(100)->complete()->create([
-            'user_id' => $this->user->id,
-            'university_id' => $this->university->id,
-        ]);
+describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
 
-        Cache::flush(); // Ensure cold cache
-
-        $startTime = microtime(true);
-        $response = $this->actingAs($this->user)->get('/dashboard');
-        $endTime = microtime(true);
-
-        $response->assertOk();
-        $loadTime = ($endTime - $startTime) * 1000; // Convert to ms
-
-        // Should load within 2 seconds even on cold cache
-        expect($loadTime)->toBeLessThan(2000);
-    })->skip('Performance test - run manually when needed');
-
-    test('warm cache loads statistics significantly faster than cold', function () {
-        // Create 100 journals
-        Journal::factory()->count(100)->complete()->create([
-            'user_id' => $this->user->id,
-            'university_id' => $this->university->id,
-        ]);
-
-        // Cold cache measurement
-        Cache::flush();
-        $coldStart = microtime(true);
-        $this->actingAs($this->user)->get('/dashboard');
-        $coldTime = (microtime(true) - $coldStart) * 1000;
-
-        // Warm cache measurement
-        $warmStart = microtime(true);
-        $this->actingAs($this->user)->get('/dashboard');
-        $warmTime = (microtime(true) - $warmStart) * 1000;
-
-        // Warm cache should be at least 5x faster
-        expect($warmTime)->toBeLessThan($coldTime / 5);
-    })->skip('Performance test - run manually when needed');
-
-    test('cache reduces database queries significantly', function () {
-        // Create 50 journals
-        Journal::factory()->count(50)->complete()->create([
-            'user_id' => $this->user->id,
-            'university_id' => $this->university->id,
-        ]);
-
-        // Cold cache - count queries
-        Cache::flush();
-        DB::enableQueryLog();
-        $this->actingAs($this->user)->get('/dashboard');
-        $coldQueries = count(DB::getQueryLog());
-        DB::disableQueryLog();
-
-        // Warm cache - count queries
-        DB::enableQueryLog();
-        $this->actingAs($this->user)->get('/dashboard');
-        $warmQueries = count(DB::getQueryLog());
-        DB::disableQueryLog();
-
-        // Warm cache should have significantly fewer queries
-        expect($warmQueries)->toBeLessThan($coldQueries / 2);
-
-        // Warm cache should have minimal queries (auth + cache check)
-        expect($warmQueries)->toBeLessThan(10);
-    });
-});
-
-describe('Large Dataset Handling', function () {
-    test('handles 1000+ journals without performance degradation', function () {
-        // Create 1000 journals with realistic distribution
-        $fields = ScientificField::factory()->count(10)->create();
-
-        for ($i = 0; $i < 1000; $i++) {
-            Journal::factory()->create([
+    test('getFacultyStat mengembalikan jumlah proposal dan luaran yang benar per fakultas', function () {
+        // Buat 3 proposal (submitted)
+        for ($i = 0; $i < 3; $i++) {
+            DB::table('proposals')->insert([
+                'title' => 'Proposal '.$i,
+                'description' => 'Deskripsi '.$i,
                 'user_id' => $this->user->id,
-                'university_id' => $this->university->id,
-                'scientific_field_id' => $fields->random()->id,
-                'indexations' => $i % 2 === 0 ? ['Scopus' => true] : null,
-                'sinta_rank' => $i % 3 === 0 ? (string) (($i % 6) + 1) : null,
+                'research_schema_id' => $this->schema1->id,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 
-        Cache::flush();
-
-        $startTime = microtime(true);
-        $response = $this->actingAs($this->user)->get('/dashboard');
-        $endTime = microtime(true);
-
-        $response->assertOk();
-        $statistics = $response->viewData('page')['props']['statistics'];
-
-        // Verify accuracy
-        expect($statistics['totals']['total_journals'])->toBe(1000);
-
-        // Should still load within reasonable time (< 5 seconds)
-        $loadTime = ($endTime - $startTime) * 1000;
-        expect($loadTime)->toBeLessThan(5000);
-    })->skip('Large dataset test - run manually when needed');
-
-    test('statistics calculation is accurate with large datasets', function () {
-        // Create exactly 100 journals with known distribution
-        // 50% Scopus, 30% SINTA 1, rest evenly distributed
-
-        $field1 = ScientificField::factory()->create(['name' => 'Field A']);
-        $field2 = ScientificField::factory()->create(['name' => 'Field B']);
-
-        for ($i = 0; $i < 100; $i++) {
-            $indexations = null;
-            $sintaRank = null;
-            $fieldId = $i < 50 ? $field1->id : $field2->id;
-
-            if ($i < 50) {
-                $indexations = ['Scopus' => true];
-            }
-
-            if ($i < 30) {
-                $sintaRank = '1';
-            }
-
-            Journal::factory()->create([
+        // Buat 2 luaran dengan status approved (accepted)
+        for ($i = 0; $i < 2; $i++) {
+            DB::table('research_outputs')->insert([
                 'user_id' => $this->user->id,
-                'university_id' => $this->university->id,
-                'scientific_field_id' => $fieldId,
-                'indexations' => $indexations,
-                'sinta_rank' => $sintaRank,
+                'kategori' => 'jurnal',
+                'judul' => 'Luaran '.$i,
+                'file_path' => 'file'.$i.'.pdf',
+                'status' => 'approved',
+                'keterangan' => 'test',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 
-        $response = $this->actingAs($this->user)->get('/dashboard');
-        $statistics = $response->viewData('page')['props']['statistics'];
-
-        expect($statistics['totals']['total_journals'])->toBe(100);
-        expect($statistics['totals']['indexed_journals'])->toBe(50);
-        expect($statistics['totals']['sinta_journals'])->toBe(30);
-        expect($statistics['totals']['non_sinta_journals'])->toBe(70);
-
-        $fieldMap = collect($statistics['by_scientific_field'])->keyBy('name');
-        expect($fieldMap['Field A']['count'])->toBe(50);
-        expect($fieldMap['Field B']['count'])->toBe(50);
-    });
-
-    test('handles edge case: all journals same attributes', function () {
-        // 100 journals all with identical indexations and SINTA rank
-        Journal::factory()->count(100)->create([
+        // Buat 1 luaran pending — TIDAK boleh dihitung sebagai accepted
+        DB::table('research_outputs')->insert([
             'user_id' => $this->user->id,
-            'university_id' => $this->university->id,
-            'scientific_field_id' => $this->scientificField->id,
-            'indexations' => ['Scopus' => true, 'DOAJ' => true],
-            'sinta_rank' => '1',
+            'kategori' => 'buku',
+            'judul' => 'Luaran Pending',
+            'file_path' => 'pending.pdf',
+            'status' => 'submitted',
+            'keterangan' => 'test',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $response = $this->actingAs($this->user)->get('/dashboard');
-        $statistics = $response->viewData('page')['props']['statistics'];
+        $ctrl = new DashboardController;
+        $stats = $ctrl->getFacultyStat();
 
-        expect($statistics['totals']['total_journals'])->toBe(100);
-        expect($statistics['totals']['indexed_journals'])->toBe(100);
-        expect($statistics['totals']['sinta_journals'])->toBe(100);
+        expect($stats)->toBeArray();
+        expect(count($stats))->toBe(1);
 
-        // All should be 100%
-        expect($statistics['by_indexation'][0]['percentage'])->toBe(100.0);
-        expect($statistics['by_accreditation'][1]['percentage'])->toBe(100.0); // SINTA 1
+        $facultyStat = $stats[0];
+        expect($facultyStat['faculty_name'])->toBe('Fakultas Teknik');
+        expect($facultyStat['submitted'])->toBe(3);
+        expect($facultyStat['accepted'])->toBe(2);
     });
 
-    test('handles edge case: maximum diversity in attributes', function () {
-        // Create journals with maximum variety
-        $fields = ScientificField::factory()->count(20)->create();
-        $platforms = ['Scopus', 'Web of Science', 'DOAJ', 'Google Scholar', 'PubMed', 'IEEE', 'Springer'];
-
-        for ($i = 0; $i < 100; $i++) {
-            $indexations = [];
-            $selectedPlatforms = array_rand(array_flip($platforms), rand(0, 3));
-            foreach ((array) $selectedPlatforms as $platform) {
-                $indexations[$platform] = true;
-            }
-
-            Journal::factory()->create([
+    test('getCategoryStat mengembalikan distribusi kategori proposal per skema yang benar', function () {
+        // 2 proposal di schema 1
+        for ($i = 0; $i < 2; $i++) {
+            DB::table('proposals')->insert([
+                'title' => 'Schema1 Proposal '.$i,
+                'description' => 'Desc',
                 'user_id' => $this->user->id,
-                'university_id' => $this->university->id,
-                'scientific_field_id' => $fields->random()->id,
-                'indexations' => ! empty($indexations) ? $indexations : null,
-                'sinta_rank' => rand(0, 10) > 5 ? (string) rand(1, 6) : null,
+                'research_schema_id' => $this->schema1->id,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 
-        $response = $this->actingAs($this->user)->get('/dashboard');
-        $statistics = $response->viewData('page')['props']['statistics'];
-
-        expect($statistics['totals']['total_journals'])->toBe(100);
-        expect($statistics['by_scientific_field'])->not->toBeEmpty();
-
-        // Should have variety in data
-        expect(count($statistics['by_indexation']))->toBeGreaterThan(0);
-    });
-});
-
-describe('Query Optimization', function () {
-    test('prevents N+1 query problem with scientific field eager loading', function () {
-        $fields = ScientificField::factory()->count(5)->create();
-
-        // Create 50 journals across different fields
-        foreach ($fields as $field) {
-            Journal::factory()->count(10)->create([
+        // 3 proposal di schema 2
+        for ($i = 0; $i < 3; $i++) {
+            DB::table('proposals')->insert([
+                'title' => 'Schema2 Proposal '.$i,
+                'description' => 'Desc',
                 'user_id' => $this->user->id,
-                'university_id' => $this->university->id,
-                'scientific_field_id' => $field->id,
+                'research_schema_id' => $this->schema2->id,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 
-        Cache::flush();
+        $ctrl = new DashboardController;
+        $catStat = $ctrl->getCategoryStat();
 
-        // Count queries
-        DB::enableQueryLog();
-        $this->actingAs($this->user)->get('/dashboard');
-        $queries = DB::getQueryLog();
-        DB::disableQueryLog();
+        expect($catStat['total'])->toBe(5);
+        expect(count($catStat['categories']))->toBe(2);
 
-        // Should not have 50+ queries for scientific fields
-        // Expected: user auth (2-3) + journals query (1) + eager load scientific fields (1) = ~5 queries
-        expect(count($queries))->toBeLessThan(20);
+        $categories = collect($catStat['categories'])->keyBy('label');
+
+        expect($categories['Penelitian Dasar']['value'])->toBe(2);
+        expect($categories['Penelitian Dasar']['percentage'])->toBe(40.0);
+
+        expect($categories['Penelitian Terapan']['value'])->toBe(3);
+        expect($categories['Penelitian Terapan']['percentage'])->toBe(60.0);
     });
 
-    test('uses single query for journal aggregation', function () {
-        Journal::factory()->count(50)->complete()->create([
+    test('statistik disimpan di cache dan dapat dihapus melalui clearFacultyCache', function () {
+        DB::table('proposals')->insert([
+            'title' => 'Prop 1',
+            'description' => 'Desc',
             'user_id' => $this->user->id,
-            'university_id' => $this->university->id,
+            'research_schema_id' => $this->schema1->id,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        Cache::flush();
+        $ctrl = new DashboardController;
 
-        DB::enableQueryLog();
-        $this->actingAs($this->user)->get('/dashboard');
-        $queries = DB::getQueryLog();
-        DB::disableQueryLog();
+        // Cold cache — ambil data baru
+        $stats1 = $ctrl->getFacultyStat();
+        expect($stats1[0]['submitted'])->toBe(1);
 
-        // Find journal-related queries
-        $journalQueries = collect($queries)->filter(function ($query) {
-            return str_contains($query['query'], 'journals');
-        });
-
-        // Should use minimal queries for journals (1-2 for main query + eager loading)
-        expect($journalQueries->count())->toBeLessThanOrEqual(3);
-    });
-});
-
-describe('Memory Usage', function () {
-    test('does not exhaust memory with large datasets', function () {
-        $initialMemory = memory_get_usage();
-
-        // Create 500 journals
-        Journal::factory()->count(500)->complete()->create([
+        // Tambah data langsung ke DB (melewati cache)
+        DB::table('proposals')->insert([
+            'title' => 'Prop 2',
+            'description' => 'Desc',
             'user_id' => $this->user->id,
-            'university_id' => $this->university->id,
+            'research_schema_id' => $this->schema1->id,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        Cache::flush();
+        // Warm cache — masih mengembalikan 1
+        $stats2 = $ctrl->getFacultyStat();
+        expect($stats2[0]['submitted'])->toBe(1);
 
-        $beforeRequest = memory_get_usage();
-        $this->actingAs($this->user)->get('/dashboard');
-        $afterRequest = memory_get_usage();
+        // Hapus cache
+        DashboardController::clearFacultyCache();
 
-        $memoryUsed = ($afterRequest - $beforeRequest) / 1024 / 1024; // MB
-
-        // Should not use more than 50 MB for statistics calculation
-        expect($memoryUsed)->toBeLessThan(50);
-    })->skip('Memory test - run manually when needed');
-});
-
-describe('Concurrent Access Performance', function () {
-    test('cache handles concurrent requests efficiently', function () {
-        // Create test data
-        Journal::factory()->count(100)->complete()->create([
-            'user_id' => $this->user->id,
-            'university_id' => $this->university->id,
-        ]);
-
-        Cache::flush();
-
-        // Simulate first request (creates cache)
-        $this->actingAs($this->user)->get('/dashboard');
-        expect(Cache::has("dashboard_statistics_user_{$this->user->id}"))->toBeTrue();
-
-        // Simulate concurrent requests (all should hit cache)
-        $times = [];
-        for ($i = 0; $i < 5; $i++) {
-            $start = microtime(true);
-            $this->actingAs($this->user)->get('/dashboard');
-            $times[] = (microtime(true) - $start) * 1000;
-        }
-
-        // All concurrent requests should be fast (< 100ms)
-        foreach ($times as $time) {
-            expect($time)->toBeLessThan(100);
-        }
-
-        // Average should be very low
-        $average = array_sum($times) / count($times);
-        expect($average)->toBeLessThan(50);
-    });
-});
-
-describe('Statistics with Realistic Data', function () {
-    test('handles realistic university data distribution', function () {
-        // Use helper to create realistic test data
-        $data = $this->seedStatisticsTestData(
-            universitiesCount: 2,
-            journalsPerUniversity: 20
-        );
-
-        $university = $data['universities']->first();
-        $adminKampus = User::factory()->adminKampus()->create([
-            'university_id' => $university->id,
-        ]);
-
-        $response = $this->actingAs($adminKampus)->get('/dashboard');
-        $statistics = $response->viewData('page')['props']['statistics'];
-
-        // Should have realistic distribution
-        expect($statistics['totals']['total_journals'])->toBeGreaterThan(0);
-        expect($statistics['by_indexation'])->not->toBeEmpty();
-        expect($statistics['by_scientific_field'])->not->toBeEmpty();
-
-        // Verify percentages sum correctly (accounting for rounding)
-        $totalPercentage = collect($statistics['by_accreditation'])
-            ->sum('percentage');
-        expect($totalPercentage)->toBeGreaterThan(99.0);
-        expect($totalPercentage)->toBeLessThan(101.0);
+        // Setelah cache dihapus — mengembalikan data terbaru
+        $stats3 = $ctrl->getFacultyStat();
+        expect($stats3[0]['submitted'])->toBe(2);
     });
 });

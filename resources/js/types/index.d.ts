@@ -497,3 +497,16 @@ export interface JournalStatistics {
     by_accreditation: AccreditationStatistic[];
     by_scientific_field: ScientificFieldStatistic[];
 }
+
+export interface ProposalDocument {
+    id: number;
+    proposal_id: number;
+    file_name: string;
+    file_path: string;
+    file_type: string | null;
+    file_size: number | null;
+    document_type: string | null;
+    description: string | null;
+    created_at: string;
+    updated_at: string;
+}

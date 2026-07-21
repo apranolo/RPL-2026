@@ -4,115 +4,161 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ReviewSchedule extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'review_schedules';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
-        'proposal_id',
         'reviewer_id',
-        'scheduled_at',
-        'ended_at',
-        'location',
-        'meeting_link',
-        'notes',
+        'proposal_id',
+        'assigned_by',
+        'assigned_at',
+        'start_date',
+        'end_date',
         'status',
-        'created_by',
-        'updated_by',
-        'deleted_by',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
-        'scheduled_at' => 'datetime',
-        'ended_at' => 'datetime',
+        'assigned_at' => 'datetime',
+        'start_date' => 'date',
+        'end_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
-    public function proposal()
-    {
-        return $this->belongsTo(Proposal::class, 'proposal_id');
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
+    /**
+     * Get the reviewer assigned
+     */
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewer_id');
     }
 
-    public function creator()
+    /**
+     * Get the proposal this schedule is for
+     */
+    public function proposal()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(Proposal::class);
     }
 
-    public function updater()
+    /**
+     * Get the user who assigned the reviewer
+     */
+    public function assigner()
     {
-        return $this->belongsTo(User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'assigned_by');
     }
 
-    public function scopeScheduled($query)
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Scope to filter by reviewer
+     */
+    public function scopeForReviewer($query, int $reviewerId)
     {
-        return $query->where('status', 'scheduled');
+        return $query->where('reviewer_id', $reviewerId);
     }
 
-    public function scopeCompleted($query)
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors & Helper Methods
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Check if assignment is assigned (not started)
+     */
+    public function isAssigned(): bool
     {
-        return $query->where('status', 'completed');
+        return $this->status === 'assigned';
     }
 
-    public function scopeCancelled($query)
+    /**
+     * Check if assignment is in progress
+     */
+    public function isInProgress(): bool
     {
-        return $query->where('status', 'cancelled');
+        return $this->status === 'in_progress';
     }
 
-    public function scopeUpcoming($query)
+    /**
+     * Check if assignment is completed
+     */
+    public function isCompleted(): bool
     {
-        return $query->where('scheduled_at', '>=', now())
-            ->where('status', 'scheduled');
+        return $this->status === 'completed';
     }
 
+    /**
+     * Get status label
+     */
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'scheduled' => 'Scheduled',
+            'assigned' => 'Assigned',
+            'in_progress' => 'In Progress',
             'completed' => 'Completed',
-            'cancelled' => 'Cancelled',
             default => $this->status,
         };
     }
 
+    /**
+     * Get status color
+     */
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'scheduled' => 'default',
+            'assigned' => 'secondary',
+            'in_progress' => 'warning',
             'completed' => 'success',
-            'cancelled' => 'destructive',
             default => 'default',
         };
     }
 
+    /**
+     * Boot method to handle model events
+     */
     protected static function boot()
     {
         parent::boot();
 
+        // Auto-set assigned_at on create
         static::creating(function ($model) {
-            if (auth()->check()) {
-                $model->created_by = auth()->id();
+            if (! $model->assigned_at) {
+                $model->assigned_at = now();
             }
-        });
 
-        static::updating(function ($model) {
-            if (auth()->check()) {
-                $model->updated_by = auth()->id();
-            }
-        });
-
-        static::deleting(function ($model) {
-            if (auth()->check() && !$model->isForceDeleting()) {
-                $model->deleted_by = auth()->id();
-                $model->save();
+            if (auth()->check() && ! $model->assigned_by) {
+                $model->assigned_by = auth()->id();
             }
         });
     }
