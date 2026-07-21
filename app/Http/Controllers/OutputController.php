@@ -65,6 +65,15 @@ class OutputController extends Controller
     {
         $this->authorize('delete', $output);
 
+        // Hapus file terkait jika ada
+        if ($output->cover_image) {
+            Storage::disk('public')->delete($output->cover_image);
+        }
+
+        if ($output->document) {
+            Storage::disk('public')->delete($output->document);
+        }
+
         $output->delete();
 
         return redirect()->route('user.outputs.index')->with('message', 'Output deleted successfully');
