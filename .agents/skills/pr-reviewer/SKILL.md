@@ -90,3 +90,16 @@ Pada tahap pemeriksaan terakhir (pasca batas waktu deadline 19 Juli 2026 23:59 W
      - **`SELESAI`** (commit <= deadline) -> Spreadsheet: **`Completed`**
      - **`SELESAI (Overdue)`** (commit > deadline) -> Spreadsheet: **`Not Completed`**
      - **`BELUM SELESAI`** -> Spreadsheet: **`Not Completed`**
+
+7. **Investigasi Historis Terhapusnya Kode saat Merge Conflict**:
+   - Apabila terdapat method/task yang hilang pada PR final, jalankan:
+     `git log origin/<branch_pr> -p -- app/Http/Controllers/...`
+   - Verifikasi apakah author pernah menulis kodenya lalu terhapus saat `git merge development` (kesalahan resolusi konflik author). Kapan dan mengapa terhapus wajib dicatat pada laporan ulasan.
+
+8. **Penanganan PR `CHANGES_REQUESTED` yang Diperbaiki Reviewer & Issue GitHub**:
+   - Jika PR ditolak (`CHANGES_REQUESTED`), PR **TIDAK DI-MERGE LANGSUNG** dari PR mahasiswa.
+   - Buat Issue GitHub baru (Assignee: `@kyASse`) untuk melacak perbaikan bug/fitur oleh reviewer.
+   - Penilaian spreadsheet mahasiswa **TETAP HANYA MENGHITUNG CAPAIAN MURNI MAHASISWA** sebelum deadline (misal: 25% / `Not Completed`).
+
+9. **Penanganan Target Base Branch `main`**:
+   - Alihkan target base branch ke `development` menggunakan `gh pr edit <PR_NUMBER> --base development` dan catat pada ulasan.
