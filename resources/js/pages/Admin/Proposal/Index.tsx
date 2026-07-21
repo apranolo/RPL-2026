@@ -18,6 +18,7 @@
  *
  * @route GET /admin/proposals
  */
+import ActionButtons from '@/components/ActionButtons';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,9 +27,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import ActionButtons from '@/components/ActionButtons';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle, ChevronLeft, ChevronRight, CheckCircle, FileText, Search, X, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, FileText, Search, X, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 // ─── Breadcrumbs ─────────────────────────────────────────────────────────────
@@ -96,10 +96,10 @@ interface Props {
 
 function StatusBadge({ status }: { status: string }) {
     const config: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-        Draft:               { label: 'Draft',              variant: 'secondary' },
-        Submitted:           { label: 'Menunggu Review',    variant: 'outline' },
-        Administrasi_Valid:  { label: 'Valid Administrasi', variant: 'default' },
-        Ditolak:             { label: 'Ditolak',            variant: 'destructive' },
+        Draft: { label: 'Draft', variant: 'secondary' },
+        Submitted: { label: 'Menunggu Review', variant: 'outline' },
+        Administrasi_Valid: { label: 'Valid Administrasi', variant: 'default' },
+        Ditolak: { label: 'Ditolak', variant: 'destructive' },
     };
     const { label, variant } = config[status] ?? { label: status, variant: 'outline' };
     return <Badge variant={variant}>{label}</Badge>;
@@ -111,12 +111,17 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
     const { data, setData, post, processing, errors, reset } = useForm({ rejection_reason: '' });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    useEffect(() => { textareaRef.current?.focus(); }, []);
+    useEffect(() => {
+        textareaRef.current?.focus();
+    }, []);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         post(route('admin.proposals.reject', { proposal: proposal.id }), {
-            onSuccess: () => { reset(); onClose(); },
+            onSuccess: () => {
+                reset();
+                onClose();
+            },
         });
     };
 
@@ -149,17 +154,20 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
                             value={data.rejection_reason}
                             onChange={(e) => setData('rejection_reason', e.target.value)}
                             placeholder="Tuliskan alasan penolakan secara jelas (min. 10 karakter)..."
-                            className={`w-full resize-none rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${errors.rejection_reason ? 'border-destructive' : 'border-border'}`}
+                            className={`w-full resize-none rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none ${errors.rejection_reason ? 'border-destructive' : 'border-border'}`}
                         />
                         {errors.rejection_reason && (
                             <p className="mt-1 flex items-center gap-1 text-xs text-destructive">
-                                <AlertTriangle className="h-3 w-3" />{errors.rejection_reason}
+                                <AlertTriangle className="h-3 w-3" />
+                                {errors.rejection_reason}
                             </p>
                         )}
                         <p className="mt-1 text-xs text-muted-foreground">{data.rejection_reason.length}/500 karakter</p>
                     </div>
                     <div className="flex justify-end gap-2 pt-2">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={processing}>Batal</Button>
+                        <Button type="button" variant="outline" onClick={onClose} disabled={processing}>
+                            Batal
+                        </Button>
                         <Button type="submit" variant="destructive" disabled={processing}>
                             {processing ? 'Memproses...' : 'Tolak Proposal'}
                         </Button>
@@ -193,10 +201,10 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
     };
 
     const handleClearFilters = () => {
-        setSearch(''); setStatusFilter('');
+        setSearch('');
+        setStatusFilter('');
         router.get(route('admin.proposals.index'));
     };
-
 
     const hasActiveFilters = !!(search || statusFilter);
 
@@ -206,8 +214,14 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
 
             {/* Flash Message */}
             {flashMessage && (
-                <div className={`fixed right-4 top-4 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm shadow-lg ${flashMessage.type === 'success' ? 'border-border bg-card text-foreground' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
-                    {flashMessage.type === 'success' ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-destructive" />}
+                <div
+                    className={`fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm shadow-lg ${flashMessage.type === 'success' ? 'border-border bg-card text-foreground' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}
+                >
+                    {flashMessage.type === 'success' ? (
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                    ) : (
+                        <XCircle className="h-4 w-4 text-destructive" />
+                    )}
                     {flashMessage.text}
                 </div>
             )}
@@ -252,14 +266,24 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                 <SelectContent>
                                     <SelectItem value="">Semua Status</SelectItem>
                                     {statusOptions.map((opt) => (
-                                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                        <SelectItem key={opt.value} value={opt.value}>
+                                            {opt.label}
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <Button type="submit" id="btn-search-proposals" className="shrink-0">Cari</Button>
+                            <Button type="submit" id="btn-search-proposals" className="shrink-0">
+                                Cari
+                            </Button>
                             {hasActiveFilters && (
-                                <Button type="button" variant="ghost" onClick={handleClearFilters} className="shrink-0 text-muted-foreground hover:text-foreground">
-                                    <X className="mr-1.5 h-3.5 w-3.5" />Reset
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={handleClearFilters}
+                                    className="shrink-0 text-muted-foreground hover:text-foreground"
+                                >
+                                    <X className="mr-1.5 h-3.5 w-3.5" />
+                                    Reset
                                 </Button>
                             )}
                         </form>
@@ -300,14 +324,18 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                                         <p className="text-sm font-medium text-foreground">{proposal.user.name}</p>
                                                         <p className="text-xs text-muted-foreground">{proposal.user.email}</p>
                                                     </div>
-                                                ) : <span className="text-sm text-muted-foreground">—</span>}
+                                                ) : (
+                                                    <span className="text-sm text-muted-foreground">—</span>
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 <span className="text-sm text-foreground">
                                                     {proposal.research_schema?.name ?? <span className="text-muted-foreground">—</span>}
                                                 </span>
                                             </TableCell>
-                                            <TableCell><StatusBadge status={proposal.status_proposal} /></TableCell>
+                                            <TableCell>
+                                                <StatusBadge status={proposal.status_proposal} />
+                                            </TableCell>
                                             <TableCell className="text-sm text-muted-foreground">{proposal.created_at}</TableCell>
                                             <TableCell className="text-right">
                                                 <ActionButtons
@@ -329,7 +357,8 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                 {proposals.last_page > 1 && (
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground">
-                            Menampilkan {(proposals.current_page - 1) * proposals.per_page + 1}–{Math.min(proposals.current_page * proposals.per_page, proposals.total)} dari {proposals.total} proposal
+                            Menampilkan {(proposals.current_page - 1) * proposals.per_page + 1}–
+                            {Math.min(proposals.current_page * proposals.per_page, proposals.total)} dari {proposals.total} proposal
                         </p>
                         <div className="flex items-center gap-1">
                             {proposals.links.map((link, idx) => {
@@ -342,7 +371,13 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                         onClick={() => link.url && router.get(link.url)}
                                         className={`flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm transition-colors ${link.active ? 'bg-primary text-primary-foreground' : 'border border-border bg-background text-foreground hover:bg-muted'} disabled:pointer-events-none disabled:opacity-40`}
                                     >
-                                        {isFirst ? <ChevronLeft className="h-4 w-4" /> : isLast ? <ChevronRight className="h-4 w-4" /> : <span dangerouslySetInnerHTML={{ __html: link.label }} />}
+                                        {isFirst ? (
+                                            <ChevronLeft className="h-4 w-4" />
+                                        ) : isLast ? (
+                                            <ChevronRight className="h-4 w-4" />
+                                        ) : (
+                                            <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                        )}
                                     </button>
                                 );
                             })}

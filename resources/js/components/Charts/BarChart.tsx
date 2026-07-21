@@ -8,7 +8,6 @@
  * @filepath /resources/js/components/Charts/BarChart.tsx
  */
 
-import React from 'react';
 import Chart from 'react-apexcharts';
 
 interface BarChartProps {
@@ -20,30 +19,30 @@ export default function BarChart({ data }: BarChartProps) {
         chart: {
             id: 'funding-bar-chart',
             toolbar: {
-                show: false
+                show: false,
             },
             fontFamily: 'inherit',
-            background: 'transparent'
+            background: 'transparent',
         },
         xaxis: {
-            categories: data.map(item => item.year.toString()),
+            categories: data.map((item) => item.year.toString()),
             title: {
-                text: 'Tahun'
-            }
+                text: 'Tahun',
+            },
         },
         yaxis: {
             title: {
-                text: 'Total Pendanaan (Rp)'
+                text: 'Total Pendanaan (Rp)',
             },
             labels: {
                 formatter: (value: number) => {
                     return new Intl.NumberFormat('id-ID', {
                         style: 'currency',
                         currency: 'IDR',
-                        maximumFractionDigits: 0
+                        maximumFractionDigits: 0,
                     }).format(value);
-                }
-            }
+                },
+            },
         },
         colors: ['#3b82f6'],
         plotOptions: {
@@ -51,18 +50,18 @@ export default function BarChart({ data }: BarChartProps) {
                 borderRadius: 4,
                 horizontal: false,
                 columnWidth: '55%',
-            }
+            },
         },
         dataLabels: {
-            enabled: false
+            enabled: false,
         },
         stroke: {
             show: true,
             width: 2,
-            colors: ['transparent']
+            colors: ['transparent'],
         },
         fill: {
-            opacity: 1
+            opacity: 1,
         },
         tooltip: {
             y: {
@@ -70,18 +69,18 @@ export default function BarChart({ data }: BarChartProps) {
                     return new Intl.NumberFormat('id-ID', {
                         style: 'currency',
                         currency: 'IDR',
-                        maximumFractionDigits: 0
+                        maximumFractionDigits: 0,
                     }).format(val);
-                }
-            }
-        }
+                },
+            },
+        },
     };
 
     const series = [
         {
             name: 'Total Pendanaan',
-            data: data.map(item => item.amount)
-        }
+            data: data.map((item) => item.amount),
+        },
     ];
 
     return (

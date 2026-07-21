@@ -5,20 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * Model ResearchOutput
- *
- * Merepresentasikan satu record luaran penelitian (jurnal, buku, HKI, produk/prototipe).
- * Tabel: `outputs`
- *
- * RBAC CONTRACT: kolom `user_id` selalu diisi dari Auth::id() di controller,
- * tidak pernah diterima dari raw request input.
- *
- * Kolom produk/prototipe yang disimpan langsung di tabel ini (flat schema):
- *   tkt_level, version, year, url, cover_image, document
- */
 class ResearchOutput extends Model
 {
     use HasFactory, SoftDeletes;
@@ -27,74 +16,87 @@ class ResearchOutput extends Model
 
     // Kategori statis
     const KATEGORI = [
-        'jurnal' => 'Jurnal',
-        'buku' => 'Buku',
-        'hki' => 'HKI',
-        'prosiding' => 'Prosiding',
-        'produk' => 'Produk/Prototipe',
+        'Jurnal' => 'Jurnal Ilmiah',
+        'Buku' => 'Buku / Modul',
+        'HKI' => 'HKI / Paten',
+        'Produk' => 'Produk / Prototipe',
     ];
 
     const STATUS = [
-        'draft'     => 'Draft',
-        'submitted' => 'Submitted',
-        'approved'  => 'Approved',
-        'rejected'  => 'Rejected',
-        'published' => 'Published',
-        'patented'  => 'Patented',
+        'Draft' => 'Draft',
+        'Menunggu_Verifikasi' => 'Menunggu Verifikasi',
+        'Terverifikasi_LPPM' => 'Terverifikasi LPPM',
+        'Ditolak' => 'Ditolak',
     ];
 
-    /**
-     * Mass-assignable attributes.
-     *
-     * Catatan: 'user_id' ada di sini agar create([...]) bisa berjalan,
-     * tapi nilai-nya selalu diikat ke Auth::id() di controller (RBAC).
-     */
+    protected $appends = ['id_contract', 'doi', 'no_paten', 'isbn', 'tautan_publikasi'];
+
+    public function getIdContractAttribute()
+    {
+        return $this->contract_id;
+    }
+
+    public function getDoiAttribute()
+    {
+        return $this->jenis_luaran === 'Jurnal' && $this->outputable ? $this->outputable->doi : null;
+    }
+
+    public function getNoPatenAttribute()
+    {
+        return $this->jenis_luaran === 'HKI' && $this->outputable ? $this->outputable->patent_number : null;
+    }
+
+    public function getIsbnAttribute()
+    {
+        return $this->jenis_luaran === 'Buku' && $this->outputable ? $this->outputable->isbn : null;
+    }
+
+    public function getTautanPublikasiAttribute($value)
+    {
+        if ($this->jenis_luaran === 'Jurnal' && $this->outputable) {
+            return $this->outputable->url ?? $value;
+        }
+
+        return $value;
+    }
+
     protected $fillable = [
-        // ── Relasi ──────────────────────────────────────────────────────────
+        'contract_id',
         'user_id',
-        'proposal_id',
-
-        // ── Kolom Dasar Luaran ───────────────────────────────────────────────
-        'kategori',
-        'judul',
+        'jenis_luaran',
+        'judul_luaran',
+        'tahun_capaian',
+        'penulis_atau_pencipta',
+        'file_sertifikat_atau_cover',
+        'status_verifikasi',
         'keterangan',
-        'file_path',
-        'status',
-
-        // ── Kolom Produk / Prototipe ─────────────────────────────────────────
-        'tkt_level',    // integer 1–9 (Tingkat Kesiapan Teknologi)
-        'version',      // string, mis. "v1.0"
-        'year',         // integer, tahun capaian
-        'url',          // URL repositori / referensi
-        'cover_image',  // path relatif di public disk
-        'document',     // path relatif di public disk (bukti luaran)
-
-        // ── Polymorphic (HKI / Buku via morph) ──────────────────────────────
+        'tautan_publikasi',
         'outputable_type',
         'outputable_id',
+        // Kolom tambahan untuk fitur report
+        'title',
+        'type', // Jurnal/Buku/HKI/Produk
+        'year',
+        'status', // Status verifikasi
     ];
 
-    /**
-     * Attribute casting — pastikan tkt_level dan year selalu integer.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'tkt_level' => 'integer',
-        'year'      => 'integer',
-    ];
-
-    // ── Relasi ────────────────────────────────────────────────────────────────
-
-    /** Pemilik luaran ini (User yang login saat create). */
+    // Relasi ke User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /** Proposal riset yang menghasilkan luaran ini (nullable untuk produk mandiri). */
-    public function proposal(): BelongsTo
+    // Relasi ke Contract
+    public function contract(): BelongsTo
     {
-        return $this->belongsTo(Proposal::class);
+        return $this->belongsTo(Contract::class);
+    }
+
+    /**
+     * Relasi Polymorphic untuk mendapatkan detail spesifik tipe luaran.
+     */
+    public function outputable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

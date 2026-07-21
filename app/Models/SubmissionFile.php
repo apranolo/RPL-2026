@@ -27,8 +27,6 @@ class SubmissionFile extends Model
     /**
      * Mendefinisikan relasi inverse ke model Submission.
      * Setiap file unggahan pasti dimiliki oleh satu entitas submission.
-     *
-     * @return BelongsTo
      */
     public function submission(): BelongsTo
     {

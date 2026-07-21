@@ -26,12 +26,7 @@ interface Props {
     isEdit?: boolean;
 }
 
-export default function HkiForm({
-    submitUrl,
-    cancelUrl,
-    initialData,
-    isEdit = false,
-}: Props) {
+export default function HkiForm({ submitUrl, cancelUrl, initialData, isEdit = false }: Props) {
     const { data, setData, post, processing, errors } = useForm<HkiFormData>({
         judul_luaran: initialData?.judul_luaran || '',
         nomor_paten: initialData?.nomor_paten || '',
@@ -87,7 +82,7 @@ export default function HkiForm({
 
             {/* Header Section */}
             <div className="relative overflow-hidden rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 p-5 dark:border-indigo-900 dark:from-indigo-950/30 dark:to-purple-950/30">
-                <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-indigo-400/10 blur-2xl" />
+                <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-indigo-400/10 blur-2xl" />
                 <div className="flex items-start gap-4">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25">
                         <Award className="h-5 w-5" />
@@ -106,9 +101,7 @@ export default function HkiForm({
 
             {/* Informasi HKI */}
             <div className="space-y-4">
-                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">
-                    Informasi HKI / Paten
-                </h3>
+                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">Informasi HKI / Paten</h3>
 
                 {/* Judul HKI */}
                 <div>
@@ -241,9 +234,7 @@ export default function HkiForm({
 
             {/* File Upload */}
             <div className="space-y-4">
-                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">
-                    Dokumen Pendukung
-                </h3>
+                <h3 className="border-b pb-2 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">Dokumen Pendukung</h3>
 
                 <div>
                     <Label className="flex items-center gap-1.5">
@@ -269,16 +260,10 @@ export default function HkiForm({
                             accept=".pdf,.png,.jpg,.jpeg"
                         />
                         <FileText className="h-8 w-8 text-muted-foreground" />
-                        <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {fileName || 'Klik untuk memilih file'}
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                            PDF, PNG, JPG, atau JPEG — Maksimal 5MB
-                        </p>
+                        <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">{fileName || 'Klik untuk memilih file'}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">PDF, PNG, JPG, atau JPEG — Maksimal 5MB</p>
                     </div>
-                    {errors.file_sertifikat_atau_cover && (
-                        <p className="mt-1 text-sm text-red-600">{errors.file_sertifikat_atau_cover}</p>
-                    )}
+                    {errors.file_sertifikat_atau_cover && <p className="mt-1 text-sm text-red-600">{errors.file_sertifikat_atau_cover}</p>}
                 </div>
             </div>
 

@@ -12,7 +12,6 @@
  *   - Upload file logbook (PDF/DOC/DOCX/XLS/XLSX)
  *   - Simpan sebagai draft atau langsung submit
  */
-import type { InertiaFormProps } from '@inertiajs/react';
 import RichTextEditor from '@/components/RichTextEditor';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,17 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router, useForm } from '@inertiajs/react';
-import {
-    AlertCircle,
-    BookOpen,
-    CalendarDays,
-    FileText,
-    FileUp,
-    Loader2,
-    Save,
-    Send,
-    X,
-} from 'lucide-react';
+import { AlertCircle, BookOpen, CalendarDays, FileText, FileUp, Loader2, Save, Send, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -129,7 +118,10 @@ function FileDropZone({ id, label, accept, hint, file, error, onSelect, allowedT
                     error ? 'border-destructive/60' : '',
                 ].join(' ')}
                 onClick={() => inputRef.current?.click()}
-                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragging(true);
+                }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={(e) => {
                     e.preventDefault();
@@ -150,7 +142,10 @@ function FileDropZone({ id, label, accept, hint, file, error, onSelect, allowedT
                         <button
                             type="button"
                             className="ml-2 shrink-0 rounded-sm p-0.5 text-muted-foreground hover:text-destructive"
-                            onClick={(e) => { e.stopPropagation(); onSelect(null); }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSelect(null);
+                            }}
                             aria-label="Hapus file"
                         >
                             <X className="h-4 w-4" />
@@ -200,27 +195,27 @@ export default function ProgressCreate({ user }: Props) {
     const [dokumenLaporan, setDokumenLaporan] = useState<File | null>(null);
     const [logbookFile, setLogbookFile] = useState<File | null>(null);
 
-  const form = useForm<{
-    judul: string;
-    periode: string;
-    tanggal_laporan: string;
-    deskripsi: string;
-    catatan: string;
-    status: string;
-    dokumen_laporan: File | null;
-    logbook: File | null;
-}>({
-    judul: '',
-    periode: '',
-    tanggal_laporan: new Date().toISOString().split('T')[0],
-    deskripsi: '',
-    catatan: '',
-    status: 'draft',
-    dokumen_laporan: null,
-    logbook: null,
-});
+    const form = useForm<{
+        judul: string;
+        periode: string;
+        tanggal_laporan: string;
+        deskripsi: string;
+        catatan: string;
+        status: string;
+        dokumen_laporan: File | null;
+        logbook: File | null;
+    }>({
+        judul: '',
+        periode: '',
+        tanggal_laporan: new Date().toISOString().split('T')[0],
+        deskripsi: '',
+        catatan: '',
+        status: 'draft',
+        dokumen_laporan: null,
+        logbook: null,
+    });
 
-const { data, setData, errors, setError, clearErrors, processing } = form;
+    const { data, setData, errors, setError, clearErrors, processing } = form;
 
     /* ── Submit ── */
     const handleSubmit = (submitStatus: 'draft' | 'submitted') => {
@@ -229,7 +224,7 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
         // Gabungkan form data (string) + files (File|null) + status saat submit
         router.post(
             route('progress.store'),
-             {
+            {
                 ...data,
                 status: submitStatus,
                 dokumen_laporan: dokumenLaporan,
@@ -241,11 +236,7 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
                 onStart: () => setIsProcessing(true),
                 onFinish: () => setIsProcessing(false),
                 onSuccess: () => {
-                    toast.success(
-                        submitStatus === 'draft'
-                            ? 'Laporan disimpan sebagai draft.'
-                            : 'Laporan berhasil disubmit!',
-                    );
+                    toast.success(submitStatus === 'draft' ? 'Laporan disimpan sebagai draft.' : 'Laporan berhasil disubmit!');
                 },
                 onError: (errs) => {
                     setError(errs as Record<keyof ProgressFormData, string>);
@@ -261,7 +252,6 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
             <Head title="Buat Laporan Kemajuan" />
 
             <div className="mx-auto max-w-4xl space-y-6 pb-16">
-
                 {/* ── Header ── */}
                 <div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -284,7 +274,6 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
                         <CardDescription>Judul, periode, dan tanggal laporan kemajuan</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-
                         {/* Judul */}
                         <div className="space-y-1.5">
                             <Label htmlFor="judul">
@@ -311,11 +300,7 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
                                 <Label htmlFor="periode">
                                     Periode <span className="text-destructive">*</span>
                                 </Label>
-                                <Select
-                                    value={data.periode}
-                                    onValueChange={(v) => setData('periode', v)}
-                                    disabled={isProcessing}
-                                >
+                                <Select value={data.periode} onValueChange={(v) => setData('periode', v)} disabled={isProcessing}>
                                     <SelectTrigger id="periode">
                                         <SelectValue placeholder="Pilih periode..." />
                                     </SelectTrigger>
@@ -364,7 +349,6 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
                                 <span className="text-muted-foreground">({user.email})</span>
                             </div>
                         </div>
-
                     </CardContent>
                 </Card>
 
@@ -375,9 +359,7 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
                             <FileText className="h-4 w-4 text-primary" />
                             Deskripsi Laporan
                         </CardTitle>
-                        <CardDescription>
-                            Uraikan kemajuan penelitian, capaian, kendala, dan rencana tindak lanjut
-                        </CardDescription>
+                        <CardDescription>Uraikan kemajuan penelitian, capaian, kendala, dan rencana tindak lanjut</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <Label>
@@ -406,9 +388,7 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
                             <BookOpen className="h-4 w-4 text-primary" />
                             Catatan Logbook
                         </CardTitle>
-                        <CardDescription>
-                            Catatan harian / mingguan kegiatan penelitian (opsional)
-                        </CardDescription>
+                        <CardDescription>Catatan harian / mingguan kegiatan penelitian (opsional)</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <Label htmlFor="catatan">Isi Logbook</Label>
@@ -435,12 +415,9 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
                             <FileUp className="h-4 w-4 text-primary" />
                             Upload Dokumen
                         </CardTitle>
-                        <CardDescription>
-                            Unggah dokumen laporan dan file logbook pendukung
-                        </CardDescription>
+                        <CardDescription>Unggah dokumen laporan dan file logbook pendukung</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-
                         {/* Dokumen Laporan */}
                         <FileDropZone
                             id="dokumen_laporan"
@@ -466,34 +443,19 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
                             allowedTypes={ALLOWED_LOG}
                             onSelect={setLogbookFile}
                         />
-
                     </CardContent>
                 </Card>
 
                 {/* ── Action Buttons ── */}
                 <div className="sticky bottom-0 flex items-center justify-between gap-4 border-t bg-background/95 py-4 backdrop-blur">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => router.visit(route('progress.index'))}
-                        disabled={isProcessing}
-                    >
+                    <Button type="button" variant="ghost" onClick={() => router.visit(route('progress.index'))} disabled={isProcessing}>
                         Batal
                     </Button>
 
                     <div className="flex items-center gap-2">
                         {/* Simpan Draft */}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            disabled={isProcessing}
-                            onClick={() => handleSubmit('draft')}
-                        >
-                            {isProcessing ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <Save className="mr-2 h-4 w-4" />
-                            )}
+                        <Button type="button" variant="outline" disabled={isProcessing} onClick={() => handleSubmit('draft')}>
+                            {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                             Simpan Draft
                         </Button>
 
@@ -511,11 +473,7 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
                                 }
                             }}
                         >
-                            {isProcessing ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <Send className="mr-2 h-4 w-4" />
-                            )}
+                            {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             Submit Laporan
                         </Button>
                     </div>
@@ -523,4 +481,4 @@ const { data, setData, errors, setError, clearErrors, processing } = form;
             </div>
         </AppLayout>
     );
-};
+}
