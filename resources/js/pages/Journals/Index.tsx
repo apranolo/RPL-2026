@@ -25,7 +25,7 @@ import { UniversityFilterCombobox } from '@/components/ui/university-filter-comb
 import { type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { BookOpen, ChevronLeft, ChevronRight, Home, Search } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 interface Journal {
     id: number;
