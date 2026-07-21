@@ -1,28 +1,72 @@
-interface DecisionHistoryPanelProps {
-    histories: any[];
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+interface DecisionHistory {
+    id: number;
+    decision: 'accepted' | 'rejected';
+    note: string;
+    editor: string;
+    created_at: string;
 }
 
-export default function DecisionHistoryPanel({ histories }: DecisionHistoryPanelProps) {
-    if (!histories || histories.length === 0) {
-        return (
-            <div className="mt-6 rounded-lg border bg-white p-4 shadow">
-                <h2 className="mb-4 text-lg font-semibold">Riwayat Keputusan</h2>
-                <p className="text-sm text-gray-500">Belum ada riwayat keputusan.</p>
-            </div>
-        );
-    }
+interface Props {
+    histories?: DecisionHistory[];
+}
 
+/**
+ * DecisionHistoryPanel
+ *
+ * Menampilkan riwayat keputusan editorial yang telah
+ * diberikan oleh editor terhadap suatu naskah.
+ */
+export default function DecisionHistoryPanel({ histories = [] }: Props) {
     return (
-        <div className="mt-6 rounded-lg border bg-white p-4 shadow">
-            <h2 className="mb-4 text-lg font-semibold">Riwayat Keputusan</h2>
-            <div className="space-y-3">
-                {histories.map((history, idx) => (
-                    <div key={idx} className="border-l-2 border-blue-500 pl-3">
-                        <p className="text-sm font-medium">{history.decision || 'No decision'}</p>
-                        <p className="text-xs text-gray-500">{history.created_at || 'Unknown date'}</p>
+        <Card>
+            <CardHeader>
+                <CardTitle>Editorial Decision History</CardTitle>
+            </CardHeader>
+
+            <CardContent>
+                {histories.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-muted-foreground">
+                        Belum ada riwayat keputusan editorial.
                     </div>
-                ))}
-            </div>
-        </div>
+                ) : (
+                    <div className="space-y-6">
+                        {histories.map((history) => (
+                            <div
+                                key={history.id}
+                                className="relative border-l-2 border-primary pl-5"
+                            >
+                                <div className="absolute top-2 -left-[7px] h-3 w-3 rounded-full bg-primary" />
+
+                                <div className="flex items-center justify-between">
+                                    <h4 className="font-semibold">
+                                        {history.editor}
+                                    </h4>
+
+                                    <span
+                                        className={`rounded-full border px-3 py-1 text-xs font-medium ${
+                                            history.decision === 'accepted'
+                                                ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                                                : 'border-rose-200 bg-rose-50 text-rose-800'
+                                        }`}
+                                    >
+                                        {history.decision.toUpperCase()}
+                                    </span>
+                                </div>
+
+                                <p className="mt-2 text-sm leading-relaxed">
+                                    {history.note}
+                                </p>
+
+                                <p className="mt-2 text-xs text-muted-foreground">
+                                    {history.created_at}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </CardContent>
+        </Card>
     );
 }
