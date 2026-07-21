@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Submission; 
+use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia; // 1. WAJIB DIIMPORT: Menggunakan Inertia untuk render React
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SubmissionController extends Controller
 {
     /**
      * 1. MENAMPILKAN SEMUA DATA (Terhubung dengan Index.tsx)
      */
-    public function index()
+    public function index(): Response
     {
-        // Mengambil semua data pengajuan, diurutkan dari yang terbaru
-        $submissions = Submission::latest()->get();
+        $submissions = Submission::where('user_id', auth()->id())
+            ->orWhere('author_id', auth()->id())
+            ->latest()
+            ->get();
 
-        // Mengarahkan ke file React: resources/js/pages/Submission/Index.tsx
         return Inertia::render('Submission/Index', [
             'submissions' => $submissions,
             'flash' => [
@@ -30,9 +32,8 @@ class SubmissionController extends Controller
     /**
      * 2. MENAMPILKAN FORMULIR UNTUK MEMBUAT PENGAJUAN BARU
      */
-    public function create()
+    public function create(): Response
     {
-        // Mengarahkan ke file React: resources/js/pages/Submission/Create.tsx
         return Inertia::render('Submission/Create');
     }
 
@@ -41,45 +42,50 @@ class SubmissionController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
         $validatedData = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
             'file'        => 'required|file|mimes:pdf,doc,docx,zip|max:5120', 
         ]);
 
-        // Proses Unggah File
         if ($request->hasFile('file')) {
             $filePath = $request->file('file')->store('submissions', 'public');
             $validatedData['file_path'] = $filePath;
         }
 
-        // Simpan ke database
         Submission::create([
+            'user_id'     => auth()->id(),
             'title'       => $validatedData['title'],
             'description' => $validatedData['description'],
             'file_path'   => $validatedData['file_path'] ?? null,
             'status'      => 'pending', 
         ]);
 
-        // redirect menggunakan route name ke submissions.index dengan flash session
         return redirect()->route('submissions.index')->with('success', 'Pengajuan berhasil dikirim!');
     }
-
-    /**
-     * 4. MENAMPILKAN DETAIL DARI SATU PENGAJUAN SPESIFIK
+     * Menampilkan halaman detail naskah beserta linimasa status.
      */
-    public function show($id)
+    public function show(Submission $submission): Response
     {
-        $submission = Submission::findOrFail($id);
+        $submission->load([
+            'author',
+            'statusHistories',
+            'reviewer',
+        ]);
 
-        // Mengarahkan ke file React: resources/js/pages/Submission/Show.tsx
+        if ($submission->author_id !== auth()->id()) {
+            abort(403);
+        }
+
         return Inertia::render('Submission/Show', [
-            'submission' => $submission
+            'submission' => $submission,
+            'tracking' => $submission->statusHistories,
+>>>>>>> e61e90173d9a79656f141463c8caa7f9aa9fc6f0
         ]);
     }
 
     /**
+<<<<<<< HEAD
      * 5. MENAMPILKAN FORMULIR EDIT (Misal untuk admin merubah status)
      */
     public function edit($id)
@@ -128,3 +134,36 @@ class SubmissionController extends Controller
         return redirect()->route('submissions.index')->with('success', 'Pengajuan berhasil dihapus!');
     }
 }
+=======
+     * Membatalkan (menghapus) naskah yang masih berstatus draft.
+     * Hanya author pemilik naskah yang boleh membatalkan.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function cancel(Submission $submission)
+    {
+        if ($submission->author_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($submission->status !== 'draft') {
+            return back()->with(
+                'error',
+                'Only draft submissions can be cancelled.'
+            );
+        }
+
+        $submission->delete();
+
+        // TODO: ganti ke route('submissions.index') begitu halaman
+        // daftar submission dibuat. Untuk saat ini rute itu belum ada
+        // di web.php, jadi redirect ke dashboard agar tidak 404.
+        return redirect()
+            ->route('dashboard')
+            ->with(
+                'success',
+                'Submission cancelled successfully.'
+            );
+    }
+}
+>>>>>>> e61e90173d9a79656f141463c8caa7f9aa9fc6f0
