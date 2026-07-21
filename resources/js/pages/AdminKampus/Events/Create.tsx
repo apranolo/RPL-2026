@@ -56,8 +56,8 @@ export default function EventsCreate() {
         contact_person_name: '',
         contact_person_phone: '',
         contact_person_email: '',
-        is_active: true,
-        is_featured: false,
+        is_active: true as boolean,
+        is_featured: false as boolean,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -242,15 +242,11 @@ export default function EventsCreate() {
                             {/* Is Active & Feature toggles */}
                             <div className="flex flex-col gap-4 py-4 md:col-span-2">
                                 <div className="flex items-center space-x-2">
-                                    <Switch id="is_active" checked={data.is_active} onCheckedChange={(val) => setData('is_active', val as any)} />
+                                    <Switch id="is_active" checked={data.is_active} onCheckedChange={(val) => setData('is_active', val)} />
                                     <Label htmlFor="is_active">Active (Visible)</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <Switch
-                                        id="is_featured"
-                                        checked={data.is_featured}
-                                        onCheckedChange={(val) => setData('is_featured', val as any)}
-                                    />
+                                    <Switch id="is_featured" checked={data.is_featured} onCheckedChange={(val) => setData('is_featured', val)} />
                                     <Label htmlFor="is_featured">Featured Event</Label>
                                 </div>
                             </div>

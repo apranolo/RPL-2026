@@ -1,34 +1,50 @@
 <?php
 
+/**
+ * MOCK LOKAL - hapus setelah model resmi ReviewDecision dari tim lain di-merge.
+ *
+ * Model untuk menyimpan keputusan review multi-reviewer.
+ * Table: review_decisions
+ */
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ReviewDecision extends Model
 {
+    use HasFactory;
+    use SoftDeletes;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
-        'id_submission',
-        'id_reviewer',
+        'reviewer_assignment_id',
+        'score',
         'recommendation',
-        'comments',
-        'comments_private',
-        'score_originality',
-        'score_methodology',
-        'score_writing',
-        'score_relevance',
-        'score_conclusion',
-        'score_aggregate',
-        'status',
-        'date_decided',
+        'comment',
     ];
 
-    public function submission()
-    {
-        return $this->belongsTo(Submission::class, 'id_submission');
-    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'score' => 'integer',
+    ];
 
-    public function reviewer()
+    /**
+     * Get the reviewer assignment this decision belongs to.
+     */
+    public function reviewerAssignment(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'id_reviewer');
+        return $this->belongsTo(ReviewerAssignment::class);
     }
 }
