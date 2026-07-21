@@ -58,7 +58,10 @@ Pada tahap pemeriksaan terakhir (pasca batas waktu deadline 19 Juli 2026 23:59 W
      - Verifikasi keberadaan file dan method controller/view yang ditugaskan.
      - Pastikan kode bukan *Dead Code* (misal: controller registrasi dibuat tapi tidak didaftarkan di rute auth).
      - Pastikan task routing tidak sekadar menempelkan rute miliknya sendiri, melainkan menyusun pengelompokan grup middleware per peran (`web.php`).
-   - Tentukan status masing-masing task: **`SELESAI`** atau **`BELUM SELESAI`**.
+   - Tentukan status masing-masing task pada tabel evaluasi:
+     - **`SELESAI`**: Diberikan jika task selesai dan di-commit **sebelum/sampai batas deadline** (<= 19 Juli 2026 23:59 WIB).
+     - **`SELESAI (Late)`**: Diberikan jika task baru disempurnakan/diselesaikan pada commit **pasca deadline** (> 19 Juli 2026 23:59 WIB).
+     - **`BELUM SELESAI`**: Diberikan jika task belum dikerjakan / dead code.
 
 3. **Format Tabel Evaluasi 4 Task pada Laporan Review**:
    - Sertakan tabel rekapitulasi evaluasi task pada bagian atas laporan review:
@@ -68,13 +71,13 @@ Pada tahap pemeriksaan terakhir (pasca batas waktu deadline 19 Juli 2026 23:59 W
 
      | No | Deskripsi Penugasan Task | Berkas Utama | Status Task | Catatan Evaluasi Reviewer |
      |----|--------------------------|--------------|-------------|---------------------------|
-     | 1 | [Nama Task 1] | `path/to/file` | **SELESAI** / **BELUM SELESAI** | [Catatan] |
-     | 2 | [Nama Task 2] | `path/to/file` | **SELESAI** / **BELUM SELESAI** | [Catatan] |
-     | 3 | [Nama Task 3] | `path/to/file` | **SELESAI** / **BELUM SELESAI** | [Catatan] |
-     | 4 | [Nama Task 4] | `path/to/file` | **SELESAI** / **BELUM SELESAI** | [Catatan] |
+     | 1 | [Nama Task 1] | `path/to/file` | **SELESAI** / **SELESAI (Late)** / **BELUM SELESAI** | [Catatan] |
+     | 2 | [Nama Task 2] | `path/to/file` | **SELESAI** / **SELESAI (Late)** / **BELUM SELESAI** | [Catatan] |
+     | 3 | [Nama Task 3] | `path/to/file` | **SELESAI** / **SELESAI (Late)** / **BELUM SELESAI** | [Catatan] |
+     | 4 | [Nama Task 4] | `path/to/file` | **SELESAI** / **SELESAI (Late)** / **BELUM SELESAI** | [Catatan] |
 
      **Capaian Penugasan:** X dari 4 Task Selesai (X%)
      ```
 
 4. **Kebijakan Keputusan Status (Verdict)**:
-   - Jika kualitas kode aman, bebas dari crash fatal, dan fitur utamanya berfungsi dengan baik, berikan keputusan status **`APPROVED (dengan catatan task tidak selesai semua)`** daripada menolak terus menerus, lalu lakukan posting ulasan dan merge (dengan `--admin` bypass) sesuai instruksi pengguna.
+   - Jika kualitas kode aman, bebas dari crash fatal, dan fitur utamanya berfungsi dengan baik, berikan keputusan status **`APPROVED (dengan catatan task tidak selesai semua)`** atau **`APPROVED (dengan catatan Late Submission)`** daripada menolak terus menerus, lalu lakukan posting ulasan dan merge (dengan `--admin` bypass) sesuai instruksi pengguna.
