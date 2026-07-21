@@ -30,8 +30,6 @@ class ReviewerAssignment extends Model
         'reviewer_id',
         'due_date',
         'status',
-        'registration_id',
-        'assigned_by',
     ];
 
     /**
@@ -42,14 +40,6 @@ class ReviewerAssignment extends Model
     protected $casts = [
         'due_date' => 'date',
     ];
-
-    /**
-     * Get the registration this assignment belongs to.
-     */
-    public function registration(): BelongsTo
-    {
-        return $this->belongsTo(PembinaanRegistration::class, 'registration_id');
-    }
 
     /**
      * Get the proposal this assignment belongs to.

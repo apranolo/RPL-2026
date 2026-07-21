@@ -17,13 +17,19 @@ class MonevDocumentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seedRoles();
+
+        // Setup Roles
+        Role::insert([
+            ['id' => Role::SUPER_ADMIN, 'name' => 'Super Admin', 'guard_name' => 'web'],
+            ['id' => Role::ADMIN_KAMPUS, 'name' => 'Admin Kampus', 'guard_name' => 'web'],
+            ['id' => Role::REVIEWER, 'name' => 'Reviewer', 'guard_name' => 'web'],
+            ['id' => Role::USER, 'name' => 'User', 'guard_name' => 'web'],
+        ]);
     }
 
     public function test_print_rekap_is_accessible_by_super_admin()
     {
-        $roleId = Role::where('name', Role::SUPER_ADMIN)->value('id');
-        $superAdmin = User::factory()->create(['role_id' => $roleId]);
+        $superAdmin = User::factory()->create(['role_id' => Role::SUPER_ADMIN]);
 
         $response = $this->actingAs($superAdmin)->get(route('monev.printRekap'));
 
@@ -37,9 +43,8 @@ class MonevDocumentTest extends TestCase
         $university1 = University::factory()->create();
         $university2 = University::factory()->create();
 
-        $roleId = Role::where('name', Role::ADMIN_KAMPUS)->value('id');
         $adminKampus = User::factory()->create([
-            'role_id' => $roleId,
+            'role_id' => Role::ADMIN_KAMPUS,
             'university_id' => $university1->id,
         ]);
 
@@ -60,9 +65,8 @@ class MonevDocumentTest extends TestCase
 
     public function test_print_rekap_filters_by_user()
     {
-        $roleId = Role::where('name', Role::USER)->value('id');
-        $user1 = User::factory()->create(['role_id' => $roleId]);
-        $user2 = User::factory()->create(['role_id' => $roleId]);
+        $user1 = User::factory()->create(['role_id' => Role::USER]);
+        $user2 = User::factory()->create(['role_id' => Role::USER]);
 
         JournalAssessment::factory()->create(['user_id' => $user1->id]);
         JournalAssessment::factory()->create(['user_id' => $user2->id]);

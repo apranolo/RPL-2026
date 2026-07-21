@@ -27,13 +27,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('proposals', function (Blueprint $table) {
-            $columnsToDrop = array_filter(
-                ['status_proposal', 'rejection_reason'],
-                fn ($col) => Schema::hasColumn('proposals', $col)
-            );
-            if (! empty($columnsToDrop)) {
-                $table->dropColumn(array_values($columnsToDrop));
-            }
+            $table->dropColumn(['status_proposal', 'rejection_reason']);
         });
     }
 };

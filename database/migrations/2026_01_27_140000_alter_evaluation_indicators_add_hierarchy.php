@@ -38,8 +38,8 @@ return new class extends Migration
             $table->index('sub_category_id');
         });
 
-        // Update column comments to mark old columns as DEPRECATED (MySQL only)
         if (DB::getDriverName() !== 'sqlite') {
+            // Update column comments to mark old columns as DEPRECATED
             DB::statement("ALTER TABLE evaluation_indicators 
                 MODIFY category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
 
@@ -69,30 +69,21 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('evaluation_indicators', function (Blueprint $table) {
-            try {
+            // MUST drop foreign key before dropping column
+            if (DB::getDriverName() !== 'sqlite') {
                 $table->dropForeign(['sub_category_id']);
-            } catch (Throwable $e) {
-                // Ignore if not supported or not found
             }
-            try {
-                $table->dropIndex(['sub_category_id']);
-            } catch (Throwable $e) {
-                // Ignore
-            }
+            $table->dropIndex(['sub_category_id']);
             $table->dropColumn('sub_category_id');
         });
 
-        // Revert comments to v1.0 state (remove DEPRECATED warnings) (MySQL only)
         if (DB::getDriverName() !== 'sqlite') {
+            // Revert comments to v1.0 state (remove DEPRECATED warnings)
             DB::statement("ALTER TABLE evaluation_indicators 
                 MODIFY category VARCHAR(100) NOT NULL COMMENT 'Kategori utama, e.g., Kelengkapan Administrasi'");
 
             DB::statement("ALTER TABLE evaluation_indicators 
                 MODIFY sub_category VARCHAR(100) NULL COMMENT 'Sub-kategori (optional)'");
-        } else {
-            Schema::table('evaluation_indicators', function (Blueprint $table) {
-                $table->string('category', 100)->nullable(false)->change();
-            });
         }
     }
 };

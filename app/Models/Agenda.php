@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Database\Factories\AgendaFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +11,7 @@ use Illuminate\Support\Str;
 
 class Agenda extends Model
 {
-    /** @use HasFactory<AgendaFactory> */
+    /** @use HasFactory<\Database\Factories\AgendaFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [

@@ -96,7 +96,7 @@ export interface DynamicFieldValue {
 interface DynamicFieldRowProps {
     index: number;
     value: DynamicFieldValue;
-    onChange: (index: number, field: keyof DynamicFieldValue, value: any) => void;
+    onChange: (index: number, field: keyof DynamicFieldValue, value: string) => void;
     onRemove: (index: number) => void;
     errors?: Record<string, string>;
     canRemove: boolean;
@@ -219,7 +219,7 @@ interface DynamicInputProps {
 export function DynamicInput({ items, onChange, errors, maxItems = 20 }: DynamicInputProps) {
     const generateId = () => `item-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
-    const handleFieldChange = (index: number, field: keyof DynamicFieldValue, value: any) => {
+    const handleFieldChange = (index: number, field: keyof DynamicFieldValue, value: string) => {
         const updated = [...items];
         updated[index] = { ...updated[index], [field]: value };
         onChange(updated);

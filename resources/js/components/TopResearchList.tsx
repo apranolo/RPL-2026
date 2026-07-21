@@ -1,12 +1,14 @@
 /**
- * @file TopResearchList.tsx
- * @description Menampilkan leaderboard 5 penelitian teraktif berdasarkan
- * jumlah luaran (research outputs). Mengambil data dari
- * `GET /api/top-research` jika prop `data` tidak diberikan, atau menampilkan
- * `data` yang dikirim langsung oleh parent component.
- * Palet warna latar (surface) diambil dari CSS custom properties yang
- * didefinisikan di `resources/css/leaderboard-theme.css`, bukan hex hardcoded,
- * agar konsisten dengan TopLecturerList.tsx dan mudah diubah di satu tempat.
+
+ - @file TopResearchList.tsx
+ - @description Menampilkan leaderboard 5 penelitian teraktif berdasarkan
+ - jumlah luaran (research outputs). Mengambil data dari
+ - `GET /api/top-research` jika prop `data` tidak diberikan, atau menampilkan
+ - `data` yang dikirim langsung oleh parent component.
+ 
+ - Palet warna latar (surface) diambil dari CSS custom properties yang
+ - didefinisikan di `resources/css/leaderboard-theme.css`, bukan hex hardcoded,
+ - agar konsisten dengan TopLecturerList.tsx dan mudah diubah di satu tempat.
  */
 
 import { BookOpen, Flame } from 'lucide-react';
@@ -14,8 +16,7 @@ import { useEffect, useState } from 'react';
 
 interface Research {
     id: number;
-    judul?: string;
-    title?: string;
+    title: string;
     citations: number;
 }
 
@@ -35,11 +36,7 @@ export default function TopResearchList({ data }: Props) {
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        if (data !== undefined) {
-            setResearchList(data);
-            setLoading(false);
-            return;
-        }
+        if (data !== undefined) return;
 
         setLoading(true);
         fetch('/api/top-research')
@@ -103,38 +100,32 @@ export default function TopResearchList({ data }: Props) {
                 {/* Data List */}
                 {!loading &&
                     !error &&
-                    researchList.map((research, index) => {
-                        const displayTitle = research.judul ?? research.title ?? 'Tanpa Judul';
-                        return (
+                    researchList.map((research, index) => (
+                        <div key={research.id} className="flex items-start gap-3 px-5 py-4 transition-colors duration-150 hover:bg-green-500/10">
+                            {/* Rank Badge */}
                             <div
-                                key={research.id ?? index}
-                                className="flex items-start gap-3 px-5 py-4 transition-colors duration-150 hover:bg-green-500/10"
+                                className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm ${MEDAL_STYLES[index] ?? 'border border-white/10 bg-white/10 text-white/50'}`}
                             >
-                                {/* Rank Badge */}
-                                <div
-                                    className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm ${MEDAL_STYLES[index] ?? 'border border-white/10 bg-white/10 text-white/50'}`}
-                                >
-                                    {index + 1}
-                                </div>
-
-                                {/* Info */}
-                                <div className="min-w-0 flex-1">
-                                    <p className="line-clamp-2 text-sm leading-snug font-semibold text-white" title={displayTitle}>
-                                        {displayTitle}
-                                    </p>
-                                    <p className="mt-1 flex items-center gap-1 text-xs text-white/40">
-                                        <Flame size={11} className="text-green-400" />
-                                        {research.citations} Luaran Penelitian
-                                    </p>
-                                </div>
-
-                                {/* Score Badge */}
-                                <span className="flex-shrink-0 self-center rounded-full border border-green-500/20 bg-green-500/15 px-2.5 py-1 text-xs font-bold text-green-400">
-                                    {research.citations}
-                                </span>
+                                {index + 1}
                             </div>
-                        );
-                    })}
+
+                            {/* Info */}
+                            <div className="min-w-0 flex-1">
+                                <p className="line-clamp-2 text-sm leading-snug font-semibold text-white" title={research.title}>
+                                    {research.title}
+                                </p>
+                                <p className="mt-1 flex items-center gap-1 text-xs text-white/40">
+                                    <Flame size={11} className="text-green-400" />
+                                    {research.citations} Luaran Penelitian
+                                </p>
+                            </div>
+
+                            {/* Score Badge */}
+                            <span className="flex-shrink-0 self-center rounded-full border border-green-500/20 bg-green-500/15 px-2.5 py-1 text-xs font-bold text-green-400">
+                                {research.citations}
+                            </span>
+                        </div>
+                    ))}
             </div>
         </div>
     );

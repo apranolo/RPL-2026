@@ -6,7 +6,7 @@ use App\Models\ScientificField;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<ScientificField>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ScientificField>
  */
 class ScientificFieldFactory extends Factory
 {

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Journal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -22,7 +21,6 @@ class SubmissionWizardStepTest extends TestCase
     public function user_can_store_step_1_and_it_creates_draft_in_database()
     {
         $user = User::factory()->create();
-        Journal::factory()->create(['id' => 1]);
 
         $response = $this->actingAs($user)->post(route('submission.step1.store'), [
             'journal_id' => 1,

@@ -7,38 +7,10 @@ use App\Models\Role;
 use App\Models\ScientificField;
 use App\Models\University;
 use App\Models\User;
-use Illuminate\Database\SQLiteConnection;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 abstract class TestCase extends BaseTestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        if (DB::connection() instanceof SQLiteConnection) {
-            $pdo = DB::connection()->getPdo();
-            if (method_exists($pdo, 'sqliteCreateFunction')) {
-                $pdo->sqliteCreateFunction('JSON_CONTAINS_PATH', function ($json, $oneOrAll, $path) {
-                    if (! $json) {
-                        return 0;
-                    }
-                    $data = json_decode($json, true);
-                    if (! is_array($data)) {
-                        return 0;
-                    }
-
-                    // Extract key from path: '$."Scopus"' -> 'Scopus', '$.Scopus' -> 'Scopus'
-                    $key = trim(str_replace(['$.', '"', "'"], '', $path));
-
-                    return isset($data[$key]) ? 1 : 0;
-                });
-            }
-        }
-    }
-
     /**
      * Seed roles for testing.
      * This is required because many tests use User::factory() which needs roles to exist.
@@ -76,7 +48,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @param  int  $universitiesCount  Number of universities to create
      * @param  int  $journalsPerUniversity  Average journals per university
-     * @return array{universities: Collection, fields: Collection, users: Collection}
+     * @return array{universities: \Illuminate\Support\Collection, fields: \Illuminate\Support\Collection, users: \Illuminate\Support\Collection}
      */
     protected function seedStatisticsTestData(int $universitiesCount = 3, int $journalsPerUniversity = 30): array
     {

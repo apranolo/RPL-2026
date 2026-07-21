@@ -15,7 +15,6 @@
  */
 
 use App\Models\Proposal;
-use App\Models\ResearchSchema;
 use App\Models\ReviewDecision;
 use App\Models\ReviewerAssignment;
 use App\Models\Role;
@@ -38,6 +37,7 @@ beforeEach(function () {
         'role_id' => $superRole->id,
         'is_active' => true,
     ]);
+    $this->superAdmin->roles()->attach($superRole->id);
 
     // Admin Kampus
     $adminRole = Role::where('name', Role::ADMIN_KAMPUS)->first();
@@ -45,6 +45,7 @@ beforeEach(function () {
         'role_id' => $adminRole->id,
         'is_active' => true,
     ]);
+    $this->adminKampus->roles()->attach($adminRole->id);
 
     // User biasa (Pengelola Jurnal)
     $userRole = Role::where('name', Role::USER)->first();
@@ -52,6 +53,7 @@ beforeEach(function () {
         'role_id' => $userRole->id,
         'is_active' => true,
     ]);
+    $this->regularUser->roles()->attach($userRole->id);
 
     // Reviewer (is_reviewer = true, tidak ada role khusus)
     $this->reviewerUser = User::factory()->create([
@@ -60,7 +62,7 @@ beforeEach(function () {
     ]);
 
     // Research Schema
-    $this->researchSchema = ResearchSchema::create([
+    $this->researchSchema = \App\Models\ResearchSchema::create([
         'name' => 'Skema Riset Pengujian',
     ]);
 

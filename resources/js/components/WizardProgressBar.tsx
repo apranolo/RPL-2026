@@ -2,20 +2,14 @@ import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import React from 'react';
 
-interface Step {
-    label: string;
-    description?: string;
-    complete?: boolean;
-}
-
 interface WizardProgressBarProps {
     currentStep: number;
-    steps?: Step[];
     className?: string;
+    steps?: any[];
 }
 
-export const WizardProgressBar: React.FC<WizardProgressBarProps> = ({ currentStep, className }) => {
-    const steps = [
+export const WizardProgressBar: React.FC<WizardProgressBarProps> = ({ currentStep, className, steps: propSteps }) => {
+    const steps = propSteps || [
         { number: 1, label: 'Start' },
         { number: 2, label: 'Upload' },
         { number: 3, label: 'Metadata' },

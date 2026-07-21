@@ -3,9 +3,6 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 /**
  * InvalidCategoryMoveException
@@ -34,8 +31,8 @@ class InvalidCategoryMoveException extends Exception
     /**
      * Render the exception as an HTTP response.
      *
-     * @param  Request  $request
-     * @return Response|JsonResponse
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function render($request)
     {

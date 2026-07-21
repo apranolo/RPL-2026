@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\Journal;
 use App\Models\JournalAssessment;
 use App\Models\User;
 
@@ -60,7 +59,7 @@ class JournalAssessmentPolicy
         }
 
         // User can only create assessment for their own journals
-        $journal = Journal::find($journalId);
+        $journal = \App\Models\Journal::find($journalId);
 
         return $journal && $journal->user_id === $user->id;
     }

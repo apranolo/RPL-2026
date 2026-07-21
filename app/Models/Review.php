@@ -24,15 +24,15 @@ class Review extends Model
     protected $fillable = [
         'proposal_id',
         'reviewer_id',
+        'score',
+        'feedback',
+        'recommendation',
+        'reviewed_at',
         'status',
         'notes',
         'start_date',
         'end_date',
         'total_score',
-        'score',
-        'feedback',
-        'recommendation',
-        'reviewed_at',
     ];
 
     /**
@@ -67,14 +67,6 @@ class Review extends Model
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewer_id');
-    }
-
-    /**
-     * Get the assessment criteria for this review
-     */
-    public function assessmentCriteria()
-    {
-        return $this->hasMany(AssessmentCriteria::class, 'review_id');
     }
 
     /*
@@ -126,5 +118,10 @@ class Review extends Model
                 $model->reviewed_at = now();
             }
         });
+    }
+
+    public function assessmentCriteria()
+    {
+        return $this->hasMany(AssessmentCriteria::class, 'review_id');
     }
 }

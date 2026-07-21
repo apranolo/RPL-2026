@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\ProgressReport;
 use App\Models\Proposal;
-use App\Models\ResearchSchema;
 use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
@@ -70,14 +69,11 @@ class EvaluationControllerTest extends TestCase
      */
     public function test_reviewer_tidak_dapat_mengakses_laporan_bukan_tugasnya(): void
     {
-        $schema = ResearchSchema::factory()->create();
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
-            'title' => 'Proposal Test',
-            'description' => 'Deskripsi test',
+            'judul' => 'Proposal Test',
+            'deskripsi' => 'Deskripsi test',
             'status_proposal' => 'Draft',
-            'research_schema_id' => $schema->id,
-            'file_dokumen_proposal' => 'proposals/dummy_proposal.pdf',
         ]);
 
         $report = ProgressReport::create([
@@ -85,11 +81,10 @@ class EvaluationControllerTest extends TestCase
             'user_id' => $this->dosen->id,
             'title' => 'Laporan Test',
             'content' => 'Isi laporan test',
-            'report_type' => 'laporan_kemajuan',
+            'report_type' => 'Laporan_Kemajuan',
             'report_date' => now(),
             'progress_percentage' => 50,
             'status' => 'submitted',
-            'report_period' => '2026-1',
         ]);
 
         // Tidak ada Review assignment untuk reviewer ini
@@ -104,14 +99,11 @@ class EvaluationControllerTest extends TestCase
      */
     public function test_reviewer_dapat_mengakses_laporan_yang_ditugaskan(): void
     {
-        $schema = ResearchSchema::factory()->create();
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
-            'title' => 'Proposal Test',
-            'description' => 'Deskripsi test',
+            'judul' => 'Proposal Test',
+            'deskripsi' => 'Deskripsi test',
             'status_proposal' => 'Draft',
-            'research_schema_id' => $schema->id,
-            'file_dokumen_proposal' => 'proposals/dummy_proposal.pdf',
         ]);
 
         // Buat assignment untuk reviewer
@@ -128,11 +120,10 @@ class EvaluationControllerTest extends TestCase
             'user_id' => $this->dosen->id,
             'title' => 'Laporan Test',
             'content' => 'Isi laporan test',
-            'report_type' => 'laporan_kemajuan',
+            'report_type' => 'Laporan_Kemajuan',
             'report_date' => now(),
             'progress_percentage' => 50,
             'status' => 'submitted',
-            'report_period' => '2026-1',
         ]);
 
         $response = $this->actingAs($this->reviewer)

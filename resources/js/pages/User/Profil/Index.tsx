@@ -9,7 +9,7 @@ import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { Bell, BookOpen, ClipboardCheck, Clock, Edit, Eye, History, TrendingUp } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 /**
@@ -112,22 +112,9 @@ interface ProfilIndexProps {
 }
 
 export default function ProfilIndex({ user, statistics, journals, recentActivity, notifications, unreadNotificationsCount }: ProfilIndexProps) {
-    const queryParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const defaultTab = queryParams?.get('tab') || 'overview';
-    const [activeTab, setActiveTab] = useState(defaultTab);
     const [notificationFilter, setNotificationFilter] = useState<'all' | 'unread'>('all');
     const [localNotifications, setLocalNotifications] = useState(notifications);
     const [localUnreadCount, setLocalUnreadCount] = useState(unreadNotificationsCount);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search);
-            const tab = params.get('tab');
-            if (tab && ['overview', 'journals', 'activity', 'notifications'].includes(tab)) {
-                setActiveTab(tab);
-            }
-        }
-    }, [window.location.search]);
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
@@ -177,7 +164,7 @@ export default function ProfilIndex({ user, statistics, journals, recentActivity
             <Head title="Profil" />
 
             <div className="space-y-6">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <Tabs defaultValue="overview" className="w-full">
                     <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
                         <TabsList className="inline-flex w-max min-w-full sm:grid sm:grid-cols-4">
                             <TabsTrigger value="overview">

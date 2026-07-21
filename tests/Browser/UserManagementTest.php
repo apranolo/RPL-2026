@@ -389,8 +389,10 @@ class UserManagementTest extends DuskTestCase
             $browser->waitForText($this->testUser->email)
                 ->assertSee($this->testUser->email);
 
-            // Assert the Delete button is disabled
-            $browser->assertButtonDisabled('Delete');
+            // Attempt to delete user with journals
+            $browser->press('Delete')
+                ->waitForDialog()
+                ->acceptDialog();
 
             // Should show error message or stay on same page
             // Verify user still exists in database

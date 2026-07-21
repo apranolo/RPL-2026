@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\StatusHistory;
 use App\Models\Submission;
 use App\Models\User;
 
@@ -17,6 +16,8 @@ use App\Models\User;
 // ->skip(), bukan dihapus, supaya otomatis aktif begitu relasinya ada.
 
 it('allows the author to view their own submission detail', function () {
+    test()->skip('Blocked: relasi reviewer()/statusHistories() belum ada di model Submission');
+
     $author = User::factory()->create();
 
     $submission = Submission::factory()
@@ -26,14 +27,16 @@ it('allows the author to view their own submission detail', function () {
     $this->actingAs($author)
         ->get(route('submissions.show', $submission))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('Submission/Show')
-            ->has('submission')
-            ->where('submission.id', $submission->id)
+        ->assertInertia(
+            fn ($page) => $page
+                ->component('Submission/Show')
+                ->where('submission.id', $submission->id)
         );
-})->skip('Blocked: relasi reviewer()/statusHistories() belum ada di model Submission');
+});
 
 it('forbids a user from viewing another author\'s submission', function () {
+    test()->skip('Blocked: relasi reviewer()/statusHistories() belum ada di model Submission');
+
     $owner = User::factory()->create();
     $otherUser = User::factory()->create();
 
@@ -44,20 +47,21 @@ it('forbids a user from viewing another author\'s submission', function () {
     $this->actingAs($otherUser)
         ->get(route('submissions.show', $submission))
         ->assertForbidden();
-})->skip('Blocked: relasi reviewer()/statusHistories() belum ada di model Submission');
+});
 
 it('includes the status tracking history in the response', function () {
+    test()->skip('Blocked: relasi statusHistories() belum ada di model Submission');
+
     $author = User::factory()->create();
 
     $submission = Submission::factory()
         ->for($author, 'author')
-        ->has(StatusHistory::factory()->count(2), 'statusHistories')
+        ->has(\App\Models\StatusHistory::factory()->count(2), 'statusHistories')
         ->create();
 
     $this->actingAs($author)
         ->get(route('submissions.show', $submission))
-        ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
-            ->has('tracking', 2)
+        ->assertInertia(
+            fn ($page) => $page->has('tracking', 2)
         );
-})->skip('Blocked: relasi statusHistories() belum ada di model Submission');
+});

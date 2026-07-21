@@ -46,26 +46,18 @@ return new class extends Migration
         END");
 
         // Drop sinta_rank index first (SQLite requires index to be dropped before column)
-        $hasIndex = false;
-        try {
-            if (DB::getDriverName() === 'sqlite') {
-                $hasIndex = collect(DB::select("SELECT name FROM sqlite_master WHERE type='index' AND name='journals_sinta_rank_index'"))->isNotEmpty();
-            } else {
-                $hasIndex = true;
+        if (Schema::hasIndex('journals', 'journals_sinta_rank_index')) {
+            try {
+                Schema::table('journals', function (Blueprint $table) {
+                    $table->dropIndex('journals_sinta_rank_index');
+                });
+            } catch (\Throwable) {
+                // Index already absent — safe to continue.
             }
-        } catch (Throwable $e) {
-            $hasIndex = false;
         }
 
         // Drop old column and rename new one
-        Schema::table('journals', function (Blueprint $table) use ($hasIndex) {
-            if ($hasIndex) {
-                try {
-                    $table->dropIndex('journals_sinta_rank_index');
-                } catch (Throwable $e) {
-                    // Ignore
-                }
-            }
+        Schema::table('journals', function (Blueprint $table) {
             $table->dropColumn('sinta_rank');
         });
 
@@ -121,18 +113,6 @@ return new class extends Migration
         END");
 
         Schema::table('journals', function (Blueprint $table) {
-            try {
-                if (DB::getDriverName() === 'sqlite') {
-                    $hasIndex = collect(DB::select("SELECT name FROM sqlite_master WHERE type='index' AND name='journals_sinta_rank_index'"))->isNotEmpty();
-                } else {
-                    $hasIndex = true;
-                }
-                if ($hasIndex) {
-                    $table->dropIndex('journals_sinta_rank_index');
-                }
-            } catch (Throwable $e) {
-                // Ignore index dropping errors
-            }
             $table->dropColumn('sinta_rank');
         });
 

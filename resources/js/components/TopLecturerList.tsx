@@ -1,12 +1,12 @@
 /**
- * @file TopLecturerList.tsx
- * @description Menampilkan leaderboard 5 dosen paling produktif berdasarkan
- * jumlah proposal yang diajukan. Mengambil data dari `GET /api/top-lecturers`
- * jika prop `data` tidak diberikan, atau menampilkan `data` yang dikirim
- * langsung oleh parent component.
- * Palet warna latar (surface) diambil dari CSS custom properties yang
- * didefinisikan di `resources/css/leaderboard-theme.css`, bukan hex hardcoded,
- * agar konsisten dengan TopResearchList.tsx dan mudah diubah di satu tempat.
+ - @file TopLecturerList.tsx
+ - @description Menampilkan leaderboard 5 dosen paling produktif berdasarkan
+ - jumlah proposal yang diajukan. Mengambil data dari `GET /api/top-lecturers`
+ - jika prop `data` tidak diberikan, atau menampilkan `data` yang dikirim
+ - langsung oleh parent component.
+ - Palet warna latar (surface) diambil dari CSS custom properties yang
+ - didefinisikan di `resources/css/leaderboard-theme.css`, bukan hex hardcoded,
+ - agar konsisten dengan TopResearchList.tsx dan mudah diubah di satu tempat.
  */
 
 import { Star, Trophy } from 'lucide-react';
@@ -33,11 +33,7 @@ export default function TopLecturerList({ data }: Props) {
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        if (data !== undefined) {
-            setLecturers(data);
-            setLoading(false);
-            return;
-        }
+        if (data !== undefined) return;
 
         setLoading(true);
         fetch('/api/top-lecturers')

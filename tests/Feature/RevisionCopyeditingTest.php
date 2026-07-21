@@ -3,7 +3,6 @@
 use App\Models\CopyeditingTask;
 use App\Models\Journal;
 use App\Models\RevisionRound;
-use App\Models\Role;
 use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -51,8 +50,7 @@ test('revision round and copyediting task models can be created and relate to su
 
 test('only journal editor role can trigger notifyAuthor endpoint', function () {
     $editor = User::factory()->create();
-    $role = Role::firstOrCreate(['name' => 'Pengelola Jurnal'], ['display_name' => 'Pengelola Jurnal']);
-    $editor->roles()->syncWithoutDetaching([$role->id]);
+    $editor->roles()->create(['role_id' => 3]); // Assuming 3 is Pengelola Jurnal, or let's mock role checking.
     // Wait, let's verify if role checking uses pivot or user hasRole method.
     // Our custom rules say: "Always use User model helper methods like $user->hasRole($role)".
     // So if the seeder defines role_id legacy or pivot, let's assign the role properly.
@@ -82,7 +80,7 @@ test('only journal editor role can trigger notifyAuthor endpoint', function () {
 
     // Authorized user (Pengelola Jurnal) gets redirect back on success
     // Assign role to editor
-    $role = Role::firstOrCreate(['name' => 'Pengelola Jurnal'], ['display_name' => 'Pengelola Jurnal']);
+    $role = \App\Models\Role::firstOrCreate(['id' => 3, 'name' => 'Pengelola Jurnal']);
     $editor->roles()->syncWithoutDetaching([$role->id]);
 
     $responseSuccess = $this->actingAs($editor)

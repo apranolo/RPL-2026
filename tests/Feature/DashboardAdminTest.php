@@ -119,6 +119,6 @@ test('admin kampus is scoped to their university data', function () {
         ->component('Dashboard/Admin')
         ->where('stats.total_proposals', 1)
         ->where('stats.approved_proposals', 1)
-        ->where('stats.total_absorbed_funding', 5000000)
+        ->where('stats.total_absorbed_funding', 5000000.0)
     );
 });

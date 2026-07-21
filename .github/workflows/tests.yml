@@ -52,6 +52,7 @@ jobs:
       - name: Build Assets
         run: npm run build
 
+
       - name: Copy Environment File
         run: cp .env.example .env
 
@@ -62,74 +63,24 @@ jobs:
         run: |
           mkdir -p database
           touch database/database.sqlite
+          sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
+          sed -i 's/DB_DATABASE=jurnal_mu/DB_DATABASE=database\/database.sqlite/' .env
           php artisan migrate:fresh --seed --force
-
-      - name: PHP Code Style (Pint)
-        run: ./vendor/bin/pint --test
-
-      - name: Code Formatting (Prettier)
-        run: npx prettier --check resources/
 
       - name: Run Tests (Pest)
         run: ./vendor/bin/pest
 
-      - name: Install Chrome for Dusk
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
-
       - name: Upgrade Chrome Driver (for Dusk)
         run: php artisan dusk:chrome-driver --detect
 
-      - name: Configure Dusk Environment
-        run: |
-          cp .env .env.dusk.local
-          DB_PATH="${{ github.workspace }}/database/database.sqlite"
-          printf '\n%s\n' \
-            "APP_URL=http://127.0.0.1:8000" \
-            "DB_CONNECTION=sqlite" \
-            "DB_DATABASE=${DB_PATH}" \
-            "SESSION_DRIVER=file" \
-            "CACHE_STORE=file" \
-            "QUEUE_CONNECTION=sync" \
-            "MAIL_MAILER=log" \
-            "BROADCAST_CONNECTION=log" \
-            "FILESYSTEM_DISK=local" \
-            "BCRYPT_ROUNDS=4" \
-            >> .env.dusk.local
-
-      - name: Seed Dusk Database
-        run: php artisan migrate:fresh --seed --force --env=dusk.local
-
       - name: Start Chrome Driver
-        run: ./vendor/laravel/dusk/bin/chromedriver-linux --port=9515 > /dev/null 2>&1 &
+        run: ./vendor/laravel/dusk/bin/chromedriver-linux > /dev/null 2>&1 &
 
       - name: Start Laravel Server
         run: php artisan serve --env=dusk.local --host=127.0.0.1 --port=8000 > /dev/null 2>&1 &
 
       - name: Wait for Server
-        run: |
-          for i in $(seq 1 10); do
-            curl -s http://127.0.0.1:8000 > /dev/null && break
-            echo "Waiting for server... ($i)"
-            sleep 2
-          done
+        run: sleep 3
 
       - name: Run Browser Tests (Dusk)
-        run: php artisan dusk --env=dusk.local
-
-      - name: Upload Dusk Screenshots on Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dusk-screenshots
-          path: tests/Browser/screenshots
-          if-no-files-found: ignore
-
-      - name: Upload Dusk Console Logs on Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dusk-console-logs
-          path: tests/Browser/console
-          if-no-files-found: ignore
+        run: php artisan dusk

@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -20,26 +19,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $hasIndex = false;
-        try {
-            if (DB::getDriverName() === 'sqlite') {
-                $hasIndex = collect(DB::select("SELECT name FROM sqlite_master WHERE type='index' AND name='journals_accreditation_expiry_date_index'"))->isNotEmpty();
-            } else {
-                $hasIndex = Schema::hasColumn('journals', 'accreditation_expiry_date');
+        if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+            try {
+                Schema::table('journals', function (Blueprint $table) {
+                    $table->dropIndex('journals_accreditation_expiry_date_index');
+                });
+            } catch (\Throwable) {
+                // Index already absent — safe to continue.
             }
-        } catch (Throwable $e) {
-            $hasIndex = false;
         }
 
-        Schema::table('journals', function (Blueprint $table) use ($hasIndex) {
-            if ($hasIndex) {
-                try {
-                    $table->dropIndex('journals_accreditation_expiry_date_index');
-                } catch (Throwable $e) {
-                    // Ignore
-                }
-            }
-
+        Schema::table('journals', function (Blueprint $table) {
             $columnsToDrop = array_filter(
                 ['dikti_accreditation_number', 'accreditation_issued_date', 'accreditation_expiry_date'],
                 fn ($col) => Schema::hasColumn('journals', $col)

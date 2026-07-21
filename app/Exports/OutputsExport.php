@@ -17,7 +17,6 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class OutputsExport implements FromCollection, ShouldAutoSize, WithColumnFormatting, WithCustomStartCell, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
@@ -279,8 +278,8 @@ class OutputsExport implements FromCollection, ShouldAutoSize, WithColumnFormatt
 
                 /* ── 7. Page setup for printing ───────────────────────── */
                 $sheet->getPageSetup()
-                    ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
-                    ->setPaperSize(PageSetup::PAPERSIZE_A4)
+                    ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE)
+                    ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4)
                     ->setFitToPage(true)
                     ->setFitToWidth(1)
                     ->setFitToHeight(0);

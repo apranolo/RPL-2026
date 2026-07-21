@@ -10,13 +10,15 @@ uses(RefreshDatabase::class);
 
 test('editor dapat melihat halaman detail submission', function () {
 
-    $editorRole = Role::firstOrCreate(['name' => 'Editor'], ['display_name' => 'Editor']);
+    $editorRole = Role::firstOrCreate(['name' => 'Editor']);
 
     $editor = User::factory()->create(['role_id' => $editorRole->id]);
 
+    $editor->roles()->attach($editorRole->id);
+
     $submission = Submission::factory()->create();
 
-    $response = $this->actingAs($editor)->get("/editorial/desk/{$submission->id}");
+    $response = $this->actingAs($editor)->get("/editorial/desk/{$submission->id_submission}");
 
     $response->assertStatus(200);
 

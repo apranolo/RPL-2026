@@ -3,12 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Journal;
-use App\Models\JournalAssessment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<JournalAssessment>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\JournalAssessment>
  */
 class JournalAssessmentFactory extends Factory
 {

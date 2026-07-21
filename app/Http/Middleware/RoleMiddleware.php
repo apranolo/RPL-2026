@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Journal;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,10 +27,6 @@ class RoleMiddleware
                 ->with('error', 'Your account has been deactivated.');
         }
 
-        if ($user->isSuperAdmin()) {
-            return $next($request);
-        }
-
         $journal = $request->route('journal') ?? $request->input('journal');
         $journalId = null;
 
@@ -51,13 +46,6 @@ class RoleMiddleware
 
             if ($resolvedId && ! is_array($resolvedId)) {
                 $journalId = (int) $resolvedId;
-            }
-        }
-
-        if ($user->isAdminKampus() && $journalId) {
-            $journalModel = Journal::find($journalId);
-            if ($journalModel && $journalModel->university_id === $user->university_id) {
-                return $next($request);
             }
         }
 

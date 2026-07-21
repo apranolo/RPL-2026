@@ -99,11 +99,6 @@ class Contract extends Model
         return $this->hasMany(ContractDocument::class);
     }
 
-    public function progressReports(): HasMany
-    {
-        return $this->hasMany(ProgressReport::class);
-    }
-
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

@@ -28,6 +28,7 @@ beforeEach(function () {
         'university_id' => $this->univA->id,
         'is_active' => true,
     ]);
+    $this->adminA->roles()->attach($adminRole->id);
 
     // Create Admin Kampus Univ B
     $this->adminB = User::factory()->create([
@@ -35,12 +36,14 @@ beforeEach(function () {
         'university_id' => $this->univB->id,
         'is_active' => true,
     ]);
+    $this->adminB->roles()->attach($adminRole->id);
 
     // Create Super Admin for checks
     $this->superAdmin = User::factory()->create([
         'role_id' => $superRole->id,
         'is_active' => true,
     ]);
+    $this->superAdmin->roles()->attach($superRole->id);
 });
 
 it('allows super admin to access monev rekap-keseluruhan', function () {
@@ -72,6 +75,7 @@ it('aborts with 403 if admin kampus has no university assigned', function () {
         'university_id' => null,
         'is_active' => true,
     ]);
+    $invalidAdmin->roles()->attach($adminRole->id);
 
     $response = actingAs($invalidAdmin)
         ->get('/admin-kampus/monev/rekap-keseluruhan');
@@ -93,9 +97,6 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
             'title' => 'Penelitian Univ A',
             'status' => 'active',
             'contract_value' => 10000000,
-            'contract_number' => 'CON-A-01',
-            'party_1' => 'Pihak A1',
-            'party_2' => 'Pihak A2',
             'created_at' => now(),
             'updated_at' => now(),
         ],
@@ -105,9 +106,6 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
             'title' => 'Penelitian Univ B',
             'status' => 'active',
             'contract_value' => 20000000,
-            'contract_number' => 'CON-B-01',
-            'party_1' => 'Pihak B1',
-            'party_2' => 'Pihak B2',
             'created_at' => now(),
             'updated_at' => now(),
         ],
@@ -156,9 +154,6 @@ it('allows admin kampus to change research status using decide-action', function
         'title' => 'Penelitian Univ A',
         'status' => 'active',
         'contract_value' => 10000000,
-        'contract_number' => 'CON-A-01',
-        'party_1' => 'Pihak A1',
-        'party_2' => 'Pihak A2',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -186,9 +181,6 @@ it('prevents admin kampus from changing research status of another university', 
         'title' => 'Penelitian Univ B',
         'status' => 'active',
         'contract_value' => 20000000,
-        'contract_number' => 'CON-B-01',
-        'party_1' => 'Pihak B1',
-        'party_2' => 'Pihak B2',
         'created_at' => now(),
         'updated_at' => now(),
     ]);

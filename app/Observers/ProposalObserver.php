@@ -3,7 +3,6 @@
 namespace App\Observers;
 
 use App\Models\SystemLog;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 
@@ -12,7 +11,7 @@ class ProposalObserver
     /**
      * Handle the "created" event.
      *
-     * @param  Model  $model
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      */
     public function created($model): void
     {
@@ -22,7 +21,7 @@ class ProposalObserver
     /**
      * Handle the "updated" event.
      *
-     * @param  Model  $model
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      */
     public function updated($model): void
     {
@@ -32,7 +31,7 @@ class ProposalObserver
     /**
      * Handle the "deleted" event.
      *
-     * @param  Model  $model
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      */
     public function deleted($model): void
     {
@@ -42,7 +41,7 @@ class ProposalObserver
     /**
      * Record the activity to system_logs.
      *
-     * @param  Model  $model
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      */
     protected function logActivity(string $action, $model): void
     {

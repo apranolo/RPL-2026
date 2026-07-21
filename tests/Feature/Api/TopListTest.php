@@ -78,31 +78,15 @@ class TopListTest extends TestCase
 
         $proposalA = Proposal::factory()->create([
             'user_id' => $lecturerA->id,
-            'title' => 'Riset Universitas A',
+            'judul' => 'Riset Universitas A',
         ]);
         $proposalB = Proposal::factory()->create([
             'user_id' => $lecturerB->id,
-            'title' => 'Riset Universitas B',
-        ]);
-
-        $contractA = DB::table('contracts')->insertGetId([
-            'university_id' => $universityA->id,
-            'proposal_id' => $proposalA->id,
-            'contract_number' => 'CON-A-01',
-            'title' => $proposalA->title,
-            'party_1' => 'Pihak A1',
-            'party_2' => 'Pihak A2',
-            'status' => 'active',
-            'created_at' => now(),
-            'updated_at' => now(),
+            'judul' => 'Riset Universitas B',
         ]);
 
         DB::table('research_outputs')->insert([
-            'contract_id' => $contractA,
-            'user_id' => $lecturerA->id,
-            'jenis_luaran' => 'Jurnal',
-            'judul_luaran' => 'Riset Universitas A',
-            'status_verifikasi' => 'Terverifikasi_LPPM',
+            'proposal_id' => $proposalA->id,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -112,8 +96,8 @@ class TopListTest extends TestCase
         $response = $this->actingAs($admin, 'sanctum')->getJson('/api/top-research');
 
         $response->assertOk();
-        $response->assertJsonFragment(['title' => $proposalA->title]);
-        $response->assertJsonMissing(['title' => $proposalB->title]);
+        $response->assertJsonFragment(['judul' => $proposalA->judul]);
+        $response->assertJsonMissing(['judul' => $proposalB->judul]);
     }
 
     /**
@@ -136,7 +120,7 @@ class TopListTest extends TestCase
             'is_active' => true,
         ]);
 
-        $admin = User::factory()->create(['university_id' => $university->id, 'is_active' => false]);
+        $admin = User::factory()->create(['university_id' => $university->id]);
 
         $response = $this->actingAs($admin, 'sanctum')->getJson('/api/top-lecturers');
 

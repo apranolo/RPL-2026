@@ -77,15 +77,10 @@ class AssessmentController extends Controller
             ->sort()
             ->values();
 
-        $driver = \DB::getDriverName();
-        $yearExpr = $driver === 'sqlite'
-            ? "CAST(strftime('%Y', assessment_date) AS INTEGER)"
-            : 'YEAR(assessment_date)';
-
         $availableYears = JournalAssessment::whereHas('journal', function ($query) use ($user) {
             $query->where('university_id', $user->university_id);
         })
-            ->selectRaw("DISTINCT {$yearExpr} as year")
+            ->selectRaw('DISTINCT YEAR(assessment_date) as year')
             ->whereNotNull('assessment_date')
             ->orderBy('year', 'desc')
             ->pluck('year');
