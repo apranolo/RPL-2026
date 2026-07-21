@@ -16,13 +16,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import {
-    BookOpen,
-    Building2,
-    FileText,
-    GraduationCap,
-    UserCircle,
-} from 'lucide-react';
+import { BookOpen, Building2, FileText, GraduationCap, UserCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 import { toast } from 'sonner';
 
@@ -45,21 +39,12 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function AuthorProfile({
-    profile,
-}: AuthorProfileProps) {
+export default function AuthorProfile({ profile }: AuthorProfileProps) {
     const { auth } = usePage<SharedData>().props;
 
     const { user } = auth;
 
-    const {
-        data,
-        setData,
-        post,
-        processing,
-        recentlySuccessful,
-        errors,
-    } = useForm({
+    const { data, setData, post, processing, recentlySuccessful, errors } = useForm({
         orcid: profile?.orcid || '',
         affiliation: profile?.affiliation || '',
         bio: profile?.bio || '',
@@ -86,144 +71,68 @@ export default function AuthorProfile({
             <Head title="Profil Author" />
 
             <div className="mx-auto max-w-5xl space-y-8 p-4 md:p-6">
-
                 {/* Header */}
 
                 <div className="border-b border-sidebar-border/50 pb-5">
+                    <h1 className="text-3xl font-extrabold tracking-tight">Profil Author</h1>
 
-                    <h1 className="text-3xl font-extrabold tracking-tight">
-
-                        Profil Author
-
-                    </h1>
-
-                    <p className="mt-2 text-muted-foreground">
-
-                        Kelola informasi akademik Anda yang akan
-                        ditampilkan pada proses submit artikel.
-
-                    </p>
-
+                    <p className="mt-2 text-muted-foreground">Kelola informasi akademik Anda yang akan ditampilkan pada proses submit artikel.</p>
                 </div>
 
                 {/* Summary Cards */}
 
                 <div className="grid gap-4 md:grid-cols-3">
-
                     <Card>
-
                         <CardHeader className="flex flex-row items-center justify-between">
-
-                            <CardTitle className="text-sm">
-
-                                Nama
-
-                            </CardTitle>
+                            <CardTitle className="text-sm">Nama</CardTitle>
 
                             <UserCircle className="h-5 w-5" />
-
                         </CardHeader>
 
                         <CardContent>
-
-                            <p className="text-lg font-bold">
-
-                                {user.name}
-
-                            </p>
-
+                            <p className="text-lg font-bold">{user.name}</p>
                         </CardContent>
-
                     </Card>
 
                     <Card>
-
                         <CardHeader className="flex flex-row items-center justify-between">
-
-                            <CardTitle className="text-sm">
-
-                                Universitas
-
-                            </CardTitle>
+                            <CardTitle className="text-sm">Universitas</CardTitle>
 
                             <GraduationCap className="h-5 w-5" />
-
                         </CardHeader>
 
                         <CardContent>
-
-                            <p>
-
-                                {user.university?.name ??
-                                    'Belum terdaftar'}
-
-                            </p>
-
+                            <p>{user.university?.name ?? 'Belum terdaftar'}</p>
                         </CardContent>
-
                     </Card>
 
                     <Card>
-
                         <CardHeader className="flex flex-row items-center justify-between">
-
-                            <CardTitle className="text-sm">
-
-                                Status
-
-                            </CardTitle>
+                            <CardTitle className="text-sm">Status</CardTitle>
 
                             <BookOpen className="h-5 w-5" />
-
                         </CardHeader>
 
                         <CardContent>
-
-                            <p className="font-semibold text-emerald-600">
-
-                                Author
-
-                            </p>
-
+                            <p className="font-semibold text-emerald-600">Author</p>
                         </CardContent>
-
                     </Card>
-
                 </div>
 
                 {/* Form */}
 
                 <Card>
-
                     <CardHeader>
+                        <CardTitle>Informasi Profil Author</CardTitle>
 
-                        <CardTitle>
-
-                            Informasi Profil Author
-
-                        </CardTitle>
-
-                        <CardDescription>
-
-                            Lengkapi informasi berikut agar identitas
-                            author tampil dengan benar pada sistem.
-
-                        </CardDescription>
-
+                        <CardDescription>Lengkapi informasi berikut agar identitas author tampil dengan benar pada sistem.</CardDescription>
                     </CardHeader>
 
                     <CardContent>
-
-                        <form
-                            onSubmit={submit}
-                            className="space-y-6"
-                        >
-                                                     {/* ORCID */}
+                        <form onSubmit={submit} className="space-y-6">
+                            {/* ORCID */}
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="orcid"
-                                    className="text-sm font-semibold"
-                                >
+                                <Label htmlFor="orcid" className="text-sm font-semibold">
                                     ORCID
                                 </Label>
 
@@ -231,9 +140,7 @@ export default function AuthorProfile({
                                     id="orcid"
                                     type="text"
                                     value={data.orcid}
-                                    onChange={(e) =>
-                                        setData('orcid', e.target.value)
-                                    }
+                                    onChange={(e) => setData('orcid', e.target.value)}
                                     placeholder="Contoh: 0000-0002-1825-0097"
                                 />
 
@@ -242,55 +149,40 @@ export default function AuthorProfile({
 
                             {/* Affiliation */}
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="affiliation"
-                                    className="text-sm font-semibold"
-                                >
+                                <Label htmlFor="affiliation" className="text-sm font-semibold">
                                     Afiliasi
                                 </Label>
 
                                 <div className="relative">
-                                    <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                    <Building2 className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
 
                                     <Input
                                         id="affiliation"
                                         className="pl-10"
                                         value={data.affiliation}
-                                        onChange={(e) =>
-                                            setData(
-                                                'affiliation',
-                                                e.target.value
-                                            )
-                                        }
+                                        onChange={(e) => setData('affiliation', e.target.value)}
                                         placeholder="Nama Universitas / Instansi"
                                     />
                                 </div>
 
-                                <InputError
-                                    message={errors.affiliation}
-                                />
+                                <InputError message={errors.affiliation} />
                             </div>
 
                             {/* Biography */}
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="bio"
-                                    className="text-sm font-semibold"
-                                >
+                                <Label htmlFor="bio" className="text-sm font-semibold">
                                     Biografi
                                 </Label>
 
                                 <div className="relative">
-                                    <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                    <FileText className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
 
                                     <Textarea
                                         id="bio"
                                         rows={7}
                                         className="resize-none pl-10"
                                         value={data.bio}
-                                        onChange={(e) =>
-                                            setData('bio', e.target.value)
-                                        }
+                                        onChange={(e) => setData('bio', e.target.value)}
                                         placeholder="Tuliskan biografi singkat Anda..."
                                     />
                                 </div>
@@ -300,14 +192,7 @@ export default function AuthorProfile({
 
                             {/* Footer */}
                             <div className="flex items-center gap-4 border-t pt-5">
-
-                                <Button
-                                    disabled={processing}
-                                >
-                                    {processing
-                                        ? 'Menyimpan...'
-                                        : 'Simpan Perubahan'}
-                                </Button>
+                                <Button disabled={processing}>{processing ? 'Menyimpan...' : 'Simpan Perubahan'}</Button>
 
                                 <Transition
                                     show={recentlySuccessful}
@@ -318,11 +203,8 @@ export default function AuthorProfile({
                                     leaveFrom="opacity-100"
                                     leaveTo="opacity-0"
                                 >
-                                    <p className="text-sm font-medium text-green-600">
-                                        Profil berhasil disimpan.
-                                    </p>
+                                    <p className="text-sm font-medium text-green-600">Profil berhasil disimpan.</p>
                                 </Transition>
-
                             </div>
                         </form>
                     </CardContent>
@@ -330,4 +212,4 @@ export default function AuthorProfile({
             </div>
         </AppLayout>
     );
-}   
+}

@@ -5,11 +5,10 @@ namespace Tests\Feature\Reviewer;
 use App\Models\Journal;
 use App\Models\Pembinaan;
 use App\Models\PembinaanRegistration;
-use App\Models\PembinaanReview;
 use App\Models\ReviewerAssignment;
 use App\Models\Role;
-use App\Models\University;
 use App\Models\ScientificField;
+use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,8 +18,11 @@ class EvaluationNoteTest extends TestCase
     use RefreshDatabase;
 
     private User $reviewer;
+
     private User $otherReviewer;
+
     private PembinaanRegistration $registration;
+
     private ReviewerAssignment $assignment;
 
     protected function setUp(): void

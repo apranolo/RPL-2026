@@ -25,7 +25,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                         </Link>
 
                         <div className="flex items-center gap-4 text-sm font-medium">
-                            <Link href={route('events.index')} className="hover:text-[#FCEE1F] transition-colors">
+                            <Link href={route('events.index')} className="transition-colors hover:text-[#FCEE1F]">
                                 Events
                             </Link>
                         </div>
@@ -47,9 +47,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                                     </Button>
                                 </Link>
                                 <Link href={route('register')}>
-                                    <Button className="border-0 bg-[#FCEE1F] px-3 font-bold text-black hover:bg-[#e3d51b] sm:px-4">
-                                        Register
-                                    </Button>
+                                    <Button className="border-0 bg-[#FCEE1F] px-3 font-bold text-black hover:bg-[#e3d51b] sm:px-4">Register</Button>
                                 </Link>
                             </>
                         )}
@@ -58,9 +56,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
             </nav>
 
             {/* MAIN CONTENT */}
-            <main className="flex-1 pt-16">
-                {children}
-            </main>
+            <main className="flex-1 pt-16">{children}</main>
 
             {/* FOOTER */}
             <footer className="mt-auto bg-[#0f172a] py-12 text-center text-sm text-gray-500">
