@@ -171,15 +171,12 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-
                     {/* ── On-screen page header ── */}
                     <div className="no-print mb-6">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h1 className="text-3xl font-bold tracking-tight">Rekap Luaran</h1>
-                                <p className="mt-1 text-muted-foreground">
-                                    Daftar luaran dosen (status: terverifikasi)
-                                </p>
+                                <p className="mt-1 text-muted-foreground">Daftar luaran dosen (status: terverifikasi)</p>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2">
@@ -198,11 +195,7 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
                                     Export Excel
                                 </Button>
 
-                                <Button
-                                    id="btn-print-report"
-                                    onClick={() => window.print()}
-                                    className="flex items-center gap-2"
-                                >
+                                <Button id="btn-print-report" onClick={() => window.print()} className="flex items-center gap-2">
                                     <Printer className="h-4 w-4" />
                                     Cetak Laporan
                                 </Button>
@@ -212,9 +205,7 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
 
                     {/* ── Print document header (hidden on screen) ── */}
                     <div className="print-only mb-6 text-center">
-                        <h1 className="text-xl font-bold uppercase tracking-widest">
-                            Rekap Luaran Dosen
-                        </h1>
+                        <h1 className="text-xl font-bold tracking-widest uppercase">Rekap Luaran Dosen</h1>
                         {(filters.type || filters.year) && (
                             <p className="mt-1 text-sm">
                                 {filters.type ? `Jenis Luaran: ${filters.type}` : ''}
@@ -222,9 +213,7 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
                                 {filters.year ? `Tahun Capaian: ${filters.year}` : ''}
                             </p>
                         )}
-                        <p className="mt-1 text-xs text-gray-500">
-                            Dicetak pada: {formatDate(generatedAt)}
-                        </p>
+                        <p className="mt-1 text-xs text-gray-500">Dicetak pada: {formatDate(generatedAt)}</p>
                         <hr className="mt-3 border-gray-400" />
                     </div>
 
@@ -239,10 +228,7 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
                             {/* Type filter */}
                             <div className="flex flex-col gap-1">
                                 <span className="text-xs text-muted-foreground">Jenis Luaran</span>
-                                <Select
-                                    value={filters.type || 'all'}
-                                    onValueChange={(v) => applyFilter({ type: v === 'all' ? '' : v })}
-                                >
+                                <Select value={filters.type || 'all'} onValueChange={(v) => applyFilter({ type: v === 'all' ? '' : v })}>
                                     <SelectTrigger id="filter-type" className="w-44">
                                         <SelectValue placeholder="Semua Jenis" />
                                     </SelectTrigger>
@@ -259,10 +245,7 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
                             {/* Year filter */}
                             <div className="flex flex-col gap-1">
                                 <span className="text-xs text-muted-foreground">Tahun Capaian</span>
-                                <Select
-                                    value={filters.year || 'all'}
-                                    onValueChange={(v) => applyFilter({ year: v === 'all' ? '' : v })}
-                                >
+                                <Select value={filters.year || 'all'} onValueChange={(v) => applyFilter({ year: v === 'all' ? '' : v })}>
                                     <SelectTrigger id="filter-year" className="w-36">
                                         <SelectValue placeholder="Semua Tahun" />
                                     </SelectTrigger>
@@ -320,9 +303,7 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
                                 <CardContent>
                                     <div className="text-3xl font-bold">{stat.total}</div>
                                     <p className="mt-1 text-xs text-muted-foreground">
-                                        {grandTotal > 0
-                                            ? `${Math.round((stat.total / grandTotal) * 100)}% dari total`
-                                            : '—'}
+                                        {grandTotal > 0 ? `${Math.round((stat.total / grandTotal) * 100)}% dari total` : '—'}
                                     </p>
                                 </CardContent>
                             </Card>
@@ -421,39 +402,26 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
                                     </TableHeader>
                                     <TableBody>
                                         {outputs.map((out, idx) => (
-                                            <TableRow
-                                                key={out.id}
-                                                className="print:border-b print:border-gray-300"
-                                            >
+                                            <TableRow key={out.id} className="print:border-b print:border-gray-300">
                                                 {/* No */}
-                                                <TableCell className="text-center text-muted-foreground">
-                                                    {idx + 1}
-                                                </TableCell>
+                                                <TableCell className="text-center text-muted-foreground">{idx + 1}</TableCell>
 
                                                 {/* Title */}
                                                 <TableCell>
-                                                    <div className="font-medium leading-snug">
-                                                        {out.title}
-                                                    </div>
+                                                    <div className="leading-snug font-medium">{out.title}</div>
                                                 </TableCell>
 
                                                 {/* Type */}
                                                 <TableCell className="text-center">
-                                                    <Badge variant={typeBadgeVariant(out.type)}>
-                                                        {out.type}
-                                                    </Badge>
+                                                    <Badge variant={typeBadgeVariant(out.type)}>{out.type}</Badge>
                                                 </TableCell>
 
                                                 {/* Year */}
-                                                <TableCell className="text-center text-sm font-medium">
-                                                    {out.year}
-                                                </TableCell>
+                                                <TableCell className="text-center text-sm font-medium">{out.year}</TableCell>
 
                                                 {/* User */}
-                                                <TableCell className="text-sm">
-                                                    {out.user?.name || '-'}
-                                                </TableCell>
-                                                
+                                                <TableCell className="text-sm">{out.user?.name || '-'}</TableCell>
+
                                                 {/* University */}
                                                 <TableCell className="text-sm">
                                                     {out.user?.university?.short_name || out.user?.university?.name || '-'}
@@ -488,9 +456,7 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
                                 </span>
                             )}
                         </span>
-                        <span className="text-xs">
-                            Data per: {formatDateShort(generatedAt)}
-                        </span>
+                        <span className="text-xs">Data per: {formatDateShort(generatedAt)}</span>
                     </div>
                 </div>
             </div>

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('proposals')) {
+        if (! Schema::hasTable('proposals')) {
             Schema::create('proposals', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete(); // id_pengusul
@@ -26,19 +26,19 @@ return new class extends Migration
             });
         } else {
             Schema::table('proposals', function (Blueprint $table) {
-                if (!Schema::hasColumn('proposals', 'abstract')) {
+                if (! Schema::hasColumn('proposals', 'abstract')) {
                     $table->text('abstract')->nullable()->after('title');
                 }
-                if (!Schema::hasColumn('proposals', 'background')) {
+                if (! Schema::hasColumn('proposals', 'background')) {
                     $table->text('background')->nullable()->after('abstract');
                 }
-                if (!Schema::hasColumn('proposals', 'proposal_doc_path')) {
+                if (! Schema::hasColumn('proposals', 'proposal_doc_path')) {
                     $table->string('proposal_doc_path')->nullable()->after('background');
                 }
-                if (!Schema::hasColumn('proposals', 'status')) {
+                if (! Schema::hasColumn('proposals', 'status')) {
                     $table->string('status')->default('Draft')->after('proposal_doc_path');
                 }
-                if (!Schema::hasColumn('proposals', 'submitted_at')) {
+                if (! Schema::hasColumn('proposals', 'submitted_at')) {
                     $table->timestamp('submitted_at')->nullable()->after('status');
                 }
             });

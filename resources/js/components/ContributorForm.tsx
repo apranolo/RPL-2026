@@ -1,9 +1,9 @@
-import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import React from 'react';
 
 interface ContributorData {
     name: string;
@@ -25,19 +25,13 @@ interface ContributorFormProps {
     };
 }
 
-export const ContributorForm: React.FC<ContributorFormProps> = ({
-    index,
-    data,
-    onChange,
-    onRemove,
-    errors,
-}) => {
+export const ContributorForm: React.FC<ContributorFormProps> = ({ index, data, onChange, onRemove, errors }) => {
     return (
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 border rounded-lg bg-card text-card-foreground shadow-sm mb-4">
-            <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mb-4 flex flex-col items-start gap-4 rounded-lg border bg-card p-4 text-card-foreground shadow-sm md:flex-row md:items-center">
+            <div className="grid w-full flex-1 grid-cols-1 gap-4 md:grid-cols-3">
                 {/* Name Input */}
                 <div className="space-y-1">
-                    <Label htmlFor={`contributor-name-${index}`} className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Label htmlFor={`contributor-name-${index}`} className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                         Name
                     </Label>
                     <Input
@@ -48,14 +42,12 @@ export const ContributorForm: React.FC<ContributorFormProps> = ({
                         onChange={(e) => onChange(index, 'name', e.target.value)}
                         className={errors?.name ? 'border-destructive focus-visible:ring-destructive' : ''}
                     />
-                    {errors?.name && (
-                        <p className="text-xs text-destructive mt-1">{errors.name}</p>
-                    )}
+                    {errors?.name && <p className="mt-1 text-xs text-destructive">{errors.name}</p>}
                 </div>
 
                 {/* Email Input */}
                 <div className="space-y-1">
-                    <Label htmlFor={`contributor-email-${index}`} className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Label htmlFor={`contributor-email-${index}`} className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                         Email
                     </Label>
                     <Input
@@ -66,14 +58,15 @@ export const ContributorForm: React.FC<ContributorFormProps> = ({
                         onChange={(e) => onChange(index, 'email', e.target.value)}
                         className={errors?.email ? 'border-destructive focus-visible:ring-destructive' : ''}
                     />
-                    {errors?.email && (
-                        <p className="text-xs text-destructive mt-1">{errors.email}</p>
-                    )}
+                    {errors?.email && <p className="mt-1 text-xs text-destructive">{errors.email}</p>}
                 </div>
 
                 {/* Affiliation Input */}
                 <div className="space-y-1">
-                    <Label htmlFor={`contributor-affiliation-${index}`} className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Label
+                        htmlFor={`contributor-affiliation-${index}`}
+                        className="text-xs font-semibold tracking-wider text-muted-foreground uppercase"
+                    >
                         Affiliation
                     </Label>
                     <Input
@@ -84,29 +77,24 @@ export const ContributorForm: React.FC<ContributorFormProps> = ({
                         onChange={(e) => onChange(index, 'affiliation', e.target.value)}
                         className={errors?.affiliation ? 'border-destructive focus-visible:ring-destructive' : ''}
                     />
-                    {errors?.affiliation && (
-                        <p className="text-xs text-destructive mt-1">{errors.affiliation}</p>
-                    )}
+                    {errors?.affiliation && <p className="mt-1 text-xs text-destructive">{errors.affiliation}</p>}
                 </div>
             </div>
 
             {/* Corresponding Author Checkbox */}
-            <div className="flex items-center space-x-2 pt-2 md:pt-5 h-full">
+            <div className="flex h-full items-center space-x-2 pt-2 md:pt-5">
                 <Checkbox
                     id={`contributor-corresponding-${index}`}
                     checked={data.is_corresponding}
                     onCheckedChange={(checked) => onChange(index, 'is_corresponding', !!checked)}
                 />
-                <Label
-                    htmlFor={`contributor-corresponding-${index}`}
-                    className="text-sm font-medium leading-none cursor-pointer"
-                >
+                <Label htmlFor={`contributor-corresponding-${index}`} className="cursor-pointer text-sm leading-none font-medium">
                     Corresponding
                 </Label>
             </div>
 
             {/* Remove Button */}
-            <div className="pt-2 md:pt-5 w-full md:w-auto flex justify-end">
+            <div className="flex w-full justify-end pt-2 md:w-auto md:pt-5">
                 <Button
                     type="button"
                     variant="ghost"
