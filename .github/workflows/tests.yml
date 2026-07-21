@@ -76,10 +76,17 @@ jobs:
         run: ./vendor/laravel/dusk/bin/chromedriver-linux > /dev/null 2>&1 &
 
       - name: Start Laravel Server
-        run: php artisan serve --env=dusk.local --host=127.0.0.1 --port=8000 > /dev/null 2>&1 &
+        run: php artisan serve --env=dusk.local --host=127.0.0.1 --port=8000 > /tmp/laravel.log 2>&1 &
 
       - name: Wait for Server
-        run: sleep 3
-
-      - name: Run Browser Tests (Dusk)
-        run: php artisan dusk
+        run: |
+          for i in {1..30}; do
+            if curl -f http://127.0.0.1:8000 > /dev/null 2>&1; then
+              echo "Server is ready"
+              exit 0
+            fi
+            echo "Attempt $i: Waiting for server..."
+            sleep 1
+          done
+          echo "Server failed to start"
+          exit 1
