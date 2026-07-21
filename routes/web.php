@@ -49,6 +49,8 @@ use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\Editorial\DecisionController;
+use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Revision\EditorRevisionController;
 use App\Http\Controllers\Revision\RevisionController;
 use App\Http\Controllers\SchemaController;
@@ -62,8 +64,6 @@ use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Editorial\DecisionController;
-use App\Http\Controllers\Production\IssueController;
 use Inertia\Inertia;
 
 /*
@@ -1038,6 +1038,14 @@ Route::middleware(['auth'])->group(function () {
 
         });
 });
+Route::get('/editorial/desk/{submission}/review', [DeskController::class, 'show'])
+    ->name('editorial.desk.review');
+
+Route::post('/editorial/desk/{submission}/assign-editor', [DeskController::class, 'assignEditor'])
+    ->name('editorial.desk.assign-editor');
+
+Route::post('/editorial/desk/{submission}/desk-review', [DecisionController::class, 'deskReview'])
+    ->name('editorial.desk.desk-review');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
