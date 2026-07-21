@@ -1,9 +1,7 @@
 # Pembinaan System - Quick Reference Guide
 
 ## Overview
-
 The Pembinaan (Coaching/Training) system allows:
-
 - **Super Admin**: Create/manage training programs
 - **Admin Kampus**: Review registrations, assign reviewers
 - **Users**: Register journals to programs
@@ -47,70 +45,65 @@ The Pembinaan (Coaching/Training) system allows:
 
 ## Database Tables
 
-| Table                                | Description              | Key Columns                             |
-| ------------------------------------ | ------------------------ | --------------------------------------- |
-| `pembinaan`                          | Training programs        | category, status, dates, quota          |
-| `pembinaan_registrations`            | Journal enrollments      | status, reviewed_at, reviewed_by        |
-| `pembinaan_registration_attachments` | Uploaded documents       | file_path, document_type                |
-| `pembinaan_reviews`                  | Reviewer feedback        | score, feedback, recommendation         |
-| `reviewer_assignments`               | Reviewer-to-registration | status (assigned/in_progress/completed) |
+| Table | Description | Key Columns |
+|-------|-------------|-------------|
+| `pembinaan` | Training programs | category, status, dates, quota |
+| `pembinaan_registrations` | Journal enrollments | status, reviewed_at, reviewed_by |
+| `pembinaan_registration_attachments` | Uploaded documents | file_path, document_type |
+| `pembinaan_reviews` | Reviewer feedback | score, feedback, recommendation |
+| `reviewer_assignments` | Reviewer-to-registration | status (assigned/in_progress/completed) |
 
 ## User Workflow
 
 ### Super Admin: Create Program
-
 1. Navigate to `/admin/pembinaan`
 2. Click "Create Program"
 3. Fill form:
-    - Name, Description
-    - Category (Akreditasi/Indeksasi)
-    - Accreditation Template (optional)
-    - Registration Period (start/end)
-    - Assessment Period (start/end)
-    - Quota (optional)
+   - Name, Description
+   - Category (Akreditasi/Indeksasi)
+   - Accreditation Template (optional)
+   - Registration Period (start/end)
+   - Assessment Period (start/end)
+   - Quota (optional)
 4. Status defaults to "draft"
 5. Toggle status: draft → active → closed
 
 ### User: Register Journal
-
 1. Navigate to `/user/pembinaan`
 2. Browse "Available Programs" (active + registration open)
 3. Click program → "Register"
 4. Select journal from dropdown
 5. Upload documents:
-    - ISSN Certificate (required)
-    - Journal Cover (required)
-    - Previous Accreditation (if applicable)
+   - ISSN Certificate (required)
+   - Journal Cover (required)
+   - Previous Accreditation (if applicable)
 6. Submit (status = pending)
 7. View registration status in "My Registrations" tab
 
 ### Admin Kampus: Approve Registration
-
 1. Navigate to `/admin-kampus/pembinaan`
 2. Filter by status/pembinaan
 3. Click registration → View details
 4. Review attachments
 5. Actions:
-    - **Approve**: Sets status=approved, reviewed_at=now()
-    - **Reject**: Requires rejection reason
-    - **Assign Reviewer**: Select from university reviewers
+   - **Approve**: Sets status=approved, reviewed_at=now()
+   - **Reject**: Requires rejection reason
+   - **Assign Reviewer**: Select from university reviewers
 
 ### Reviewer: Submit Review
-
 1. Navigate to `/reviewer/assignments`
 2. Click assignment → View registration
 3. Download/review attachments
 4. Click "Submit Review"
 5. Fill form:
-    - Score (0-100)
-    - Feedback (required)
-    - Recommendation (optional)
+   - Score (0-100)
+   - Feedback (required)
+   - Recommendation (optional)
 6. Submit → Assignment marked completed
 
 ## API Endpoints
 
 ### Admin Routes
-
 ```php
 GET    /admin/pembinaan                          # List programs
 GET    /admin/pembinaan/create                   # Create form
@@ -123,7 +116,6 @@ POST   /admin/pembinaan/{id}/toggle-status       # Change status
 ```
 
 ### Admin Kampus Routes
-
 ```php
 GET    /admin-kampus/pembinaan                   # List registrations
 GET    /admin-kampus/pembinaan/registrations/{id}    # Show registration
@@ -135,7 +127,6 @@ GET    /admin-kampus/pembinaan/reviewers         # Get reviewers JSON
 ```
 
 ### User Routes
-
 ```php
 GET    /user/pembinaan                           # Index (available + my registrations)
 GET    /user/pembinaan/programs/{id}             # Show program
@@ -148,7 +139,6 @@ GET    /user/pembinaan/attachments/{id}          # Download attachment
 ```
 
 ### Reviewer Routes
-
 ```php
 GET    /reviewer/assignments                     # List assignments
 GET    /reviewer/assignments/{id}                # Show assignment
@@ -159,22 +149,21 @@ GET    /reviewer/assignments/{id}/attachments/{id}    # Download attachment
 
 ## Authorization Matrix
 
-| Action                 | Super Admin | Admin Kampus    | User              | Reviewer           |
-| ---------------------- | ----------- | --------------- | ----------------- | ------------------ |
-| Create program         | ✅          | ❌              | ❌                | ❌                 |
-| Edit program           | ✅          | ❌              | ❌                | ❌                 |
-| Toggle status          | ✅          | ❌              | ❌                | ❌                 |
-| View all registrations | ✅          | ✅ (university) | ❌                | ❌                 |
-| Approve/reject         | ✅          | ✅ (university) | ❌                | ❌                 |
-| Assign reviewer        | ✅          | ✅ (university) | ❌                | ❌                 |
-| Register journal       | ❌          | ❌              | ✅ (own journals) | ❌                 |
-| View own registrations | ❌          | ❌              | ✅                | ❌                 |
-| Submit review          | ❌          | ❌              | ❌                | ✅ (assigned only) |
+| Action | Super Admin | Admin Kampus | User | Reviewer |
+|--------|-------------|--------------|------|----------|
+| Create program | ✅ | ❌ | ❌ | ❌ |
+| Edit program | ✅ | ❌ | ❌ | ❌ |
+| Toggle status | ✅ | ❌ | ❌ | ❌ |
+| View all registrations | ✅ | ✅ (university) | ❌ | ❌ |
+| Approve/reject | ✅ | ✅ (university) | ❌ | ❌ |
+| Assign reviewer | ✅ | ✅ (university) | ❌ | ❌ |
+| Register journal | ❌ | ❌ | ✅ (own journals) | ❌ |
+| View own registrations | ❌ | ❌ | ✅ | ❌ |
+| Submit review | ❌ | ❌ | ❌ | ✅ (assigned only) |
 
 ## Code Examples
 
 ### Check if Program Registration Open
-
 ```php
 $pembinaan = Pembinaan::find($id);
 
@@ -188,7 +177,6 @@ if ($pembinaan->isQuotaFull()) {
 ```
 
 ### Query Available Programs
-
 ```php
 $programs = Pembinaan::active()
     ->open()
@@ -197,7 +185,6 @@ $programs = Pembinaan::active()
 ```
 
 ### Get Registrations for Admin Kampus
-
 ```php
 $registrations = PembinaanRegistration::forUniversity($user->university_id)
     ->pending()
@@ -206,7 +193,6 @@ $registrations = PembinaanRegistration::forUniversity($user->university_id)
 ```
 
 ### Approve Registration
-
 ```php
 $registration->update([
     'status' => 'approved',
@@ -216,7 +202,6 @@ $registration->update([
 ```
 
 ### Assign Reviewer
-
 ```php
 ReviewerAssignment::create([
     'reviewer_id' => $reviewerId,
@@ -227,7 +212,6 @@ ReviewerAssignment::create([
 ```
 
 ### Submit Review
-
 ```php
 PembinaanReview::create([
     'registration_id' => $registration->id,
@@ -249,21 +233,18 @@ $assignment->markCompleted();
 - **Naming**: `{timestamp}_{original_filename}`
 
 ### Storage Setup
-
 ```bash
 # Create symlink (if not exists)
 php artisan storage:link
 ```
 
 ### Access Files
-
 - Private: via controller download method
 - URL pattern: `/user/pembinaan/attachments/{id}`
 
 ## Model Scopes Reference
 
 ### Pembinaan Scopes
-
 ```php
 Pembinaan::active()         // status = 'active'
 Pembinaan::draft()          // status = 'draft'
@@ -274,7 +255,6 @@ Pembinaan::upcoming()       // registration_start in future
 ```
 
 ### PembinaanRegistration Scopes
-
 ```php
 PembinaanRegistration::pending()              // status = 'pending'
 PembinaanRegistration::approved()             // status = 'approved'
@@ -285,7 +265,6 @@ PembinaanRegistration::forPembinaan($id)      // pembinaan_id = $id
 ```
 
 ### ReviewerAssignment Scopes
-
 ```php
 ReviewerAssignment::assigned()                // status = 'assigned'
 ReviewerAssignment::inProgress()              // status = 'in_progress'
@@ -297,7 +276,6 @@ ReviewerAssignment::forRegistration($id)      // registration_id = $id
 ## Status Flow Diagrams
 
 ### Program Status Flow
-
 ```
 ┌───────┐   Toggle   ┌────────┐   Toggle   ┌────────┐
 │ Draft ├──────────► │ Active ├──────────► │ Closed │
@@ -305,7 +283,6 @@ ReviewerAssignment::forRegistration($id)      // registration_id = $id
 ```
 
 ### Registration Status Flow
-
 ```
 ┌─────────┐   Approve   ┌──────────┐
 │ Pending ├────────────►│ Approved │
@@ -319,7 +296,6 @@ ReviewerAssignment::forRegistration($id)      // registration_id = $id
 ```
 
 ### Assignment Status Flow
-
 ```
 ┌──────────┐   Start Review   ┌─────────────┐   Submit   ┌───────────┐
 │ Assigned ├────────────────► │ In Progress ├───────────►│ Completed │
@@ -329,14 +305,12 @@ ReviewerAssignment::forRegistration($id)      // registration_id = $id
 ## Testing Checklist
 
 ### Unit Tests
-
 - [ ] Pembinaan model scopes
 - [ ] PembinaanRegistration model scopes
 - [ ] ReviewerAssignment status transitions
 - [ ] File attachment helpers
 
 ### Feature Tests
-
 - [ ] Admin creates program
 - [ ] Admin toggles status
 - [ ] User registers journal
@@ -347,14 +321,12 @@ ReviewerAssignment::forRegistration($id)      // registration_id = $id
 - [ ] Reviewer submits review
 
 ### Policy Tests
-
 - [ ] PembinaanPolicy authorization rules
 - [ ] PembinaanRegistrationPolicy authorization rules
 - [ ] ReviewerAssignmentPolicy authorization rules
 - [ ] PembinaanReviewPolicy authorization rules
 
 ### Browser Tests (Dusk)
-
 - [ ] Full registration workflow
 - [ ] Approval workflow
 - [ ] Review submission workflow
@@ -364,28 +336,23 @@ ReviewerAssignment::forRegistration($id)      // registration_id = $id
 ### Common Issues
 
 **Issue**: "Cannot delete pembinaan with approved registrations"
-
 - **Solution**: Check `$pembinaan->canBeDeleted()` returns false if approved registrations exist
 
 **Issue**: "File not found" when downloading attachment
-
 - **Solution**: Verify storage symlink exists (`php artisan storage:link`)
 
 **Issue**: "Unauthorized" when accessing routes
-
 - **Solution**: Check user role and policy methods, verify middleware applied
 
 **Issue**: "Duplicate reviewer assignment"
-
 - **Solution**: Policy prevents duplicates via `ReviewerAssignmentPolicy@assign()`
 
 **Issue**: "Registration not allowed"
-
 - **Solution**: Check:
-    1. Program is active
-    2. Registration period is open
-    3. Quota not exceeded
-    4. Journal not already registered
+  1. Program is active
+  2. Registration period is open
+  3. Quota not exceeded
+  4. Journal not already registered
 
 ## Migration Commands
 
@@ -403,21 +370,21 @@ php artisan migrate:rollback --step=5
 ## Seeder Data (To Be Created)
 
 1. **Sample Programs**:
-    - Akreditasi SINTA 1-6
-    - Indeksasi Scopus/WoS
+   - Akreditasi SINTA 1-6
+   - Indeksasi Scopus/WoS
 
 2. **Sample Registrations**:
-    - Pending (awaiting approval)
-    - Approved (awaiting review)
-    - Rejected (with reasons)
+   - Pending (awaiting approval)
+   - Approved (awaiting review)
+   - Rejected (with reasons)
 
 3. **Sample Reviewers**:
-    - Users with Reviewer role
-    - From different universities
+   - Users with Reviewer role
+   - From different universities
 
 4. **Sample Reviews**:
-    - With various scores (60-95)
-    - With detailed feedback
+   - With various scores (60-95)
+   - With detailed feedback
 
 ---
 

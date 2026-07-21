@@ -34,7 +34,6 @@ This runbook provides step-by-step procedures for common operational tasks, inci
 **Responsibility:** Operations Team
 
 **Checklist:**
-
 ```bash
 # 1. Check application status
 curl https://journalmu.org/health
@@ -72,7 +71,6 @@ ls -lh /path/to/backup/location/
 ```
 
 **If any check fails:**
-
 - Document findings
 - Follow incident response procedure (see below)
 - Escalate if cannot resolve in 30 minutes
@@ -105,7 +103,6 @@ echo "$(date): Journals: X, Assessments: Y, New Users: Z" >> /var/log/jurnal_mu_
 **Responsibility:** Development Team
 
 #### 1. Security Audit
-
 ```bash
 # Check for vulnerable dependencies
 composer audit
@@ -119,11 +116,10 @@ openssl s_client -connect jurnalmu.org:443 -servername jurnalmu.org 2>/dev/null 
 ```
 
 #### 2. Performance Check
-
 ```bash
 # Check database size
 mysql -u root -p -e "
-SELECT
+SELECT 
     table_schema AS 'Database',
     ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS 'Size (MB)'
 FROM information_schema.TABLES
@@ -139,7 +135,6 @@ curl -w "@curl-format.txt" -o /dev/null -s https://jurnalmu.org/dashboard
 ```
 
 #### 3. Backup Verification
-
 ```bash
 # List recent backups
 ls -lh storage/app/backups/ | head -7
@@ -159,13 +154,12 @@ echo "$(date): Backup verification OK" >> /var/log/jurnal_mu_ops.log
 **Duration:** 15 minutes
 
 #### Weekly Report Generation
-
 ```bash
 # Generate weekly statistics
 php artisan tinker
 >>> $weekStart = now()->startOfWeek();
 >>> $weekEnd = now()->endOfWeek();
->>>
+>>> 
 >>> echo "Weekly Report: " . $weekStart->format('Y-m-d') . " to " . $weekEnd->format('Y-m-d') . "\n";
 >>> echo "New Journals: " . DB::table('journals')->whereBetween('created_at', [$weekStart, $weekEnd])->count() . "\n";
 >>> echo "Assessments Submitted: " . DB::table('journal_assessments')->where('status', 'submitted')->whereBetween('created_at', [$weekStart, $weekEnd])->count() . "\n";
@@ -175,7 +169,6 @@ php artisan tinker
 ```
 
 Send report to:
-
 - Project Manager (Andri Pranolo)
 - Stakeholder (Lukman Hakim)
 - Operations Team
@@ -190,7 +183,6 @@ Send report to:
 **Responsibility:** Full Team
 
 #### 1. Full System Audit
-
 ```bash
 # 1. Security Review
 composer audit
@@ -217,7 +209,6 @@ find storage/logs/*.log -mtime +30 -delete
 ```
 
 #### 2. Update Dependencies (if needed)
-
 ```bash
 # Check for outdated packages
 composer outdated
@@ -235,13 +226,11 @@ npm run test
 ```
 
 #### 3. Documentation Review
-
 - Review and update `docs/development/MAINTENANCE.md` if procedures changed
 - Update runbook (this document) with lessons learned
 - Document any new procedures or workarounds discovered
 
 #### 4. Team Meeting
-
 - Review metrics from last month
 - Discuss issues encountered
 - Plan improvements for next month
@@ -253,12 +242,12 @@ npm run test
 
 ### Overview
 
-| Type                  | Frequency           | Retention | Method                 |
-| --------------------- | ------------------- | --------- | ---------------------- |
-| Full Backup           | Daily (02:00 AM)    | 30 days   | `mysqldump`            |
-| Weekly Snapshot       | Every Sunday        | 90 days   | `mysqldump` + compress |
-| Pre-deployment Backup | Before every deploy | 7 days    | Manual                 |
-| Monthly Archive       | First day of month  | 1 year    | `mysqldump` + offsite  |
+| Type | Frequency | Retention | Method |
+|------|-----------|-----------|--------|
+| Full Backup | Daily (02:00 AM) | 30 days | `mysqldump` |
+| Weekly Snapshot | Every Sunday | 90 days | `mysqldump` + compress |
+| Pre-deployment Backup | Before every deploy | 7 days | Manual |
+| Monthly Archive | First day of month | 1 year | `mysqldump` + offsite |
 
 ---
 
@@ -437,12 +426,12 @@ mysql -u root -p -e "DROP DATABASE jurnal_mu_restore_test;"
 
 ### Backup Retention Policy
 
-| Backup Type     | Location                         | Retention | Action on Expiry            |
-| --------------- | -------------------------------- | --------- | --------------------------- |
-| Daily           | `storage/app/backups/daily/`     | 30 days   | Auto-deleted by script      |
-| Weekly          | `storage/app/backups/weekly/`    | 90 days   | Auto-deleted by script      |
-| Pre-deploy      | `storage/app/backups/predeploy/` | 7 days    | Auto-deleted by script      |
-| Monthly archive | Offsite / cloud storage          | 1 year    | Manual review before delete |
+| Backup Type | Location | Retention | Action on Expiry |
+|-------------|----------|-----------|------------------|
+| Daily | `storage/app/backups/daily/` | 30 days | Auto-deleted by script |
+| Weekly | `storage/app/backups/weekly/` | 90 days | Auto-deleted by script |
+| Pre-deploy | `storage/app/backups/predeploy/` | 7 days | Auto-deleted by script |
+| Monthly archive | Offsite / cloud storage | 1 year | Manual review before delete |
 
 > **Note:** For production, offsite backup (e.g., Google Drive, S3, or external server) is strongly recommended. Do not rely solely on local storage.
 
@@ -452,25 +441,23 @@ mysql -u root -p -e "DROP DATABASE jurnal_mu_restore_test;"
 
 ### Incident Severity Matrix
 
-| Severity          | Impact                     | Response Time | Escalation        |
-| ----------------- | -------------------------- | ------------- | ----------------- |
-| **P1 - Critical** | System down, no workaround | 15 minutes    | Immediate         |
-| **P2 - High**     | Major function unavailable | 1 hour        | Within 1 hour     |
-| **P3 - Medium**   | Minor function impaired    | 4 hours       | Next business day |
-| **P4 - Low**      | Cosmetic/informational     | Next sprint   | Not required      |
+| Severity | Impact | Response Time | Escalation |
+|----------|--------|---------------|------------|
+| **P1 - Critical** | System down, no workaround | 15 minutes | Immediate |
+| **P2 - High** | Major function unavailable | 1 hour | Within 1 hour |
+| **P3 - Medium** | Minor function impaired | 4 hours | Next business day |
+| **P4 - Low** | Cosmetic/informational | Next sprint | Not required |
 
 ---
 
 ### P1: System Completely Down
 
 **Symptoms:**
-
 - Website unreachable (502/503 errors)
 - Database connection failures across all pages
 - Critical data corruption
 
 **Immediate Actions (0-15 minutes):**
-
 ```bash
 # 1. Enable maintenance mode (if accessible)
 php artisan down --secret="emergency-access-$(date +%s)"
@@ -501,7 +488,6 @@ find storage/logs -name "*.log" -size +100M -delete
 ```
 
 **Communication (5 minutes):**
-
 ```
 Subject: P1 INCIDENT - JurnalMu System Down
 
@@ -515,13 +501,11 @@ Contact: [YOUR NAME] - [PHONE]
 ```
 
 Send to:
-
 - operations-team@example.com
 - project-manager@example.com
 - stakeholders (if > 30 minutes downtime)
 
 **Resolution Steps:**
-
 1. Identify root cause from logs
 2. Apply fix or rollback recent changes
 3. Verify system functionality
@@ -529,7 +513,6 @@ Send to:
 5. Monitor for 1 hour post-recovery
 
 **Post-Incident (Within 24 hours):**
-
 - Write incident report
 - Identify preventive measures
 - Update runbook with lessons learned
@@ -539,13 +522,11 @@ Send to:
 ### P2: Major Feature Unavailable
 
 **Examples:**
-
 - Users cannot submit assessments
 - Login broken for specific role
 - Database queries timing out
 
 **Response Procedure:**
-
 ```bash
 # 1. Confirm issue
 # Try to reproduce the exact steps user reported
@@ -577,13 +558,11 @@ php artisan queue:restart
 ### P3: Minor Function Impaired
 
 **Examples:**
-
 - Slow page load on specific page
 - Search not returning expected results
 - Email notifications delayed
 
 **Response Procedure:**
-
 ```bash
 # 1. Document the issue
 #    - Which page/feature?
@@ -618,7 +597,6 @@ php artisan queue:restart
 **Situation:** User cannot reset password (email not arriving, reset link expired)
 
 **Solution:**
-
 ```bash
 # Option A: Manually reset password
 php artisan tinker
@@ -632,7 +610,6 @@ php artisan tinker
 ```
 
 **Option B: Resend verification email**
-
 ```bash
 php artisan tinker
 >>> $user = User::where('email', 'user@example.com')->first();
@@ -641,7 +618,6 @@ php artisan tinker
 ```
 
 **Documentation:**
-
 - Log action in ops log
 - Note: Password was reset manually for [USER] on [DATE] by [ADMIN]
 
@@ -652,7 +628,6 @@ php artisan tinker
 **Situation:** User reports "Submit Assessment" button not working
 
 **Diagnosis:**
-
 ```bash
 # 1. Check user's assessment status
 php artisan tinker
@@ -672,14 +647,12 @@ grep -i "assessment.*validation" storage/logs/laravel.log | tail -20
 ```
 
 **Common Fixes:**
-
 1. **Incomplete responses:** Ask user to fill all required fields
 2. **File upload issues:** Check file size limits, formats
 3. **Session expired:** User should log out and log back in
 4. **Cache issue:** Clear browser cache (Ctrl+Shift+Delete)
 
 **If data is valid but stuck:**
-
 ```bash
 # Manually update status (use with caution!)
 php artisan tinker
@@ -697,13 +670,11 @@ php artisan tinker
 ### Scenario 3: Queue Worker Crashed
 
 **Symptoms:**
-
 - Emails not being sent
 - Background jobs not processing
 - Failed jobs accumulating
 
 **Fix:**
-
 ```bash
 # 1. Check if worker is running
 ps aux | grep "queue:work"
@@ -724,7 +695,6 @@ tail -f storage/logs/queue.log
 ```
 
 **Prevention:**
-
 - Set up Supervisor to auto-restart queue workers
 - Monitor queue worker health in daily check
 
@@ -768,7 +738,6 @@ php artisan tinker
 ```
 
 **Prevention:**
-
 - Always test migrations on staging first
 - Backup database before migrating
 - Review migration file for errors
@@ -778,13 +747,11 @@ php artisan tinker
 ### Scenario 5: High Server Load / Slow Performance
 
 **Symptoms:**
-
 - Pages loading slowly (> 5 seconds)
 - Timeouts occurring
 - Server CPU/memory high
 
 **Immediate Actions:**
-
 ```bash
 # 1. Check server resources
 top
@@ -813,7 +780,6 @@ tail -100 /var/log/apache2/access.log | awk '{print $1}' | sort | uniq -c | sort
 ```
 
 **Long-term fixes:**
-
 - Optimize slow queries
 - Add database indexes
 - Implement Redis caching
@@ -830,7 +796,6 @@ tail -100 /var/log/apache2/access.log | awk '{print $1}' | sort | uniq -c | sort
 **Recovery Steps:**
 
 #### 1. Prepare New Environment
-
 ```bash
 # On new server or fresh install:
 git clone [repository]
@@ -843,7 +808,6 @@ php artisan key:generate
 ```
 
 #### 2. Restore Database
-
 ```bash
 # Locate latest backup
 ls -lh /path/to/backups/ | tail -5
@@ -856,7 +820,6 @@ mysql -u root -p jurnal_mu -e "SELECT COUNT(*) FROM journals;"
 ```
 
 #### 3. Restore Uploaded Files
-
 ```bash
 # If backups include storage/app/public:
 tar -xzf storage-backup-YYYYMMDD.tar.gz -C storage/app/
@@ -866,7 +829,6 @@ php artisan storage:link
 ```
 
 #### 4. Verify Application
-
 ```bash
 # Run migrations (should be up-to-date if backup recent)
 php artisan migrate --force
@@ -879,7 +841,6 @@ php artisan queue:work &
 ```
 
 #### 5. Test Critical Paths
-
 - [ ] Login as each role (Super Admin, Admin Kampus, User)
 - [ ] View journals list
 - [ ] View assessment details
@@ -887,7 +848,6 @@ php artisan queue:work &
 - [ ] Check file uploads/downloads
 
 #### 6. Bring System Online
-
 ```bash
 # Remove maintenance mode if enabled
 php artisan up
@@ -906,7 +866,6 @@ tail -f storage/logs/laravel.log
 **Purpose:** Verify backups are valid and restoration procedure works
 
 **Procedure:**
-
 1. Provision temporary staging server
 2. Attempt full restoration from latest backup
 3. Test application functionality
@@ -923,12 +882,12 @@ tail -f storage/logs/laravel.log
 
 ### Emergency Contacts (24/7)
 
-| Role                | Name          | Phone              | Email   | Primary Responsibility   |
-| ------------------- | ------------- | ------------------ | ------- | ------------------------ |
-| **Server Admin**    | [Name]        | +62 895-4232-00040 | [email] | Infrastructure, database |
-| **Lead Developer**  | [Name]        | [Phone]            | [email] | Application code         |
-| **Project Manager** | Andri Pranolo | [Phone]            | [email] | Coordination, decisions  |
-| **Stakeholder**     | Lukman Hakim  | [Phone]            | [email] | Business decisions       |
+| Role | Name | Phone | Email | Primary Responsibility |
+|------|------|-------|-------|----------------------|
+| **Server Admin** | [Name] | +62 895-4232-00040 | [email] | Infrastructure, database |
+| **Lead Developer** | [Name] | [Phone] | [email] | Application code |
+| **Project Manager** | Andri Pranolo | [Phone] | [email] | Coordination, decisions |
+| **Stakeholder** | Lukman Hakim | [Phone] | [email] | Business decisions |
 
 ### Escalation Path
 
@@ -956,7 +915,6 @@ Level 4: Management Escalation
 ### Key Performance Indicators (KPIs)
 
 Track weekly:
-
 - **Uptime:** Target > 99.9%
 - **Average Response Time:** Target < 500ms
 - **Error Rate:** Target < 0.1%
@@ -965,25 +923,23 @@ Track weekly:
 
 ### Reporting Schedule
 
-| Report             | Frequency            | Audience          | Content                            |
-| ------------------ | -------------------- | ----------------- | ---------------------------------- |
-| Daily Health Check | Daily (weekdays)     | Ops team          | Pass/Fail + issues                 |
-| Weekly Summary     | Weekly (Friday)      | PM + Stakeholders | Usage stats, incidents             |
-| Monthly Review     | Monthly              | Full team         | KPIs, trends, improvements         |
-| Incident Report    | Per incident (P1/P2) | All stakeholders  | Root cause, resolution, prevention |
+| Report | Frequency | Audience | Content |
+|--------|-----------|----------|---------|
+| Daily Health Check | Daily (weekdays) | Ops team | Pass/Fail + issues |
+| Weekly Summary | Weekly (Friday) | PM + Stakeholders | Usage stats, incidents |
+| Monthly Review | Monthly | Full team | KPIs, trends, improvements |
+| Incident Report | Per incident (P1/P2) | All stakeholders | Root cause, resolution, prevention |
 
 ---
 
 ## 📝 Runbook Maintenance
 
 ### Review Schedule
-
 - **Minor updates:** As needed when procedures change
 - **Major review:** Quarterly (with backup restoration test)
 - **Version control:** Track changes in Git
 
 ### Contribution Process
-
 1. Identify procedure gap or improvement
 2. Document proposed change
 3. Review with team

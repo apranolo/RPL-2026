@@ -65,7 +65,6 @@
 ## Labels Applied Automatically
 
 ### By File Type
-
 - `backend` - PHP/Laravel files changed
 - `frontend` - React/TypeScript files changed
 - `documentation` - Markdown/docs files changed
@@ -75,7 +74,6 @@
 - `tests` - Test files changed
 
 ### By Size
-
 - `size/xs` - ≤10 lines changed
 - `size/s` - ≤100 lines changed
 - `size/m` - ≤500 lines changed
@@ -95,7 +93,6 @@ All checks run in parallel for faster feedback!
 ## Permissions (Security)
 
 All workflows use minimal permissions:
-
 - `contents: read` - Only read access to repository
 - `pull-requests: write` - Only for commenting/labeling PRs
 - `actions: read` - Only for reading workflow status
@@ -118,7 +115,7 @@ All workflows use minimal permissions:
 🔍 **Better Quality** - Automated checks catch issues early  
 📝 **Better Organization** - Auto-labels categorize PRs  
 👋 **Better Onboarding** - Welcome messages guide contributors  
-🔒 **More Secure** - Explicit permissions limit attack surface
+🔒 **More Secure** - Explicit permissions limit attack surface  
 
 ## Customization
 

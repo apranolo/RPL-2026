@@ -1,9 +1,7 @@
 # 🎯 Assessment Features - Quick Reference Guide
 
 ## 📋 Overview
-
 Fitur Assessment Phase 1 telah diimplementasikan dengan 2 komponen utama:
-
 1. **Multiple Issues Tracking** - User dapat mencatat banyak masalah
 2. **Save Draft Functionality** - User dapat menyimpan progress
 
@@ -12,7 +10,6 @@ Fitur Assessment Phase 1 telah diimplementasikan dengan 2 komponen utama:
 ## 🗃️ Database
 
 ### Table: `assessment_issues`
-
 ```sql
 id                       BIGINT UNSIGNED PRIMARY KEY
 journal_assessment_id    BIGINT UNSIGNED (FK to journal_assessments)
@@ -35,17 +32,14 @@ Indexes:
 ## 🔌 Backend API
 
 ### Model: AssessmentIssue
-
 **Location**: `app/Models/AssessmentIssue.php`
 
 **Relationships**:
-
 ```php
 $issue->assessment; // BelongsTo JournalAssessment
 ```
 
 **Scopes**:
-
 ```php
 AssessmentIssue::byPriority('high')->get();
 AssessmentIssue::byCategory('editorial')->get();
@@ -53,11 +47,9 @@ AssessmentIssue::ordered()->get(); // Order by display_order, created_at
 ```
 
 ### Controller: AssessmentIssueController
-
 **Location**: `app/Http/Controllers/User/AssessmentIssueController.php`
 
 **Methods**:
-
 - `store(Request, JournalAssessment)` - Create issue
 - `update(Request, JournalAssessment, AssessmentIssue)` - Update issue
 - `destroy(JournalAssessment, AssessmentIssue)` - Delete issue
@@ -66,17 +58,14 @@ AssessmentIssue::ordered()->get(); // Order by display_order, created_at
 **Authorization**: All methods use `$this->authorize('update', $assessment)`
 
 ### Controller: AssessmentController
-
 **Location**: `app/Http/Controllers/User/AssessmentController.php`
 
 **New Method**:
-
 ```php
 saveDraft(Request $request, JournalAssessment $assessment)
 ```
 
 **Validation**:
-
 ```php
 $request->validate([
     'responses' => 'nullable|array',
@@ -94,13 +83,16 @@ $request->validate([
 ## 🎨 Frontend Components
 
 ### 1. IssueCard
-
 **Location**: `resources/js/components/IssueCard.tsx`
 
 **Usage**:
-
 ```tsx
-<IssueCard issue={issue} readOnly={false} onEdit={() => handleEdit(issue)} onDelete={() => handleDelete(issue)} />
+<IssueCard
+  issue={issue}
+  readOnly={false}
+  onEdit={() => handleEdit(issue)}
+  onDelete={() => handleDelete(issue)}
+/>
 ```
 
 **Props**:
@@ -112,13 +104,17 @@ $request->validate([
 | onDelete | () => void | ✗ | undefined |
 
 ### 2. IssueFormDialog
-
 **Location**: `resources/js/components/IssueFormDialog.tsx`
 
 **Usage**:
-
 ```tsx
-<IssueFormDialog open={dialogOpen} onOpenChange={setDialogOpen} onSave={handleSaveIssue} issue={editingIssue} mode="edit" />
+<IssueFormDialog
+  open={dialogOpen}
+  onOpenChange={setDialogOpen}
+  onSave={handleSaveIssue}
+  issue={editingIssue}
+  mode="edit"
+/>
 ```
 
 **Props**:
@@ -131,13 +127,15 @@ $request->validate([
 | mode | 'create' \| 'edit' | ✗ | 'create' |
 
 ### 3. AssessmentIssueManager
-
 **Location**: `resources/js/components/AssessmentIssueManager.tsx`
 
 **Usage**:
-
 ```tsx
-<AssessmentIssueManager issues={assessment.issues || []} onChange={setIssues} readOnly={false} />
+<AssessmentIssueManager
+  issues={assessment.issues || []}
+  onChange={setIssues}
+  readOnly={false}
+/>
 ```
 
 **Props**:
@@ -152,7 +150,6 @@ $request->validate([
 ## 🛣️ Routes
 
 ### User Routes
-
 ```php
 // Save draft
 POST /user/assessments/{assessment}/save-draft
@@ -165,7 +162,6 @@ POST   /user/assessments/{assessment}/issues/reorder
 ```
 
 ### Named Routes
-
 ```php
 route('user.assessments.save-draft', $assessment->id)
 route('user.assessments.issues.store', $assessment->id)
@@ -179,7 +175,6 @@ route('user.assessments.issues.reorder', $assessment->id)
 ## 📦 TypeScript Types
 
 ### AssessmentIssue Interface
-
 **Location**: `resources/js/types/index.d.ts`
 
 ```typescript
@@ -197,7 +192,6 @@ export interface AssessmentIssue {
 ```
 
 ### JournalAssessment Update
-
 ```typescript
 export interface JournalAssessment {
     // ... existing fields
@@ -210,48 +204,48 @@ export interface JournalAssessment {
 ## 🎯 Common Use Cases
 
 ### 1. Display Issues in Assessment Form
-
 ```tsx
 import AssessmentIssueManager from '@/components/AssessmentIssueManager';
 
 const [issues, setIssues] = useState<AssessmentIssue[]>(assessment.issues || []);
 
-<AssessmentIssueManager issues={issues} onChange={setIssues} readOnly={assessment.status !== 'draft'} />;
+<AssessmentIssueManager
+  issues={issues}
+  onChange={setIssues}
+  readOnly={assessment.status !== 'draft'}
+/>
 ```
 
 ### 2. Save Draft with Issues
-
 ```tsx
 const handleSaveDraft = () => {
-    router.post(
-        route('user.assessments.save-draft', assessment.id),
-        {
-            responses: formData.responses,
-            issues: issues,
-        },
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                console.log('Draft saved');
-            },
-        },
-    );
+  router.post(
+    route('user.assessments.save-draft', assessment.id),
+    {
+      responses: formData.responses,
+      issues: issues,
+    },
+    {
+      preserveScroll: true,
+      onSuccess: () => {
+        console.log('Draft saved');
+      },
+    }
+  );
 };
 ```
 
 ### 3. Display Issues in Review Mode
-
 ```tsx
 // For Admin/Reviewer
 <AssessmentIssueManager
-    issues={assessment.issues || []}
-    onChange={() => {}} // No-op
-    readOnly={true}
+  issues={assessment.issues || []}
+  onChange={() => {}} // No-op
+  readOnly={true}
 />
 ```
 
 ### 4. Eager Load Issues in Controller
-
 ```php
 $assessment->load(['issues']);
 
@@ -267,13 +261,11 @@ return Inertia::render('Page', [
 **Policy**: `JournalAssessmentPolicy@update`
 
 **Rules**:
-
 - User can only edit their own assessments
 - Only assessments with `status = 'draft'` can be edited
 - Issues can only be managed on draft assessments
 
 **Enforcement**:
-
 ```php
 // In controller
 $this->authorize('update', $assessment);
@@ -288,7 +280,6 @@ if ($assessment->status !== 'draft') {
 ## 🎨 Category & Priority Configs
 
 ### Category Colors
-
 ```tsx
 editorial:       blue  (bg-blue-100 text-blue-800)
 technical:       purple (bg-purple-100 text-purple-800)
@@ -297,7 +288,6 @@ management:      orange (bg-orange-100 text-orange-800)
 ```
 
 ### Priority Colors & Icons
-
 ```tsx
 high:   red     (AlertCircle icon)
 medium: yellow  (AlertTriangle icon)
@@ -309,25 +299,21 @@ low:    gray    (Info icon)
 ## 🧪 Testing Commands
 
 ### Run Migration
-
 ```bash
 php artisan migrate
 ```
 
 ### Rollback Migration
-
 ```bash
 php artisan migrate:rollback --step=1
 ```
 
 ### Build Frontend
-
 ```bash
 npm run build
 ```
 
 ### Dev Mode (Hot Reload)
-
 ```bash
 npm run dev
 ```
@@ -337,7 +323,6 @@ npm run dev
 ## 📝 Sample Data
 
 ### Create Issue via Tinker
-
 ```php
 php artisan tinker
 
@@ -352,7 +337,6 @@ $assessment->issues()->create([
 ```
 
 ### Query Issues
-
 ```php
 // Get all issues for assessment
 $issues = JournalAssessment::find(1)->issues;
@@ -369,20 +353,17 @@ $editorial = AssessmentIssue::byCategory('editorial')->get();
 ## 🔍 Debugging
 
 ### Check Issues Loaded
-
 ```php
 // In controller
 dd($assessment->issues);
 ```
 
 ### Frontend Console
-
 ```tsx
 console.log('Issues:', assessment.issues);
 ```
 
 ### Inspect Network Request
-
 ```
 // Chrome DevTools -> Network
 POST /user/assessments/1/save-draft

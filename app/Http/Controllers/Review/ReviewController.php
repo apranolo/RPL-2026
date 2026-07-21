@@ -3,65 +3,76 @@
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ReviewSubmissionRequest;
 use App\Models\ReviewDecision;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Article;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ReviewController extends Controller
 {
-    /**
-     * Save draft review
-     */
-    public function saveDraft(
-        ReviewSubmissionRequest $request,
-        $assignmentId
-    ): RedirectResponse {
+    public function showManuscript(Article $article, \App\Services\AnonymizeService $anonymizeService)
+    {
+        // Pemeriksaan otorisasi penugasan
+        $isAssigned = \App\Models\ReviewerAssignment::where('id_submission', $article->id)
+            ->where('id_reviewer', auth()->id())
+            ->exists();
 
-        ReviewDecision::updateOrCreate(
-            [
-                'review_assignment_id' => (int) $assignmentId,
-                'reviewer_id' => Auth::id(),
-            ],
-            [
-                'recommendation' => $request->recommendation,
-                'scores' => $request->scores,
-                'overall_comment' => $request->overall_comment,
-                'is_submitted' => false,
-            ]
-        );
+        if (!$isAssigned) {
+            abort(403, 'Anda tidak memiliki otorisasi untuk melihat naskah ini.');
+        }
 
-        return back()->with(
-            'success',
-            'Draft review berhasil disimpan.'
-        );
+        // Anonimisasi Double-Blind menggunakan AnonymizeService sesuai panduan
+        $manuscript = $anonymizeService->anonymize($article);
+
+        $reviewDecision = ReviewDecision::where('id_submission', $article->id)
+            ->where('id_reviewer', auth()->id())
+            ->first();
+
+        return Inertia::render('Review/FormReview', [
+            'manuscript' => $manuscript,
+            'reviewDecision' => $reviewDecision,
+        ]);
     }
 
-    /**
-     * Submit final recommendation
-     */
-    public function submitRecommendation(
-        ReviewSubmissionRequest $request,
-        $assignmentId
-    ): RedirectResponse {
+    public function submitReview(\App\Http\Requests\SubmitReviewRequest $request, Article $article)
+    {
+        // Pemeriksaan otorisasi penugasan
+        $isAssigned = \App\Models\ReviewerAssignment::where('id_submission', $article->id)
+            ->where('id_reviewer', auth()->id())
+            ->exists();
+
+        if (!$isAssigned) {
+            abort(403, 'Anda tidak memiliki otorisasi untuk mengirim review pada naskah ini.');
+        }
+
+        $aggregate = (
+            $request->score_originality +
+            $request->score_methodology +
+            $request->score_writing +
+            $request->score_relevance +
+            $request->score_conclusion
+        ) / 5;
 
         ReviewDecision::updateOrCreate(
             [
-                'review_assignment_id' => (int) $assignmentId,
-                'reviewer_id' => Auth::id(),
+                'id_submission' => $article->id,
+                'id_reviewer' => auth()->id(),
             ],
             [
                 'recommendation' => $request->recommendation,
-                'scores' => $request->scores,
-                'overall_comment' => $request->overall_comment,
-                'is_submitted' => true,
-                'submitted_at' => now(),
+                'comments' => $request->comments,
+                'comments_private' => $request->comments_private,
+                'score_originality' => $request->score_originality,
+                'score_methodology' => $request->score_methodology,
+                'score_writing' => $request->score_writing,
+                'score_relevance' => $request->score_relevance,
+                'score_conclusion' => $request->score_conclusion,
+                'score_aggregate' => $aggregate,
+                'status' => 'Submitted',
+                'date_decided' => now(),
             ]
         );
 
-        return back()->with(
-            'success',
-            'Final recommendation berhasil dikirim.'
-        );
+        return redirect()->back()->with('success', 'Review berhasil dikirim.');
     }
 }
