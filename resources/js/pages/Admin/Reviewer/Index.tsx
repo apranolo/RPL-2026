@@ -27,7 +27,7 @@
  * - Toggle reviewer status
  * - View coaching requests assigned to each reviewer
  *
- * @route GET /admin/reviewers
+ * @route GET /admin/reviewer
  *
  * @requires @inertiajs/react
  * @requires @/components/ui/button
@@ -35,7 +35,7 @@
  * @requires lucide-react
  *
  * @author JurnalMU Team
- * @filepath /resources/js/pages/Admin/Reviewers/Index.tsx
+ * @filepath /resources/js/pages/Admin/Reviewer/Index.tsx
  */
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';

@@ -38,43 +38,52 @@ return new class extends Migration
             $table->index('sub_category_id');
         });
 
-        // Update column comments to mark old columns as DEPRECATED
-        DB::statement("ALTER TABLE evaluation_indicators 
-            MODIFY category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
+        if (DB::getDriverName() !== 'sqlite') {
+            // Update column comments to mark old columns as DEPRECATED
+            DB::statement("ALTER TABLE evaluation_indicators 
+                MODIFY category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
 
-        DB::statement("ALTER TABLE evaluation_indicators 
-            MODIFY sub_category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
+            DB::statement("ALTER TABLE evaluation_indicators 
+                MODIFY sub_category VARCHAR(100) NULL COMMENT 'DEPRECATED v1.1 - Use sub_category_id relation. Remove in v1.2'");
 
-        // Make category nullable for new indicators created via hierarchy
-        DB::statement('ALTER TABLE evaluation_indicators 
-            MODIFY category VARCHAR(100) NULL');
+            // Make category nullable for new indicators created via hierarchy
+            DB::statement('ALTER TABLE evaluation_indicators 
+                MODIFY category VARCHAR(100) NULL');
+        } else {
+            Schema::table('evaluation_indicators', function (Blueprint $table) {
+                $table->string('category', 100)->nullable()->change();
+                $table->string('sub_category', 100)->nullable()->change();
+            });
+        }
     }
 
     /**
      * Reverse the migrations.
      *
      * CRITICAL ROLLBACK PROCEDURE:
-     * 1. Drop foreign key constraint FIRST (prevent constraint violations)
+     * 1. Drop foreign key constraint FIRST
      * 2. Drop index
      * 3. Drop column
-     * 4. Revert column comments to v1.0 state
-     *
-     * After rollback, v1.0 code can still read category/sub_category string columns.
+     * 4. Revert column comments
      */
     public function down(): void
     {
         Schema::table('evaluation_indicators', function (Blueprint $table) {
             // MUST drop foreign key before dropping column
-            $table->dropForeign(['sub_category_id']);
+            if (DB::getDriverName() !== 'sqlite') {
+                $table->dropForeign(['sub_category_id']);
+            }
             $table->dropIndex(['sub_category_id']);
             $table->dropColumn('sub_category_id');
         });
 
-        // Revert comments to v1.0 state (remove DEPRECATED warnings)
-        DB::statement("ALTER TABLE evaluation_indicators 
-            MODIFY category VARCHAR(100) NOT NULL COMMENT 'Kategori utama, e.g., Kelengkapan Administrasi'");
+        if (DB::getDriverName() !== 'sqlite') {
+            // Revert comments to v1.0 state (remove DEPRECATED warnings)
+            DB::statement("ALTER TABLE evaluation_indicators 
+                MODIFY category VARCHAR(100) NOT NULL COMMENT 'Kategori utama, e.g., Kelengkapan Administrasi'");
 
-        DB::statement("ALTER TABLE evaluation_indicators 
-            MODIFY sub_category VARCHAR(100) NULL COMMENT 'Sub-kategori (optional)'");
+            DB::statement("ALTER TABLE evaluation_indicators 
+                MODIFY sub_category VARCHAR(100) NULL COMMENT 'Sub-kategori (optional)'");
+        }
     }
 };
