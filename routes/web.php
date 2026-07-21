@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
 use App\Http\Controllers\Admin\MonevScheduleCtrl;
 use App\Http\Controllers\Admin\OutputReportController;
+use App\Http\Controllers\Admin\OutputVerifyCtrl;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingsCtrl;
@@ -371,6 +372,14 @@ Route::middleware(['auth'])->group(function () {
                 ->name('toggle-status');
         });
 
+        // Output Verification (Admin)
+        Route::prefix('output-verify')->name('output-verify.')->group(function () {
+            Route::get('/', [OutputVerifyCtrl::class, 'index'])
+                ->name('index');
+            Route::post('{output}', [OutputVerifyCtrl::class, 'verify'])
+                ->name('verify');
+        });
+
         // Monev Schedule Management
         Route::prefix('monev-schedules')->name('monev-schedules.')->group(function () {
             Route::get('/', [MonevScheduleCtrl::class, 'index'])
@@ -398,6 +407,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('output.export');
 
 >>>>>>> d3c50e3c57b483791ade8266241d3de6ffc0c52f
+>>>>>>> 08ecd6946d5141206a1c8eeb38a7b7492cbf96a1
     });
 
     /*
