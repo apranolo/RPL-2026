@@ -2,18 +2,18 @@
 
 /**
  * @file SubmissionWizardController.php
+ *
  * @description Controller untuk menangani alur multi-step submission wizard naskah jurnal.
+ *
  * @author Haryansyah Dwi Nugroho <@Haryansyah15>
  */
 
 namespace App\Http\Controllers;
 
 use App\Models\Submission;
-use App\Models\SubmissionContributor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SubmissionWizardController extends Controller
@@ -21,7 +21,7 @@ class SubmissionWizardController extends Controller
     // ==========================================
     // STEP 1 - VIEW & STORE (Draft DB & License)
     // ==========================================
-    
+
     public function step1()
     {
         return Inertia::render('Submission/Wizard/Step1Start', [
@@ -73,7 +73,7 @@ class SubmissionWizardController extends Controller
     public function step2()
     {
         $submissionId = session('submission_id');
-        if (!$submissionId) {
+        if (! $submissionId) {
             return redirect()->route('submission.step1')
                 ->with('error', 'Silakan isi Step 1 terlebih dahulu.');
         }
@@ -89,18 +89,18 @@ class SubmissionWizardController extends Controller
         ]);
 
         $submissionId = session('submission_id');
-        if (!$submissionId) {
+        if (! $submissionId) {
             return redirect()->route('submission.step1')->withErrors(['wizard' => 'Sesi draf tidak ditemukan.']);
         }
 
         $submission = Submission::find($submissionId);
-        if (!$submission) {
+        if (! $submission) {
             return redirect()->route('submission.step1')->withErrors(['wizard' => 'Draf submission tidak ditemukan.']);
         }
 
         if ($request->hasFile('manuscript')) {
             $path = $request->file('manuscript')->store('submissions/manuscripts', 'public');
-            
+
             $submission->update([
                 'manuscript_path' => $path,
             ]);
@@ -111,7 +111,7 @@ class SubmissionWizardController extends Controller
                 }
             }
 
-            return redirect('/submissions/wizard/' . $submission->id . '/step3')
+            return redirect('/submissions/wizard/'.$submission->id.'/step3')
                 ->with('success', 'File manuskrip berhasil diunggah.');
         }
 
@@ -160,7 +160,7 @@ class SubmissionWizardController extends Controller
         DB::transaction(function () use ($submission, $validated) {
             $submission->contributors()->delete();
 
-            if (!empty($validated['contributors'])) {
+            if (! empty($validated['contributors'])) {
                 foreach ($validated['contributors'] as $contributorData) {
                     $submission->contributors()->create([
                         'name' => $contributorData['name'],
@@ -176,6 +176,6 @@ class SubmissionWizardController extends Controller
             return redirect()->back()->with('success', 'Draft saved successfully.');
         }
 
-        return redirect('/submissions/wizard/' . $submission->id . '/step5');
+        return redirect('/submissions/wizard/'.$submission->id.'/step5');
     }
 }

@@ -121,18 +121,9 @@ export default function ProgressBar({
             {/* Label row */}
             {(label || showPercentage) && (
                 <div className="mb-1.5 flex items-center justify-between">
-                    {label && (
-                        <span className="text-sm font-medium text-foreground">
-                            {label}
-                        </span>
-                    )}
+                    {label && <span className="text-sm font-medium text-foreground">{label}</span>}
                     {showPercentage && (
-                        <span
-                            className={cn(
-                                'text-sm font-semibold tabular-nums',
-                                variantTextClasses[resolvedVariant],
-                            )}
-                        >
+                        <span className={cn('text-sm font-semibold tabular-nums', variantTextClasses[resolvedVariant])}>
                             {percentage.toFixed(1)}%
                         </span>
                     )}
@@ -141,10 +132,7 @@ export default function ProgressBar({
 
             {/* Track */}
             <div
-                className={cn(
-                    'relative w-full overflow-hidden rounded-full bg-secondary',
-                    sizeClasses[size],
-                )}
+                className={cn('relative w-full overflow-hidden rounded-full bg-secondary', sizeClasses[size])}
                 role="progressbar"
                 aria-valuenow={Math.round(percentage)}
                 aria-valuemin={0}

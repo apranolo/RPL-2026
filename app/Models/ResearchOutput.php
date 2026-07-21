@@ -56,6 +56,7 @@ class ResearchOutput extends Model
         if ($this->jenis_luaran === 'Jurnal' && $this->outputable) {
             return $this->outputable->url ?? $value;
         }
+
         return $value;
     }
 

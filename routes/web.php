@@ -32,13 +32,15 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\Copyediting\CopyeditingController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Production\GalleyController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\Editorial\DecisionController;
 use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
 use App\Http\Controllers\FundingController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\Production\GalleyController;
+use App\Http\Controllers\Production\IssueController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
@@ -57,9 +59,7 @@ use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Production\IssueController;
 use Inertia\Inertia;
-use App\Http\Controllers\Editorial\DecisionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -220,9 +220,6 @@ Route::middleware(['auth'])->group(function () {
         Route::put('email-template/{emailTemplate}', [EmailTemplateController::class, 'update'])
             ->name('email-template.update');
 
-        // Skema Penelitian Management
-        Route::resource('schema', SchemaController::class);
-
         // Borang Indikator (Using Accreditation Templates System)
         Route::get('borang-indikator', [AccreditationTemplateController::class, 'index'])
             ->name('borang-indikator.index');
@@ -314,6 +311,9 @@ Route::middleware(['auth'])->group(function () {
         // Reviewer Management (v1.1 - Placeholder)
         Route::get('reviewers', [\App\Http\Controllers\Admin\ReviewerController::class, 'index'])
             ->name('reviewers.index');
+
+        // Schemas Management (v1.1)
+        Route::resource('schema', SchemaController::class);
 
         // View all journals (read-only for monitoring)
         Route::get('journals', [\App\Http\Controllers\Admin\JournalController::class, 'index'])
@@ -610,7 +610,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('journals/{journal}/harvest', [UserJournalController::class, 'harvest'])
             ->name('journals.harvest');
 
-
         // =====================================================
         // Issue Preview & Publish
         // =====================================================
@@ -633,7 +632,7 @@ Route::middleware(['auth'])->group(function () {
             [IssueController::class, 'publish']
         )->name('production.issue.publish');
 
-        //Back Issues
+        // Back Issues
         Route::get(
             '/production/{journalId}/back-issues',
             [IssueController::class, 'backIssues']
@@ -761,13 +760,13 @@ Route::middleware(['auth'])->group(function () {
             ->name('activity-logs.index');
     });
     Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
-    Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
-    
-    Route::get('/editorial/decision/history/{submissionId}', [DecisionController::class, 'history'])->name('editorial.decision.history');
-    Route::post('/editorial/desk/{id}/plagiarism', [PlagiarismController::class, 'store'])->name('editorial.desk.plagiarism');
-    Route::post('/editorial/desk/{id}/assign-editor', [DeskController::class, 'assignEditor'])->name('editorial.desk.assign-editor');
-    Route::post('/editorial/desk/{id}/desk-review', [DeskController::class, 'deskReview'])->name('editorial.desk.review');
-    Route::post('/editorial/desk/{id}/final-decision', [DecisionController::class, 'finalDecision'])->name('editorial.desk.final-decision');
+        Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
+
+        Route::get('/editorial/decision/history/{submissionId}', [DecisionController::class, 'history'])->name('editorial.decision.history');
+        Route::post('/editorial/desk/{id}/plagiarism', [PlagiarismController::class, 'store'])->name('editorial.desk.plagiarism');
+        Route::post('/editorial/desk/{id}/assign-editor', [DeskController::class, 'assignEditor'])->name('editorial.desk.assign-editor');
+        Route::post('/editorial/desk/{id}/desk-review', [DeskController::class, 'deskReview'])->name('editorial.desk.review');
+        Route::post('/editorial/desk/{id}/final-decision', [DecisionController::class, 'finalDecision'])->name('editorial.desk.final-decision');
     });
 
     /*
@@ -843,7 +842,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/production/articles/{articleId}/assign-issue', [GalleyController::class, 'assignToIssue'])
             ->name('production.galleys.assignIssue');
-});
+    });
     /*
     |--------------------------------------------------------------------------
     | Funding Terms (Super Admin & Admin Kampus)
@@ -923,8 +922,6 @@ Route::middleware(['auth'])->group(function () {
     // Resources (Placeholder)
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
-
-
 
     // Print Berita Acara Review
     Route::get('/review/print/{type}/{id}', [\App\Http\Controllers\ReviewDocumentController::class, 'print'])

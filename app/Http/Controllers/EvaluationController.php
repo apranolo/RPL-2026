@@ -100,7 +100,6 @@ class EvaluationController extends Controller
         ]);
     }
 
-
     /**
      * Show evaluation note input form.
      */

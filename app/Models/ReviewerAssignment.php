@@ -5,15 +5,10 @@
  *
  * Model untuk assignment reviewer multi-reviewer.
  * Table: reviewer_assignments
- *
- * @package App\Models
  */
 
 namespace App\Models;
 
-use App\Models\ReviewDecision;
-use App\Models\Proposal;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -78,4 +73,3 @@ class ReviewerAssignment extends Model
         return $query->where('status', $status);
     }
 }
-

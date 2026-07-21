@@ -1,9 +1,9 @@
 <?php
 
+use App\Models\Proposal;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
-use App\Models\Proposal;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
@@ -108,7 +108,7 @@ it('strictly enforces multi-tenant boundary for admin kampus when table exists',
             'contract_value' => 20000000,
             'created_at' => now(),
             'updated_at' => now(),
-        ]
+        ],
     ]);
 
     // Request from Admin A (should only see Univ A data)
@@ -161,13 +161,13 @@ it('allows admin kampus to change research status using decide-action', function
     $response = actingAs($this->adminA)
         ->post('/admin-kampus/monev/decide-action', [
             'id' => $contractId,
-            'action' => 'Stop'
+            'action' => 'Stop',
         ]);
 
     $response->assertStatus(302); // Redirect back
     $this->assertDatabaseHas('contracts', [
         'id' => $contractId,
-        'status' => 'cancelled'
+        'status' => 'cancelled',
     ]);
 });
 
@@ -189,13 +189,13 @@ it('prevents admin kampus from changing research status of another university', 
     $response = actingAs($this->adminA)
         ->post('/admin-kampus/monev/decide-action', [
             'id' => $contractId,
-            'action' => 'Stop'
+            'action' => 'Stop',
         ]);
 
     // Should redirect back without modifying status due to lack of access
     $response->assertStatus(302);
     $this->assertDatabaseHas('contracts', [
         'id' => $contractId,
-        'status' => 'active' // remains unchanged
+        'status' => 'active', // remains unchanged
     ]);
 });

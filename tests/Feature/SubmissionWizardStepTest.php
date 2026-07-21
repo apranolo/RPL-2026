@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\User;
-use App\Models\Submission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SubmissionWizardStepTest extends TestCase
 {
@@ -32,7 +31,7 @@ class SubmissionWizardStepTest extends TestCase
         ]);
 
         $response->assertRedirect(route('submission.step2'));
-        
+
         $this->assertDatabaseHas('submissions', [
             'author_id' => $user->id,
             'journal_id' => 1,

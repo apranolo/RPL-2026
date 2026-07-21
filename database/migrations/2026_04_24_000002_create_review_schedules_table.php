@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('review_schedules', function (Blueprint $table) {
             $table->id();
-            
+
             // Foreign keys
             $table->foreignId('proposal_id')
                 ->constrained('proposals')
