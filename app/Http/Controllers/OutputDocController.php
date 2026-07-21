@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ResearchOutput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -21,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
  * the entire form (mirrors the JournalController::uploadCover pattern).
  *
  * @route POST /user/outputs/products/{product}/upload
+ *
  * @name  user.outputs.products.upload-doc
  */
 class OutputDocController extends Controller
@@ -39,9 +39,7 @@ class OutputDocController extends Controller
      *
      * Old files are deleted from storage before the new one is saved.
      *
-     * @param  Request  $request
-     * @param  int      $productId  ID of the output product record (placeholder until model exists)
-     * @return RedirectResponse
+     * @param  int  $productId  ID of the output product record (placeholder until model exists)
      */
     public function upload(Request $request, int $productId): RedirectResponse
     {
@@ -72,10 +70,10 @@ class OutputDocController extends Controller
                 'max:2048', // 2 MB
             ],
         ], [
-            'cover_image.required'   => 'Pilih file gambar cover untuk diupload.',
-            'cover_image.image'      => 'File cover harus berupa gambar.',
-            'cover_image.mimes'      => 'Format cover harus JPEG atau PNG.',
-            'cover_image.max'        => 'Ukuran cover maksimal 2 MB.',
+            'cover_image.required' => 'Pilih file gambar cover untuk diupload.',
+            'cover_image.image' => 'File cover harus berupa gambar.',
+            'cover_image.mimes' => 'Format cover harus JPEG atau PNG.',
+            'cover_image.max' => 'Ukuran cover maksimal 2 MB.',
         ]);
 
         // ── Find and Authorize ──
@@ -116,9 +114,9 @@ class OutputDocController extends Controller
             ],
         ], [
             'document.required' => 'Pilih file dokumen bukti untuk diupload.',
-            'document.file'     => 'Upload harus berupa file.',
-            'document.mimes'    => 'Format dokumen harus PDF, DOC, atau DOCX.',
-            'document.max'      => 'Ukuran dokumen maksimal 10 MB.',
+            'document.file' => 'Upload harus berupa file.',
+            'document.mimes' => 'Format dokumen harus PDF, DOC, atau DOCX.',
+            'document.max' => 'Ukuran dokumen maksimal 10 MB.',
         ]);
 
         // ── Find and Authorize ──
@@ -132,8 +130,8 @@ class OutputDocController extends Controller
 
         // ── Store new file — keep original filename (sanitised) ──
         $originalName = $request->file('document')->getClientOriginalName();
-        $safeName     = preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
-        $timestamp    = now()->format('YmdHis');
+        $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
+        $timestamp = now()->format('YmdHis');
 
         $path = $request->file('document')
             ->storeAs(
@@ -157,6 +155,7 @@ class OutputDocController extends Controller
      * Delete a specific file (cover or document) from storage.
      *
      * @route DELETE /user/outputs/products/{product}/upload
+     *
      * @name  user.outputs.products.delete-doc
      */
     public function destroy(Request $request, int $productId): RedirectResponse

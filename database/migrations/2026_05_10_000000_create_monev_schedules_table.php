@@ -32,7 +32,7 @@ return new class extends Migration
             $table->enum('status', [
                 'scheduled',
                 'done',
-                'cancelled'
+                'cancelled',
             ])->default('scheduled');
 
             $table->timestamps();

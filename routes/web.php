@@ -1,9 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
-use App\Http\Controllers\ContractController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
 use App\Http\Controllers\Admin\CriteriaController;
@@ -18,6 +16,7 @@ use App\Http\Controllers\Admin\MonevScheduleCtrl;
 use App\Http\Controllers\Admin\OutputReportController;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
@@ -30,6 +29,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CitationController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\Copyediting\CopyeditingController;
 use App\Http\Controllers\DashboardController;
@@ -56,7 +56,6 @@ use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
-use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\User\ProfilController;
 use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
@@ -745,7 +744,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('progress', [ProgressController::class, 'index'])
             ->name('progress.index');
 
-    // ── Luaran Penelitian: CRUD ──────────────────────────────────────────
+        // ── Luaran Penelitian: CRUD ──────────────────────────────────────────
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
         Route::get('outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');

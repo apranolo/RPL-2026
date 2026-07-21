@@ -41,18 +41,18 @@ class OutputController extends Controller
 
         $validated = $request->validate([
             'proposal_id' => 'nullable|integer|exists:proposals,id',  // nullable: produk tidak wajib punya proposal
-            'kategori'    => 'required|string|max:255',
-            'judul'       => 'required|string|max:255',
-            'keterangan'  => 'nullable|string',
-            'file_path'   => 'nullable|string|max:255',
-            'status'      => 'required|in:draft,submitted,approved,rejected,published,patented',
+            'kategori' => 'required|string|max:255',
+            'judul' => 'required|string|max:255',
+            'keterangan' => 'nullable|string',
+            'file_path' => 'nullable|string|max:255',
+            'status' => 'required|in:draft,submitted,approved,rejected,published,patented',
             // ── Kolom spesifik Produk/Prototipe ──────────────────────────────
-            'tkt_level'   => 'nullable|integer|min:1|max:9',
-            'version'     => 'nullable|string|max:50',
-            'year'        => 'nullable|integer|min:2000|max:' . (date('Y') + 1),
-            'url'         => 'nullable|url',
+            'tkt_level' => 'nullable|integer|min:1|max:9',
+            'version' => 'nullable|string|max:50',
+            'year' => 'nullable|integer|min:2000|max:'.(date('Y') + 1),
+            'url' => 'nullable|url',
             'cover_image' => 'nullable|string|max:255',   // path string — file upload ditangani OutputDocController
-            'document'    => 'nullable|string|max:255',   // path string — file upload ditangani OutputDocController
+            'document' => 'nullable|string|max:255',   // path string — file upload ditangani OutputDocController
         ]);
 
         // user_id TIDAK diambil dari input — selalu diikat ke pemilik record yg sudah ada (RBAC)
@@ -236,16 +236,16 @@ class OutputController extends Controller
     {
         $validated = $request->validate([
             'proposal_id' => 'nullable|integer|exists:proposals,id',
-            'title'       => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'tkt_level'   => 'required|integer|min:1|max:9',
-            'version'     => 'nullable|string|max:50',
-            'year'        => 'required|integer|min:2000|max:' . (date('Y') + 1),
-            'url'         => 'nullable|url',
-            'status'      => 'required|in:draft,published,patented',
-            'category'    => 'required|string',
+            'tkt_level' => 'required|integer|min:1|max:9',
+            'version' => 'nullable|string|max:50',
+            'year' => 'required|integer|min:2000|max:'.(date('Y') + 1),
+            'url' => 'nullable|url',
+            'status' => 'required|in:draft,published,patented',
+            'category' => 'required|string',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'document'    => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'document' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
 
         // ── Otorisasi: pastikan user yang login boleh membuat luaran baru ──
@@ -255,15 +255,15 @@ class OutputController extends Controller
         // ── Simpan data ke DB — user_id selalu diikat ke user yang sedang login (RBAC) ──
         $product = ResearchOutput::create([
             'proposal_id' => $validated['proposal_id'] ?? null,
-            'user_id'     => Auth::id(),   // ← RBAC: selalu dari sesi login, bukan dari input
-            'kategori'    => 'produk',
-            'judul'       => $validated['title'],
-            'keterangan'  => $validated['description'],
-            'tkt_level'   => $validated['tkt_level'],
-            'version'     => $validated['version'] ?? null,
-            'year'        => $validated['year'],
-            'url'         => $validated['url'] ?? null,
-            'status'      => $validated['status'],
+            'user_id' => Auth::id(),   // ← RBAC: selalu dari sesi login, bukan dari input
+            'kategori' => 'produk',
+            'judul' => $validated['title'],
+            'keterangan' => $validated['description'],
+            'tkt_level' => $validated['tkt_level'],
+            'version' => $validated['version'] ?? null,
+            'year' => $validated['year'],
+            'url' => $validated['url'] ?? null,
+            'status' => $validated['status'],
         ]);
 
         // ── Upload cover image (jika ada) & simpan path ke record ──
@@ -276,8 +276,8 @@ class OutputController extends Controller
         // ── Upload dokumen bukti (jika ada) & simpan path ke record ──
         if ($request->hasFile('document')) {
             $originalName = $request->file('document')->getClientOriginalName();
-            $safeName     = preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
-            $timestamp    = now()->format('YmdHis');
+            $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
+            $timestamp = now()->format('YmdHis');
 
             $docPath = $request->file('document')
                 ->storeAs(

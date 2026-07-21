@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\MonevSchedule;
 use App\Models\Contract;
+use App\Models\MonevSchedule;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

@@ -43,7 +43,7 @@ class ProposalTest extends TestCase
 
         $this->assertDatabaseHas('proposals', [
             'id' => $proposal->id,
-            'judul' => 'Judul Baru Diubah'
+            'judul' => 'Judul Baru Diubah',
         ]);
     }
 

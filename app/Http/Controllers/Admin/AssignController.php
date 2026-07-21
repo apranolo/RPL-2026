@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PembinaanReview;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class AssignController extends Controller
 {
@@ -13,7 +13,7 @@ class AssignController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isSuperAdmin() && !$user->isAdminKampus()) {
+        if (! $user->isSuperAdmin() && ! $user->isAdminKampus()) {
             abort(403);
         }
 
@@ -37,7 +37,7 @@ class AssignController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isSuperAdmin() && !$user->isAdminKampus()) {
+        if (! $user->isSuperAdmin() && ! $user->isAdminKampus()) {
             abort(403);
         }
 

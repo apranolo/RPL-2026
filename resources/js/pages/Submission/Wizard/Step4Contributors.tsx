@@ -15,6 +15,7 @@ interface Contributor {
     email: string;
     affiliation: string;
     is_corresponding: boolean;
+    [key: string]: string | number | boolean | undefined;
 }
 
 interface Submission {
@@ -42,7 +43,7 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
                   },
               ];
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm<{ contributors: Contributor[] }>({
         contributors: initialContributors,
     });
 
@@ -164,15 +165,20 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
                                             onChange={handleContributorChange}
                                             onRemove={handleRemoveContributor}
                                             errors={
-                                                (errors && errors[`contributors.${index}.name` as any]) ||
-                                                (errors && errors[`contributors.${index}.email` as any]) ||
-                                                (errors && errors[`contributors.${index}.affiliation` as any])
-                                                    ? {
-                                                          name: errors[`contributors.${index}.name` as any],
-                                                          email: errors[`contributors.${index}.email` as any],
-                                                          affiliation: errors[`contributors.${index}.affiliation` as any],
-                                                      }
-                                                    : undefined
+                                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                (() => {
+                                                    const e = errors as any;
+                                                    const nameKey = `contributors.${index}.name`;
+                                                    const emailKey = `contributors.${index}.email`;
+                                                    const affKey = `contributors.${index}.affiliation`;
+                                                    return e[nameKey] || e[emailKey] || e[affKey]
+                                                        ? {
+                                                              name: e[nameKey],
+                                                              email: e[emailKey],
+                                                              affiliation: e[affKey],
+                                                          }
+                                                        : undefined;
+                                                })()
                                             }
                                         />
                                     ))
