@@ -299,6 +299,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->except(['index']);
         Route::post('users/{user}/toggle-active', [\App\Http\Controllers\Admin\UserController::class, 'toggleActive'])
             ->name('users.toggle-active');
+        Route::post('users/{user}/revoke-role', [\App\Http\Controllers\Admin\UserRoleController::class, 'revoke'])
+            ->name('users.revoke-role');
 
         // LPPM Admin Approval Routes
         Route::post('users/{user}/approve-lppm', [\App\Http\Controllers\Admin\LppmApprovalController::class, 'approve'])
