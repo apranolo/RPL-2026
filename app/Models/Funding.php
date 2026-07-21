@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Funding extends Model
 {
@@ -81,10 +82,10 @@ class Funding extends Model
         return $this->belongsTo(Contract::class);
     }
 
-    public function payments(): HasMany
-    {
-        return $this->hasMany(Payment::class);
-    }
+    // public function payments(): HasMany
+    // {
+    //     return $this->hasMany(Payment::class);
+    // }
 
     public function creator(): BelongsTo
     {
@@ -189,8 +190,8 @@ class Funding extends Model
         parent::boot();
 
         static::creating(function (Funding $funding) {
-            if (auth()->check() && ! $funding->created_by) {
-                $funding->created_by = auth()->id();
+            if (Auth::check() && ! $funding->created_by) {
+                $funding->created_by = Auth::id();
             }
         });
     }

@@ -73,9 +73,10 @@ class ProposalController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Proposal $proposal)
     {
-        $proposal = Proposal::findOrFail($id);
+        $this->authorize('delete', $proposal);
+
         $proposal->delete();
 
         return redirect()->route('proposal.index')

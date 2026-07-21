@@ -16,8 +16,13 @@ return new class extends Migration
             $table->foreignId('journal_id')->constrained('journals')->cascadeOnDelete();
             $table->foreignId('author_id')->constrained('users')->cascadeOnDelete();
             $table->string('title');
-            $table->string('status')->default('unassigned');
+            $table->text('abstract')->nullable();
+            $table->string('keywords')->nullable();
+            $table->string('status')->default('submitted');
+            $table->string('file_path')->nullable();
+            $table->text('author_notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

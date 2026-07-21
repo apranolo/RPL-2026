@@ -1,10 +1,24 @@
 <?php
 
+<<<<<<< HEAD
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
 use App\Models\ReviewAssignment;
 use App\Models\Submission;
+=======
+/**
+ * Controller untuk perpanjangan due date reviewer assignment pada Proposal.
+ *
+ * Authorization: Hanya SuperAdmin, AdminKampus, dan PengelolaJurnal
+ * yang dapat memperpanjang due date via ProposalPolicy::extendDueDate.
+ */
+
+namespace App\Http\Controllers\Review;
+
+use App\Http\Controllers\Controller;
+use App\Models\ReviewAssignment;
+use App\Models\ReviewerAssignment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -38,14 +52,6 @@ class ReviewAssignmentController extends Controller
             // Round bisa dikirim dari frontend; fallback ke 1 jika tidak ada.
             'round'         => 'sometimes|integer|min:1',
         ]);
-
-        // 2. Validasi Kepemilikan Jurnal (IDOR Multi-Tenancy Guard)
-        //    Pastikan Editor yang login adalah pemilik jurnal tempat naskah diajukan.
-        //    Kolom owner pada tabel journals adalah `user_id` (bukan editor_id).
-        $submission = Submission::findOrFail($validated['submission_id']);
-        if ($submission->journal->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized journal access.');
-        }
 
         $round = $validated['round'] ?? 1;
 
@@ -111,14 +117,6 @@ class ReviewAssignmentController extends Controller
             'reason' => ['nullable', 'string', 'min:3', 'max:500'],
         ]);
 
-        // Validasi Kepemilikan Jurnal (IDOR Multi-Tenancy Guard)
-        //    Pastikan Editor yang login adalah pemilik jurnal tempat naskah diajukan.
-        //    Kolom owner pada tabel journals adalah `user_id` (bukan editor_id).
-        $submission = $assignment->submission;
-        if ($submission->journal->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized journal access.');
-        }
-
         // Undangan hanya bisa dibatalkan selama masih berstatus 'Pending'.
         // Status enum per migration 2026_05_14_010000:
         // Pending, Accepted, Declined, Completed, Cancelled.
@@ -135,5 +133,26 @@ class ReviewAssignmentController extends Controller
         // TODO: Kirim notifikasi ke Reviewer (Modul 7).
 
         return back()->with('success', 'Review assignment has been cancelled.');
+    }
+
+    /**
+     * Extend due date for a reviewer assignment.
+     *
+     * Memvalidasi input dan memperbarui kolom due_date pada
+     * reviewer_assignments untuk assignment yang diberikan.
+     */
+    public function extendDue(Request $request, ReviewerAssignment $reviewerAssignment): RedirectResponse
+    {
+        $this->authorize('extendDueDate', $reviewerAssignment->proposal);
+
+        $validated = $request->validate([
+            'due_date' => ['required', 'date', 'after:today'],
+        ]);
+
+        $reviewerAssignment->update([
+            'due_date' => $validated['due_date'],
+        ]);
+
+        return back()->with('success', 'Due date berhasil diperpanjang.');
     }
 }

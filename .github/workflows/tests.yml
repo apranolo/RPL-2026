@@ -6,11 +6,11 @@ permissions:
 on:
   push:
     branches:
-      - develop
+      - development
       - main
   pull_request:
     branches:
-      - develop
+      - development
       - main
 
 jobs:
@@ -48,9 +48,6 @@ jobs:
 
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
-      
-      - name: Generate Ziggy Routes
-        run: php artisan ziggy:generate
 
       - name: Build Assets
         run: npm run build
