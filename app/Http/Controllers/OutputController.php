@@ -2,14 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreJournalOutputRequest;
+use App\Models\Journal;
+use App\Models\JournalOutput;
 use App\Models\ResearchOutput;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OutputController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): Response
+    {
+        $outputs = ResearchOutput::with(['user', 'outputable'])
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
+
+        return Inertia::render('Output/Index', [
+            'outputs' => $outputs,
+        ]);
+    }
+
     /**
      * Show the form for creating a new output.
      *
@@ -29,7 +49,9 @@ class OutputController extends Controller
             ->get();
 
         return Inertia::render('Output/Create', [
-            'outputTypes' => Output::getTypeOptions(),
+            // Removed Output::getTypeOptions() because it's undefined in ResearchOutput, 
+            // but we can pass constant from ResearchOutput
+            'outputTypes' => ResearchOutput::KATEGORI,
             'journals' => $journals,
         ]);
     }
@@ -48,32 +70,82 @@ class OutputController extends Controller
         $validated = $request->validated();
 
         try {
-            $outputData = [
-                'user_id' => $user->id,
-                'type' => Output::TYPE_PUBLIKASI_JURNAL,
-                'title' => $validated['title'],
-                'authors' => $validated['authors'],
-                'year' => $validated['year'],
+            DB::beginTransaction();
+
+            // 1. Create the specific JournalOutput
+            $journalOutput = JournalOutput::create([
                 'doi' => $validated['doi'] ?? null,
-                'url' => $validated['url'] ?? null,
                 'journal_name' => $validated['journal_name'],
                 'volume' => $validated['volume'] ?? null,
-                'issue' => $validated['issue'] ?? null,
-                'pages' => $validated['pages'] ?? null,
-                'issn' => $validated['issn'] ?? null,
-                'e_issn' => $validated['e_issn'] ?? null,
-                'publisher' => $validated['publisher'] ?? null,
-                'journal_id' => $validated['journal_id'] ?? null,
-                'status' => Output::STATUS_DRAFT,
-            ];
+                'number' => $validated['issue'] ?? null,
+                'url' => $validated['url'] ?? null,
+            ]);
 
+            // Handle file upload
+            $filePath = null;
+            if ($request->hasFile('file')) {
+                $filePath = $request->file('file')->store('outputs/publications', 'public');
+            }
+
+            // Fetch a contract for the user to satisfy the foreign key constraint
+            $contract = \App\Models\Contract::where('user_id', $user->id)->first();
+
+            // 2. Create the parent ResearchOutput
+            $researchOutput = new ResearchOutput([
+                'contract_id' => $contract ? $contract->id : 1,
+                'user_id' => $user->id,
+                'jenis_luaran' => 'Jurnal',
+                'judul_luaran' => $validated['title'],
+                'tahun_capaian' => $validated['year'],
+                'file_sertifikat_atau_cover' => $filePath,
+                'status_verifikasi' => 'Draft',
+                // other fields like authors, issn, publisher could be saved to keterangan as JSON or string
+                'keterangan' => json_encode([
+                    'authors' => $validated['authors'],
+                    'pages' => $validated['pages'] ?? null,
+                    'issn' => $validated['issn'] ?? null,
+                    'e_issn' => $validated['e_issn'] ?? null,
+                    'publisher' => $validated['publisher'] ?? null,
+                    'journal_id' => $validated['journal_id'] ?? null,
+                ]),
+            ]);
+
+            $journalOutput->researchOutput()->save($researchOutput);
+
+            DB::commit();
+
+            return redirect()
+                ->route('user.outputs.create')
+                ->with('success', 'Luaran publikasi jurnal berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan luaran: ' . $e->getMessage());
+        }
+    }
+
+    public function edit(ResearchOutput $output)
+    {
+        $this->authorize('update', $output);
+
+        return Inertia::render('Output/Edit', [
+            'outputs' => $output,
+        ]);
+    }
+
+    public function update(Request $request, ResearchOutput $output)
+    {
+        $this->authorize('update', $output);
+
+        // Simple validation matching the current schema (adjust as needed)
         $validated = $request->validate([
-            'proposal_id' => 'required',
-            'user_id' => 'required',
-            'kategori' => 'required|string|max:255',
-            'judul' => 'required|string|max:255',
-            'file_path' => 'nullable|string|max:255',
-            'status' => 'required|string|max:100',
+            'contract_id' => 'nullable|exists:contracts,id',
+            'jenis_luaran' => 'required|string|max:255',
+            'judul_luaran' => 'required|string|max:255',
+            'tahun_capaian' => 'required|integer',
+            'file_sertifikat_atau_cover' => 'nullable|string|max:255',
+            'status_verifikasi' => 'required|string|max:100',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -86,9 +158,8 @@ class OutputController extends Controller
     {
         $this->authorize('delete', $output);
 
-            Output::create($outputData);
+        $output->delete();
 
         return redirect()->route('user.outputs.index')->with('message', 'Output deleted successfully');
     }
 }
-

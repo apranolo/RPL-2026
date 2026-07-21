@@ -28,17 +28,17 @@ interface Props {
 }
 
 const typeIcons: Record<string, React.ReactNode> = {
-    publikasi_jurnal: <BookOpen className="h-6 w-6" />,
-    hki: <Lightbulb className="h-6 w-6" />,
-    buku: <BookOpen className="h-6 w-6" />,
-    prosiding: <Scroll className="h-6 w-6" />,
+    Jurnal: <BookOpen className="h-6 w-6" />,
+    HKI: <Lightbulb className="h-6 w-6" />,
+    Buku: <BookOpen className="h-6 w-6" />,
+    Produk: <Scroll className="h-6 w-6" />,
 };
 
 const typeDescriptions: Record<string, string> = {
-    publikasi_jurnal: 'Artikel ilmiah yang dipublikasikan di jurnal nasional maupun internasional',
-    hki: 'Hak Kekayaan Intelektual berupa paten, hak cipta, desain industri, dll.',
-    buku: 'Buku ajar, monograf, atau buku referensi ilmiah',
-    prosiding: 'Artikel yang dipresentasikan dan dipublikasikan dalam prosiding konferensi',
+    Jurnal: 'Artikel ilmiah yang dipublikasikan di jurnal nasional maupun internasional',
+    HKI: 'Hak Kekayaan Intelektual berupa paten, hak cipta, desain industri, dll.',
+    Buku: 'Buku ajar, monograf, atau buku referensi ilmiah',
+    Produk: 'Luaran berupa produk atau prototipe',
 };
 
 export default function OutputCreate({ outputTypes, journals }: Props) {
@@ -127,7 +127,7 @@ export default function OutputCreate({ outputTypes, journals }: Props) {
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    {selectedType === 'publikasi_jurnal' ? (
+                                    {selectedType === 'Jurnal' ? (
                                         <JournalOutputForm journals={journals} />
                                     ) : (
                                         <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center dark:border-gray-600">

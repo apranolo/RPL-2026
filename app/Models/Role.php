@@ -18,6 +18,8 @@ class Role extends Model
     public const PENGELOLA_JURNAL = 'Pengelola Jurnal';
 
     public const REVIEWER = 'Reviewer';
+    
+    public const ADMIN_KEUANGAN = 'Keuangan';
 
     /**
      * The attributes that are mass assignable.
