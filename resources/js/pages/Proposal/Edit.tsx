@@ -1,3 +1,4 @@
+import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app/app-sidebar-layout';
 import { Head, useForm } from '@inertiajs/react';
 //import { useForm } from '@inertiajs/react'; // ini punya akbarzaqi

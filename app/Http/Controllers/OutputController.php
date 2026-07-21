@@ -2,11 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreJournalOutputRequest;
-use App\Models\Journal;
-use App\Models\JournalOutput;
 use App\Models\ResearchOutput;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -239,7 +235,7 @@ class OutputController extends Controller
                 $keteranganParts[] = 'Deskripsi: '.$validated['deskripsi'];
             }
 
-        $output->delete();
+            $output->delete();
 
             return redirect()->back()->with([
                 'success' => 'Data Buku berhasil disimpan.',

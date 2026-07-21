@@ -8,7 +8,7 @@ import { AlertCircle, Bell, CheckCheck, CheckCircle2, Info, XCircle } from 'luci
 import { toast } from 'sonner';
 
 export default function NotificationBell() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth } = usePage<SharedData>().props as any;
 
     // Fallback to empty if not defined
     const notifications = auth.notifications || [];
@@ -107,7 +107,7 @@ export default function NotificationBell() {
 
                 <div className="max-h-80 divide-y divide-sidebar-border/50 overflow-y-auto dark:divide-sidebar-border">
                     {notifications.length > 0 ? (
-                        notifications.map((notif) => {
+                        notifications.map((notif: any) => {
                             const isRead = !!notif.read_at;
                             const timeAgo = formatDistanceToNow(new Date(notif.created_at), {
                                 addSuffix: true,

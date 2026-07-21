@@ -129,7 +129,6 @@ it('does not allow cancelling an assignment that already progressed past Pending
     expect($assignment->fresh()->status)->toBe('Accepted');
 });
 
-
 it('rejects a cancellation reason that is too short', function () {
     $assignment = createPendingAssignment($this->reviewer, owner: $this->editor);
 
@@ -148,7 +147,7 @@ it('blocks an Editor from cancelling an assignment that belongs to another journ
     $assignment = createPendingAssignment($this->reviewer);
 
     // Buat editor lain yang bukan pemilik jurnal tersebut
-    $editorRole  = Role::where('name', 'Editor')->first();
+    $editorRole = Role::where('name', 'Editor')->first();
     $otherEditor = User::factory()->create(['role_id' => $editorRole->id, 'is_active' => true]);
     $otherEditor->roles()->syncWithoutDetaching([$editorRole->id]);
 
@@ -161,38 +160,36 @@ it('blocks an Editor from cancelling an assignment that belongs to another journ
     expect($assignment->fresh()->status)->toBe('Pending');
 });
 
-
 /**
  * Create a 'Pending' review assignment attached to a freshly-created
  * submission. Submission has no factory yet, so it's built manually from
  * its known fillable fields.
  *
- * @param  User        $reviewer  Reviewer to assign.
- * @param  string      $status    Initial assignment status (default: 'Pending').
- * @param  User|null   $owner     Journal owner (user_id). If null, a new user is created.
+ * @param  User  $reviewer  Reviewer to assign.
+ * @param  string  $status  Initial assignment status (default: 'Pending').
+ * @param  User|null  $owner  Journal owner (user_id). If null, a new user is created.
  */
 function createPendingAssignment(User $reviewer, string $status = 'Pending', ?User $owner = null): ReviewAssignment
 {
     $university = University::factory()->create();
     $journal = Journal::factory()->create([
         'university_id' => $university->id,
-        'user_id'       => $owner?->id ?? User::factory()->create()->id,
+        'user_id' => $owner?->id ?? User::factory()->create()->id,
     ]);
     $author = User::factory()->create();
 
     $submission = Submission::create([
         'journal_id' => $journal->id,
-        'author_id'  => $author->id,
-        'title'      => 'Test Submission',
-        'status'     => 'unassigned',
+        'author_id' => $author->id,
+        'title' => 'Test Submission',
+        'status' => 'unassigned',
     ]);
 
     return ReviewAssignment::create([
         'submission_id' => $submission->id,
-        'reviewer_id'   => $reviewer->id,
-        'round'         => 1,
-        'status'        => $status,
-        'due_date'      => now()->addDays(14),
+        'reviewer_id' => $reviewer->id,
+        'round' => 1,
+        'status' => $status,
+        'due_date' => now()->addDays(14),
     ]);
 }
-

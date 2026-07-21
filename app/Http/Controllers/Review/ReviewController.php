@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
-use App\Models\ReviewDecision;
 use App\Models\Article;
-use Illuminate\Http\Request;
+use App\Models\ReviewDecision;
 use Inertia\Inertia;
 
 class ReviewController extends Controller
@@ -17,7 +16,7 @@ class ReviewController extends Controller
             ->where('id_reviewer', auth()->id())
             ->exists();
 
-        if (!$isAssigned) {
+        if (! $isAssigned) {
             abort(403, 'Anda tidak memiliki otorisasi untuk melihat naskah ini.');
         }
 
@@ -41,7 +40,7 @@ class ReviewController extends Controller
             ->where('id_reviewer', auth()->id())
             ->exists();
 
-        if (!$isAssigned) {
+        if (! $isAssigned) {
             abort(403, 'Anda tidak memiliki otorisasi untuk mengirim review pada naskah ini.');
         }
 

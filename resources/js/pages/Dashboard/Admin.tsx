@@ -49,7 +49,7 @@ interface ActivityLogItem {
     action: string;
     description: string;
     created_at: string;
-    user: { name: string } | null;
+    user?: any;
 }
 
 interface Props {

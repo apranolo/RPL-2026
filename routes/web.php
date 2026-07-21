@@ -37,6 +37,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DecisionController;
+use App\Http\Controllers\Editorial\DecisionController;
+use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
 use App\Http\Controllers\FundingController;
@@ -49,8 +51,6 @@ use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
-use App\Http\Controllers\Editorial\DecisionController;
-use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Revision\EditorRevisionController;
 use App\Http\Controllers\Revision\RevisionController;
 use App\Http\Controllers\SchemaController;
@@ -784,12 +784,12 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
- /*
-    |--------------------------------------------------------------------------
-    | Review Summary & Assignment Routes (v1.1 - Multi Reviewer)
-    | MOCK LOKAL - hapus setelah model resmi di-merge ke development.
-    |--------------------------------------------------------------------------
-    */
+    /*
+       |--------------------------------------------------------------------------
+       | Review Summary & Assignment Routes (v1.1 - Multi Reviewer)
+       | MOCK LOKAL - hapus setelah model resmi di-merge ke development.
+       |--------------------------------------------------------------------------
+       */
     // NOTE: Authorization enforced via ProposalPolicy in the controllers.
     Route::middleware(['auth'])->name('review.')->group(function () {
         // Rekap summary review multi-reviewer per proposal
@@ -911,7 +911,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
             ->name('funding.upload-bukti');
     });
-    
+
     /*
     |--------------------------------------------------------------------------
     | Finance & Funding Routes

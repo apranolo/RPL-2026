@@ -23,7 +23,7 @@ class ReviewForm extends Model
     protected $appends = ['id_review_assignment'];
 
     // Menyelaraskan penamaan ID
-    public function getIdReviewAssignmentAttribute() 
+    public function getIdReviewAssignmentAttribute()
     {
         return $this->review_assignment_id;
     }

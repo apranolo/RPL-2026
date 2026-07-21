@@ -56,15 +56,15 @@ interface VerifyModalProps {
 export default function VerifyModal({ open, onOpenChange, output, verifyUrl }: VerifyModalProps) {
     const [mode, setMode] = useState<'view' | 'reject'>('view');
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, transform } = useForm({
         action: '' as 'approved' | 'rejected',
         keterangan: '',
     });
 
     const handleApprove = () => {
         if (!output) return;
+        transform((data) => ({ ...data, action: 'approved', keterangan: '' }));
         post(`${verifyUrl}/${output.id}`, {
-            data: { action: 'approved', keterangan: '' },
             preserveScroll: true,
             onSuccess: () => {
                 reset();
@@ -76,8 +76,8 @@ export default function VerifyModal({ open, onOpenChange, output, verifyUrl }: V
 
     const handleReject = () => {
         if (!output) return;
+        transform((data) => ({ ...data, action: 'rejected' }));
         post(`${verifyUrl}/${output.id}`, {
-            data: { action: 'rejected', keterangan: data.keterangan },
             preserveScroll: true,
             onSuccess: () => {
                 reset();
@@ -196,10 +196,7 @@ export default function VerifyModal({ open, onOpenChange, output, verifyUrl }: V
                                 Tolak
                             </Button>
                             <Button
-                                onClick={() => {
-                                    setData('action', 'approved');
-                                    handleApprove();
-                                }}
+                                onClick={handleApprove}
                                 disabled={processing}
                                 className="bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600"
                             >
@@ -225,10 +222,7 @@ export default function VerifyModal({ open, onOpenChange, output, verifyUrl }: V
                             </Button>
                             <Button
                                 variant="destructive"
-                                onClick={() => {
-                                    setData('action', 'rejected');
-                                    handleReject();
-                                }}
+                                onClick={handleReject}
                                 disabled={processing || !data.keterangan.trim()}
                             >
                                 {processing ? (

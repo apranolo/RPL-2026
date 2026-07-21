@@ -1,12 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-namespace App\Http\Controllers\Review;
-
-use App\Http\Controllers\Controller;
-use App\Models\ReviewAssignment;
-use App\Models\Submission;
-=======
 /**
  * Controller untuk perpanjangan due date reviewer assignment pada Proposal.
  *
@@ -41,16 +34,16 @@ class ReviewAssignmentController extends Controller
      *
      * @param  Request  $request  Harus mengandung submission_id, reviewer_id,
      *                            dan opsional round (default: 1).
-     * @return RedirectResponse   Redirect balik dengan flash message sukses/gagal.
+     * @return RedirectResponse Redirect balik dengan flash message sukses/gagal.
      */
     public function invite(Request $request): RedirectResponse
     {
         // 1. Validasi Input
         $validated = $request->validate([
             'submission_id' => 'required|exists:submissions,id',
-            'reviewer_id'   => 'required|exists:users,id',
+            'reviewer_id' => 'required|exists:users,id',
             // Round bisa dikirim dari frontend; fallback ke 1 jika tidak ada.
-            'round'         => 'sometimes|integer|min:1',
+            'round' => 'sometimes|integer|min:1',
         ]);
 
         $round = $validated['round'] ?? 1;
@@ -62,13 +55,13 @@ class ReviewAssignmentController extends Controller
         [$assignment, $created] = ReviewAssignment::firstOrCreate(
             [
                 'submission_id' => $validated['submission_id'],
-                'reviewer_id'   => $validated['reviewer_id'],
-                'round'         => $round,
+                'reviewer_id' => $validated['reviewer_id'],
+                'round' => $round,
             ],
             [
                 // Status enum per migration 2026_05_14_010000:
                 // Pending, Accepted, Declined, Completed, Cancelled.
-                'status'   => 'Pending',
+                'status' => 'Pending',
                 'due_date' => now()->addDays(7), // SLA 7 hari
             ]
         );
@@ -103,10 +96,10 @@ class ReviewAssignmentController extends Controller
      * 2026_05_14_010000). Kolom ini aman digunakan bersama karena
      * status 'Cancelled' dan 'Declined' bersifat mutually exclusive.
      *
-     * @param  Request           $request     Opsional: field `reason` (string, max 500).
+     * @param  Request  $request  Opsional: field `reason` (string, max 500).
      * @param  ReviewAssignment  $assignment  Assignment yang akan dibatalkan
      *                                        (route-model binding).
-     * @return RedirectResponse               Redirect balik dengan flash message.
+     * @return RedirectResponse Redirect balik dengan flash message.
      */
     public function cancel(Request $request, ReviewAssignment $assignment): RedirectResponse
     {
@@ -125,7 +118,7 @@ class ReviewAssignmentController extends Controller
         }
 
         $assignment->update([
-            'status'         => 'Cancelled',
+            'status' => 'Cancelled',
             // Alasan disimpan di decline_reason (lihat PHPDoc di atas).
             'decline_reason' => $validated['reason'] ?? null,
         ]);

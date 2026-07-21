@@ -22,7 +22,7 @@ class StoreJournalOutputRequest extends FormRequest
         return [
             'title' => 'required|string|max:500',
             'authors' => 'required|string|max:1000',
-            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'year' => 'required|integer|min:1900|max:'.(date('Y') + 1),
             'doi' => 'nullable|string|max:255',
             'url' => 'nullable|url|max:500',
             'journal_name' => 'required|string|max:255',

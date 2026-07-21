@@ -29,7 +29,7 @@ class AnonymizeService
      *
      * @param  string  $text  The text to anonymize (e.g. manuscript content).
      * @param  string[]  $identifiers  Author names, emails, or affiliations to redact.
-     * @return string  The anonymized text.
+     * @return string The anonymized text.
      */
     public function anonymize(string $text, array $identifiers = []): string
     {
