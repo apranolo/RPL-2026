@@ -54,6 +54,7 @@ use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
+use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\User\ProfilController;
 use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
@@ -333,6 +334,9 @@ Route::middleware(['auth'])->group(function () {
         // View all assessments (read-only for monitoring)
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
+
+        // Review Schedule Management
+        Route::resource('schedules', ScheduleController::class);
 
         // Monev Report
         Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportController::class, 'index'])
