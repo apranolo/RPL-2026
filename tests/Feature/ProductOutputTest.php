@@ -74,7 +74,7 @@ it('allows an authenticated user to store a product output', function () {
         ])
         ->assertRedirect(route('user.outputs.index'));
 
-    $this->assertDatabaseHas('research_outputs', [
+    $this->assertDatabaseHas('outputs', [
         'user_id'  => $this->user->id,   // RBAC: selalu dari login
         'judul'    => 'Prototipe Robot',
         'kategori' => 'produk',
@@ -180,7 +180,7 @@ it('allows owner to update their own output', function () {
         ])
         ->assertRedirect(route('user.outputs.index'));
 
-    $this->assertDatabaseHas('research_outputs', [
+    $this->assertDatabaseHas('outputs', [
         'id'        => $output->id,
         'judul'     => 'Output Diperbarui',
         'tkt_level' => 5,
@@ -220,7 +220,7 @@ it('allows owner to delete their own draft output', function () {
         ->delete(route('user.outputs.destroy', $output))
         ->assertRedirect(route('user.outputs.index'));
 
-    $this->assertDatabaseMissing('research_outputs', ['id' => $output->id]);
+    $this->assertDatabaseMissing('outputs', ['id' => $output->id]);
 });
 
 it('forbids non-owner from deleting another user\'s output (403)', function () {
