@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Contract extends Model
 {
@@ -125,16 +126,41 @@ class Contract extends Model
                 ->orWhere('title', 'like', "%{$search}%")
                 ->orWhereHas('university', function (Builder $universityQuery) use ($search) {
                     $universityQuery->where('name', 'like', "%{$search}%")
-                        ->orWhere('short_name', 'like', "%{$search}%");
+                        ->orWhere('short_name', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%");
                 });
         });
     }
 
+    public function scopeByStatus(Builder $query, ?string $status): Builder
+    {
+        if (! $status) {
+            return $query;
+        }
+
+        return $query->where('status', $status);
+    }
+
     /*
     |--------------------------------------------------------------------------
-    | Accessors & Mutators
+    | Accessors & Helpers
     |--------------------------------------------------------------------------
     */
+
+    public function getStatusLabelAttribute(): string
+    {
+        return self::getStatusOptions()[$this->status] ?? $this->status;
+    }
+
+    public function getStatusColorAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => 'green',
+            self::STATUS_COMPLETED => 'blue',
+            self::STATUS_CANCELLED => 'red',
+            default => 'gray',
+        };
+    }
 
     public function getNomorKontrakAttribute(): ?string
     {
@@ -169,14 +195,14 @@ class Contract extends Model
         parent::boot();
 
         static::creating(function (Contract $contract) {
-            if (auth()->check() && ! $contract->created_by) {
-                $contract->created_by = auth()->id();
+            if (Auth::check() && ! $contract->created_by) {
+                $contract->created_by = Auth::id();
             }
         });
 
         static::updating(function (Contract $contract) {
-            if (auth()->check()) {
-                $contract->updated_by = auth()->id();
+            if (Auth::check()) {
+                $contract->updated_by = Auth::id();
             }
         });
     }

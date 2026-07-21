@@ -13,9 +13,7 @@ import { type BreadcrumbItem, type PageProps } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Citations', href: '/admin-kampus/citations' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Citations', href: '/admin-kampus/citations' }];
 
 interface Author {
     id: number;
@@ -34,11 +32,7 @@ export default function CitationsIndex({ authors }: Props) {
 
     function handleSync() {
         setSyncing(true);
-        router.post(
-            route('admin-kampus.citations.sync'),
-            {},
-            { onFinish: () => setSyncing(false) },
-        );
+        router.post(route('admin-kampus.citations.sync'), {}, { onFinish: () => setSyncing(false) });
     }
 
     return (
@@ -95,10 +89,7 @@ export default function CitationsIndex({ authors }: Props) {
                                     <tr key={author.id} className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/50">
                                         <td className="px-4 py-3 text-muted-foreground">{index + 1}</td>
                                         <td className="px-4 py-3 font-medium">
-                                            <Link
-                                                href={`/admin-kampus/citations/${author.id}`}
-                                                className="text-primary hover:underline"
-                                            >
+                                            <Link href={`/admin-kampus/citations/${author.id}`} className="text-primary hover:underline">
                                                 {author.name}
                                             </Link>
                                         </td>

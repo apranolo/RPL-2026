@@ -1,38 +1,38 @@
 <?php
 
-use App\Models\Role;
-use App\Models\User;
-use App\Models\University;
-use App\Models\Proposal;
 use App\Models\Contract;
+use App\Models\Proposal;
 use App\Models\ResearchSchema;
+use App\Models\Role;
+use App\Models\University;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('guests are redirected to login', function() {
+test('guests are redirected to login', function () {
     $this->get('/admin/dashboard')->assertRedirect(route('login'));
 });
 
-test('unauthorized roles are forbidden', function() {
+test('unauthorized roles are forbidden', function () {
     $userRole = Role::create(['name' => Role::USER, 'display_name' => 'User']);
     $user = User::factory()->create([
         'role_id' => $userRole->id,
         'is_active' => true,
     ]);
-    
+
     $this->actingAs($user)->get('/admin/dashboard')->assertForbidden();
 });
 
-test('authorized users can visit dashboard and see inertia properties', function() {
+test('authorized users can visit dashboard and see inertia properties', function () {
     $superAdminRole = Role::create(['name' => Role::SUPER_ADMIN, 'display_name' => 'Super Administrator']);
-    
+
     $superAdmin = User::factory()->create([
         'role_id' => $superAdminRole->id,
         'university_id' => null,
         'is_active' => true,
     ]);
-    
+
     $response = $this->actingAs($superAdmin)->get('/admin/dashboard');
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
@@ -46,19 +46,19 @@ test('authorized users can visit dashboard and see inertia properties', function
     );
 });
 
-test('admin kampus is scoped to their university data', function() {
+test('admin kampus is scoped to their university data', function () {
     $adminKampusRole = Role::create(['name' => Role::ADMIN_KAMPUS, 'display_name' => 'Administrator Kampus']);
     $dosenRole = Role::create(['name' => 'Dosen', 'display_name' => 'Dosen']);
-    
+
     $uniA = University::create(['name' => 'Univ A', 'code' => 'UA']);
     $uniB = University::create(['name' => 'Univ B', 'code' => 'UB']);
-    
+
     $adminA = User::factory()->create([
         'role_id' => $adminKampusRole->id,
         'university_id' => $uniA->id,
         'is_active' => true,
     ]);
-    
+
     $dosenA = User::factory()->create([
         'role_id' => $dosenRole->id,
         'university_id' => $uniA->id,
@@ -67,9 +67,9 @@ test('admin kampus is scoped to their university data', function() {
         'role_id' => $dosenRole->id,
         'university_id' => $uniB->id,
     ]);
-    
+
     $schema = ResearchSchema::create(['name' => 'Skema A']);
-    
+
     // Proposal A (Univ A)
     $proposalA = Proposal::create([
         'title' => 'Proposal Univ A',
@@ -111,10 +111,10 @@ test('admin kampus is scoped to their university data', function() {
         'party_1' => 'Pihak 1',
         'party_2' => 'Pihak 2',
     ]);
-    
+
     $response = $this->actingAs($adminA)->get('/admin/dashboard');
     $response->assertOk();
-    
+
     $response->assertInertia(fn ($page) => $page
         ->component('Dashboard/Admin')
         ->where('stats.total_proposals', 1)
