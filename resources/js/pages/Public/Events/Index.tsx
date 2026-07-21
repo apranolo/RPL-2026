@@ -302,19 +302,13 @@ export default function Index({ agendas, filters, types = [] }: Props) {
                     <div className="mt-12 flex justify-center">
                         <Pagination>
                             <PaginationContent>
-                                {agendas.links.map((link, index) => (
-                                    <PaginationItem key={index}>
-                                        {link.url ? (
-                                            <Link href={link.url}>
-                                                <PaginationLink isActive={link.active}>
-                                                    {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
-                                                </PaginationLink>
-                                            </Link>
-                                        ) : (
-                                            <PaginationLink className="cursor-not-allowed opacity-50">
-                                                {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
-                                            </PaginationLink>
-                                        )}
+                                {agendas.links.map((link, idx) => (
+                                    <PaginationItem key={idx}>
+                                        <PaginationLink
+                                            href={link.url || '#'}
+                                            isActive={link.active}
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
                                     </PaginationItem>
                                 ))}
                             </PaginationContent>

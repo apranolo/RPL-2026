@@ -3,14 +3,53 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\AuthorProfile;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::updating(function ($user) {
+            if ($user->isDirty('role_id')) {
+                $oldRoleId = $user->getOriginal('role_id');
+                if ($oldRoleId) {
+                    $user->roles()->detach($oldRoleId);
+                }
+            }
+        });
+
+        static::saved(function ($user) {
+            // Sync primary role_id to user_roles
+            if ($user->role_id) {
+                $user->roles()->syncWithoutDetaching([$user->role_id => [
+                    'assigned_at' => now(),
+                    'assigned_by' => Auth::id() ?? $user->approved_by,
+                ]]);
+            }
+
+            // Sync is_reviewer flag to Reviewer role
+            $reviewerRole = Role::where('name', Role::REVIEWER)->first();
+            if ($reviewerRole) {
+                if ($user->is_reviewer) {
+                    $user->roles()->syncWithoutDetaching([$reviewerRole->id => [
+                        'assigned_at' => now(),
+                        'assigned_by' => Auth::id() ?? $user->approved_by,
+                    ]]);
+                } else {
+                    $user->roles()->detach($reviewerRole->id);
+                }
+            }
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -76,6 +115,15 @@ class User extends Authenticatable
     */
 
     /**
+     * Get all submissions created by this user (Author)
+     * Sesuai dengan spesifikasi relasi PRD Modul 2
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'author_id');
+    }
+
+    /**
      * Get the role of this user (backwards compatibility - returns primary role)
      */
     public function role()
@@ -90,6 +138,52 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'user_roles')
             ->withPivot('assigned_at', 'assigned_by');
+    }
+
+    /**
+     * Get journal roles of this user
+     */
+    public function userRoles()
+    {
+        return $this->hasMany(UserRole::class, 'user_id');
+    }
+
+    /**
+     * Check if user has a role in a specific journal
+     */
+    public function hasJournalRole(string $roleName, $journalId = null): bool
+    {
+        if ($this->relationLoaded('userRoles')) {
+            return $this->userRoles
+                ->where('role_name', $roleName)
+                ->where('id_journal', $journalId)
+                ->where('status', 'Active')
+                ->isNotEmpty();
+        }
+
+        return $this->userRoles()
+            ->where('role_name', $roleName)
+            ->where('id_journal', $journalId)
+            ->where('status', 'Active')
+            ->exists();
+    }
+
+    /**
+     * Check if user has a role in any journal
+     */
+    public function hasRoleInAnyJournal(string $roleName): bool
+    {
+        if ($this->relationLoaded('userRoles')) {
+            return $this->userRoles
+                ->where('role_name', $roleName)
+                ->where('status', 'Active')
+                ->isNotEmpty();
+        }
+
+        return $this->userRoles()
+            ->where('role_name', $roleName)
+            ->where('status', 'Active')
+            ->exists();
     }
 
     /**
@@ -125,6 +219,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all proposals submitted by this user
+     */
+    public function proposals()
+    {
+        return $this->hasMany(Proposal::class);
+    }
+
+    /**
+     * Get all progress reports submitted by this user
+     */
+    public function progressReports()
+    {
+        return $this->hasMany(ProgressReport::class);
+    }
+
+    /**
+     * Get all monev schedules evaluated by this user
+     */
+    public function evaluatorSchedules()
+    {
+        return $this->hasMany(MonevSchedule::class, 'evaluator_id');
+    }
+
+    /**
      * Get all assessments created by this user
      */
     public function assessments()
@@ -149,13 +267,25 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the author profile of this user
+     * Get the citation statistics record of this user
      */
+    public function citation()
+    {
+        return $this->hasOne(Citation::class);
+    }
+
     public function authorProfile()
     {
         return $this->hasOne(AuthorProfile::class);
     }
 
+    /**
+     * Get the reviewer profile of this user
+     */
+    public function reviewerProfile()
+    {
+        return $this->hasOne(ReviewerProfile::class);
+    }
     /*
     |--------------------------------------------------------------------------
     | Scopes

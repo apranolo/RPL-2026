@@ -4,6 +4,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { ROLE_NAMES } from '@/constants/roles';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
+
 import {
     Award,
     BookOpen,
@@ -14,6 +15,7 @@ import {
     ClipboardList,
     FileText,
     FolderOpen,
+    GraduationCap,
     LayoutGrid,
     Library,
     LifeBuoy,
@@ -143,6 +145,20 @@ export function AppSidebar() {
         }
 
         roleNavItems = [...adminKampusItems, ...commonNavItems];
+    } else if (user.role.name === 'Reviewer') {
+        roleNavItems = [
+            {
+                title: 'Penugasan',
+                href: route('reviewer.assignments.index'),
+                icon: ClipboardList,
+            },
+            {
+                title: 'Profil Reviewer',
+                href: route('reviewer.profile.show'),
+                icon: UserCheck,
+            },
+            ...commonNavItems,
+        ];
     } else if (user.role.name === ROLE_NAMES.ADMIN_KEUANGAN) {
         roleNavItems = [
             {
@@ -168,6 +184,9 @@ export function AppSidebar() {
                 title: 'Luaran',
                 href: route('user.outputs.index'),
                 icon: FolderOpen,
+                title: 'Sitasi',
+                href: route('profile.citation'),
+                icon: GraduationCap,
             },
             {
                 title: 'Pembinaan',

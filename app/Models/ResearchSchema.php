@@ -13,6 +13,8 @@ class ResearchSchema extends Model
     protected $fillable = [
         'name',
         'description',
+        'max_funding',
+        'is_active',
     ];
 
     // Relasi ke Proposal (1 schema punya banyak proposal)
