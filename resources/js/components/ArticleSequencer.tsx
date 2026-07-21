@@ -1,19 +1,11 @@
-import React, { useState } from "react";
-import axios from "axios";
+import axios from 'axios';
+import { useState } from 'react';
 
-import {
-    DndContext,
-    closestCenter,
-} from "@dnd-kit/core";
+import { DndContext, closestCenter } from '@dnd-kit/core';
 
-import {
-    SortableContext,
-    useSortable,
-    arrayMove,
-    verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
-import { CSS } from "@dnd-kit/utilities";
+import { CSS } from '@dnd-kit/utilities';
 
 type Article = {
     id: number;
@@ -26,21 +18,15 @@ type Props = {
 };
 
 function Item({ article }: { article: Article }) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-    } = useSortable({ id: article.id });
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: article.id });
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
         padding: 10,
-        margin: "5px 0",
-        background: "#f2f2f2",
-        cursor: "grab",
+        margin: '5px 0',
+        background: '#f2f2f2',
+        cursor: 'grab',
     };
 
     return (
@@ -50,8 +36,8 @@ function Item({ article }: { article: Article }) {
     );
 }
 
-import { DragEndEvent } from "@dnd-kit/core";
-export default function ArticleSequencer({articles, issueId}: Props) {
+import { DragEndEvent } from '@dnd-kit/core';
+export default function ArticleSequencer({ articles, issueId }: Props) {
     const [items, setItems] = useState(articles);
 
     const handleDragEnd = async (event: DragEndEvent) => {
@@ -68,30 +54,21 @@ export default function ArticleSequencer({articles, issueId}: Props) {
 
         try {
             // kirim ke backend
-            await axios.post(
-                `/production/articles/${active.id}/assign-issue`,
-                {
-                    issue_id: issueId,
-                }
-            );
+            await axios.post(`/production/articles/${active.id}/assign-issue`, {
+                issue_id: issueId,
+            });
 
             // NOTE:
             // kalau mau perfect ranking,
             // backend harus support order array juga
         } catch (err) {
-            alert("Gagal update issue");
+            alert('Gagal update issue');
         }
     };
 
     return (
-        <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-        >
-            <SortableContext
-                items={items.map((i) => i.id)}
-                strategy={verticalListSortingStrategy}
-            >
+        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
                 {items.map((article) => (
                     <Item key={article.id} article={article} />
                 ))}

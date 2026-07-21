@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\JournalAssessment; 
+use App\Models\JournalAssessment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,8 +31,7 @@ class TimelineController extends Controller
         // 2. Filter Akses Berdasarkan Role
         // -----------------------------------------------------------------
         if ($user->role->name === 'Admin Kampus') {
-            $baseQuery->whereHas('journal', fn ($q) =>
-                $q->where('university_id', $user->university_id)
+            $baseQuery->whereHas('journal', fn ($q) => $q->where('university_id', $user->university_id)
             );
         } elseif ($user->role->name !== 'Super Admin') {
             $baseQuery->where('user_id', $user->id);
@@ -66,8 +65,8 @@ class TimelineController extends Controller
         // -----------------------------------------------------------------
         // 4. Formatting Timeline
         // -----------------------------------------------------------------
-        $months = [1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'Mei',6=>'Jun',
-                   7=>'Jul',8=>'Ags',9=>'Sep',10=>'Okt',11=>'Nov',12=>'Des'];
+        $months = [1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun',
+            7 => 'Jul', 8 => 'Ags', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'];
 
         $totalYear = (clone $baseQuery)->count();
         $timeline = [];
@@ -79,14 +78,14 @@ class TimelineController extends Controller
             $scores = $monthlyScores[$num] ?? null;
 
             $timeline[] = [
-                'month'      => $num,
-                'label'      => $label,
-                'count'      => $count,
+                'month' => $num,
+                'label' => $label,
+                'count' => $count,
                 'cumulative' => $cumulative,
-                'progress'   => $totalYear > 0 ? round(($cumulative / $totalYear) * 100, 1) : 0,
-                'avg_score'  => $scores ? round((float) $scores['avg_score'], 1) : null,
-                'max_score'  => $scores ? round((float) $scores['max_score'], 1) : null,
-                'min_score'  => $scores ? round((float) $scores['min_score'], 1) : null,
+                'progress' => $totalYear > 0 ? round(($cumulative / $totalYear) * 100, 1) : 0,
+                'avg_score' => $scores ? round((float) $scores['avg_score'], 1) : null,
+                'max_score' => $scores ? round((float) $scores['max_score'], 1) : null,
+                'min_score' => $scores ? round((float) $scores['min_score'], 1) : null,
             ];
         }
 
@@ -94,16 +93,16 @@ class TimelineController extends Controller
         // 5. Response
         // -----------------------------------------------------------------
         return response()->json([
-            'year'     => $year,
-            'total'    => $totalYear,
+            'year' => $year,
+            'total' => $totalYear,
             'timeline' => $timeline,
             'status_distribution' => [
-                'draft'     => $statusDist['draft'] ?? 0,
+                'draft' => $statusDist['draft'] ?? 0,
                 'submitted' => $statusDist['submitted'] ?? 0,
-                'reviewed'  => $statusDist['reviewed'] ?? 0,
+                'reviewed' => $statusDist['reviewed'] ?? 0,
             ],
             'summary' => [
-                'total_evaluations' => $totalYear, 
+                'total_evaluations' => $totalYear,
                 'avg_score' => $totalYear > 0
                     ? round((clone $baseQuery)->whereNotNull('percentage')->avg('percentage') ?? 0, 1)
                     : 0,

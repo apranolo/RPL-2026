@@ -6,9 +6,9 @@
  * -----------------------------------------------------------------------------
  */
 
-import AppLayout from "@/layouts/app-layout";
-import { type BreadcrumbItem } from "@/types";
-import { useForm } from "@inertiajs/react";
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { useForm } from '@inertiajs/react';
 
 type Galley = {
     id: number;
@@ -29,12 +29,12 @@ type Props = {
 export default function Manage({ article, galleys }: Props) {
     const { data, setData, post, processing } = useForm({
         file: null as File | null,
-        label: "PDF",
+        label: 'PDF',
     });
 
     const handleUpload = () => {
         if (!data.file) {
-            alert("File belum dipilih");
+            alert('File belum dipilih');
             return;
         }
 
@@ -42,48 +42,37 @@ export default function Manage({ article, galleys }: Props) {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
-                alert("Upload berhasil");
+                alert('Upload berhasil');
             },
             onError: () => {
-                alert("Upload gagal");
+                alert('Upload gagal');
             },
         });
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: "Galley Management",
-        href: `/production/articles/${article.id}/galleys`,
-    },
+        {
+            title: 'Galley Management',
+            href: `/production/articles/${article.id}/galleys`,
+        },
     ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <div className="p-6">
-                <h2 className="mb-6 text-2xl font-bold">
-                    Galley Management
-                </h2>
+                <h2 className="mb-6 text-2xl font-bold">Galley Management</h2>
 
                 {/* LIST GALLEY */}
                 <div className="mb-8">
-                    <h3 className="mb-3 text-lg font-semibold">
-                        Daftar Galley
-                    </h3>
+                    <h3 className="mb-3 text-lg font-semibold">Daftar Galley</h3>
 
                     {galleys.length === 0 ? (
-                        <p className="text-gray-500">
-                            Belum ada file.
-                        </p>
+                        <p className="text-gray-500">Belum ada file.</p>
                     ) : (
                         <ul className="space-y-2">
                             {galleys.map((g) => (
-                                <li
-                                    key={g.id}
-                                    className="flex items-center gap-3"
-                                >
-                                    <span className="font-medium">
-                                        {g.label}
-                                    </span>
+                                <li key={g.id} className="flex items-center gap-3">
+                                    <span className="font-medium">{g.label}</span>
 
                                     <a
                                         href={`/storage/${g.file_path}`}
@@ -103,32 +92,16 @@ export default function Manage({ article, galleys }: Props) {
 
                 {/* UPLOAD */}
                 <div>
-                    <h3 className="mb-4 text-lg font-semibold">
-                        Upload Galley
-                    </h3>
+                    <h3 className="mb-4 text-lg font-semibold">Upload Galley</h3>
 
-                    <select
-                        className="rounded border px-3 py-2"
-                        value={data.label}
-                        onChange={(e) =>
-                            setData("label", e.target.value)
-                        }
-                    >
+                    <select className="rounded border px-3 py-2" value={data.label} onChange={(e) => setData('label', e.target.value)}>
                         <option value="PDF">PDF</option>
                         <option value="HTML">HTML</option>
                         <option value="XML">XML</option>
                     </select>
 
                     <div className="mt-4">
-                        <input
-                            type="file"
-                            onChange={(e) =>
-                                setData(
-                                    "file",
-                                    e.target.files?.[0] ?? null
-                                )
-                            }
-                        />
+                        <input type="file" onChange={(e) => setData('file', e.target.files?.[0] ?? null)} />
                     </div>
 
                     <button
@@ -137,7 +110,7 @@ export default function Manage({ article, galleys }: Props) {
                         disabled={processing}
                         className="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {processing ? "Uploading..." : "Upload"}
+                        {processing ? 'Uploading...' : 'Upload'}
                     </button>
                 </div>
             </div>

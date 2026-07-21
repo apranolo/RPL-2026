@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Services\ScholarService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -25,7 +24,6 @@ class CitationController extends Controller
     /**
      * Sync the authenticated user's citation data from Google Scholar.
      *
-     * @param ScholarService $scholar
      * @return \Illuminate\Http\RedirectResponse
      */
     public function sync(ScholarService $scholar)

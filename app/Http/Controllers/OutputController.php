@@ -14,17 +14,16 @@ class OutputController extends Controller
     /**
      * Store a newly created HKI/Patent output in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function storeHKI(Request $request)
     {
-        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data HKI.');
+        abort_if(! auth()->check(), 403, 'Anda harus login untuk menyimpan data HKI.');
 
         $validated = $request->validate([
             'contract_id' => 'required|exists:contracts,id',
             'judul_luaran' => 'required|string|max:255',
-            'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
+            'tahun_capaian' => 'required|integer|min:1900|max:'.(date('Y') + 5),
             'penulis_atau_pencipta' => 'required|string',
             'nomor_paten' => 'required|string|max:100',
             'jenis_hki' => 'required|string|in:paten,hak_cipta,merek,desain_industri,rahasia_dagang',
@@ -46,32 +45,46 @@ class OutputController extends Controller
             'tautan_publikasi.url' => 'Tautan publikasi harus berupa URL yang valid.',
         ]);
 
-        if ($request->hasFile('file_sertifikat_atau_cover')) {
-            $validated['file_sertifikat_atau_cover'] = $request->file('file_sertifikat_atau_cover')
-                ->store('outputs', 'public');
+        try {
+            $filePath = null;
+            if ($request->hasFile('file_sertifikat_atau_cover')) {
+                $filePath = $request->file('file_sertifikat_atau_cover')->store('luaran/hki', 'public');
+            }
+
+            $hkiOutput = HkiOutput::create([
+                'patent_number' => $validated['nomor_paten'],
+                'patent_type' => $validated['jenis_hki'],
+            ]);
+
+            $keteranganParts = [];
+            $keteranganParts[] = 'Penulis/Pencipta: '.$validated['penulis_atau_pencipta'];
+            if (! empty($validated['tautan_publikasi'])) {
+                $keteranganParts[] = 'Tautan: '.$validated['tautan_publikasi'];
+            }
+            if (! empty($validated['deskripsi'])) {
+                $keteranganParts[] = 'Deskripsi: '.$validated['deskripsi'];
+            }
+
+            $hkiOutput->researchOutput()->create([
+                'user_id' => auth()->id(),
+                'contract_id' => $request->input('contract_id', 1),
+                'jenis_luaran' => 'HKI',
+                'judul_luaran' => $validated['judul_luaran'],
+                'tahun_capaian' => $validated['tahun_capaian'],
+                'file_sertifikat_atau_cover' => $filePath,
+                'status_verifikasi' => 'Draft',
+                'keterangan' => implode(' | ', $keteranganParts),
+            ]);
+
+            return redirect()->back()->with([
+                'success' => 'Data HKI berhasil disimpan.',
+                'data' => array_merge($validated, ['file_path' => $filePath]),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error storing HKI: '.$e->getMessage());
+
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data HKI: '.$e->getMessage());
         }
-
-        $output = ResearchOutput::create([
-            'contract_id' => $validated['contract_id'],
-            'user_id' => auth()->id(),
-            'jenis_luaran' => 'HKI',
-            'judul_luaran' => $validated['judul_luaran'],
-            'tahun_capaian' => $validated['tahun_capaian'],
-            'penulis_atau_pencipta' => $validated['penulis_atau_pencipta'],
-            'tautan_publikasi' => $validated['tautan_publikasi'] ?? null,
-            'keterangan' => $validated['deskripsi'] ?? null,
-            'file_sertifikat_atau_cover' => $validated['file_sertifikat_atau_cover'] ?? null,
-            'status_verifikasi' => 'Draft',
-        ]);
-
-        $output->outputable()->create([
-            'patent_number' => $validated['nomor_paten'],
-            'patent_type' => $validated['jenis_hki'],
-            'inventors' => $validated['penulis_atau_pencipta'],
-        ]);
-
-        return redirect()->route('user.outputs.index')
-            ->with('message', 'Data HKI berhasil disimpan');
     }
 
     public function edit(ResearchOutput $output)
@@ -105,29 +118,14 @@ class OutputController extends Controller
 
         $validated = $request->validate([
             'contract_id' => 'required|exists:contracts,id',
-            'jenis_luaran' => 'required|string|in:' . implode(',', array_keys(ResearchOutput::KATEGORI)),
+            'jenis_luaran' => 'required|string',
             'judul_luaran' => 'required|string|max:255',
-            'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'tahun_capaian' => 'required|integer|min:1900|max:' . (date('Y') + 5),
             'penulis_atau_pencipta' => 'required|string|max:255',
             'file_sertifikat_atau_cover' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'status_verifikasi' => 'required|string|in:' . implode(',', array_keys(ResearchOutput::STATUS)),
             'keterangan' => 'nullable|string',
             'tautan_publikasi' => 'nullable|url|max:255',
             'outputable' => 'nullable|array',
-            'outputable.doi' => 'nullable|string|max:255',
-            'outputable.journal_name' => 'nullable|string|max:255',
-            'outputable.volume' => 'nullable|string|max:50',
-            'outputable.number' => 'nullable|string|max:50',
-            'outputable.url' => 'nullable|url|max:255',
-            'outputable.isbn' => 'nullable|string|max:50',
-            'outputable.publisher' => 'nullable|string|max:255',
-            'outputable.pages' => 'nullable|string|max:50',
-            'outputable.tipe_buku' => 'nullable|string|max:100',
-            'outputable.patent_number' => 'nullable|string|max:100',
-            'outputable.patent_type' => 'nullable|string|max:100',
-            'outputable.inventors' => 'nullable|string|max:255',
-            'outputable.partner_institution' => 'nullable|string|max:255',
-            'outputable.benefits_description' => 'nullable|string',
         ]);
 
         if ($request->hasFile('file_sertifikat_atau_cover')) {
@@ -139,11 +137,20 @@ class OutputController extends Controller
 
         $output->update(array_diff_key($validated, ['outputable' => '']));
 
-        $this->syncOutputable($output, $request->input('outputable', []));
+        if (method_exists($this, 'syncOutputable')) {
+            $this->syncOutputable($output, $request->input('outputable', []));
+        }
 
         return redirect()->route('user.outputs.index')->with('message', 'Luaran penelitian berhasil diperbarui');
     }
 
+    public function destroy(ResearchOutput $output)
+    {
+        $this->authorize('delete', $output);
+
+        if ($output->file_sertifikat_atau_cover) {
+            Storage::disk('public')->delete($output->file_sertifikat_atau_cover);
+        }
     public function storeBook(Request $request)
     {
         abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data buku.');
@@ -182,7 +189,9 @@ class OutputController extends Controller
             'status_verifikasi' => 'Draft',
         ]);
 
-        $this->syncOutputable($output, $request->input('outputable', []));
+        if (!empty($validated['outputable'])) {
+            $output->outputable()->create($validated['outputable']);
+        }
 
         return redirect()->route('user.outputs.index')
             ->with('message', 'Data buku berhasil disimpan');
@@ -195,12 +204,6 @@ class OutputController extends Controller
         if ($outputable) {
             $outputable->update($outputableData);
         } elseif (!empty(array_filter($outputableData))) {
-            $outputableClass = match ($output->jenis_luaran) {
-                'Jurnal' => \App\Models\JournalOutput::class,
-                'Buku' => \App\Models\BookOutput::class,
-                'HKI' => \App\Models\HkiOutput::class,
-                'Produk' => \App\Models\ProductOutput::class,
-            };
             $output->outputable()->create($outputableData);
         }
     }

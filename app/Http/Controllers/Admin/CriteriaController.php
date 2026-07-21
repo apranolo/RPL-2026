@@ -38,7 +38,7 @@ class CriteriaController extends Controller
             $query->bySubCategory($request->sub_category_id);
         }
 
-        // Filter by category
+        // Filter by category (via sub_category relationship)
         if ($request->filled('category_id')) {
             $query->byCategoryId($request->category_id);
         }
@@ -151,31 +151,48 @@ class CriteriaController extends Controller
         $subCategoryId = $validated['sub_category_id'];
         $count = 0;
 
-        // Memproses penyimpanan secara batch menggunakan Database Transaction
-        DB::transaction(function () use ($validated, $subCategoryId, &$count) {
-            foreach ($validated['criteria'] as $index => $item) {
-                // Menghitung urutan tampil otomatis jika kosong
-                $sortOrder = $item['sort_order'] ?? 
-                    (EvaluationIndicator::where('sub_category_id', $subCategoryId)->max('sort_order') + 1 + $index);
+        // Memproses penyimpanan secara batch menggunakan Database Transaction jika ada parameter criteria
+        if (isset($validated['criteria']) && is_array($validated['criteria'])) {
+            DB::transaction(function () use ($validated, $subCategoryId, &$count) {
+                foreach ($validated['criteria'] as $index => $item) {
+                    // Menghitung urutan tampil otomatis jika kosong
+                    $sortOrder = $item['sort_order'] ??
+                        (EvaluationIndicator::where('sub_category_id', $subCategoryId)->max('sort_order') + 1 + $index);
 
-                EvaluationIndicator::create([
-                    'sub_category_id' => $subCategoryId,
-                    'code' => $item['code'],
-                    'question' => $item['question'],
-                    'description' => $item['description'] ?? null,
-                    'weight' => $item['weight'],
-                    'answer_type' => $item['answer_type'],
-                    'requires_attachment' => $item['requires_attachment'],
-                    'sort_order' => $sortOrder,
-                    'is_active' => $item['is_active'],
-                ]);
-                $count++;
-            }
-        });
+                    EvaluationIndicator::create([
+                        'sub_category_id' => $subCategoryId,
+                        'code' => $item['code'],
+                        'question' => $item['question'],
+                        'description' => $item['description'] ?? null,
+                        'weight' => $item['weight'],
+                        'answer_type' => $item['answer_type'],
+                        'requires_attachment' => $item['requires_attachment'] ?? false,
+                        'sort_order' => $sortOrder,
+                        'is_active' => $item['is_active'] ?? true,
+                    ]);
+                    $count++;
+                }
+            });
+            $successMessage = "Sebanyak {$count} Kriteria Penilaian berhasil ditambahkan.";
+        } else {
+            // Single creation fallback untuk backward-compatibility & testing
+            $indicator = EvaluationIndicator::create([
+                'sub_category_id' => $subCategoryId,
+                'code' => $validated['code'],
+                'question' => $validated['question'],
+                'description' => $validated['description'] ?? null,
+                'weight' => $validated['weight'],
+                'answer_type' => $validated['answer_type'],
+                'requires_attachment' => $validated['requires_attachment'] ?? false,
+                'sort_order' => $validated['sort_order'] ?? (EvaluationIndicator::where('sub_category_id', $subCategoryId)->max('sort_order') + 1),
+                'is_active' => $validated['is_active'] ?? true,
+            ]);
+            $successMessage = "Kriteria Penilaian '{$indicator->code}' berhasil dibuat.";
+        }
 
         return redirect()
             ->route('admin.criteria.index')
-            ->with('success', "Sebanyak {$count} Kriteria Penilaian berhasil ditambahkan.");
+            ->with('success', $successMessage);
     }
 
     /**
