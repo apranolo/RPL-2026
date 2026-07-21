@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { PageProps } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 interface ResearchOutput {
     id: number;
@@ -55,7 +55,15 @@ export default function Index({ outputs }: Props) {
             <div className="py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-6">
-                        <h1 className="text-2xl font-bold text-gray-900">Daftar Luaran Penelitian Saya</h1>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <h1 className="text-2xl font-bold text-gray-900">Daftar Luaran Penelitian Saya</h1>
+                            <Link
+                                href={route('user.outputs.create')}
+                                className="inline-flex items-center justify-center rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-700"
+                            >
+                                Tambah Luaran
+                            </Link>
+                        </div>
                     </div>
 
                     <div className="overflow-hidden rounded-lg bg-white shadow">

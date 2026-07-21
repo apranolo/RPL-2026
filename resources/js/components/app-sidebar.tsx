@@ -13,6 +13,7 @@ import {
     CalendarDays,
     ClipboardList,
     FileText,
+    FolderOpen,
     LayoutGrid,
     Library,
     LifeBuoy,
@@ -162,6 +163,11 @@ export function AppSidebar() {
                 title: 'Jurnal',
                 href: route('user.journals.index'),
                 icon: BookOpen,
+            },
+            {
+                title: 'Luaran',
+                href: route('user.outputs.index'),
+                icon: FolderOpen,
             },
             {
                 title: 'Pembinaan',

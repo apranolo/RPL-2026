@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ResearchOutput extends Model
 {
@@ -31,6 +32,8 @@ class ResearchOutput extends Model
         'file_path',
         'status',
         'keterangan',
+        'outputable_id',
+        'outputable_type',
     ];
 
     // Relasi ke User
@@ -43,5 +46,10 @@ class ResearchOutput extends Model
     public function proposal(): BelongsTo
     {
         return $this->belongsTo(Proposal::class);
+    }
+
+    public function outputable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }
