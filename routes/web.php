@@ -62,6 +62,8 @@ use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Editorial\DecisionController;
+use App\Http\Controllers\Production\IssueController;
 use Inertia\Inertia;
 
 /*
@@ -403,12 +405,6 @@ Route::middleware(['auth'])->group(function () {
             ->name('output.report');
         Route::get('output/export', [OutputReportController::class, 'export'])
             ->name('output.export');
-
-<<<<<<< HEAD
-=======
->>>>>>> d3c50e3c57b483791ade8266241d3de6ffc0c52f
->>>>>>> 08ecd6946d5141206a1c8eeb38a7b7492cbf96a1
->>>>>>> origin/development
     });
 
     /*

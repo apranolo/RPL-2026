@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Submission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -11,14 +12,14 @@ use Inertia\Response;
 class SubmissionController extends Controller
 {
     /**
-     * 1. MENAMPILKAN SEMUA DATA (Terhubung dengan Index.tsx)
+     * Menampilkan daftar naskah milik user yang sedang login.
      */
     public function index(): Response
     {
-        $submissions = Submission::where('user_id', auth()->id())
-            ->orWhere('author_id', auth()->id())
+        $submissions = Submission::where('user_id', Auth::id())
+            ->orWhere('author_id', Auth::id())
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return Inertia::render('Submission/Index', [
             'submissions' => $submissions,
@@ -27,6 +28,35 @@ class SubmissionController extends Controller
                 'error' => session('error'),
             ]
         ]);
+    }
+
+    /**
+     * Menyimpan naskah baru ke dalam sistem.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'abstract' => 'nullable|string',
+            'description' => 'nullable|string',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,zip|max:5120',
+        ]);
+
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('submissions', 'public');
+        }
+
+        Submission::create([
+            'user_id' => Auth::id(),
+            'title' => $validated['title'],
+            'abstract' => $validated['abstract'] ?? $validated['description'] ?? '',
+            'file_path' => $filePath,
+            'status' => 'Draft', 
+        ]);
+
+        return redirect()->route('submissions.index')
+            ->with('success', 'Naskah berhasil disimpan sebagai Draft.');
     }
 
     /**
@@ -166,4 +196,8 @@ class SubmissionController extends Controller
             );
     }
 }
+<<<<<<< HEAD
+development
+=======
 >>>>>>> e61e90173d9a79656f141463c8caa7f9aa9fc6f0
+>>>>>>> 0655c6d2010f1cbc9a09a5f3a5e3b9f1fcb70f61
