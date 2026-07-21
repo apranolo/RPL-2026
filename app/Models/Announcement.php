@@ -16,6 +16,7 @@ class Announcement extends Model
 
     protected $fillable = [
         'university_id',
+        'journal_id',
         'user_id',
         'title',
         'slug',
@@ -72,6 +73,14 @@ class Announcement extends Model
     }
 
     /**
+     * Relationship: Announcement belongs to a Journal
+     */
+    public function journal(): BelongsTo
+    {
+        return $this->belongsTo(Journal::class);
+    }
+
+    /**
      * Relationship: Announcement is created by a User
      */
     public function user(): BelongsTo
@@ -85,6 +94,14 @@ class Announcement extends Model
     public function scopeForUniversity(Builder $query, int $universityId): Builder
     {
         return $query->where('university_id', $universityId);
+    }
+
+    /**
+     * Scope: Filter announcements by journal
+     */
+    public function scopeForJournal(Builder $query, int $journalId): Builder
+    {
+        return $query->where('journal_id', $journalId);
     }
 
     /**

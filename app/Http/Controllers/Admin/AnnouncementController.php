@@ -20,9 +20,9 @@ class AnnouncementController extends Controller
         $this->authorize('manage-announcements');
 
         $query = Announcement::query()
-            ->with(['university', 'user'])
+            ->with(['journal', 'user'])
             ->latest('created_at');
-
+ 
         // Apply search filter
         if ($request->has('search') && $request->search) {
             $query->where(function ($q) use ($request) {
@@ -31,17 +31,17 @@ class AnnouncementController extends Controller
                     ->orWhere('description', 'like', "%{$request->search}%");
             });
         }
-
-        // Filter by University
-        if ($request->has('university_id') && $request->university_id) {
-            $query->where('university_id', $request->university_id);
+ 
+        // Filter by Journal
+        if ($request->has('journal_id') && $request->journal_id) {
+            $query->where('journal_id', $request->journal_id);
         }
-
+ 
         // Filter by Active Status
         if ($request->has('is_active') && $request->is_active !== null) {
             $query->where('is_active', $request->boolean('is_active'));
         }
-
+ 
         // Filter by Published Status
         if ($request->has('is_published') && $request->is_published !== null) {
             $isPublished = $request->boolean('is_published');
@@ -54,45 +54,45 @@ class AnnouncementController extends Controller
                 });
             }
         }
-
+ 
         // Get announcements with pagination
         $announcements = $query
             ->paginate(10)
             ->withQueryString()
             ->through(function ($announcement) {
                 return [
-                    'id' => $announcement->id,
-                    'title' => $announcement->title,
-                    'slug' => $announcement->slug,
-                    'description' => $announcement->description,
-                    'is_active' => $announcement->is_active,
-                    'is_featured' => $announcement->is_featured,
-                    'published_at' => $announcement->published_at?->format('Y-m-d H:i'),
-                    'expires_at' => $announcement->expires_at?->format('Y-m-d H:i'),
-                    'university' => $announcement->university ? [
-                        'id' => $announcement->university->id,
-                        'name' => $announcement->university->name,
-                        'short_name' => $announcement->university->short_name,
-                    ] : null,
-                    'user' => $announcement->user ? [
-                        'id' => $announcement->user->id,
-                        'name' => $announcement->user->name,
-                    ] : null,
-                    'created_at' => $announcement->created_at->format('Y-m-d H:i'),
+                     'id' => $announcement->id,
+                     'title' => $announcement->title,
+                     'slug' => $announcement->slug,
+                     'description' => $announcement->description,
+                     'is_active' => $announcement->is_active,
+                     'is_featured' => $announcement->is_featured,
+                     'published_at' => $announcement->published_at?->format('Y-m-d H:i'),
+                     'expires_at' => $announcement->expires_at?->format('Y-m-d H:i'),
+                     'journal' => $announcement->journal ? [
+                         'id' => $announcement->journal->id,
+                         'title' => $announcement->journal->title,
+                     ] : null,
+                     'user' => $announcement->user ? [
+                         'id' => $announcement->user->id,
+                         'name' => $announcement->user->name,
+                     ] : null,
+                     'created_at' => $announcement->created_at->format('Y-m-d H:i'),
                 ];
             });
-
-        // Get all universities for filter dropdown (with cache)
-        $universities = Cache::remember('universities.active.list', 3600, function () {
-            return University::where('is_active', true)
-                ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+ 
+        // Get all approved journals for filter dropdown (with cache)
+        $journals = Cache::remember('journals.approved.list', 3600, function () {
+            return \App\Models\Journal::where('approval_status', 'approved')
+                ->where('is_active', true)
+                ->orderBy('title')
+                ->get(['id', 'title', 'issn']);
         });
-
-        return Inertia::render('Admin/Announcements/Index', [
+ 
+        return Inertia::render('Admin/Announcement/Index', [
             'announcements' => $announcements,
-            'universities' => $universities,
-            'filters' => $request->only(['search', 'university_id', 'is_active', 'is_published']),
+            'journals' => $journals,
+            'filters' => $request->only(['search', 'journal_id', 'is_active', 'is_published']),
         ]);
     }
 
