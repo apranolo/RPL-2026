@@ -42,28 +42,32 @@ When the user requests a PR review, follow these exact steps:
 
 ## Final Review Workflow (Pemeriksaan Terakhir Mahasiswa)
 
-Pada tahap pemeriksaan terakhir (pasca batas waktu deadline 19 Juli 2026 23:59 WIB), setiap evaluasi Pull Request (PR) **WAJIB** menjalankan langkah-langkah tambahan berikut:
+Pada tahap pemeriksaan terakhir (pasca batas waktu deadline 19 Juli 2026 23:59 WIB), setiap evaluasi Pull Request (PR) **WAJIB** menjalankan langkah-langkah berikut:
 
-1. **Pemeriksaan Status Waktu Commit (Commit Deadline Check)**:
-   - Periksa tanggal dan jam seluruh commit pada branch PR menggunakan:
-     `git log -n 10 --format="%h | %an | %ad | %s" --date=iso`
-   - Tentukan kategori ketepatan waktu:
+1. **Sinkronisasi Branch dengan Development (Mandatory Pre-Check)**:
+   - Setelah melakukan `gh pr checkout <PR_NUMBER>`, reviewer **WAJIB menjalankan**:
+     `git pull origin development`
+   - Jika terdapat konflik merge akibat pembaruan dari branch development, reviewer **segera menyelesaikan konflik tersebut secara lokal**, memverifikasi kelayakan kode, melakukan commit, dan push ke remote branch PR sebelum ulasan diposting.
+
+2. **Pemeriksaan Riwayat Commit Terperinci (Author Commit History Check)**:
+   - JANGAN hanya melihat commit teratas (HEAD). Periksa seluruh riwayat commit yang dibuat oleh pembuat PR menggunakan:
+     `git log --author="[Author_Name]" --format="%h | %an | %ad | %s" --date=iso`
+   - Tentukan klasifikasi waktu pengumpulan PR:
      - **`On Time`**: Seluruh commit dikirim **<= 19 Juli 2026 23:59 WIB**.
-     - **`Late Submission`**: Terdapat commit yang dikirim **> 19 Juli 2026 23:59 WIB** (commit sebelum deadline tetap diperiksa).
-     - **`Overdue`**: Seluruh commit dikirim **> 19 Juli 2026 23:59 WIB** (PR tidak diperiksa).
+     - **`Late Submission`**: Memiliki commit tugas utama yang dibuat **<= 19 Juli 2026 23:59 WIB**, namun memiliki commit perbaikan/terbaru yang dikirim **> 19 Juli 2026 23:59 WIB** (commit sebelum deadline tetap diperiksa dan dinilai).
+     - **`Overdue`**: Seluruh commit baru pertama kali dikirim **> 19 Juli 2026 23:59 WIB** (PR tidak diperiksa).
 
-2. **Verifikasi 4 Task Penugasan Mahasiswa**:
-   - Cari 4 task spesifik milik mahasiswa (berdasarkan Nama/NIM) di berkas `docs/guidence rpl 2026/Penugasan_RPL_Kelas_*.md` atau `docs/guidence rpl 2026/specs/`.
-   - Evaluasi keterlaksanaan masing-masing dari 4 task tersebut secara teliti dan mendalam:
-     - Verifikasi keberadaan file dan method controller/view yang ditugaskan.
-     - Pastikan kode bukan *Dead Code* (misal: controller registrasi dibuat tapi tidak didaftarkan di rute auth).
-     - Pastikan task routing tidak sekadar menempelkan rute miliknya sendiri, melainkan menyusun pengelompokan grup middleware per peran (`web.php`).
-   - Tentukan status masing-masing task pada tabel evaluasi:
-     - **`SELESAI`**: Diberikan jika task selesai dan di-commit **sebelum/sampai batas deadline** (<= 19 Juli 2026 23:59 WIB).
-     - **`SELESAI (Late)`**: Diberikan jika task baru disempurnakan/diselesaikan pada commit **pasca deadline** (> 19 Juli 2026 23:59 WIB).
+3. **Aturan Penanganan PR `Late Submission`**:
+   - Commit yang dikirim pasca deadline **TIDAK DI-REVERT**, melainkan **TETAP DIPERIKSA**.
+   - Jika terdapat perbaikan berkas terkait (bukan pembuatan tugas baru dari nol) atau konflik merge, reviewer **diperbolehkan melakukan modifikasi/perbaikan konflik** agar PR dapat berhasil di-merge ke branch `development`.
+
+4. **Verifikasi & Status 4 Task Penugasan Mahasiswa**:
+   - Evaluasi keterlaksanaan masing-masing dari 4 task penugasan individu (berdasarkan spesifikasi modul di `docs/guidence rpl 2026/`):
+     - **`SELESAI`**: Diberikan jika task selesai dan di-commit **<= 19 Juli 2026 23:59 WIB**.
+     - **`SELESAI (Overdue)`**: Diberikan jika task disempurnakan/diperbaiki pada commit **> 19 Juli 2026 23:59 WIB**.
      - **`BELUM SELESAI`**: Diberikan jika task belum dikerjakan / dead code.
 
-3. **Format Tabel Evaluasi 4 Task pada Laporan Review**:
+5. **Format Tabel Evaluasi 4 Task pada Laporan Review**:
    - Sertakan tabel rekapitulasi evaluasi task pada bagian atas laporan review:
 
      ```markdown
@@ -71,13 +75,13 @@ Pada tahap pemeriksaan terakhir (pasca batas waktu deadline 19 Juli 2026 23:59 W
 
      | No | Deskripsi Penugasan Task | Berkas Utama | Status Task | Catatan Evaluasi Reviewer |
      |----|--------------------------|--------------|-------------|---------------------------|
-     | 1 | [Nama Task 1] | `path/to/file` | **SELESAI** / **SELESAI (Late)** / **BELUM SELESAI** | [Catatan] |
-     | 2 | [Nama Task 2] | `path/to/file` | **SELESAI** / **SELESAI (Late)** / **BELUM SELESAI** | [Catatan] |
-     | 3 | [Nama Task 3] | `path/to/file` | **SELESAI** / **SELESAI (Late)** / **BELUM SELESAI** | [Catatan] |
-     | 4 | [Nama Task 4] | `path/to/file` | **SELESAI** / **SELESAI (Late)** / **BELUM SELESAI** | [Catatan] |
+     | 1 | [Nama Task 1] | `path/to/file` | **SELESAI** / **SELESAI (Overdue)** / **BELUM SELESAI** | [Catatan] |
+     | 2 | [Nama Task 2] | `path/to/file` | **SELESAI** / **SELESAI (Overdue)** / **BELUM SELESAI** | [Catatan] |
+     | 3 | [Nama Task 3] | `path/to/file` | **SELESAI** / **SELESAI (Overdue)** / **BELUM SELESAI** | [Catatan] |
+     | 4 | [Nama Task 4] | `path/to/file` | **SELESAI** / **SELESAI (Overdue)** / **BELUM SELESAI** | [Catatan] |
 
      **Capaian Penugasan:** X dari 4 Task Selesai (X%)
      ```
 
-4. **Kebijakan Keputusan Status (Verdict)**:
-   - Jika kualitas kode aman, bebas dari crash fatal, dan fitur utamanya berfungsi dengan baik, berikan keputusan status **`APPROVED (dengan catatan task tidak selesai semua)`** atau **`APPROVED (dengan catatan Late Submission)`** daripada menolak terus menerus, lalu lakukan posting ulasan dan merge (dengan `--admin` bypass) sesuai instruksi pengguna.
+6. **Kebijakan Keputusan Status (Verdict)**:
+   - Jika kualitas kode aman dan fitur utama berfungsi baik, berikan keputusan status **`APPROVED (dengan catatan Late Submission)`** atau **`APPROVED (dengan catatan task tidak selesai semua)`**, lalu lakukan posting ulasan dan merge (dengan `--admin` bypass) sesuai instruksi pengguna.
