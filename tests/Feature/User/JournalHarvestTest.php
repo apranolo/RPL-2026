@@ -2,7 +2,6 @@
 
 use App\Jobs\HarvestJournalArticlesJob;
 use App\Models\Journal;
-use App\Models\University;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 
@@ -14,7 +13,7 @@ beforeEach(function () {
 });
 
 it('can trigger harvest for own journal', function () {
-    $university = University::factory()->create();
+    $university = \App\Models\University::factory()->create();
     $user = User::factory()->user($university->id)->create();
     $journal = Journal::factory()->create([
         'user_id' => $user->id,
@@ -33,9 +32,9 @@ it('can trigger harvest for own journal', function () {
 });
 
 it("cannot trigger harvest for someone else's journal", function () {
-    $university = University::factory()->create();
+    $university = \App\Models\University::factory()->create();
     $user = User::factory()->user($university->id)->create();
-    $university2 = University::factory()->create();
+    $university2 = \App\Models\University::factory()->create();
     $otherJournal = Journal::factory()->create([
         'university_id' => $university2->id,
         'oai_urls' => ['https://example.com/oai'],
@@ -49,7 +48,7 @@ it("cannot trigger harvest for someone else's journal", function () {
 });
 
 it('cannot trigger harvest if oai_urls is missing', function () {
-    $university = University::factory()->create();
+    $university = \App\Models\University::factory()->create();
     $user = User::factory()->user($university->id)->create();
     $journal = Journal::factory()->create([
         'user_id' => $user->id,

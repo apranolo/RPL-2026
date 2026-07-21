@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\StatusHistory;
 use App\Models\Submission;
 use App\Models\User;
 
@@ -57,7 +56,7 @@ it('includes the status tracking history in the response', function () {
 
     $submission = Submission::factory()
         ->for($author, 'author')
-        ->has(StatusHistory::factory()->count(2), 'statusHistories')
+        ->has(\App\Models\StatusHistory::factory()->count(2), 'statusHistories')
         ->create();
 
     $this->actingAs($author)

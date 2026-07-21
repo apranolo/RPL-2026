@@ -15,7 +15,7 @@ class CheckUniversity
      * - Super Admin: bypass (bisa akses semua)
      * - Admin Kampus & User: hanya bisa akses data dari university mereka
      *
-     * @param  Closure(Request): (Response)  $next
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {

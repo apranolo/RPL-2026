@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react';
 
 interface Research {
     id: number;
-    judul: string;
+    title: string;
     citations: number;
 }
 
@@ -111,8 +111,8 @@ export default function TopResearchList({ data }: Props) {
 
                             {/* Info */}
                             <div className="min-w-0 flex-1">
-                                <p className="line-clamp-2 text-sm leading-snug font-semibold text-white" title={research.judul}>
-                                    {research.judul}
+                                <p className="line-clamp-2 text-sm leading-snug font-semibold text-white" title={research.title}>
+                                    {research.title}
                                 </p>
                                 <p className="mt-1 flex items-center gap-1 text-xs text-white/40">
                                     <Flame size={11} className="text-green-400" />

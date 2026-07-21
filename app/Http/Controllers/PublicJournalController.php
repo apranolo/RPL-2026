@@ -8,7 +8,6 @@ use App\Models\University;
 use App\Services\PublicHomeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -214,11 +213,8 @@ class PublicJournalController extends Controller
 
         // Get article statistics by year
         $articlesCount = $journal->articles()->count();
-        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
-        $yearSql = $isSqlite ? "strftime('%Y', publication_date)" : 'YEAR(publication_date)';
-
         $articlesByYear = $journal->articles()
-            ->selectRaw("{$yearSql} as year, COUNT(*) as count")
+            ->selectRaw('YEAR(publication_date) as year, COUNT(*) as count')
             ->groupBy('year')
             ->orderBy('year', 'desc')
             ->limit(5)

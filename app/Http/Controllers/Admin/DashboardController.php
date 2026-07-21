@@ -82,7 +82,7 @@ class DashboardController extends Controller
         // 5. Top 5 active research proposals with citation metric (simulated)
         $topResearchQuery = DB::table('proposals')
             ->join('users', 'proposals.user_id', '=', 'users.id')
-            ->select('proposals.id', 'proposals.judul');
+            ->select('proposals.id', 'proposals.title'); // Migration schema uses `title`
 
         if ($isAdminKampus) {
             $topResearchQuery->where('users.university_id', $universityId);
@@ -94,7 +94,7 @@ class DashboardController extends Controller
             ->map(function ($row, $index) {
                 return [
                     'id' => $row->id,
-                    'judul' => $row->judul,
+                    'title' => $row->title,
                     'citations' => 120 - ($index * 15),
                 ];
             });

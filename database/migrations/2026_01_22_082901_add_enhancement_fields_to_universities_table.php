@@ -32,9 +32,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('universities', function (Blueprint $table) {
-            if (Schema::hasColumn('universities', 'ptm_code')) {
-                $table->dropUnique(['ptm_code']);
-            }
             $table->dropColumn([
                 'ptm_code',
                 'accreditation_status',

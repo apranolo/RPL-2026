@@ -24,7 +24,7 @@ return new class extends Migration
                 Schema::table('journals', function (Blueprint $table) {
                     $table->dropIndex('journals_accreditation_expiry_date_index');
                 });
-            } catch (Throwable) {
+            } catch (\Throwable) {
                 // Index already absent — safe to continue.
             }
         }

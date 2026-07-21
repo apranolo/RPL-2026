@@ -3,7 +3,6 @@
 use App\Models\CopyeditingTask;
 use App\Models\Journal;
 use App\Models\RevisionRound;
-use App\Models\Role;
 use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -81,7 +80,7 @@ test('only journal editor role can trigger notifyAuthor endpoint', function () {
 
     // Authorized user (Pengelola Jurnal) gets redirect back on success
     // Assign role to editor
-    $role = Role::firstOrCreate(['id' => 3, 'name' => 'Pengelola Jurnal']);
+    $role = \App\Models\Role::firstOrCreate(['id' => 3, 'name' => 'Pengelola Jurnal']);
     $editor->roles()->syncWithoutDetaching([$role->id]);
 
     $responseSuccess = $this->actingAs($editor)

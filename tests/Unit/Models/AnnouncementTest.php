@@ -3,9 +3,7 @@
 use App\Models\Announcement;
 use App\Models\University;
 use App\Models\User;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Carbon;
 
 uses(RefreshDatabase::class);
 
@@ -75,8 +73,8 @@ it('casts attributes correctly', function () {
         'expires_at' => now()->addDays(1)->format('Y-m-d H:i'),
     ]);
 
-    expect($announcement->published_at)->toBeInstanceOf(Carbon::class);
-    expect($announcement->expires_at)->toBeInstanceOf(Carbon::class);
+    expect($announcement->published_at)->toBeInstanceOf(Illuminate\Support\Carbon::class);
+    expect($announcement->expires_at)->toBeInstanceOf(Illuminate\Support\Carbon::class);
     expect($announcement->is_active)->toBeTrue();
     expect($announcement->is_featured)->toBeBool();
 });
@@ -231,7 +229,7 @@ it('allows custom slug to be set', function () {
 });
 
 it('requires title and content fields', function () {
-    $this->expectException(QueryException::class);
+    $this->expectException(Illuminate\Database\QueryException::class);
 
     Announcement::create([
         'university_id' => University::factory()->create()->id,

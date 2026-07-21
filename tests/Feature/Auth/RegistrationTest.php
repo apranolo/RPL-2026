@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\University;
-
 test('registration screen can be rendered', function () {
     $response = $this->get('/register');
 
@@ -10,7 +8,7 @@ test('registration screen can be rendered', function () {
 
 test('new users can register', function () {
     $this->seedRoles();
-    $university = University::factory()->create();
+    $university = \App\Models\University::factory()->create();
 
     $response = $this->post('/register', [
         'name' => 'Test User',

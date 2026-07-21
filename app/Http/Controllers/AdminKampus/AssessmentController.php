@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\JournalAssessment;
 use App\Notifications\AssessmentApprovedNotification;
 use App\Notifications\AssessmentRevisionRequestedNotification;
-use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -81,12 +80,10 @@ class AssessmentController extends Controller
         $availableYears = JournalAssessment::whereHas('journal', function ($query) use ($user) {
             $query->where('university_id', $user->university_id);
         })
+            ->selectRaw('DISTINCT YEAR(assessment_date) as year')
             ->whereNotNull('assessment_date')
-            ->pluck('assessment_date')
-            ->map(fn ($date) => Carbon::parse($date)->year)
-            ->unique()
-            ->sortDesc()
-            ->values();
+            ->orderBy('year', 'desc')
+            ->pluck('year');
 
         return Inertia::render('AdminKampus/Assessments/Index', [
             'assessments' => $assessments,

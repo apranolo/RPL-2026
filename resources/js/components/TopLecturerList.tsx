@@ -12,16 +12,6 @@
 import { Star, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-/**
- * TopLecturerList Component
- *
- * @description
- * Leaderboard 5 Dosen Terproduktif berdasarkan skor proposal/riset.
- *
- * @author JurnalMU Team
- * @filepath /resources/js/components/TopLecturerList.tsx
- */
-
 interface Lecturer {
     name: string;
     score: number;

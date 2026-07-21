@@ -9,6 +9,17 @@ class Review extends Model
 {
     use HasFactory;
 
+    protected $table = 'reviews';
+
+    protected $fillable = [
+        'proposal_id',
+        'reviewer_id',
+        'status',
+    ];
+
+    /**
+     * Proposal yang direview.
+     */
     /**
      * The table associated with the model.
      *
@@ -24,17 +35,15 @@ class Review extends Model
     protected $fillable = [
         'proposal_id',
         'reviewer_id',
-        'komponen_penilaian',
         'score',
-        'comments',
+        'feedback',
         'recommendation',
+        'reviewed_at',
         'status',
         'notes',
         'start_date',
         'end_date',
         'total_score',
-        'feedback',
-        'reviewed_at',
     ];
 
     /**
@@ -43,7 +52,6 @@ class Review extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'komponen_penilaian' => 'array',
         'score' => 'decimal:2',
         'reviewed_at' => 'datetime',
         'created_at' => 'datetime',
@@ -57,7 +65,7 @@ class Review extends Model
     */
 
     /**
-     * Get the proposal being reviewed.
+     * Get the proposal being reviewed
      */
     public function proposal()
     {
@@ -65,17 +73,14 @@ class Review extends Model
     }
 
     /**
-     * Get the reviewer (user) who wrote this review.
+     * Reviewer yang ditugaskan.
+     * Get the reviewer who wrote this review
      */
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewer_id');
     }
-
-    public function assessmentCriteria()
-    {
-        return $this->hasMany(AssessmentCriteria::class, 'review_id');
-    }
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -84,32 +89,11 @@ class Review extends Model
     */
 
     /**
-     * Scope to filter by reviewer.
+     * Scope to filter by reviewer
      */
-    public function scopeForReviewer($query, int $reviewerId)
-    {
-        return $query->where('reviewer_id', $reviewerId);
-    }
-
     public function scopeByReviewer($query, int $reviewerId)
     {
         return $query->where('reviewer_id', $reviewerId);
-    }
-
-    /**
-     * Scope to filter by proposal.
-     */
-    public function scopeForProposal($query, int $proposalId)
-    {
-        return $query->where('proposal_id', $proposalId);
-    }
-
-    /**
-     * Scope to filter by recommendation.
-     */
-    public function scopeByRecommendation($query, string $recommendation)
-    {
-        return $query->where('recommendation', $recommendation);
     }
 
     /*
@@ -147,5 +131,10 @@ class Review extends Model
                 $model->reviewed_at = now();
             }
         });
+    }
+
+    public function assessmentCriteria()
+    {
+        return $this->hasMany(AssessmentCriteria::class, 'review_id');
     }
 }

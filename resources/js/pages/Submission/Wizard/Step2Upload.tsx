@@ -74,7 +74,7 @@ export default function Step2Upload() {
             <Head title="Submission - Step 2" />
 
             <div className="mx-auto max-w-3xl p-6">
-                <WizardProgressBar currentStep={2} />
+                <WizardProgressBar steps={wizardSteps} currentStep={1} className="mb-8" />
 
                 <Card>
                     <CardHeader>

@@ -27,6 +27,4 @@ yarn-error.log
 /.zed
 /.github/instructions
 /.agents/workflows
-composer.phar
-*.sha256sum
 /docs/guidence rpl 2026/specs/TEMPLATE_VIEW_SPEC.md

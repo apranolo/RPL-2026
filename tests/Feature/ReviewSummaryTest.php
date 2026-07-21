@@ -15,7 +15,6 @@
  */
 
 use App\Models\Proposal;
-use App\Models\ResearchSchema;
 use App\Models\ReviewDecision;
 use App\Models\ReviewerAssignment;
 use App\Models\Role;
@@ -63,7 +62,7 @@ beforeEach(function () {
     ]);
 
     // Research Schema
-    $this->researchSchema = ResearchSchema::create([
+    $this->researchSchema = \App\Models\ResearchSchema::create([
         'name' => 'Skema Riset Pengujian',
     ]);
 

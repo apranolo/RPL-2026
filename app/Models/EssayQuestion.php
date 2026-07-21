@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,10 +22,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_required
  * @property int $display_order
  * @property bool $is_active
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property-read EvaluationCategory $category
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * @property \Carbon\Carbon|null $deleted_at
+ * @property-read \App\Models\EvaluationCategory $category
  */
 class EssayQuestion extends Model
 {
@@ -82,8 +80,8 @@ class EssayQuestion extends Model
     /**
      * Scope: Get only active essay questions.
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeActive($query)
     {
@@ -93,8 +91,8 @@ class EssayQuestion extends Model
     /**
      * Scope: Get only required essay questions.
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeRequired($query)
     {
@@ -104,8 +102,8 @@ class EssayQuestion extends Model
     /**
      * Scope: Order by display order.
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeOrdered($query)
     {
@@ -115,8 +113,8 @@ class EssayQuestion extends Model
     /**
      * Scope: Get essay questions for a specific category.
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForCategory($query, int $categoryId)
     {

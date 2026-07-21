@@ -1,28 +1,28 @@
-interface DecisionHistory {
-    id: number;
-    decision: string;
-    note?: string;
-    created_at?: string;
+interface DecisionHistoryPanelProps {
+    histories: any[];
 }
 
-interface Props {
-    histories: DecisionHistory[];
-}
-
-export default function DecisionHistoryPanel({ histories }: Props) {
-    if (!histories || histories.length === 0) return null;
+export default function DecisionHistoryPanel({ histories }: DecisionHistoryPanelProps) {
+    if (!histories || histories.length === 0) {
+        return (
+            <div className="mt-6 rounded-lg border bg-white p-4 shadow">
+                <h2 className="mb-4 text-lg font-semibold">Riwayat Keputusan</h2>
+                <p className="text-sm text-gray-500">Belum ada riwayat keputusan.</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="mt-4 rounded-lg border bg-white p-4 shadow">
-            <h3 className="mb-2 text-lg font-semibold">Riwayat Keputusan</h3>
-            <ul className="space-y-2">
-                {histories.map((h, i) => (
-                    <li key={i} className="border-b pb-2 text-sm last:border-0">
-                        <span className="font-medium text-gray-700">{h.decision}</span>
-                        {h.note && <p className="text-gray-500">{h.note}</p>}
-                    </li>
+        <div className="mt-6 rounded-lg border bg-white p-4 shadow">
+            <h2 className="mb-4 text-lg font-semibold">Riwayat Keputusan</h2>
+            <div className="space-y-3">
+                {histories.map((history, idx) => (
+                    <div key={idx} className="border-l-2 border-blue-500 pl-3">
+                        <p className="text-sm font-medium">{history.decision || 'No decision'}</p>
+                        <p className="text-xs text-gray-500">{history.created_at || 'Unknown date'}</p>
+                    </div>
                 ))}
-            </ul>
+            </div>
         </div>
     );
 }

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\DashboardController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -91,7 +90,7 @@ class Journal extends Model
 
         // Clear cache when journal is created
         static::created(function ($journal) {
-            DashboardController::clearStatisticsCache(
+            \App\Http\Controllers\DashboardController::clearStatisticsCache(
                 $journal->university_id,
                 $journal->user_id
             );
@@ -99,20 +98,20 @@ class Journal extends Model
 
         // Clear cache when journal is updated
         static::updated(function ($journal) {
-            DashboardController::clearStatisticsCache(
+            \App\Http\Controllers\DashboardController::clearStatisticsCache(
                 $journal->university_id,
                 $journal->user_id
             );
 
             // Also clear cache for old university/user if they changed
             if ($journal->wasChanged('university_id')) {
-                DashboardController::clearStatisticsCache(
+                \App\Http\Controllers\DashboardController::clearStatisticsCache(
                     $journal->getOriginal('university_id'),
                     null
                 );
             }
             if ($journal->wasChanged('user_id')) {
-                DashboardController::clearStatisticsCache(
+                \App\Http\Controllers\DashboardController::clearStatisticsCache(
                     null,
                     $journal->getOriginal('user_id')
                 );
@@ -121,7 +120,7 @@ class Journal extends Model
 
         // Clear cache when journal is deleted (soft or hard delete)
         static::deleted(function ($journal) {
-            DashboardController::clearStatisticsCache(
+            \App\Http\Controllers\DashboardController::clearStatisticsCache(
                 $journal->university_id,
                 $journal->user_id
             );
@@ -129,7 +128,7 @@ class Journal extends Model
 
         // Clear cache when journal is restored from soft delete
         static::restored(function ($journal) {
-            DashboardController::clearStatisticsCache(
+            \App\Http\Controllers\DashboardController::clearStatisticsCache(
                 $journal->university_id,
                 $journal->user_id
             );
@@ -364,7 +363,7 @@ class Journal extends Model
         }
 
         return $query->whereNotNull('indexations')
-            ->whereNotNull("indexations->{$platform}");
+            ->whereNotNull('indexations->'.$platform);
     }
 
     /**

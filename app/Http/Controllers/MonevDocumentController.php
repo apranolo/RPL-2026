@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\JournalAssessment;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class MonevDocumentController extends Controller
@@ -19,7 +18,7 @@ class MonevDocumentController extends Controller
      * - Admin Kampus → evaluations within their university
      * - User         → only their own evaluations
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function printRekap(Request $request)
     {

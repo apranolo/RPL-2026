@@ -6,17 +6,49 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::table('proposals', function (Blueprint $table) {
-            $table->string('file_dokumen_proposal')->nullable()->after('description');
-        });
+        if (! Schema::hasTable('proposals')) {
+            Schema::create('proposals', function (Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->text('description');
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+                // INI PENTING
+                $table->foreignId('research_schema_id')
+                    ->constrained('research_schemas')
+                    ->onDelete('cascade');
+
+                $table->string('status_proposal')->default('Draft');
+                $table->text('rejection_reason')->nullable();
+                $table->string('file_dokumen_proposal')->nullable();
+
+                $table->timestamps();
+            });
+        } else {
+            Schema::table('proposals', function (Blueprint $table) {
+                if (! Schema::hasColumn('proposals', 'file_dokumen_proposal')) {
+                    $table->string('file_dokumen_proposal')->nullable();
+                }
+            });
+        }
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('proposals', function (Blueprint $table) {
-            $table->dropColumn('file_dokumen_proposal');
-        });
+        if (Schema::hasTable('proposals')) {
+            if (Schema::hasColumn('proposals', 'file_dokumen_proposal')) {
+                Schema::table('proposals', function (Blueprint $table) {
+                    $table->dropColumn('file_dokumen_proposal');
+                });
+            }
+        }
     }
 };

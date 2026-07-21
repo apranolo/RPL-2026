@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Submission;
-use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -47,7 +46,7 @@ class SubmissionController extends Controller
      * Membatalkan (menghapus) naskah yang masih berstatus draft.
      * Hanya author pemilik naskah yang boleh membatalkan.
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function cancel(Submission $submission)
     {

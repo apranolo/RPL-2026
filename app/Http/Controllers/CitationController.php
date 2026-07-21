@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\ScholarService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class CitationController extends Controller
 {
@@ -14,7 +12,7 @@ class CitationController extends Controller
      * Display the authenticated user's citation profile
      * (h-index, total citations, and yearly citation trend).
      *
-     * @return Response
+     * @return \Inertia\Response
      */
     public function show()
     {
@@ -26,7 +24,7 @@ class CitationController extends Controller
     /**
      * Sync the authenticated user's citation data from Google Scholar.
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function sync(ScholarService $scholar)
     {

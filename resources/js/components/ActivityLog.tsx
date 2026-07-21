@@ -2,9 +2,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 interface User {
-    id: number;
+    id?: number;
     name: string;
-    email: string;
+    email?: string;
 }
 
 interface Loggable {

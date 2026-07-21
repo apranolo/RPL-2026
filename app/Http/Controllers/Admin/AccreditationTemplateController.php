@@ -6,9 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAccreditationTemplateRequest;
 use App\Http\Requests\Admin\UpdateAccreditationTemplateRequest;
 use App\Models\AccreditationTemplate;
-use App\Models\EvaluationCategory;
 use App\Models\EvaluationIndicator;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -307,7 +305,7 @@ class AccreditationTemplateController extends Controller
      *
      * @features Tree view data for drag-and-drop UI (categories → sub-categories → indicators + essays)
      */
-    public function tree(AccreditationTemplate $template): JsonResponse
+    public function tree(AccreditationTemplate $template): \Illuminate\Http\JsonResponse
     {
         $this->authorize('view', $template);
 
@@ -398,7 +396,7 @@ class AccreditationTemplateController extends Controller
     {
         $this->authorize('viewAny', AccreditationTemplate::class);
 
-        $query = EvaluationCategory::query()
+        $query = \App\Models\EvaluationCategory::query()
             ->with([
                 'subCategories.indicators',
                 'template',

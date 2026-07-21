@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreGalleyRequest;
 use App\Models\Galley;
 use App\Models\Submission;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class GalleyController extends Controller
@@ -22,7 +20,7 @@ class GalleyController extends Controller
         // ================================
         // MULTI-TENANCY CHECK (EDITOR ONLY)
         // ================================
-        /** @var User|null $user */
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
         if (! $user) {
@@ -64,14 +62,14 @@ class GalleyController extends Controller
     /**
      * ASSIGN ARTICLE TO ISSUE (FIXED + SAFE)
      */
-    public function assignToIssue($articleId, Request $request)
+    public function assignToIssue($articleId, \Illuminate\Http\Request $request)
     {
         $request->validate([
             'id_issue' => 'required|exists:issues,id',
         ]);
 
         $submission = Submission::findOrFail($articleId);
-        /** @var User|null $user */
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
         // ================================

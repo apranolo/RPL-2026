@@ -46,11 +46,12 @@ jobs:
       - name: Install Node Dependencies
         run: npm ci
 
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
       - name: Build Assets
         run: npm run build
 
-      - name: Install Dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Copy Environment File
         run: cp .env.example .env
@@ -64,7 +65,6 @@ jobs:
           touch database/database.sqlite
           sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
           sed -i 's/DB_DATABASE=jurnal_mu/DB_DATABASE=database\/database.sqlite/' .env
-          sed -i 's|APP_URL=http://localhost|APP_URL=http://127.0.0.1:8000|' .env
           php artisan migrate:fresh --seed --force
 
       - name: Run Tests (Pest)
@@ -77,7 +77,7 @@ jobs:
         run: ./vendor/laravel/dusk/bin/chromedriver-linux > /dev/null 2>&1 &
 
       - name: Start Laravel Server
-        run: php artisan serve --host=127.0.0.1 --port=8000 > /dev/null 2>&1 &
+        run: php artisan serve --env=dusk.local --host=127.0.0.1 --port=8000 > /dev/null 2>&1 &
 
       - name: Wait for Server
         run: sleep 3

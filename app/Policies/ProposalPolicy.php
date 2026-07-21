@@ -24,6 +24,23 @@ class ProposalPolicy
     {
         return $user->isSuperAdmin();
     }
+    /**
+     * Tentukan apakah user boleh mengubah proposal.
+     * Hanya pemilik proposal berbasis kepemilikan user ID.
+     */
+    public function update(User $user, Proposal $proposal): bool
+    {
+        return $user->id === $proposal->user_id;
+    }
+
+    /**
+     * Tentukan apakah user boleh menghapus proposal.
+     * Hanya pemilik proposal berbasis kepemilikan user ID.
+     */
+    public function delete(User $user, Proposal $proposal): bool
+    {
+        return $user->id === $proposal->user_id;
+    }
 
     /**
      * Tentukan apakah user dapat melihat proposal tertentu.

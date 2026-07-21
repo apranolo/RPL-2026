@@ -304,7 +304,7 @@ class UniversityManagementTest extends DuskTestCase
             // Find and click the delete button (Trash icon) in the first row
             // The button has onClick handler that triggers confirm dialog
             $browser->with('table tbody tr:first-child', function ($row) {
-                $row->click('button[title="Delete"]');
+                $row->click('button:has(svg.text-red-600)');
             })
                 ->pause(500);
 
@@ -362,7 +362,7 @@ class UniversityManagementTest extends DuskTestCase
 
             // Try to delete university with journals
             $browser->with('table tbody tr:first-child', function ($row) {
-                $row->click('button[title="Delete"]');
+                $row->click('button:has(svg.text-red-600)');
             })
                 ->pause(500);
 

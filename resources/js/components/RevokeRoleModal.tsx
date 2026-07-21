@@ -10,40 +10,67 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserRole } from '@/pages/Admin/Users/Index';
 import { useForm } from '@inertiajs/react';
 import { ShieldAlert } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 interface RevokeRoleModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    userRole: UserRole & { user_name?: string };
+    open?: boolean;
+    isOpen?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    onClose?: () => void;
+    userName?: string;
+    roleName?: string;
+    onConfirm?: () => void;
+    userRole?: any;
+    processing?: boolean;
 }
 
-export default function RevokeRoleModal({ isOpen, onClose, userRole }: RevokeRoleModalProps) {
+export default function RevokeRoleModal({
+    open,
+    isOpen,
+    onOpenChange,
+    onClose,
+    userName,
+    roleName,
+    onConfirm,
+    userRole,
+    processing: externalProcessing = false,
+}: RevokeRoleModalProps) {
+    const isModalOpen = open ?? isOpen ?? false;
+    const handleClose = () => {
+        if (onOpenChange) onOpenChange(false);
+        if (onClose) onClose();
+    };
+
     const [confirmText, setConfirmText] = useState('');
-    const { delete: destroy, processing } = useForm();
+    const { delete: destroy, processing: internalProcessing } = useForm();
+    const isProcessing = externalProcessing || internalProcessing;
 
     useEffect(() => {
-        if (!isOpen) {
+        if (!isModalOpen) {
             setConfirmText('');
         }
-    }, [isOpen]);
+    }, [isModalOpen]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (confirmText !== 'CONFIRM') return;
+        if (onConfirm) {
+            onConfirm();
+            return;
+        }
 
-        destroy(route('admin.users.revoke', userRole.id), {
-            onSuccess: () => {
-                onClose();
-            },
-        });
+        if (userRole && confirmText === 'CONFIRM') {
+            destroy(route('admin.users.revoke', userRole.id), {
+                onSuccess: () => {
+                    handleClose();
+                },
+            });
+        }
     };
 
     return (
-        <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <AlertDialog open={isModalOpen} onOpenChange={(val) => !val && handleClose()}>
             <AlertDialogContent className="sm:max-w-[425px]">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <AlertDialogHeader>
@@ -53,14 +80,8 @@ export default function RevokeRoleModal({ isOpen, onClose, userRole }: RevokeRol
                         </div>
                         <AlertDialogDescription className="pt-2 text-sm">
                             Tindakan ini akan menonaktifkan hak akses{' '}
-                            <span className="font-semibold text-foreground">{userRole.user_name || 'pengguna'}</span> sebagai{' '}
-                            <span className="font-semibold text-foreground">{userRole.role_name}</span>{' '}
-                            {userRole.journal && (
-                                <>
-                                    pada <span className="font-semibold text-foreground">{userRole.journal.name}</span>
-                                </>
-                            )}
-                            .
+                            <span className="font-semibold text-foreground">{userName || userRole?.user_name || 'pengguna'}</span> sebagai{' '}
+                            <span className="font-semibold text-foreground">{roleName || userRole?.role_name || 'peran'}</span>.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
 
@@ -75,18 +96,17 @@ export default function RevokeRoleModal({ isOpen, onClose, userRole }: RevokeRol
                             onChange={(e) => setConfirmText(e.target.value.toUpperCase())}
                             placeholder="CONFIRM"
                             className="uppercase"
-                            required
                         />
                     </div>
 
                     <AlertDialogFooter>
                         <AlertDialogCancel asChild>
-                            <Button type="button" variant="outline" onClick={onClose} disabled={processing}>
+                            <Button type="button" variant="outline" onClick={handleClose} disabled={isProcessing}>
                                 Batal
                             </Button>
                         </AlertDialogCancel>
-                        <Button type="submit" variant="destructive" disabled={confirmText !== 'CONFIRM' || processing}>
-                            {processing ? 'Mencabut...' : 'Cabut Peran'}
+                        <Button type="submit" variant="destructive" disabled={(confirmText !== 'CONFIRM' && !onConfirm) || isProcessing}>
+                            {isProcessing ? 'Mencabut...' : 'Cabut Peran'}
                         </Button>
                     </AlertDialogFooter>
                 </form>
@@ -94,3 +114,4 @@ export default function RevokeRoleModal({ isOpen, onClose, userRole }: RevokeRol
         </AlertDialog>
     );
 }
+

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Database\Factories\AnnouncementFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +11,7 @@ use Illuminate\Support\Str;
 
 class Announcement extends Model
 {
-    /** @use HasFactory<AnnouncementFactory> */
+    /** @use HasFactory<\Database\Factories\AnnouncementFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [

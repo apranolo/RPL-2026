@@ -344,7 +344,7 @@ class UserManagementTest extends DuskTestCase
                 ->assertSee('Delete Me User');
 
             // Click delete button
-            $browser->press('Delete User')
+            $browser->press('Delete')
                 ->waitForDialog()
                 // Handle browser confirm dialog
                 ->acceptDialog()
@@ -390,9 +390,11 @@ class UserManagementTest extends DuskTestCase
                 ->assertSee($this->testUser->email);
 
             // Attempt to delete user with journals
-            // The button should be disabled because the user has journals
-            $browser->assertButtonDisabled('Delete User');
+            $browser->press('Delete')
+                ->waitForDialog()
+                ->acceptDialog();
 
+            // Should show error message or stay on same page
             // Verify user still exists in database
             $this->assertDatabaseHas('users', ['email' => $this->testUser->email]);
         });
