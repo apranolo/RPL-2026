@@ -3,26 +3,74 @@
 namespace App\Http\Controllers;
 
 use App\Models\ResearchOutput;
+use App\Models\JournalOutput;
+use App\Models\BookOutput;
+use App\Models\HkiOutput;
+use App\Http\Requests\StoreJournalOutputRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class OutputController extends Controller
 {
-    public function index()
+    public function create(): Response
     {
-        $outputs = ResearchOutput::with('user')
-            ->where('user_id', Auth::id())
-            ->latest()
-            ->paginate(10);
-
-        return Inertia::render('Output/Index', [
-            'outputs' => $outputs,
-        ]);
+        return Inertia::render('Output/Create');
     }
 
+    public function storeJournal(StoreJournalOutputRequest $request)
+    {
+        $validated = $request->validated();
+        
+        try {
+            $filePath = null;
+            if ($request->hasFile('file')) {
+                $filePath = $request->file('file')->store('luaran/jurnal', 'public');
+            }
+
+            $journalOutput = JournalOutput::create([
+                'doi' => $validated['doi'] ?? null,
+                'journal_name' => $validated['journal_name'],
+                'volume' => $validated['volume'] ?? null,
+                'number' => $validated['issue'] ?? null,
+                'url' => $validated['url'] ?? null,
+            ]);
+
+            $keteranganParts = [];
+            $keteranganParts[] = 'Penulis: '.$validated['authors'];
+            if (!empty($validated['pages'])) {
+                $keteranganParts[] = 'Halaman: '.$validated['pages'];
+            }
+            if (!empty($validated['issn'])) {
+                $keteranganParts[] = 'ISSN: '.$validated['issn'];
+            }
+            if (!empty($validated['e_issn'])) {
+                $keteranganParts[] = 'E-ISSN: '.$validated['e_issn'];
+            }
+            if (!empty($validated['publisher'])) {
+                $keteranganParts[] = 'Penerbit: '.$validated['publisher'];
+            }
+
+            $journalOutput->researchOutput()->create([
+                'user_id' => auth()->id(),
+                'kategori' => 'jurnal',
+                'judul' => $validated['title'],
+                'year' => $validated['year'],
+                'keterangan' => implode(' | ', $keteranganParts),
+                'file_path' => $filePath,
+                'status' => 'submitted',
+            ]);
+
+            return redirect()->route('user.outputs.index')
+                ->with('success', 'Data luaran Jurnal berhasil disimpan.');
+        } catch (\Exception $e) {
+            Log::error('Error storing Journal: '.$e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data Jurnal: '.$e->getMessage());
+        }
+    }
     public function edit(ResearchOutput $output)
     {
         $this->authorize('update', $output);
@@ -178,15 +226,6 @@ class OutputController extends Controller
     {
         abort_if(! auth()->check(), 403, 'Anda harus login untuk menyimpan data Buku.');
 
-        return Inertia::render('Output/Edit', [
-            'outputs' => $output,
-        ]);
-    }
-
-    public function update(Request $request, ResearchOutput $output)
-    {
-        $this->authorize('update', $output);
-
         // Simple validation matching the current schema (adjust as needed)
         $validated = $request->validate([
             'contract_id' => 'nullable|exists:contracts,id',
@@ -235,7 +274,16 @@ class OutputController extends Controller
                 $keteranganParts[] = 'Deskripsi: '.$validated['deskripsi'];
             }
 
-            $output->delete();
+            $bookOutput->researchOutput()->create([
+                'user_id' => auth()->id(),
+                'contract_id' => $request->input('contract_id', 1),
+                'jenis_luaran' => 'Buku',
+                'judul_luaran' => $validated['judul_luaran'],
+                'tahun_capaian' => $validated['tahun_capaian'],
+                'file_sertifikat_atau_cover' => $filePath,
+                'status_verifikasi' => 'Draft',
+                'keterangan' => implode(' | ', $keteranganParts),
+            ]);
 
             return redirect()->back()->with([
                 'success' => 'Data Buku berhasil disimpan.',
@@ -315,4 +363,4 @@ class OutputController extends Controller
         return redirect()->route('user.outputs.index')
             ->with('success', 'Data luaran Produk/Prototipe berhasil disimpan.');
     }
-}
+} 

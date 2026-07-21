@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
+use App\Http\Controllers\Admin\AssignController;
 use App\Http\Controllers\Admin\CriteriaController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataMasterController;
@@ -37,8 +38,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\Editorial\DecisionController;
-use App\Http\Controllers\Editorial\DecisionController;
-use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
 use App\Http\Controllers\FundingController;
@@ -318,10 +317,10 @@ Route::middleware(['auth'])->group(function () {
             ->name('reviewers.index');
 
         // Reviewer Assignment
-        Route::post('assign', [AssignController::class, 'assign'])
+        Route::post('assign', [\App\Http\Controllers\Admin\AssignController::class, 'assign'])
             ->name('assign.store');
 
-        Route::delete('assign/{id}', [AssignController::class, 'unassign'])
+        Route::delete('assign/{id}', [\App\Http\Controllers\Admin\AssignController::class, 'unassign'])
             ->name('assign.unassign');
 
         // Schemas Management (v1.1)
@@ -756,6 +755,8 @@ Route::middleware(['auth'])->group(function () {
 
         // ── Luaran Penelitian: CRUD ──────────────────────────────────────────
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::get('outputs/create', [OutputController::class, 'create'])->name('outputs.create');
+        Route::post('outputs/store-journal', [OutputController::class, 'storeJournal'])->name('outputs.store-journal');
         Route::get('outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
         Route::delete('outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
@@ -1033,3 +1034,4 @@ Route::post('/editorial/desk/{submission}/desk-review', [DecisionController::cla
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+ 
