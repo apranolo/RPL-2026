@@ -3,9 +3,19 @@ import { Head, useForm } from '@inertiajs/react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 interface Props {
-    assessmentId: number;
+    submissionId: number;
 }
 
 const breadcrumbs = [
@@ -29,19 +39,19 @@ const breadcrumbs = [
  * Halaman untuk memberikan keputusan akhir editorial
  * terhadap naskah yang telah melalui proses review.
  */
-export default function FinalDecision({ assessmentId }: Props) {
+export default function FinalDecision({ submissionId }: Props) {
     const {
         data,
         setData,
         post,
         processing,
     } = useForm({
-        decision: 'accept' as 'accept' | 'reject',
+        decision: 'accept' as 'accept' | 'reject' | 'minor_revision' | 'major_revision',
         notes: '',
     });
 
     const submit = () => {
-        post(route('editorial.final-decision', assessmentId));
+        post(route('editorial.final-decision', submissionId));
     };
 
     return (
@@ -55,49 +65,69 @@ export default function FinalDecision({ assessmentId }: Props) {
 
                 <CardContent className="space-y-6">
                     <div>
-                        <label className="mb-2 block font-medium">
+                       <Label className="mb-2 block">
                             Decision
-                        </label>
+                        </Label>
 
-                        <select
-                            className="w-full rounded border p-2"
+                       <Select
                             value={data.decision}
-                            onChange={(e) =>
+                            onValueChange={(value) =>
                                 setData(
                                     'decision',
-                                    e.target.value as 'accept' | 'reject',
+                                    value as
+                                        | 'accept'
+                                        | 'minor_revision'
+                                        | 'major_revision'
+                                        | 'reject'
                                 )
                             }
                         >
-                            <option value="accept">Accept</option>
-                            <option value="reject">Reject</option>
-                        </select>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select final decision" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                <SelectItem value="accept">
+                                    Accept
+                                </SelectItem>
+
+                                <SelectItem value="minor_revision">
+                                    Minor Revision
+                                </SelectItem>
+
+                                <SelectItem value="major_revision">
+                                    Major Revision
+                                </SelectItem>
+
+                                <SelectItem value="reject">
+                                    Reject
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div>
-                        <label className="mb-2 block font-medium">
+                       <Label className="mb-2 block">
                             Editorial Note
-                        </label>
+                        </Label>
 
-                        <textarea
+                        <Textarea
                             rows={6}
                             value={data.notes}
-                            onChange={(e) =>
-                                setData('notes', e.target.value)
-                            }
-                            className="w-full rounded border p-3"
-                            placeholder="Minimal 50 karakter..."
+                            onChange={(e) => setData('notes', e.target.value)}
+                            placeholder="Masukkan catatan editorial (minimal 50 karakter jika memilih Reject)"
                         />
 
                         <small className="text-gray-500">
-                            {data.notes.length}/50 karakter minimum
+                            {data.decision === 'reject'
+                                ? `${data.notes.length}/50 karakter minimum`
+                                : `${data.notes.length} karakter`}
                         </small>
                     </div>
 
                     <Button
                         onClick={submit}
-                        disabled={processing || data.notes.length < 50}
-                    >
+                        disabled={processing || (data.decision === 'reject' && data.notes.length < 50)}>
                         {processing
                             ? 'Submitting...'
                             : 'Submit Final Decision'}

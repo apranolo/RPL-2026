@@ -5,19 +5,17 @@ namespace App\Http\Controllers\Editorial;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EditorialDecisionRequest;
 use App\Models\EditorialDecision;
-use App\Models\JournalAssessment;
+use App\Models\Submission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 
 class DecisionController extends Controller
 {
     /**
-     * Handle final editorial decision (Accept / Reject).
+     * Handle final editorial decision.
      */
-    public function finalDecision(
-        EditorialDecisionRequest $request,
-        JournalAssessment $assessment
-    ): RedirectResponse {
+        public function finalDecision(EditorialDecisionRequest $request, Submission $submission): RedirectResponse 
+        {
         $validated = $request->validated();
 
         DB::beginTransaction();
@@ -41,7 +39,7 @@ class DecisionController extends Controller
             */
 
             $payload = [
-                'assessment_id' => $assessment->id,
+                'submission_id' => $submission->id,
                 'decision'      => $validated['decision'],
                 'notes'         => $validated['notes'],
             ];

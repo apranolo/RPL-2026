@@ -766,12 +766,11 @@ Route::middleware(['auth'])->group(function () {
 
             // Final Editorial Decision
             Route::post(
-                'assessments/{assessment}/final-decision',
+                'final-decision/{submission}',
                 [DecisionController::class, 'finalDecision']
             )->name('final-decision');
-
         });
-    });
+
     Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
     Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
     
@@ -865,25 +864,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
             ->name('funding.upload-bukti');
     });
-    /*
-    |--------------------------------------------------------------------------
-    | Finance & Funding Routes
-    |--------------------------------------------------------------------------
-    */
-    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
-
-        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
-            ->name('finance.funding.logs.index');
-
-        Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
-            ->name('finance.funding.print-kwitansi');
-
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    });
-
+    
     /*
     |--------------------------------------------------------------------------
     | Finance & Funding Routes
@@ -947,11 +928,11 @@ Route::middleware(['auth'])->group(function () {
         ->name('proposal.review-history');
 
     // Notifications (Modul 7)
-    Route::prefix('notifications')->name('notifications.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
-        Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
-        Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
-    });
+    // Route::prefix('notifications')->name('notifications.')->group(function () {
+    //     Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    //     Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
+    //     Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
+    // });
 
     Route::resource('proposal', ProposalController::class);
 

@@ -28,6 +28,8 @@ class EditorialDecisionRequest extends FormRequest
                 'required',
                 Rule::in([
                     'accept',
+                    'minor_revision',
+                    'major_revision',
                     'reject',
                 ]),
             ],
@@ -35,10 +37,20 @@ class EditorialDecisionRequest extends FormRequest
             'notes' => [
                 'required',
                 'string',
-                'min:50',
                 'max:5000',
             ],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->sometimes(
+            'notes',
+            ['min:50'],
+            function ($input) {
+                return $input->decision === 'reject';
+            }
+        );
     }
 
     /**
@@ -48,10 +60,10 @@ class EditorialDecisionRequest extends FormRequest
     {
         return [
             'decision.required' => 'Please choose a final editorial decision.',
-            'decision.in' => 'Editorial decision must be either Accept or Reject.',
+            'decision.in' => 'Editorial decision must be Accept, Minor Revision, Major Revision, or Reject.',
 
             'notes.required' => 'Editorial notes are required.',
-            'notes.min' => 'Editorial notes must contain at least 50 characters.',
+            'notes.min' => 'Editorial notes must contain at least 50 characters when rejecting a submission.',
             'notes.max' => 'Editorial notes may not exceed 5000 characters.',
         ];
     }
