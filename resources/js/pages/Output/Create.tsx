@@ -6,7 +6,7 @@
  *
  * @route GET /user/outputs/create
  */
-import { JournalOutputForm } from '@/components/Forms/JournalOutputForm';
+import { JournalForm } from '@/components/Forms/JournalForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
@@ -128,7 +128,7 @@ export default function OutputCreate({ outputTypes, journals }: Props) {
                                 </CardHeader>
                                 <CardContent>
                                     {selectedType === 'Jurnal' ? (
-                                        <JournalOutputForm journals={journals} />
+                                        <JournalForm journals={journals} />
                                     ) : (
                                         <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
                                             <FileText className="mx-auto h-12 w-12 text-gray-400" />

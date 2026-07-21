@@ -39,7 +39,7 @@ interface DoiMetadata {
     url?: string;
 }
 
-export function JournalOutputForm({ journals }: Props) {
+export function JournalForm({ journals }: Props) {
     const [doiInput, setDoiInput] = useState('');
     const [doiStatus, setDoiStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [doiMessage, setDoiMessage] = useState('');
