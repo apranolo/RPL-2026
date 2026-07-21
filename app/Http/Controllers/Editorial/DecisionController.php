@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Editorial;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EditorialDecisionRequest;
+use App\Models\EditorialDecision;
 use App\Models\JournalAssessment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -39,14 +40,12 @@ class DecisionController extends Controller
             |
             */
 
-            // Keep validated payload available for future implementation.
             $payload = [
                 'assessment_id' => $assessment->id,
                 'decision'      => $validated['decision'],
                 'notes'         => $validated['notes'],
             ];
 
-            // Placeholder to indicate payload has been prepared.
             unset($payload);
 
             DB::commit();
@@ -65,5 +64,15 @@ class DecisionController extends Controller
                 'Failed to process the editorial decision.'
             );
         }
+    }
+
+    public function history($submissionId)
+    {
+        $history = EditorialDecision::with('editor')
+            ->where('submission_id', $submissionId)
+            ->orderBy('decided_at', 'desc')
+            ->get();
+
+        return response()->json($history);
     }
 }
