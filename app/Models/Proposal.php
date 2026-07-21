@@ -4,223 +4,142 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 /**
- * Model for the `proposals` table (Modul 1 – Manajemen Proposal Penelitian).
+ * Proposal Model
  *
- * @property int         $id
- * @property int         $id_pengusul
- * @property int|null    $id_skema_pendanaan
- * @property string      $judul_penelitian
- * @property string      $abstrak
- * @property string      $latar_belakang
+ * Merepresentasikan proposal penelitian yang diajukan oleh Dosen (User).
+ * Kolom mengikuti skema migrasi 2026_05_13_182810_create_proposals_table.php
+ *
+ * @property int $id
+ * @property string $title
+ * @property string $description
+ * @property int $user_id
+ * @property int $research_schema_id
+ * @property string $status_proposal Draft|Submitted|Administrasi_Valid|Ditolak
+ * @property string|null $rejection_reason
  * @property string|null $file_dokumen_proposal
- * @property string      $status_proposal         draft|submitted|administrasi_valid|ditolak
- * @property string|null $tanggal_pengajuan
- * @property float|null  $total_pendanaan_disetujui
- * @property int|null    $deleted_by
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
  */
 class Proposal extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-    /**
-     * The table associated with the model.
-     */
-    protected $table = 'proposals';
+    // ─── Status Constants ────────────────────────────────────────────────────
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    public const STATUS_DRAFT = 'Draft';
+
+    public const STATUS_SUBMITTED = 'Submitted';
+
+    public const STATUS_ADMINISTRASI_VALID = 'Administrasi_Valid';
+
+    public const STATUS_DITOLAK = 'Ditolak';
+
+    // ─── Fillable ────────────────────────────────────────────────────────────
+
     protected $fillable = [
-        'id_pengusul',
-        'id_skema_pendanaan',
-        'judul_penelitian',
-        'abstrak',
-        'latar_belakang',
-        'file_dokumen_proposal',
+        'title',
+        'description',
+        'judul',
+        'deskripsi',
+        'user_id',
+        'research_schema_id',
         'status_proposal',
-        'tanggal_pengajuan',
-        'total_pendanaan_disetujui',
-        'deleted_by',
+        'rejection_reason',
+        'abstract',
+        'background',
+        'proposal_doc_path',
+        'status',
+        'submitted_at',
+        'file_dokumen_proposal',
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * Virtual attributes appended to array/JSON representation.
      */
-    protected $casts = [
-        'tanggal_pengajuan'         => 'date',
-        'total_pendanaan_disetujui' => 'decimal:2',
-        'created_at'                => 'datetime',
-        'updated_at'                => 'datetime',
-        'deleted_at'                => 'datetime',
+    protected $appends = [
+        'status',
+        'proposal_doc_path',
     ];
 
-    /* --------------------------------------------------------------------------
-    | Status constants – mirrors PRD Modul 1 enum values
-    -------------------------------------------------------------------------- */
-
-    public const STATUS_DRAFT               = 'draft';
-    public const STATUS_SUBMITTED           = 'submitted';
-    public const STATUS_ADMINISTRASI_VALID  = 'administrasi_valid';
-    public const STATUS_DITOLAK             = 'ditolak';
-
     /*
     |--------------------------------------------------------------------------
-    | Relationships
+    | Accessors & Mutators
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * The researcher (Dosen/Peneliti) who submitted this proposal.
-     */
-    public function pengusul()
+    public function getStatusAttribute(): string
     {
-        return $this->belongsTo(User::class, 'id_pengusul');
+        return $this->status_proposal ?? 'Draft';
+    }
+
+    public function setStatusAttribute($value): void
+    {
+        $this->attributes['status_proposal'] = $value;
+    }
+
+    public function getProposalDocPathAttribute(): ?string
+    {
+        return $this->file_dokumen_proposal;
+    }
+
+    public function setProposalDocPathAttribute($value): void
+    {
+        $this->attributes['file_dokumen_proposal'] = $value;
     }
 
     /**
-     * The funding scheme (Skema Pendanaan) for this proposal.
+     * Accessor virtual: judul → title
+     * Digunakan oleh ReviewSummaryController dan frontend Review/Summary.tsx.
      */
-    public function skemaPendanaan()
+    public function getJudulAttribute(): ?string
     {
-        return $this->belongsTo(SkemaPendanaan::class, 'id_skema_pendanaan');
+        return $this->attributes['title'] ?? null;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Scope: only draft proposals.
-     */
-    public function scopeDraft($query)
+    public function setJudulAttribute($value): void
     {
-        return $query->where('status_proposal', self::STATUS_DRAFT);
+        $this->attributes['title'] = $value;
     }
 
     /**
-     * Scope: only submitted proposals (waiting admin review).
+     * Accessor virtual: deskripsi → description
+     * Digunakan oleh ReviewSummaryController dan frontend Review/Summary.tsx.
      */
-    public function scopeSubmitted($query)
+    public function getDeskripsiAttribute(): ?string
     {
-        return $query->where('status_proposal', self::STATUS_SUBMITTED);
+        return $this->attributes['description'] ?? null;
+    }
+
+    public function setDeskripsiAttribute($value): void
+    {
+        $this->attributes['description'] = $value;
+    }
+
+    // ─── Relationships ───────────────────────────────────────────────────────
+
+    /**
+     * Relasi ke User (Dosen pengusul).
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * Scope: only proposals that passed administrative review.
+     * Relasi ke ResearchSchema (skema penelitian).
      */
-    public function scopeAdministrasiValid($query)
+    public function researchSchema()
     {
-        return $query->where('status_proposal', self::STATUS_ADMINISTRASI_VALID);
+        return $this->belongsTo(ResearchSchema::class);
     }
 
     /**
-     * Scope: only rejected proposals.
+     * Relasi ke ProposalDocument.
      */
-    public function scopeDitolak($query)
+    public function documents()
     {
-        return $query->where('status_proposal', self::STATUS_DITOLAK);
-    }
-
-    /**
-     * Scope: filter by researcher (pengusul).
-     */
-    public function scopeForUser($query, int $userId)
-    {
-        return $query->where('id_pengusul', $userId);
-    }
-
-    /**
-     * Scope: filter proposals belonging to a specific university.
-     *
-     * Joins with users table to scope by university_id.
-     */
-    public function scopeForUniversity($query, ?int $universityId)
-    {
-        if (is_null($universityId)) {
-            return $query->whereRaw('1 = 0');
-        }
-
-        return $query->whereHas('pengusul', function ($q) use ($universityId) {
-            $q->where('university_id', $universityId);
-        });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Accessors & Helpers
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Human-readable status label (Bahasa Indonesia).
-     */
-    public function getStatusLabelAttribute(): string
-    {
-        return match ($this->status_proposal) {
-            self::STATUS_DRAFT              => 'Draft',
-            self::STATUS_SUBMITTED          => 'Diajukan',
-            self::STATUS_ADMINISTRASI_VALID => 'Administrasi Valid',
-            self::STATUS_DITOLAK            => 'Ditolak',
-            default                         => ucfirst($this->status_proposal),
-        };
-    }
-
-    /**
-     * Check if the proposal document file exists in storage.
-     */
-    public function hasDocument(): bool
-    {
-        return ! empty($this->file_dokumen_proposal)
-            && Storage::disk('public')->exists($this->file_dokumen_proposal);
-    }
-
-    /**
-     * Get the public download URL for the proposal document.
-     */
-    public function getDocumentUrlAttribute(): ?string
-    {
-        return $this->hasDocument()
-            ? Storage::disk('public')->url($this->file_dokumen_proposal)
-            : null;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Boot
-    |--------------------------------------------------------------------------
-    */
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        // Auto-set tanggal_pengajuan when status changes to 'submitted'
-        static::saving(function (self $model) {
-            if (
-                $model->isDirty('status_proposal')
-                && $model->status_proposal === self::STATUS_SUBMITTED
-                && $model->tanggal_pengajuan === null
-            ) {
-                $model->tanggal_pengajuan = now()->toDateString();
-            }
-        });
-
-        // Auto-fill deleted_by on soft-delete
-        static::deleting(function (self $model) {
-            if (auth()->check() && ! $model->isForceDeleting()) {
-                $model->deleted_by = auth()->id();
-                $model->save();
-            }
-        });
+        return $this->hasMany(ProposalDocument::class);
     }
 }

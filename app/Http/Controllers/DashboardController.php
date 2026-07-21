@@ -24,9 +24,12 @@ class DashboardController extends Controller
     {
         $user = $request->user()->load(['role', 'university']);
 
+        // Calculate journal statistics for visualization first to utilize cached data
+        $statistics = $this->calculateJournalStatisticsForRole($user);
+
         // Initialize stats
         $stats = [
-            'total_journals' => 0,
+            'total_journals' => $statistics['totals']['total_journals'] ?? 0,
             'total_assessments' => 0,
             'average_score' => 0.0,
         ];
@@ -34,7 +37,6 @@ class DashboardController extends Controller
         // Get stats based on user role
         if ($user->role->name === 'Super Admin') {
             // Super Admin sees all data
-            $stats['total_journals'] = DB::table('journals')->count();
             $stats['total_assessments'] = DB::table('journal_assessments')->count();
 
             $avgScore = DB::table('journal_assessments')
@@ -59,10 +61,6 @@ class DashboardController extends Controller
 
         } elseif ($user->role->name === 'Admin Kampus') {
             // Admin Kampus sees only their university data
-            $stats['total_journals'] = DB::table('journals')
-                ->where('university_id', $user->university_id)
-                ->count();
-
             $stats['total_assessments'] = DB::table('journal_assessments')
                 ->join('journals', 'journal_assessments.journal_id', '=', 'journals.id')
                 ->where('journals.university_id', $user->university_id)
@@ -77,33 +75,33 @@ class DashboardController extends Controller
 
         } else {
             // Regular user (Peneliti/Dosen) — Modul 6: show proposal riset stats only.
-            // Counts come from the `proposals` table (Modul 1 PRD), NOT from journals.
             $uid = (int) $user->id;
 
             $proposalCounts = DB::table('proposals')
                 ->whereNull('deleted_at')
-                ->where('id_pengusul', $uid)
+                ->where('user_id', $uid)
                 ->selectRaw("
                     COUNT(*) as total,
-                    SUM(CASE WHEN status_proposal = 'submitted'          THEN 1 ELSE 0 END) as masuk,
-                    SUM(CASE WHEN status_proposal = 'administrasi_valid' THEN 1 ELSE 0 END) as lolos,
-                    SUM(CASE WHEN status_proposal = 'ditolak'            THEN 1 ELSE 0 END) as gagal,
-                    SUM(CASE WHEN status_proposal = 'draft'              THEN 1 ELSE 0 END) as draft,
-                    COALESCE(SUM(CASE WHEN status_proposal = 'administrasi_valid'
-                        THEN total_pendanaan_disetujui ELSE 0 END), 0) as total_pendanaan
+                    SUM(CASE WHEN status = 'submitted' THEN 1 ELSE 0 END) as masuk,
+                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as lolos,
+                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as gagal,
+                    SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draft
                 ")
                 ->first();
 
-            $stats['total_proposals']    = (int)   ($proposalCounts->total           ?? 0);
-            $stats['proposal_masuk']     = (int)   ($proposalCounts->masuk           ?? 0);
-            $stats['proposal_lolos']     = (int)   ($proposalCounts->lolos           ?? 0);
-            $stats['proposal_gagal']     = (int)   ($proposalCounts->gagal           ?? 0);
-            $stats['proposal_draft']     = (int)   ($proposalCounts->draft           ?? 0);
-            $stats['total_pendanaan']    = (float) ($proposalCounts->total_pendanaan ?? 0.0);
-        }
+            $stats['total_proposals'] = (int) ($proposalCounts->total ?? 0);
+            $stats['proposal_masuk'] = (int) ($proposalCounts->masuk ?? 0);
+            $stats['proposal_lolos'] = (int) ($proposalCounts->lolos ?? 0);
+            $stats['proposal_gagal'] = (int) ($proposalCounts->gagal ?? 0);
+            $stats['proposal_draft'] = (int) ($proposalCounts->draft ?? 0);
 
-        // Calculate journal statistics for visualization (non-User roles only)
-        $statistics = $this->calculateJournalStatisticsForRole($user);
+            // Add journal breakdown by approval status for User
+            $stats['journals_by_status'] = $statistics['totals']['journals_by_status'] ?? [
+                'pending' => 0,
+                'approved' => 0,
+                'rejected' => 0,
+            ];
+        }
 
         // Calculate proposal (riset) aggregate stats from the `proposals` table
         $proposalStats = $this->getProposalStat($user);
@@ -111,13 +109,20 @@ class DashboardController extends Controller
         // Route to role-specific dashboard views
         $roleName = $user->role->name ?? '';
 
-        if ($roleName === 'User') {
+        if ($roleName === 'User' || $roleName === 'Dosen') {
             return Inertia::render('Dashboard/User', [
                 'stats'          => $stats,
                 'proposal_stats' => $proposalStats,
             ]);
         }
 
+                'pending' => 0,
+                'approved' => 0,
+                'rejected' => 0,
+            ];
+        }
+
+>>>>>>> 66bbcbefb8704a66a3933c918c0b46c842469e12
         return Inertia::render('dashboard', [
             'stats'          => $stats,
             'statistics'     => $statistics,
@@ -282,12 +287,19 @@ class DashboardController extends Controller
             ->values()
             ->toArray();
 
+        $journalsByStatus = [
+            'pending' => $journals->filter(fn ($j) => $j->approval_status === 'pending')->count(),
+            'approved' => $journals->filter(fn ($j) => $j->approval_status === 'approved')->count(),
+            'rejected' => $journals->filter(fn ($j) => $j->approval_status === 'rejected')->count(),
+        ];
+
         return [
             'totals' => [
                 'total_journals' => $totalJournals,
                 'indexed_journals' => $indexedJournals,
                 'sinta_journals' => $sintaJournals,
                 'non_sinta_journals' => $nonSintaJournals,
+                'journals_by_status' => $journalsByStatus,
             ],
             'by_indexation' => $byIndexation,
             'by_accreditation' => $byAccreditation,
