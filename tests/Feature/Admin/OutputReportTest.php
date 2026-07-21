@@ -7,7 +7,6 @@ use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class OutputReportTest extends TestCase
@@ -31,11 +30,11 @@ class OutputReportTest extends TestCase
         ResearchOutput::factory()->create([
             'status' => 'verified',
             'type' => 'Jurnal',
-            'year' => '2025'
+            'year' => '2025',
         ]);
 
         $response = $this->actingAs($superAdmin)->get(route('admin.output.report'));
-        
+
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => $page
             ->component('Admin/Output/Report')
@@ -62,11 +61,11 @@ class OutputReportTest extends TestCase
 
         ResearchOutput::factory()->count(2)->create([
             'status' => 'verified',
-            'type' => 'Jurnal'
+            'type' => 'Jurnal',
         ]);
         ResearchOutput::factory()->create([
             'status' => 'verified',
-            'type' => 'Buku'
+            'type' => 'Buku',
         ]);
 
         $responseCategory = $this->actingAs($superAdmin)->getJson('/api/stats/outputs/by-category');
@@ -84,7 +83,7 @@ class OutputReportTest extends TestCase
 
         $adminKampus = User::factory()->create([
             'role_id' => Role::ADMIN_KAMPUS,
-            'university_id' => $univ1->id
+            'university_id' => $univ1->id,
         ]);
 
         $user1 = User::factory()->create(['university_id' => $univ1->id, 'role_id' => Role::USER]);
@@ -93,13 +92,13 @@ class OutputReportTest extends TestCase
         // Output for univ1
         ResearchOutput::factory()->create([
             'status' => 'verified',
-            'user_id' => $user1->id
+            'user_id' => $user1->id,
         ]);
 
         // Output for univ2
         ResearchOutput::factory()->create([
             'status' => 'verified',
-            'user_id' => $user2->id
+            'user_id' => $user2->id,
         ]);
 
         $responseCategory = $this->actingAs($adminKampus)->getJson('/api/stats/outputs/by-category');

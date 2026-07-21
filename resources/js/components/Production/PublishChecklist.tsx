@@ -22,11 +22,7 @@ interface Props {
     issue: number;
 }
 
-export default function PublishChecklist({
-    journalId,
-    volume,
-    issue,
-}: Props) {
+export default function PublishChecklist({ journalId, volume, issue }: Props) {
     const [checked, setChecked] = useState(false);
 
     const handlePublish = () => {
@@ -42,24 +38,17 @@ export default function PublishChecklist({
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button>
-                    Publish Issue
-                </Button>
+                <Button>Publish Issue</Button>
             </AlertDialogTrigger>
 
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>
-                        Publish Issue
-                    </AlertDialogTitle>
+                    <AlertDialogTitle>Publish Issue</AlertDialogTitle>
 
-                    <AlertDialogDescription>
-                        Pastikan seluruh persyaratan telah terpenuhi sebelum issue dipublish.
-                    </AlertDialogDescription>
+                    <AlertDialogDescription>Pastikan seluruh persyaratan telah terpenuhi sebelum issue dipublish.</AlertDialogDescription>
                 </AlertDialogHeader>
 
                 <div className="space-y-3 py-2">
-
                     <div className="flex items-center gap-2">
                         <Checkbox checked disabled />
                         <span>Metadata Issue telah lengkap</span>
@@ -76,30 +65,18 @@ export default function PublishChecklist({
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Checkbox checked={checked}
-                            onCheckedChange={(v) => setChecked(v === true)}
-                        />
+                        <Checkbox checked={checked} onCheckedChange={(v) => setChecked(v === true)} />
 
-                        <span>
-                            Saya yakin ingin mempublish issue ini.
-                        </span>
+                        <span>Saya yakin ingin mempublish issue ini.</span>
                     </div>
-
                 </div>
 
                 <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
 
-                    <AlertDialogCancel>
-                        Batal
-                    </AlertDialogCancel>
-
-                    <AlertDialogAction
-                        disabled={!checked}
-                        onClick={handlePublish}
-                    >
+                    <AlertDialogAction disabled={!checked} onClick={handlePublish}>
                         Publish
                     </AlertDialogAction>
-
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

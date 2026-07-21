@@ -21,14 +21,13 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ClipboardList, Edit, Eye, Plus, Search, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ClipboardList, Edit, Eye, Plus, Search, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -71,8 +70,8 @@ interface Criterion {
             template?: {
                 id: number;
                 name: string;
-            }
-        }
+            };
+        };
     } | null;
 }
 
@@ -212,7 +211,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                         <SelectItem value="all">Semua Sub-Kategori</SelectItem>
                                         {Object.entries(groupedSubCategories).map(([groupName, subs]) => (
                                             <SelectGroup key={groupName}>
-                                                <SelectLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                                <SelectLabel className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                                     {groupName}
                                                 </SelectLabel>
                                                 {subs.map((sub) => (
@@ -251,7 +250,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                 </Select>
                             </div>
 
-                            <div className="md:col-span-4 flex justify-end gap-2">
+                            <div className="flex justify-end gap-2 md:col-span-4">
                                 <Button type="submit" className="px-6">
                                     Cari
                                 </Button>
@@ -306,19 +305,18 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
 
                                         return (
                                             <TableRow key={criterion.id}>
-                                                <TableCell className="font-bold text-foreground">
-                                                    {criterion.code}
-                                                </TableCell>
-                                                <TableCell className="text-center font-mono text-sm">
-                                                    {criterion.sort_order ?? '-'}
-                                                </TableCell>
+                                                <TableCell className="font-bold text-foreground">{criterion.code}</TableCell>
+                                                <TableCell className="text-center font-mono text-sm">{criterion.sort_order ?? '-'}</TableCell>
                                                 <TableCell>
                                                     <div>
-                                                        <div className="line-clamp-2 text-foreground font-medium" title={criterion.question}>
+                                                        <div className="line-clamp-2 font-medium text-foreground" title={criterion.question}>
                                                             {criterion.question}
                                                         </div>
                                                         {criterion.description && (
-                                                            <div className="line-clamp-1 text-xs text-muted-foreground mt-0.5" title={criterion.description}>
+                                                            <div
+                                                                className="mt-0.5 line-clamp-1 text-xs text-muted-foreground"
+                                                                title={criterion.description}
+                                                            >
                                                                 {criterion.description}
                                                             </div>
                                                         )}
@@ -330,7 +328,7 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Badge variant="secondary" className="capitalize text-xs">
+                                                    <Badge variant="secondary" className="text-xs capitalize">
                                                         {criterion.answer_type_label}
                                                     </Badge>
                                                 </TableCell>
@@ -339,18 +337,21 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     {criterion.requires_attachment ? (
-                                                        <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs">
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="border-amber-500/20 bg-amber-500/10 text-xs text-amber-600"
+                                                        >
                                                             Wajib
                                                         </Badge>
                                                     ) : (
-                                                        <Badge variant="outline" className="text-muted-foreground text-xs">
+                                                        <Badge variant="outline" className="text-xs text-muted-foreground">
                                                             Tidak
                                                         </Badge>
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     {criterion.is_active ? (
-                                                        <Badge className="bg-green-500/10 text-green-600 border-green-500/20 border hover:bg-green-500/20 text-xs">
+                                                        <Badge className="border border-green-500/20 bg-green-500/10 text-xs text-green-600 hover:bg-green-500/20">
                                                             Aktif
                                                         </Badge>
                                                     ) : (
@@ -394,10 +395,9 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                     {criteria.last_page > 1 && (
                         <div className="mt-6 border-t border-sidebar-border/70 pt-4 dark:border-sidebar-border">
                             <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-                                <div className="text-sm text-muted-foreground text-center md:text-left">
+                                <div className="text-center text-sm text-muted-foreground md:text-left">
                                     Menampilkan {(criteria.current_page - 1) * criteria.per_page + 1} sampai{' '}
-                                    {Math.min(criteria.current_page * criteria.per_page, criteria.total)} dari{' '}
-                                    {criteria.total} hasil
+                                    {Math.min(criteria.current_page * criteria.per_page, criteria.total)} dari {criteria.total} hasil
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {criteria.links.map((link, index) => {
@@ -438,13 +438,13 @@ export default function CriteriaIndex({ criteria, subCategories, filters }: Prop
                     <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Kriteria Penilaian</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus kriteria penilaian <strong>{deleteDialog.criterionCode}</strong>?
-                            Tindakan ini tidak dapat dibatalkan dan kriteria tidak dapat dihapus jika telah digunakan dalam respons penilaian yang telah dikirimkan.
+                            Apakah Anda yakin ingin menghapus kriteria penilaian <strong>{deleteDialog.criterionCode}</strong>? Tindakan ini tidak
+                            dapat dibatalkan dan kriteria tidak dapat dihapus jika telah digunakan dalam respons penilaian yang telah dikirimkan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                        <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                             Hapus
                         </AlertDialogAction>
                     </AlertDialogFooter>
