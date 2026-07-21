@@ -1,9 +1,9 @@
 <?php
 
+use App\Models\Galley;
+use App\Models\Issue;
 use App\Models\Journal;
 use App\Models\Submission;
-use App\Models\Issue;
-use App\Models\Galley;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

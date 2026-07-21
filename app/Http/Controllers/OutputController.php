@@ -33,14 +33,12 @@ class OutputController extends Controller
     /**
      * Show the form for creating a new output.
      *
-     * Displays the main output creation page where users can select
-     * the type of scientific output they want to add.
-     *
-     * @route GET /user/outputs/create
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function create(): Response
+    public function storeHKI(Request $request)
     {
-        $user = Auth::user();
+        abort_if(!auth()->check(), 403, 'Anda harus login untuk menyimpan data HKI.');
 
         // Get the user's journals for linking
         $journals = Journal::where('user_id', $user->id)
@@ -54,17 +52,58 @@ class OutputController extends Controller
             'outputTypes' => ResearchOutput::KATEGORI,
             'journals' => $journals,
         ]);
+
+        try {
+            $filePath = null;
+            if ($request->hasFile('file_sertifikat_atau_cover')) {
+                $filePath = $request->file('file_sertifikat_atau_cover')->store('luaran/hki', 'public');
+            }
+
+            // 1. Save specific data to HkiOutput (patent_number, patent_type)
+            $hkiOutput = HkiOutput::create([
+                'patent_number' => $validated['nomor_paten'],
+                'patent_type' => $validated['jenis_hki'],
+            ]);
+
+            // 2. Build keterangan from extra fields not in DB schema
+            $keteranganParts = [];
+            $keteranganParts[] = 'Penulis/Pencipta: ' . $validated['penulis_atau_pencipta'];
+            if (!empty($validated['tautan_publikasi'])) {
+                $keteranganParts[] = 'Tautan: ' . $validated['tautan_publikasi'];
+            }
+            if (!empty($validated['deskripsi'])) {
+                $keteranganParts[] = 'Deskripsi: ' . $validated['deskripsi'];
+            }
+
+            // 3. Save the rest to ResearchOutput via polymorphic relation
+            $hkiOutput->researchOutput()->create([
+                'user_id' => auth()->id(),
+                'contract_id' => $request->input('contract_id', 1),
+                'jenis_luaran' => 'HKI',
+                'judul_luaran' => $validated['judul_luaran'],
+                'tahun_capaian' => $validated['tahun_capaian'],
+                'file_sertifikat_atau_cover' => $filePath,
+                'status_verifikasi' => 'Draft',
+                'keterangan' => implode(' | ', $keteranganParts),
+            ]);
+
+            return redirect()->back()->with([
+                'success' => 'Data HKI berhasil disimpan.',
+                'data' => array_merge($validated, ['file_path' => $filePath])
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error storing HKI: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data HKI: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Store a newly created journal publication output.
+     * Store a newly created Book/Module output in storage.
      *
-     * Handles the submission of the Publikasi Jurnal Ilmiah sub-form,
-     * including optional DOI-based metadata and file upload.
-     *
-     * @route POST /user/outputs/store-journal
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function storeJournal(StoreJournalOutputRequest $request): RedirectResponse
+    public function storeBook(Request $request)
     {
         $user = Auth::user();
         $validated = $request->validated();
@@ -149,17 +188,37 @@ class OutputController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        $output->update($validated);
+        try {
+            $filePath = null;
+            if ($request->hasFile('file_sertifikat_atau_cover')) {
+                $filePath = $request->file('file_sertifikat_atau_cover')->store('luaran/buku', 'public');
+            }
 
-        return redirect()->route('user.outputs.index')->with('message', 'Output updated successfully');
-    }
+            // 2. Save specific data to BookOutput (isbn only; tipe_buku stored in keterangan)
+            $bookOutput = BookOutput::create([
+                'isbn' => $validated['isbn'],
+            ]);
 
-    public function destroy(ResearchOutput $output)
-    {
-        $this->authorize('delete', $output);
+            // Build keterangan from extra fields not in DB schema
+            $keteranganParts = [];
+            $keteranganParts[] = 'Penulis/Pencipta: ' . $validated['penulis_atau_pencipta'];
+            $keteranganParts[] = 'Tipe Buku: ' . $validated['tipe_buku'];
+            if (!empty($validated['tautan_publikasi'])) {
+                $keteranganParts[] = 'Tautan: ' . $validated['tautan_publikasi'];
+            }
+            if (!empty($validated['deskripsi'])) {
+                $keteranganParts[] = 'Deskripsi: ' . $validated['deskripsi'];
+            }
 
         $output->delete();
 
-        return redirect()->route('user.outputs.index')->with('message', 'Output deleted successfully');
+            return redirect()->back()->with([
+                'success' => 'Data Buku berhasil disimpan.',
+                'data' => array_merge($validated, ['file_path' => $filePath])
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error storing Book: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data Buku: ' . $e->getMessage());
+        }
     }
 }
