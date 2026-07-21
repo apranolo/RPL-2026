@@ -18,7 +18,21 @@ class OutputController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Output/Create');
+        $outputTypes = [
+            'Jurnal' => 'Publikasi Jurnal Ilmiah',
+            'HKI' => 'Hak Kekayaan Intelektual',
+            'Buku' => 'Buku / Modul Ajar',
+            'Produk' => 'Produk / Prototipe',
+        ];
+
+        $journals = \App\Models\Journal::where('user_id', auth()->id())
+            ->select('id', 'title', 'issn', 'e_issn')
+            ->get();
+
+        return Inertia::render('Output/Create', [
+            'outputTypes' => $outputTypes,
+            'journals' => $journals,
+        ]);
     }
 
     public function storeJournal(StoreJournalOutputRequest $request)
