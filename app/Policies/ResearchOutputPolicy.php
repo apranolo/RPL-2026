@@ -8,7 +8,7 @@ use App\Models\User;
 class ResearchOutputPolicy
 {
     /**
-     * Determine if the user can view any research outputs.
+     * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
@@ -16,7 +16,7 @@ class ResearchOutputPolicy
     }
 
     /**
-     * Determine if the user can view the research output.
+     * Determine whether the user can view the model.
      */
     public function view(User $user, ResearchOutput $output): bool
     {
@@ -24,11 +24,19 @@ class ResearchOutputPolicy
             return true;
         }
 
-        return $user->id === $output->user_id;
+        if ($user->isAdminKampus()) {
+            return $user->university_id === $output->user?->university_id;
+        }
+
+        if ($user->isUser()) {
+            return $user->id === $output->user_id;
+        }
+
+        return false;
     }
 
     /**
-     * Determine if the user can create research outputs.
+     * Determine whether the user can create models.
      */
     public function create(User $user): bool
     {
@@ -36,9 +44,7 @@ class ResearchOutputPolicy
     }
 
     /**
-     * Determine if the user can update the research output.
-     *
-     * Only the owner or a Super Admin can update an output.
+     * Determine whether the user can update the model.
      */
     public function update(User $user, ResearchOutput $output): bool
     {
@@ -46,13 +52,19 @@ class ResearchOutputPolicy
             return true;
         }
 
-        return $user->id === $output->user_id;
+        if ($user->isAdminKampus()) {
+            return $user->university_id === $output->user?->university_id;
+        }
+
+        if ($user->isUser()) {
+            return $user->id === $output->user_id;
+        }
+
+        return false;
     }
 
     /**
-     * Determine if the user can delete the research output.
-     *
-     * Only the owner (when status is draft) or a Super Admin can delete.
+     * Determine whether the user can delete the model.
      */
     public function delete(User $user, ResearchOutput $output): bool
     {
@@ -60,20 +72,43 @@ class ResearchOutputPolicy
             return true;
         }
 
-        // Regular users can only delete their own outputs while still in draft
-        return $user->id === $output->user_id && $output->status === 'draft';
+        if ($user->isAdminKampus()) {
+            if ($user->university_id !== $output->user?->university_id) {
+                return false;
+            }
+        }
+
+        if ($user->isUser()) {
+            if ($user->id !== $output->user_id) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
-     * Determine if the user can restore the research output.
+     * Determine whether the user can restore the model.
      */
     public function restore(User $user, ResearchOutput $output): bool
     {
-        return $user->isSuperAdmin();
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        if ($user->isAdminKampus()) {
+            return $user->university_id === $output->user?->university_id;
+        }
+
+        if ($user->isUser()) {
+            return $user->id === $output->user_id;
+        }
+
+        return false;
     }
 
     /**
-     * Determine if the user can permanently delete the research output.
+     * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user, ResearchOutput $output): bool
     {

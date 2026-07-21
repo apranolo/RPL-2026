@@ -12,7 +12,7 @@ class ResearchOutput extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'outputs';
+    protected $table = 'research_outputs';
 
     // Kategori statis
     const KATEGORI = [
