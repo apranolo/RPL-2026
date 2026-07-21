@@ -8,7 +8,6 @@ use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 /**
@@ -286,7 +285,7 @@ class AssessmentNotesTest extends TestCase
             $note->created_at->greaterThanOrEqualTo($beforeTime) && $note->created_at->lessThanOrEqualTo($afterTime),
             'Note created_at should be between before and after times'
         );
-        $this->assertInstanceOf(Carbon::class, $note->created_at);
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $note->created_at);
     }
 
     public function test_notes_are_deleted_when_assessment_is_deleted(): void

@@ -381,7 +381,7 @@ test('pengelola_jurnal_tidak_dapat_mengakses_route_user_jika_tidak_punya_role_us
         'is_active' => true,
     ]);
 
-    // role automatically attached by User::saved event
+    $pengelola->roles()->attach($pengelolaRole->id, ['assigned_at' => now()]);
 
     $this->actingAs($pengelola)
         ->get(route('user.journals.create'))

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\ProgressReport;
 use App\Models\Proposal;
-use App\Models\ResearchSchema;
 use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
@@ -72,9 +71,8 @@ class EvaluationControllerTest extends TestCase
     {
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
-            'research_schema_id' => ResearchSchema::create(['name' => 'S', 'max_funding' => 1])->id,
-            'title' => 'Proposal Test',
-            'description' => 'Deskripsi test',
+            'judul' => 'Proposal Test',
+            'deskripsi' => 'Deskripsi test',
             'status_proposal' => 'Draft',
         ]);
 
@@ -83,11 +81,10 @@ class EvaluationControllerTest extends TestCase
             'user_id' => $this->dosen->id,
             'title' => 'Laporan Test',
             'content' => 'Isi laporan test',
-            'report_type' => 'laporan_kemajuan',
+            'report_type' => 'Laporan_Kemajuan',
             'report_date' => now(),
             'progress_percentage' => 50,
             'status' => 'submitted',
-            'report_period' => '2026',
         ]);
 
         // Tidak ada Review assignment untuk reviewer ini
@@ -104,9 +101,8 @@ class EvaluationControllerTest extends TestCase
     {
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
-            'research_schema_id' => ResearchSchema::create(['name' => 'S', 'max_funding' => 1])->id,
-            'title' => 'Proposal Test',
-            'description' => 'Deskripsi test',
+            'judul' => 'Proposal Test',
+            'deskripsi' => 'Deskripsi test',
             'status_proposal' => 'Draft',
         ]);
 
@@ -124,11 +120,10 @@ class EvaluationControllerTest extends TestCase
             'user_id' => $this->dosen->id,
             'title' => 'Laporan Test',
             'content' => 'Isi laporan test',
-            'report_type' => 'laporan_kemajuan',
+            'report_type' => 'Laporan_Kemajuan',
             'report_date' => now(),
             'progress_percentage' => 50,
             'status' => 'submitted',
-            'report_period' => '2026',
         ]);
 
         $response = $this->actingAs($this->reviewer)

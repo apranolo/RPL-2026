@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 /**
  * @file Step1Start.tsx
  * @description Komponen halaman langkah pertama submission wizard: Pemilihan Jurnal & Persetujuan Lisensi.

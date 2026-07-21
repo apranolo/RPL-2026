@@ -31,7 +31,6 @@ test('proposal can be created and maps virtual accessors for frontend', function
         'user_id' => $user->id,
         'research_schema_id' => $schema->id,
         'title' => 'Implementasi Machine Learning Pada IoT',
-        'description' => 'Desc',
         'abstract' => 'Abstrak penelitian...',
         'background' => 'Latar belakang...',
         'proposal_doc_path' => 'proposals/doc.pdf',

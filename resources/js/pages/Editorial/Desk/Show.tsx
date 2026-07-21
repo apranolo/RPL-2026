@@ -4,6 +4,7 @@
  * @author Muhammad Irfan Habibi
  */
 
+import DecisionHistoryPanel from '@/components/DecisionHistoryPanel';
 import InlinePdfViewer from '@/components/InlinePdfViewer';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
@@ -68,7 +69,7 @@ export default function Show({ submission }: Props) {
                         </div>
                     </div>
 
-                    {/* DecisionHistoryPanel dulunya disini tapi komponennya hilang */}
+                    <DecisionHistoryPanel histories={submission.editorialDecisions || []} />
                 </div>
             </div>
         </AppLayout>

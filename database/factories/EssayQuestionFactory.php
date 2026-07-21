@@ -2,12 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\EssayQuestion;
-use App\Models\EvaluationCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<EssayQuestion>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\EssayQuestion>
  */
 class EssayQuestionFactory extends Factory
 {
@@ -19,7 +17,7 @@ class EssayQuestionFactory extends Factory
     public function definition(): array
     {
         return [
-            'category_id' => EvaluationCategory::factory(),
+            'category_id' => \App\Models\EvaluationCategory::factory(),
             'code' => 'E'.fake()->unique()->numberBetween(1, 99),
             'question' => fake()->sentence(10).'?',
             'guidance' => fake()->paragraph(2),

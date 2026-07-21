@@ -2,13 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\Proposal;
 use App\Models\ResearchSchema;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Proposal>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Proposal>
  */
 class ProposalFactory extends Factory
 {
@@ -22,7 +21,6 @@ class ProposalFactory extends Factory
         $status = $this->faker->randomElement(['Draft', 'Submitted', 'Administrasi_Valid', 'Ditolak']);
 
         return [
-            //
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
             'user_id' => User::factory(),

@@ -22,7 +22,7 @@ export default defineConfig({
             port: 5173,
         },
     },
-    build: {
+    build:{
         outDir: 'build',
         emptyOutDir: true,
         chunkSizeWarningLimit: 1000,
@@ -43,7 +43,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
+            'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy/dist/index.esm.js'),
             '@': resolve(__dirname, 'resources/js'),
         },
     },

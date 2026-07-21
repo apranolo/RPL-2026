@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Agenda>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Agenda>
  */
 class AgendaFactory extends Factory
 {

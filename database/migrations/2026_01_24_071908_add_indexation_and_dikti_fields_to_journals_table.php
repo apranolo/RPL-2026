@@ -41,18 +41,12 @@ return new class extends Migration
         // try-catch inside the closure cannot catch SQL-level exceptions.
         // The index may already be gone (dropped by a later migration or by
         // MySQL when its column was removed), so we guard it explicitly.
-        if (DB::getDriverName() === 'sqlite') {
-            try {
-                DB::statement('DROP INDEX IF EXISTS journals_accreditation_expiry_date_index');
-            } catch (Throwable $e) {
-                // Ignore
-            }
-        } elseif (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+        if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
             try {
                 Schema::table('journals', function (Blueprint $table) {
                     $table->dropIndex('journals_accreditation_expiry_date_index');
                 });
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 // Index already absent — safe to continue.
             }
         }

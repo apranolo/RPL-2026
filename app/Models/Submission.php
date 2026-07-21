@@ -84,11 +84,6 @@ class Submission extends Model
         return $this->hasMany(RevisionRound::class, 'id_submission', 'id');
     }
 
-    public function editorialDecisions(): HasMany
-    {
-        return $this->hasMany(EditorialDecision::class, 'submission_id');
-    }
-
     /**
      * Accessor for user_id (alias for author_id).
      */

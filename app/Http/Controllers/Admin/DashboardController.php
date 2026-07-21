@@ -211,7 +211,7 @@ class DashboardController extends Controller
     {
         $query = DB::table('contracts')
             ->select(
-                DB::raw(DB::connection()->getDriverName() === 'sqlite' ? "strftime('%Y', start_date) as year" : 'YEAR(start_date) as year'),
+                DB::raw('YEAR(start_date) as year'),
                 DB::raw('SUM(contract_value) as amount')
             )
             ->whereIn('status', ['active', 'completed']);
@@ -220,7 +220,7 @@ class DashboardController extends Controller
             $query->where('university_id', $universityId);
         }
 
-        $data = $query->groupBy(DB::raw(DB::connection()->getDriverName() === 'sqlite' ? "strftime('%Y', start_date)" : 'YEAR(start_date)'))
+        $data = $query->groupBy(DB::raw('YEAR(start_date)'))
             ->orderBy('year', 'asc')
             ->get()
             ->map(function ($row) {
@@ -276,9 +276,9 @@ class DashboardController extends Controller
                     ->count();
 
                 // Count research outputs (accepted/luaran)
-                $accepted = DB::table('outputs')
+                $accepted = DB::table('research_outputs')
                     ->whereIn('user_id', $userIds)
-                    ->where('status', 'verified')
+                    ->where('status', 'approved')
                     ->count();
 
                 // Include if there's any activity

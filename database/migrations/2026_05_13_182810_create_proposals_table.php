@@ -18,6 +18,7 @@ return new class extends Migration
                 $table->text('description');
                 $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
+                // INI PENTING
                 $table->foreignId('research_schema_id')
                     ->constrained('research_schemas')
                     ->onDelete('cascade');
@@ -30,15 +31,6 @@ return new class extends Migration
             });
         } else {
             Schema::table('proposals', function (Blueprint $table) {
-                if (! Schema::hasColumn('proposals', 'description')) {
-                    $table->text('description')->nullable();
-                }
-                if (! Schema::hasColumn('proposals', 'status_proposal')) {
-                    $table->string('status_proposal')->default('Draft');
-                }
-                if (! Schema::hasColumn('proposals', 'rejection_reason')) {
-                    $table->text('rejection_reason')->nullable();
-                }
                 if (! Schema::hasColumn('proposals', 'file_dokumen_proposal')) {
                     $table->string('file_dokumen_proposal')->nullable();
                 }
@@ -51,6 +43,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('proposals');
+        if (Schema::hasTable('proposals')) {
+            if (Schema::hasColumn('proposals', 'file_dokumen_proposal')) {
+                Schema::table('proposals', function (Blueprint $table) {
+                    $table->dropColumn('file_dokumen_proposal');
+                });
+            }
+        }
     }
 };

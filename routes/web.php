@@ -12,17 +12,14 @@ use App\Http\Controllers\Admin\EssayQuestionController;
 use App\Http\Controllers\Admin\EvaluationCategoryController;
 use App\Http\Controllers\Admin\EvaluationIndicatorController;
 use App\Http\Controllers\Admin\EvaluationSubCategoryController;
-use App\Http\Controllers\Admin\JournalController;
-use App\Http\Controllers\Admin\LppmApprovalController;
-use App\Http\Controllers\Admin\MonevReportController;
+use App\Http\Controllers\Admin\MonevScheduleCtrl;
 use App\Http\Controllers\Admin\OutputReportController;
+use App\Http\Controllers\Admin\OutputVerifyCtrl;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\UserRoleController;
-use App\Http\Controllers\AdminKampus\AgendaController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
 use App\Http\Controllers\AdminKampus\JournalApprovalController;
 use App\Http\Controllers\AdminKampus\PembinaanController as AdminKampusPembinaanController;
@@ -39,49 +36,39 @@ use App\Http\Controllers\Copyediting\CopyeditingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dikti\AssessmentController as DiktiAssessmentController;
 use App\Http\Controllers\DiscussionController;
-use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Editorial\DecisionController;
 use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
-use App\Http\Controllers\EvaluationController;
-use App\Http\Controllers\FinanceReportController;
 use App\Http\Controllers\FundingController;
-use App\Http\Controllers\FundingLogController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\MonevDocumentController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\OutputDocController;
 use App\Http\Controllers\Production\GalleyController;
 use App\Http\Controllers\Production\IssueController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
-use App\Http\Controllers\PublicEventController;
-use App\Http\Controllers\PublicJournalController;
 use App\Http\Controllers\ResourcesController;
-use App\Http\Controllers\Review\ReviewAssignmentController;
-use App\Http\Controllers\Review\ReviewerDashboardController;
-use App\Http\Controllers\Review\ReviewSummaryController;
-use App\Http\Controllers\ReviewDocumentController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
-use App\Http\Controllers\ReviewerProfileController;
-use App\Http\Controllers\ReviewHistoryController;
+use App\Http\Controllers\Editorial\DecisionController;
+use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Revision\EditorRevisionController;
 use App\Http\Controllers\Revision\RevisionController;
 use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
-use App\Http\Controllers\User\AssessmentIssueController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
 use App\Http\Controllers\User\ProfilController;
 use App\Http\Controllers\User\UserFundingController;
-use App\Models\ReviewAssignment;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+<<<<<<< HEAD
+
+=======
+>>>>>>> faa9e22e718366273d4a2c9cc8be50e329c9b9de
 
 /*
 |--------------------------------------------------------------------------
@@ -98,7 +85,6 @@ use Inertia\Inertia;
 | directly from the public/storage symlink before PHP is invoked,
 | so this route is never reached and adds zero overhead.
 */
-
 Route::get('/storage/{path}', function (string $path) {
     // Basic path hardening: reject traversal, backslashes, and absolute paths
     if (str_contains($path, '..') || str_contains($path, '\\') || str_starts_with($path, '/')) {
@@ -110,17 +96,15 @@ Route::get('/storage/{path}', function (string $path) {
             abort(404);
         }
 
-        return response()->file(storage_path('app/public/'.$path));
-
         return response()->file(Storage::disk('public')->path($path));
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         // Avoid leaking storage layer errors
         abort(404);
     }
 })->where('path', '.+')->name('storage.serve');
 
 //  Laman Page
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 /*
 |--------------------------------------------------------------------------
@@ -129,19 +113,19 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 */
 
 // Public access to view journals
-Route::get('/journals', [PublicJournalController::class, 'index'])
+Route::get('/journals', [\App\Http\Controllers\PublicJournalController::class, 'index'])
     ->name('journals.index');
-Route::get('/journals/{journal}', [PublicJournalController::class, 'show'])
+Route::get('/journals/{journal}', [\App\Http\Controllers\PublicJournalController::class, 'show'])
     ->name('journals.show');
 
 // Browse journals by university
-Route::get('/browse/universities', [PublicJournalController::class, 'browseUniversities'])
+Route::get('/browse/universities', [\App\Http\Controllers\PublicJournalController::class, 'browseUniversities'])
     ->name('browse.universities');
 
 // Public access to view events
-Route::get('/events', [PublicEventController::class, 'index'])
+Route::get('/events', [\App\Http\Controllers\PublicEventController::class, 'index'])
     ->name('events.index');
-Route::get('/events/{event}', [PublicEventController::class, 'show'])
+Route::get('/events/{event}', [\App\Http\Controllers\PublicEventController::class, 'show'])
     ->name('events.show');
 
 /*
@@ -185,9 +169,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('dashboard');
 
     // revisi ded code
-    Route::get('/monev/cetak-rekap', [MonevDocumentController::class, 'printRekap'])
+    Route::get('/monev/cetak-rekap', [\App\Http\Controllers\MonevDocumentController::class, 'printRekap'])
         ->name('monev.printRekap')
-        ->middleware('role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS.','.Role::USER);
+        ->middleware('role:'.Role::SUPER_ADMIN.'|'.Role::ADMIN_KAMPUS.'|'.Role::USER);
 
     // Author Submission Wizard Step 4 Routes
     Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
@@ -209,11 +193,11 @@ Route::middleware(['auth'])->group(function () {
 
         // Finance Reports
         Route::prefix('finance')->name('finance.')->group(function () {
-            Route::get('reports', [FinanceReportController::class, 'index'])
+            Route::get('reports', [\App\Http\Controllers\FinanceReportController::class, 'index'])
                 ->name('reports.index');
-            Route::get('reports/summary', [FinanceReportController::class, 'summary'])
+            Route::get('reports/summary', [\App\Http\Controllers\FinanceReportController::class, 'summary'])
                 ->name('reports.summary');
-            Route::post('reports/filter', [FinanceReportController::class, 'filter'])
+            Route::post('reports/filter', [\App\Http\Controllers\FinanceReportController::class, 'filter'])
                 ->name('reports.filter');
         });
 
@@ -244,9 +228,6 @@ Route::middleware(['auth'])->group(function () {
 
         Route::put('email-template/{emailTemplate}', [EmailTemplateController::class, 'update'])
             ->name('email-template.update');
-
-        // Skema Penelitian Management
-        Route::resource('schema', SchemaController::class);
 
         // Borang Indikator (Using Accreditation Templates System)
         Route::get('borang-indikator', [AccreditationTemplateController::class, 'index'])
@@ -320,40 +301,55 @@ Route::middleware(['auth'])->group(function () {
             ->name('admin-kampus.toggle-active');
 
         // Users (Pengelola Jurnal) Management
-        Route::get('users', [UserRoleController::class, 'index'])->name('users.index');
-        Route::delete('users/revoke/{id}', [UserRoleController::class, 'revoke'])->name('users.revoke');
-        Route::resource('users', UserController::class)->except(['index']);
-        Route::post('users/{user}/toggle-active', [UserController::class, 'toggleActive'])
+        Route::get('users', [\App\Http\Controllers\Admin\UserRoleController::class, 'index'])->name('users.index');
+        Route::delete('users/revoke/{id}', [\App\Http\Controllers\Admin\UserRoleController::class, 'revoke'])->name('users.revoke');
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->except(['index']);
+        Route::post('users/{user}/toggle-active', [\App\Http\Controllers\Admin\UserController::class, 'toggleActive'])
             ->name('users.toggle-active');
+        Route::post('users/{user}/revoke-role', [\App\Http\Controllers\Admin\UserRoleController::class, 'revoke'])
+            ->name('users.revoke-role');
 
         // LPPM Admin Approval Routes
-        Route::post('users/{user}/approve-lppm', [LppmApprovalController::class, 'approve'])
+        Route::post('users/{user}/approve-lppm', [\App\Http\Controllers\Admin\LppmApprovalController::class, 'approve'])
             ->name('users.approve-lppm');
-        Route::post('users/{user}/reject-lppm', [LppmApprovalController::class, 'reject'])
+        Route::post('users/{user}/reject-lppm', [\App\Http\Controllers\Admin\LppmApprovalController::class, 'reject'])
             ->name('users.reject-lppm');
-        Route::post('users/{user}/revert-lppm', [LppmApprovalController::class, 'revert'])
+        Route::post('users/{user}/revert-lppm', [\App\Http\Controllers\Admin\LppmApprovalController::class, 'revert'])
             ->name('users.revert-lppm');
 
         // Reviewer Management (v1.1 - Placeholder)
-        Route::get('reviewers', [App\Http\Controllers\Admin\ReviewerController::class, 'index'])
+        Route::get('reviewers', [\App\Http\Controllers\Admin\ReviewerController::class, 'index'])
             ->name('reviewers.index');
 
+        // Reviewer Assignment
+        Route::post('assign', [AssignController::class, 'assign'])
+            ->name('assign.store');
+
+        Route::delete('assign/{id}', [AssignController::class, 'unassign'])
+            ->name('assign.unassign');
+
+        // Schemas Management (v1.1)
+        Route::resource('schema', SchemaController::class);
+
         // View all journals (read-only for monitoring)
-        Route::get('journals', [JournalController::class, 'index'])
+        Route::get('journals', [\App\Http\Controllers\Admin\JournalController::class, 'index'])
             ->name('journals.index');
-        Route::get('journals/{journal}', [JournalController::class, 'show'])
+        Route::get('journals/{journal}', [\App\Http\Controllers\Admin\JournalController::class, 'show'])
             ->name('journals.show');
-        Route::post('journals/{journal}/harvest', [JournalController::class, 'harvest'])
+        Route::post('journals/{journal}/harvest', [\App\Http\Controllers\Admin\JournalController::class, 'harvest'])
             ->name('journals.harvest');
 
         // View all assessments (read-only for monitoring)
         Route::get('assessments', [AdminAssessmentController::class, 'index'])
             ->name('assessments.index');
 
+        // Review Schedule Management
+        Route::resource('schedules', ScheduleController::class);
+
         // Monev Report
-        Route::get('monev/rekap-keseluruhan', [MonevReportController::class, 'index'])
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportController::class, 'index'])
             ->name('monev.rekap-keseluruhan');
-        Route::post('monev/decide-action', [MonevReportController::class, 'decideAction'])
+        Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
             ->name('monev.decide-action');
 
         // Rekap Hasil Penilaian (Summary)
@@ -380,12 +376,39 @@ Route::middleware(['auth'])->group(function () {
                 ->name('toggle-status');
         });
 
+        // Output Verification (Admin)
+        Route::prefix('output-verify')->name('output-verify.')->group(function () {
+            Route::get('/', [OutputVerifyCtrl::class, 'index'])
+                ->name('index');
+            Route::post('{output}', [OutputVerifyCtrl::class, 'verify'])
+                ->name('verify');
+        });
+
+        // Monev Schedule Management
+        Route::prefix('monev-schedules')->name('monev-schedules.')->group(function () {
+            Route::get('/', [MonevScheduleCtrl::class, 'index'])
+                ->name('index');
+            Route::post('/', [MonevScheduleCtrl::class, 'store'])
+                ->name('store');
+            Route::get('pending', [MonevScheduleCtrl::class, 'pending'])
+                ->name('pending');
+        });
+
+        // Contract Management
+        Route::prefix('contracts')->name('contracts.')->group(function () {
+            Route::post('generate', [ContractController::class, 'generate'])
+                ->name('generate');
+            Route::get('{contract}', [ContractController::class, 'show'])
+                ->name('show');
+            Route::post('{contract}/update-status', [ContractController::class, 'updateStatus'])
+                ->name('update-status');
+        });
+
         // Output Report (Rekap Luaran)
         Route::get('output/report', [OutputReportController::class, 'index'])
             ->name('output.report');
         Route::get('output/export', [OutputReportController::class, 'export'])
             ->name('output.export');
-
     });
 
     /*
@@ -398,7 +421,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.')
         ->group(function () {
             // Penentuan Keputusan Diterima/Ditolak (Decision)
-            Route::post('decision/decide', [App\Http\Controllers\Admin\DecisionController::class, 'decide'])
+            Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
                 ->name('decision.decide');
 
             // Admin Dashboard (LPPM)
@@ -461,42 +484,42 @@ Route::middleware(['auth'])->group(function () {
                 ->name('reject');
 
             // Journal reassignment
-            Route::post('{journal}/reassign', [App\Http\Controllers\AdminKampus\JournalController::class, 'reassign'])
+            Route::post('{journal}/reassign', [\App\Http\Controllers\AdminKampus\JournalController::class, 'reassign'])
                 ->name('reassign');
 
             // OAI-PMH Article Harvest (dispatches to queue)
-            Route::post('harvest/bulk', [App\Http\Controllers\AdminKampus\JournalController::class, 'bulkHarvest'])
+            Route::post('harvest/bulk', [\App\Http\Controllers\AdminKampus\JournalController::class, 'bulkHarvest'])
                 ->name('harvest.bulk');
-            Route::post('{journal}/harvest', [App\Http\Controllers\AdminKampus\JournalController::class, 'harvest'])
+            Route::post('{journal}/harvest', [\App\Http\Controllers\AdminKampus\JournalController::class, 'harvest'])
                 ->name('harvest');
         });
 
         // View journals from their university
-        Route::get('journals', [App\Http\Controllers\AdminKampus\JournalController::class, 'index'])
+        Route::get('journals', [\App\Http\Controllers\AdminKampus\JournalController::class, 'index'])
             ->name('journals.index');
-        Route::get('journals/create', [App\Http\Controllers\AdminKampus\JournalController::class, 'create'])
+        Route::get('journals/create', [\App\Http\Controllers\AdminKampus\JournalController::class, 'create'])
             ->name('journals.create');
-        Route::post('journals', [App\Http\Controllers\AdminKampus\JournalController::class, 'store'])
+        Route::post('journals', [\App\Http\Controllers\AdminKampus\JournalController::class, 'store'])
             ->name('journals.store');
-        Route::get('journals/{journal}', [App\Http\Controllers\AdminKampus\JournalController::class, 'show'])
+        Route::get('journals/{journal}', [\App\Http\Controllers\AdminKampus\JournalController::class, 'show'])
             ->name('journals.show');
-        Route::get('journals/{journal}/edit', [App\Http\Controllers\AdminKampus\JournalController::class, 'edit'])
+        Route::get('journals/{journal}/edit', [\App\Http\Controllers\AdminKampus\JournalController::class, 'edit'])
             ->name('journals.edit');
-        Route::put('journals/{journal}', [App\Http\Controllers\AdminKampus\JournalController::class, 'update'])
+        Route::put('journals/{journal}', [\App\Http\Controllers\AdminKampus\JournalController::class, 'update'])
             ->name('journals.update');
-        Route::delete('journals/{journal}', [App\Http\Controllers\AdminKampus\JournalController::class, 'destroy'])
+        Route::delete('journals/{journal}', [\App\Http\Controllers\AdminKampus\JournalController::class, 'destroy'])
             ->name('journals.destroy');
 
         // Cover image upload (dedicated endpoint)
-        Route::patch('journals/{journal}/cover', [App\Http\Controllers\AdminKampus\JournalController::class, 'uploadCover'])
+        Route::patch('journals/{journal}/cover', [\App\Http\Controllers\AdminKampus\JournalController::class, 'uploadCover'])
             ->name('journals.upload-cover');
 
         // Import journals from CSV
-        Route::get('journals/import/template', [App\Http\Controllers\AdminKampus\JournalController::class, 'downloadTemplate'])
+        Route::get('journals/import/template', [\App\Http\Controllers\AdminKampus\JournalController::class, 'downloadTemplate'])
             ->name('journals.import.template');
-        Route::get('journals/import/form', [App\Http\Controllers\AdminKampus\JournalController::class, 'import'])
+        Route::get('journals/import/form', [\App\Http\Controllers\AdminKampus\JournalController::class, 'import'])
             ->name('journals.import');
-        Route::post('journals/import/process', [App\Http\Controllers\AdminKampus\JournalController::class, 'processImport'])
+        Route::post('journals/import/process', [\App\Http\Controllers\AdminKampus\JournalController::class, 'processImport'])
             ->name('journals.import.process');
 
         // Reviewer Management (Placeholder)
@@ -540,7 +563,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
         // Agenda Management
-        Route::resource('events', AgendaController::class)
+        Route::resource('events', \App\Http\Controllers\AdminKampus\AgendaController::class)
             ->except(['show'])
             ->names([
                 'index' => 'events.index',
@@ -552,9 +575,9 @@ Route::middleware(['auth'])->group(function () {
             ]);
 
         // Monev Report
-        Route::get('monev/rekap-keseluruhan', [MonevReportController::class, 'index'])
+        Route::get('monev/rekap-keseluruhan', [\App\Http\Controllers\Admin\MonevReportController::class, 'index'])
             ->name('monev.rekap-keseluruhan');
-        Route::post('monev/decide-action', [MonevReportController::class, 'decideAction'])
+        Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
             ->name('monev.decide-action');
 
     });
@@ -572,11 +595,11 @@ Route::middleware(['auth'])->group(function () {
             ->name('contracts.index');
 
         // Funding Termin Routes
-        Route::post('funding/store-termin', [FundingController::class, 'storeTermin'])
+        Route::post('funding/store-termin', [\App\Http\Controllers\FundingController::class, 'storeTermin'])
             ->name('funding.store-termin');
     });
 
-    Route::get('finance/contracts/{contract}/funding/create', [FundingController::class, 'create'])
+    Route::get('finance/contracts/{contract}/funding/create', [\App\Http\Controllers\FundingController::class, 'create'])
         ->middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])
         ->name('finance.funding.create');
 
@@ -634,13 +657,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('journals.harvest');
 
         // =====================================================
-        // End of strictly User routes
-        // =====================================================
-    });
-
-    Route::middleware(['role:'.Role::USER.','.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])->prefix('user')->name('user.')->group(function () {
-        // =====================================================
-        // Issue Preview & Publish (Accessible by User, Admin Kampus, Super Admin)
+        // Issue Preview & Publish
         // =====================================================
 
         // Daftar Issues
@@ -692,13 +709,13 @@ Route::middleware(['auth'])->group(function () {
 
             // Assessment Issues Management
             Route::prefix('{assessment}/issues')->name('issues.')->group(function () {
-                Route::post('/', [AssessmentIssueController::class, 'store'])
+                Route::post('/', [\App\Http\Controllers\User\AssessmentIssueController::class, 'store'])
                     ->name('store');
-                Route::put('{issue}', [AssessmentIssueController::class, 'update'])
+                Route::put('{issue}', [\App\Http\Controllers\User\AssessmentIssueController::class, 'update'])
                     ->name('update');
-                Route::delete('{issue}', [AssessmentIssueController::class, 'destroy'])
+                Route::delete('{issue}', [\App\Http\Controllers\User\AssessmentIssueController::class, 'destroy'])
                     ->name('destroy');
-                Route::post('reorder', [AssessmentIssueController::class, 'reorder'])
+                Route::post('reorder', [\App\Http\Controllers\User\AssessmentIssueController::class, 'reorder'])
                     ->name('reorder');
             });
         });
@@ -741,22 +758,37 @@ Route::middleware(['auth'])->group(function () {
         Route::get('progress', [ProgressController::class, 'index'])
             ->name('progress.index');
 
+        // ── Luaran Penelitian: CRUD ──────────────────────────────────────────
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
-        Route::post('/outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
-        Route::post('/outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
-        Route::delete('/outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
-        Route::get('/outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
-        Route::put('/outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
+        Route::get('outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
+        Route::put('outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
+        Route::delete('outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
+        Route::post('outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
+        Route::post('outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
 
+        // ── Luaran Penelitian: Produk / Prototipe ────────────────────────────
+        Route::prefix('outputs/products')->name('outputs.products.')->group(function () {
+            // Submit new product output
+            Route::post('/', [OutputController::class, 'storeProduct'])
+                ->name('store');
+
+            // Dedicated file upload endpoint (cover image or proof document)
+            Route::post('{product}/upload', [OutputDocController::class, 'upload'])
+                ->name('upload-doc');
+
+            // Delete a specific file (cover or document)
+            Route::delete('{product}/upload', [OutputDocController::class, 'destroy'])
+                ->name('delete-doc');
+        });
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
             //
-            Route::post('{proposal}/documents', [DocumentController::class, 'upload'])->name('documents.store');
+            Route::post('{proposal}/documents', [\App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.store');
 
         });
     });
 
-    /*
+ /*
     |--------------------------------------------------------------------------
     | Review Summary & Assignment Routes (v1.1 - Multi Reviewer)
     | MOCK LOKAL - hapus setelah model resmi di-merge ke development.
@@ -767,13 +799,13 @@ Route::middleware(['auth'])->group(function () {
         // Rekap summary review multi-reviewer per proposal
         Route::get(
             'proposals/{proposal}/summary',
-            [ReviewSummaryController::class, 'index']
+            [\App\Http\Controllers\Review\ReviewSummaryController::class, 'index']
         )->name('summary.index');
 
         // Perpanjang due date reviewer assignment
         Route::post(
             'reviewer-assignments/{reviewerAssignment}/extend-due',
-            [ReviewAssignmentController::class, 'extendDue']
+            [\App\Http\Controllers\Review\ReviewAssignmentController::class, 'extendDue']
         )->name('assignment.extend-due');
     });
 
@@ -782,12 +814,14 @@ Route::middleware(['auth'])->group(function () {
     | Editor Routes (v1.1 - Submission Editorial)
     |--------------------------------------------------------------------------
     */
-    // NOTE: Group ini akan diperbaiki lebih lanjut oleh ADITYA GAUTAMA
     Route::middleware(['role:Editor'])->prefix('editorial')->name('editorial.')->group(function () {
         // Activity Log per submission
         Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
             ->name('activity-logs.index');
+        Route::post('assessments/{assessment}/final-decision', [DecisionController::class, 'finalDecision'])
+            ->name('final-decision');
     });
+
     Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
         Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
 
@@ -820,10 +854,6 @@ Route::middleware(['auth'])->group(function () {
     */
     Route::middleware(['role:'.Role::REVIEWER])->prefix('reviewer')->name('reviewer.')->group(function () {
 
-        // Reviewer Dashboard - Daftar tugas review aktif
-        Route::get('dashboard', [ReviewerDashboardController::class, 'index'])
-            ->name('dashboard');
-
         // Assignments Management
         Route::prefix('assignments')->name('assignments.')->group(function () {
             Route::get('/', [MainReviewerController::class, 'assignments'])
@@ -840,24 +870,24 @@ Route::middleware(['auth'])->group(function () {
 
         // Evaluation Routes
         Route::prefix('evaluations')->name('evaluations.')->group(function () {
-            Route::get('/', [EvaluationController::class, 'index'])
+            Route::get('/', [\App\Http\Controllers\EvaluationController::class, 'index'])
                 ->name('index');
-            Route::get('/assignments', [EvaluationController::class, 'assignmentIndex'])
+            Route::get('/assignments', [\App\Http\Controllers\EvaluationController::class, 'assignmentIndex'])
                 ->name('assignments.index');
-            Route::get('{assignment}/note', [EvaluationController::class, 'note'])
+            Route::get('{assignment}/note', [\App\Http\Controllers\EvaluationController::class, 'note'])
                 ->name('note');
-            Route::post('{assignment}/submit', [EvaluationController::class, 'storeNote'])
+            Route::post('{assignment}/submit', [\App\Http\Controllers\EvaluationController::class, 'storeNote'])
                 ->name('storeNote');
-            Route::post('{assignment}/status', [EvaluationController::class, 'updateStatus'])
+            Route::post('{assignment}/status', [\App\Http\Controllers\EvaluationController::class, 'updateStatus'])
                 ->name('update-status');
-            Route::get('{report}', [EvaluationController::class, 'showProgress'])
+            Route::get('{report}', [\App\Http\Controllers\EvaluationController::class, 'showProgress'])
                 ->name('show');
         });
 
         // Profile Management
-        Route::get('profile', [ReviewerProfileController::class, 'show'])
+        Route::get('profile', [\App\Http\Controllers\ReviewerProfileController::class, 'show'])
             ->name('profile.show');
-        Route::post('profile', [ReviewerProfileController::class, 'update'])
+        Route::post('profile', [\App\Http\Controllers\ReviewerProfileController::class, 'update'])
             ->name('profile.update');
 
     });
@@ -885,39 +915,21 @@ Route::middleware(['auth'])->group(function () {
         Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
             ->name('funding.upload-bukti');
     });
-    /*
-    |--------------------------------------------------------------------------
-    | Finance & Funding Routes
-    |--------------------------------------------------------------------------
-    */
-    Route::middleware(['role:Keuangan,'.Role::ADMIN_KAMPUS])->group(function () {
-
-        Route::get('/finance/funding/logs', [FundingLogController::class, 'index'])
-            ->name('finance.funding.logs.index');
-
-        Route::get('/finance/funding/{id}/print', [FundingController::class, 'printKwitansi'])
-            ->name('finance.funding.print-kwitansi');
-
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    });
-
+    
     /*
     |--------------------------------------------------------------------------
     | Finance & Funding Routes
     |--------------------------------------------------------------------------
     | Akses untuk Keuangan dan Admin Kampus
     */
-    Route::middleware(['role:Keuangan,'.Role::ADMIN_KAMPUS])->group(function () {
+    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
 
         // Rute untuk menampilkan halaman log perubahan termin
-        Route::get('/finance/funding/logs', [FundingLogController::class, 'index'])
+        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
             ->name('finance.funding.logs.index');
 
         // Rute BARU untuk mencetak kwitansi PDF
-        Route::get('/finance/funding/{id}/print', [FundingController::class, 'printKwitansi'])
+        Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
             ->name('finance.funding.print-kwitansi');
 
     });
@@ -957,19 +969,19 @@ Route::middleware(['auth'])->group(function () {
         ->name('resources');
 
     // Print Berita Acara Review
-    Route::get('/review/print/{type}/{id}', [ReviewDocumentController::class, 'print'])
+    Route::get('/review/print/{type}/{id}', [\App\Http\Controllers\ReviewDocumentController::class, 'print'])
         ->name('review.print');
 
     // Review History
-    Route::get('/proposal/review-history/{dosen?}', [ReviewHistoryController::class, 'index'])
+    Route::get('/proposal/review-history/{dosen?}', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
         ->name('proposal.review-history');
 
     // Notifications (Modul 7)
-    Route::prefix('notifications')->name('notifications.')->group(function () {
-        Route::get('/', [NotificationController::class, 'index'])->name('index');
-        Route::post('/read-all', [NotificationController::class, 'markAllRead'])->name('read-all');
-        Route::post('/{id}/read', [NotificationController::class, 'markRead'])->name('read');
-    });
+    // Route::prefix('notifications')->name('notifications.')->group(function () {
+    //     Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    //     Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
+    //     Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
+    // });
 
     Route::resource('proposal', ProposalController::class);
 
@@ -1002,7 +1014,7 @@ Route::middleware(['auth'])->group(function () {
     //     Route::patch('/', [ProfileController::class, 'update'])->name('update');
     //     Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     // });
-    Route::middleware(['auth', 'role:'.Role::PENGELOLA_JURNAL])
+    Route::middleware(['auth', 'role:PENGELOLA_JURNAL'])
         ->prefix('editorial')
         ->name('editorial.')
         ->group(function () {
@@ -1014,52 +1026,14 @@ Route::middleware(['auth'])->group(function () {
 
         });
 });
+Route::get('/editorial/desk/{submission}/review', [DeskController::class, 'show'])
+    ->name('editorial.desk.review');
 
-Route::get('/review/invitation/{id}', function ($id) {
-    $assignment = ReviewAssignment::with([
-        'submission.journal.university',
-        'assigner',
-    ])->findOrFail($id);
+Route::post('/editorial/desk/{submission}/assign-editor', [DeskController::class, 'assignEditor'])
+    ->name('editorial.desk.assign-editor');
 
-    return Inertia::render('Review/Invitation', [
-        'assignment' => [
-            'id' => $assignment->id,
-            'status' => $assignment->status,
-            'assigned_at' => $assignment->assigned_at,
-            'decline_reason' => $assignment->decline_reason,
-            'assigner' => $assignment->assigner ? [
-                'id' => $assignment->assigner->id,
-                'name' => $assignment->assigner->name,
-                'email' => $assignment->assigner->email,
-            ] : null,
-            'submission' => $assignment->submission ? [
-                'id' => $assignment->submission->id,
-                'title' => $assignment->submission->title,
-                'abstract' => $assignment->submission->abstract,
-                'status' => $assignment->submission->status,
-                'journal' => $assignment->submission->journal ? [
-                    'id' => $assignment->submission->journal->id,
-                    'title' => $assignment->submission->journal->title,
-                    'issn' => $assignment->submission->journal->issn,
-                    'e_issn' => $assignment->submission->journal->e_issn,
-                    'university' => $assignment->submission->journal->university ? [
-                        'id' => $assignment->submission->journal->university->id,
-                        'name' => $assignment->submission->journal->university->name,
-                        'short_name' => $assignment->submission->journal->university->short_name,
-                    ] : null,
-                ] : null,
-            ] : null,
-        ],
-    ]);
-})->middleware('auth')->name('review.invitation');
-
-Route::post('/review-assignment/{id}/accept', [ReviewAssignmentController::class, 'accept'])
-    ->middleware('auth')
-    ->name('review.accept');
-
-Route::post('/review-assignment/{id}/decline', [ReviewAssignmentController::class, 'decline'])
-    ->middleware('auth')
-    ->name('review.decline');
+Route::post('/editorial/desk/{submission}/desk-review', [DecisionController::class, 'deskReview'])
+    ->name('editorial.desk.desk-review');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

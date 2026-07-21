@@ -32,7 +32,6 @@ class SchemaControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutVite();
 
         // Arrange: Create roles
         $this->superAdminRole = Role::create([
@@ -453,8 +452,7 @@ class SchemaControllerTest extends TestCase
             'research_schema_id' => $schema->id,
             'user_id' => $this->superAdmin->id,
             'title' => 'Proposal Test',
-            'description' => 'Test Description',
-            'status_proposal' => 'draft',
+            'status' => 'draft',
         ]);
 
         // Act: Coba hapus skema

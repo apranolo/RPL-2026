@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\Journal;
-use App\Models\User;
 use App\Services\ReviewCalculationService;
 use Illuminate\Support\Facades\DB;
 
@@ -25,24 +23,21 @@ test('calculate() returns default empty statistics when no assessments exist', f
 test('calculateSingle() computes correct scores for a given assessment', function () {
     $service = new ReviewCalculationService;
 
-    $user = User::factory()->create();
-    $journal = Journal::factory()->create(['user_id' => $user->id]);
-
     DB::table('journal_assessments')->insert([
         [
             'id' => 1,
-            'journal_id' => $journal->id,
-            'user_id' => $user->id,
+            'journal_id' => 1,
+            'user_id' => 1,
             'status' => 'draft',
-            'total_score' => 0.00,
-            'percentage' => 0.00,
+            'total_score' => null,
+            'percentage' => null,
             'created_at' => now(),
             'updated_at' => now(),
         ],
         [
             'id' => 2,
-            'journal_id' => $journal->id,
-            'user_id' => $user->id,
+            'journal_id' => 1,
+            'user_id' => 1,
             'status' => 'submitted',
             'total_score' => 85.00,
             'percentage' => 85.00,
@@ -51,8 +46,8 @@ test('calculateSingle() computes correct scores for a given assessment', functio
         ],
         [
             'id' => 3,
-            'journal_id' => $journal->id,
-            'user_id' => $user->id,
+            'journal_id' => 1,
+            'user_id' => 1,
             'status' => 'reviewed',
             'total_score' => 95.00,
             'percentage' => 95.00,

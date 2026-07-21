@@ -2,12 +2,11 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\ResearchOutput;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class OutputReportTest extends TestCase
@@ -17,22 +16,21 @@ class OutputReportTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(RoleSeeder::class);
+        // Seed roles if necessary, or just create a user with Role::SUPER_ADMIN
+        Role::firstOrCreate(['id' => Role::SUPER_ADMIN, 'name' => 'super_admin']);
+        Role::firstOrCreate(['id' => Role::ADMIN_KAMPUS, 'name' => 'admin_kampus']);
+        Role::firstOrCreate(['id' => Role::USER, 'name' => 'user']);
     }
 
     public function test_super_admin_can_access_report_page()
     {
-        $superAdmin = User::factory()->superAdmin()->create();
+        $superAdmin = User::factory()->create(['role_id' => Role::SUPER_ADMIN]);
 
         // Create dummy output
-        DB::table('outputs')->insert([
-            'title' => 'Test',
+        ResearchOutput::factory()->create([
+            'status' => 'verified',
             'type' => 'Jurnal',
             'year' => '2025',
-            'user_id' => $superAdmin->id,
-            'status' => 'verified',
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
         $response = $this->actingAs($superAdmin)->get(route('admin.output.report'));
@@ -48,7 +46,7 @@ class OutputReportTest extends TestCase
 
     public function test_super_admin_can_download_excel()
     {
-        $superAdmin = User::factory()->superAdmin()->create();
+        $superAdmin = User::factory()->create(['role_id' => Role::SUPER_ADMIN]);
 
         $response = $this->actingAs($superAdmin)->get(route('admin.output.export'));
 
@@ -59,38 +57,15 @@ class OutputReportTest extends TestCase
 
     public function test_stats_api_returns_correct_data_for_super_admin()
     {
-        $role = Role::firstOrCreate(['name' => Role::SUPER_ADMIN]);
-        $superAdmin = User::factory()->create();
-        $superAdmin->roles()->syncWithoutDetaching([$role->id]);
+        $superAdmin = User::factory()->create(['role_id' => Role::SUPER_ADMIN]);
 
-        DB::table('outputs')->insert([
-            [
-                'title' => 'Test 1',
-                'type' => 'Jurnal',
-                'year' => '2025',
-                'user_id' => $superAdmin->id,
-                'status' => 'verified',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'title' => 'Test 2',
-                'type' => 'Jurnal',
-                'year' => '2025',
-                'user_id' => $superAdmin->id,
-                'status' => 'verified',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'title' => 'Test 3',
-                'type' => 'Buku',
-                'year' => '2025',
-                'user_id' => $superAdmin->id,
-                'status' => 'verified',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        ResearchOutput::factory()->count(2)->create([
+            'status' => 'verified',
+            'type' => 'Jurnal',
+        ]);
+        ResearchOutput::factory()->create([
+            'status' => 'verified',
+            'type' => 'Buku',
         ]);
 
         $responseCategory = $this->actingAs($superAdmin)->getJson('/api/stats/outputs/by-category');
@@ -106,30 +81,24 @@ class OutputReportTest extends TestCase
         $univ1 = University::factory()->create();
         $univ2 = University::factory()->create();
 
-        $adminKampus = User::factory()->adminKampus($univ1->id)->create();
-        $user1 = User::factory()->user()->create(['university_id' => $univ1->id]);
-        $user2 = User::factory()->user()->create(['university_id' => $univ2->id]);
+        $adminKampus = User::factory()->create([
+            'role_id' => Role::ADMIN_KAMPUS,
+            'university_id' => $univ1->id,
+        ]);
+
+        $user1 = User::factory()->create(['university_id' => $univ1->id, 'role_id' => Role::USER]);
+        $user2 = User::factory()->create(['university_id' => $univ2->id, 'role_id' => Role::USER]);
 
         // Output for univ1
-        DB::table('outputs')->insert([
-            'title' => 'Test',
-            'type' => 'Jurnal',
-            'year' => '2025',
-            'user_id' => $user1->id,
+        ResearchOutput::factory()->create([
             'status' => 'verified',
-            'created_at' => now(),
-            'updated_at' => now(),
+            'user_id' => $user1->id,
         ]);
 
         // Output for univ2
-        DB::table('outputs')->insert([
-            'title' => 'Test',
-            'type' => 'Jurnal',
-            'year' => '2025',
-            'user_id' => $user2->id,
+        ResearchOutput::factory()->create([
             'status' => 'verified',
-            'created_at' => now(),
-            'updated_at' => now(),
+            'user_id' => $user2->id,
         ]);
 
         $responseCategory = $this->actingAs($adminKampus)->getJson('/api/stats/outputs/by-category');

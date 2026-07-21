@@ -8,7 +8,6 @@ use App\Models\ScientificField;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Illuminate\Support\Collection;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -49,7 +48,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @param  int  $universitiesCount  Number of universities to create
      * @param  int  $journalsPerUniversity  Average journals per university
-     * @return array{universities: Collection, fields: Collection, users: Collection}
+     * @return array{universities: \Illuminate\Support\Collection, fields: \Illuminate\Support\Collection, users: \Illuminate\Support\Collection}
      */
     protected function seedStatisticsTestData(int $universitiesCount = 3, int $journalsPerUniversity = 30): array
     {

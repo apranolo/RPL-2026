@@ -35,10 +35,10 @@ class FundingTest extends TestCase
 
         // Create users
         $this->user = User::factory()->create();
-        $this->user->roles()->syncWithoutDetaching([$this->userRole]);
+        $this->user->roles()->attach($this->userRole);
 
         $this->otherUser = User::factory()->create();
-        $this->otherUser->roles()->syncWithoutDetaching([$this->userRole]);
+        $this->otherUser->roles()->attach($this->userRole);
 
         $this->university = University::factory()->create();
         $this->researchSchema = ResearchSchema::create([

@@ -9,8 +9,6 @@ use App\Http\Requests\UpdateJournalRequest;
 use App\Imports\JournalsImport;
 use App\Jobs\HarvestJournalArticlesJob;
 use App\Models\Journal;
-use App\Models\Pembinaan;
-use App\Models\PembinaanRegistration;
 use App\Models\Role;
 use App\Models\ScientificField;
 use App\Models\User;
@@ -20,7 +18,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -184,7 +181,7 @@ class JournalController extends Controller
             ->values();
 
         // Phase 2: Get pembinaan periods and years for filters
-        $pembinaanPeriods = Pembinaan::query()
+        $pembinaanPeriods = \App\Models\Pembinaan::query()
             ->select('name')
             ->distinct()
             ->orderBy('name')
@@ -192,8 +189,8 @@ class JournalController extends Controller
             ->map(fn ($name) => ['value' => $name, 'label' => $name])
             ->values();
 
-        $pembinaanYears = PembinaanRegistration::query()
-            ->selectRaw(\DB::connection()->getDriverName() === 'sqlite' ? "strftime('%Y', registered_at) as year" : 'YEAR(registered_at) as year')
+        $pembinaanYears = \App\Models\PembinaanRegistration::query()
+            ->selectRaw('YEAR(registered_at) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year')
@@ -514,7 +511,7 @@ class JournalController extends Controller
             'journal_ids.*' => [
                 'integer',
                 'distinct',
-                Rule::exists('journals', 'id')->where(function ($query) {
+                \Illuminate\Validation\Rule::exists('journals', 'id')->where(function ($query) {
                     $query->where('university_id', Auth::user()->university_id);
                 }),
             ],

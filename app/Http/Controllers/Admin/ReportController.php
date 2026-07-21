@@ -69,13 +69,8 @@ class ReportController extends Controller
 
         // Indexation platform filter
         if ($indexation = $request->input('indexation')) {
-            if (\DB::getDriverName() === 'sqlite') {
-                $query->whereNotNull('indexations')
-                    ->where('indexations', 'like', '%"'.$indexation.'"%');
-            } else {
-                $query->whereNotNull('indexations')
-                    ->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', ?)", ['$."'.$indexation.'"']);
-            }
+            $query->whereNotNull('indexations')
+                ->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', ?)", ['$."'.$indexation.'"']);
         }
 
         // Scientific field filter
@@ -180,13 +175,11 @@ class ReportController extends Controller
             ->pluck('count', 'rank_key')
             ->toArray();
 
-        $scopusQuery = DB::table('journals')->whereNotNull('indexations');
-        if (\DB::getDriverName() === 'sqlite') {
-            $scopusQuery->where('indexations', 'like', '%"Scopus"%');
-        } else {
-            $scopusQuery->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.Scopus')");
-        }
-        $scopusCount = $scopusQuery->count();
+        // Scopus-indexed count
+        $scopusCount = DB::table('journals')
+            ->whereNotNull('indexations')
+            ->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.Scopus')")
+            ->count();
 
         // Assessment averages
         $assessmentStats = DB::table('journal_assessments')

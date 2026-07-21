@@ -4,10 +4,12 @@ import React from 'react';
 
 interface WizardProgressBarProps {
     currentStep: number;
+    className?: string;
+    steps?: any[];
 }
 
-export const WizardProgressBar: React.FC<WizardProgressBarProps> = ({ currentStep }) => {
-    const steps = [
+export const WizardProgressBar: React.FC<WizardProgressBarProps> = ({ currentStep, className, steps: propSteps }) => {
+    const steps = propSteps || [
         { number: 1, label: 'Start' },
         { number: 2, label: 'Upload' },
         { number: 3, label: 'Metadata' },
@@ -16,7 +18,7 @@ export const WizardProgressBar: React.FC<WizardProgressBarProps> = ({ currentSte
     ];
 
     return (
-        <div className="w-full px-2 py-4" aria-label="Progress">
+        <div className={cn('w-full px-2 py-4', className)} aria-label="Progress">
             <ol className="mx-auto flex w-full max-w-4xl items-center justify-between">
                 {steps.map((step, idx) => {
                     const isCompleted = step.number < currentStep;

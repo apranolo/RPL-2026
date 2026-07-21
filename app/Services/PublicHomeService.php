@@ -103,18 +103,10 @@ class PublicHomeService
             $stats = [];
 
             foreach ($platforms as $platform) {
-                if (\DB::getDriverName() === 'sqlite') {
-                    $count = Journal::where('is_active', true)
-                        ->whereNotNull('indexations')
-                        ->where('indexations', 'like', '%"'.$platform.'"%')
-                        ->count();
-                } else {
-                    $count = Journal::where('is_active', true)
-                        ->whereNotNull('indexations')
-                        ->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.\"$platform\"')")
-                        ->count();
-                }
-                $stats[strtolower(str_replace(' ', '_', $platform))] = $count;
+                $stats[strtolower(str_replace(' ', '_', $platform))] = Journal::where('is_active', true)
+                    ->whereNotNull('indexations')
+                    ->whereRaw("JSON_CONTAINS_PATH(indexations, 'one', '$.\"$platform\"')")
+                    ->count();
             }
 
             return $stats;

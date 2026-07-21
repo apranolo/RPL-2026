@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UploadProgressDocRequest;
 use App\Models\ProgressReport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProgressDocController extends Controller
 {
@@ -24,7 +22,7 @@ class ProgressDocController extends Controller
      *
      * @route POST /dosen/progress/{progress}/upload-logbook
      */
-    public function upload(UploadProgressDocRequest $request, ProgressReport $progress): RedirectResponse
+    public function upload(\App\Http\Requests\UploadProgressDocRequest $request, ProgressReport $progress): RedirectResponse
     {
         // Pastikan user yang login adalah pemilik laporan
         $this->authorize('update', $progress);
@@ -110,7 +108,7 @@ class ProgressDocController extends Controller
      *
      * @route GET /dosen/progress/{progress}/logbook/download
      */
-    public function download(ProgressReport $progress): StreamedResponse
+    public function download(ProgressReport $progress): \Symfony\Component\HttpFoundation\StreamedResponse
     {
         $this->authorize('view', $progress);
 

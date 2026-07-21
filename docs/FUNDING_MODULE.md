@@ -13,50 +13,40 @@ Modul Pendanaan (Funding) dirancang untuk mengelola data kontrak dan pencairan d
 ## 🗂️ File Structure
 
 ### Models
-
 - `app/Models/Contract.php` - Model untuk kontrak penelitian
 - `app/Models/FundingTerm.php` - Model untuk termin pencairan dana
 
 ### Controllers
-
 - `app/Http/Controllers/User/UserFundingController.php` - Controller untuk menampilkan pendanaan
 
 ### Policies
-
 - `app/Policies/ContractPolicy.php` - Authorization policy untuk Contract
 
 ### Requests (Validation)
-
 - `app/Http/Requests/StoreContractRequest.php` - Validasi create contract
 - `app/Http/Requests/UpdateContractRequest.php` - Validasi update contract
 - `app/Http/Requests/StoreFundingTermRequest.php` - Validasi create funding term
 - `app/Http/Requests/UpdateFundingTermRequest.php` - Validasi update funding term
 
 ### Views
-
 - `resources/js/pages/Proposal/FundingInfo.tsx` - React component untuk dashboard pendanaan
 
 ### Database
-
 - `database/migrations/2026_05_13_000001_create_contracts_table.php` - Migration contracts table
 - `database/migrations/2026_05_13_000002_create_funding_terms_table.php` - Migration funding_terms table
 - `database/seeders/ContractSeeder.php` - Seeder untuk test data
 
 ### Factories (Testing)
-
 - `database/factories/ContractFactory.php` - Factory untuk Contract model
 - `database/factories/FundingTermFactory.php` - Factory untuk FundingTerm model
 
 ### Utilities
-
 - `resources/js/lib/format.ts` - Utility functions untuk formatting (currency, date, dll)
 
 ### Providers
-
 - `app/Providers/AuthServiceProvider.php` - Service provider untuk policies
 
 ### Routes
-
 - `routes/web.php` - Routes untuk funding module
 
 ---
@@ -70,7 +60,6 @@ php artisan migrate
 ```
 
 Perintah ini akan membuat 2 tabel:
-
 - `contracts` - Menyimpan data kontrak penelitian
 - `funding_terms` - Menyimpan data termin pencairan dana
 
@@ -87,7 +76,6 @@ php artisan db:seed
 ```
 
 Seeder ini akan membuat:
-
 - 5 kontrak untuk 5 peneliti pertama yang memiliki role 'user'
 - Masing-masing kontrak memiliki 2-4 termin pencairan
 - Total persentase termin setiap kontrak selalu 100%
@@ -108,44 +96,44 @@ protected $policies = [
 
 ### Contracts Table
 
-| Column                 | Type          | Description                    |
-| ---------------------- | ------------- | ------------------------------ |
-| id                     | bigint        | Primary key                    |
-| researcher_id          | bigint FK     | ID peneliti/dosen              |
-| contract_number        | string        | Nomor kontrak (unique)         |
-| contract_date          | date          | Tanggal kontrak ditandatangani |
-| party_1                | string        | LPPM/Institusi pemberi dana    |
-| party_2                | string        | Peneliti utama                 |
-| total_approved_funding | decimal(15,2) | Total dana yang disetujui      |
-| contract_status        | enum          | aktif / selesai / ditangguhkan |
-| financial_document     | string        | Path ke file dokumen           |
-| created_by             | bigint FK     | User yang membuat              |
-| updated_by             | bigint FK     | User yang update terakhir      |
-| deleted_by             | bigint FK     | User yang soft delete          |
-| created_at             | timestamp     |                                |
-| updated_at             | timestamp     |                                |
-| deleted_at             | timestamp     | Soft delete                    |
+| Column | Type | Description |
+|--------|------|-------------|
+| id | bigint | Primary key |
+| researcher_id | bigint FK | ID peneliti/dosen |
+| contract_number | string | Nomor kontrak (unique) |
+| contract_date | date | Tanggal kontrak ditandatangani |
+| party_1 | string | LPPM/Institusi pemberi dana |
+| party_2 | string | Peneliti utama |
+| total_approved_funding | decimal(15,2) | Total dana yang disetujui |
+| contract_status | enum | aktif / selesai / ditangguhkan |
+| financial_document | string | Path ke file dokumen |
+| created_by | bigint FK | User yang membuat |
+| updated_by | bigint FK | User yang update terakhir |
+| deleted_by | bigint FK | User yang soft delete |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+| deleted_at | timestamp | Soft delete |
 
 ### Funding_Terms Table
 
-| Column            | Type          | Description                            |
-| ----------------- | ------------- | -------------------------------------- |
-| id                | bigint        | Primary key                            |
-| contract_id       | bigint FK     | ID kontrak                             |
-| order             | integer       | Urutan termin (1, 2, 3, dll)           |
-| term_name         | string        | Nama termin (e.g., Tahap 1)            |
-| percentage        | decimal(5,2)  | Persentase dari total dana             |
-| nominal           | decimal(15,2) | Nominal dana termin                    |
-| status            | enum          | cair / menunggu / ditangguhkan / batal |
-| disbursement_date | date          | Tanggal dana cair                      |
-| receipt_number    | string        | Nomor kuitansi/slip transfer           |
-| receipt_file      | string        | Path ke file bukti transfer            |
-| notes             | text          | Catatan/keterangan                     |
-| updated_by        | bigint FK     | User yang update                       |
-| deleted_by        | bigint FK     | User yang soft delete                  |
-| created_at        | timestamp     |                                        |
-| updated_at        | timestamp     |                                        |
-| deleted_at        | timestamp     | Soft delete                            |
+| Column | Type | Description |
+|--------|------|-------------|
+| id | bigint | Primary key |
+| contract_id | bigint FK | ID kontrak |
+| order | integer | Urutan termin (1, 2, 3, dll) |
+| term_name | string | Nama termin (e.g., Tahap 1) |
+| percentage | decimal(5,2) | Persentase dari total dana |
+| nominal | decimal(15,2) | Nominal dana termin |
+| status | enum | cair / menunggu / ditangguhkan / batal |
+| disbursement_date | date | Tanggal dana cair |
+| receipt_number | string | Nomor kuitansi/slip transfer |
+| receipt_file | string | Path ke file bukti transfer |
+| notes | text | Catatan/keterangan |
+| updated_by | bigint FK | User yang update |
+| deleted_by | bigint FK | User yang soft delete |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+| deleted_at | timestamp | Soft delete |
 
 ---
 
@@ -154,26 +142,21 @@ protected $policies = [
 ### ContractPolicy
 
 **View All** (`viewAny`):
-
 - User dengan role: user, admin_kampus, super_admin
 
 **View Single** (`view`):
-
 - Peneliti hanya bisa lihat kontrak mereka sendiri
 - Admin kampus hanya bisa lihat kontrak dari universitas mereka
 - Super admin bisa lihat semua
 
 **Create** (`create`):
-
 - Hanya super_admin dan admin_kampus
 
 **Update** (`update`):
-
 - Super admin bisa update semua
 - Admin kampus hanya bisa update dari universitas mereka
 
 **Delete** (`delete`):
-
 - Hanya super_admin
 
 ---
@@ -187,7 +170,6 @@ GET    /user/funding               -> UserFundingController@index    (name: user
 ```
 
 **Example:**
-
 ```php
 // In view
 <Link href={route('user.funding.index')}>
@@ -205,7 +187,6 @@ $url = route('user.funding.index'); // /user/funding
 ### Contract Validation
 
 **Create (StoreContractRequest):**
-
 - researcher_id: required, exists:users, unique per researcher
 - contract_number: required, unique across contracts
 - contract_date: required, valid date
@@ -216,14 +197,12 @@ $url = route('user.funding.index'); // /user/funding
 - financial_document: optional, file, mimes:pdf,jpg,jpeg,png, max 5MB
 
 **Update (UpdateContractRequest):**
-
 - Sama seperti create, except researcher_id tidak bisa diubah
 - contract_number unique except self
 
 ### Funding Term Validation
 
 **Create & Update (StoreFundingTermRequest / UpdateFundingTermRequest):**
-
 - term_name: required, max 255
 - percentage: required, numeric, 0-100
 - nominal: required, numeric, >= 0
@@ -242,7 +221,6 @@ $url = route('user.funding.index'); // /user/funding
 Location: `resources/js/pages/Proposal/FundingInfo.tsx`
 
 **Props:**
-
 ```typescript
 interface Props {
     contracts: {
@@ -265,7 +243,6 @@ interface Props {
 ```
 
 **Features:**
-
 - Dashboard dengan 4 info cards (total disetujui, cair, sisa, kontrak aktif)
 - List kontrak dengan expandable detail
 - Table termin dengan status badge dan icon
@@ -343,7 +320,7 @@ $total = Contract::forResearcher($userId)
     <div>
         <h3>{{ $contract->contract_number }}</h3>
         <p>Dana: {{ number_format($contract->total_approved_funding) }}</p>
-
+        
         @foreach($contract->fundingTerms as $term)
             <span>{{ $term->term_name }}</span>
             <span class="badge">{{ $term->status_label }}</span>
@@ -361,7 +338,7 @@ export default function FundingPage({ contracts, fundingStats }) {
     return (
         <div>
             <h1>Total Dana: {formatCurrency(fundingStats.total_approved)}</h1>
-
+            
             {contracts.data.map(contract => (
                 <div key={contract.id}>
                     <h3>{contract.contract_number}</h3>
@@ -389,11 +366,11 @@ public function test_user_can_view_their_funding()
     $contract = Contract::factory()
         ->for($user, 'researcher')
         ->create();
-
+    
     $this->actingAs($user)
         ->get(route('user.funding.index'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) =>
+        ->assertInertia(fn (Assert $page) => 
             $page
                 ->component('Proposal/FundingInfo')
                 ->has('contracts.data', 1)
@@ -404,11 +381,11 @@ public function test_user_cannot_view_others_funding()
 {
     $user1 = User::factory()->create();
     $user2 = User::factory()->create();
-
+    
     $contract = Contract::factory()
         ->for($user1, 'researcher')
         ->create();
-
+    
     $this->actingAs($user2)
         ->get(route('user.funding.index'))
         ->assertForbidden(); // Should not see user1's contracts
@@ -420,26 +397,26 @@ public function test_user_cannot_view_others_funding()
 ## 📌 Notes & Tips
 
 1. **Unique Constraints:**
-    - Hanya 1 kontrak per peneliti (researcher_id unique dalam soft-deleted context)
-    - Nomor kontrak selalu unique
-    - Order termin unique per kontrak
+   - Hanya 1 kontrak per peneliti (researcher_id unique dalam soft-deleted context)
+   - Nomor kontrak selalu unique
+   - Order termin unique per kontrak
 
 2. **Financial Validation:**
-    - Total persentase termin harus 100% per kontrak (validasi di backend/custom rule)
-    - Nominal termin otomatis calculated dari percentage \* total_approved_funding
+   - Total persentase termin harus 100% per kontrak (validasi di backend/custom rule)
+   - Nominal termin otomatis calculated dari percentage * total_approved_funding
 
 3. **Status Flow:**
-    - Contract: aktif → selesai atau aktif → ditangguhkan
-    - FundingTerm: menunggu → cair atau menunggu → ditangguhkan atau menunggu → batal
+   - Contract: aktif → selesai atau aktif → ditangguhkan
+   - FundingTerm: menunggu → cair atau menunggu → ditangguhkan atau menunggu → batal
 
 4. **Soft Deletes:**
-    - Contracts dan FundingTerms menggunakan soft deletes
-    - Query otomatis exclude deleted records
-    - Perlu `withTrashed()` untuk include deleted records
+   - Contracts dan FundingTerms menggunakan soft deletes
+   - Query otomatis exclude deleted records
+   - Perlu `withTrashed()` untuk include deleted records
 
 5. **Permissions:**
-    - Jangan lupa authorize di controller menggunakan policy
-    - Example: `$this->authorize('view', $contract);`
+   - Jangan lupa authorize di controller menggunakan policy
+   - Example: `$this->authorize('view', $contract);`
 
 ---
 

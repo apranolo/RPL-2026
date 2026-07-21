@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 /**
  * @file Step2Upload.tsx
  * @description Komponen halaman langkah kedua submission wizard: Upload Manuscript & Supplementary Files.

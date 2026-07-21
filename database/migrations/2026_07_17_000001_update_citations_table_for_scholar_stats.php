@@ -15,25 +15,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('citations', function (Blueprint $table) {
-            $table->dropUnique(['doi']);
-            $table->dropColumn([
-                'title',
-                'author',
-                'publication_year',
-                'journal',
-                'volume',
-                'issue',
-                'pages',
-                'doi',
-            ]);
-        });
+        Schema::dropIfExists('citations');
 
-        Schema::table('citations', function (Blueprint $table) {
-            $table->integer('h_index')->default(0)->after('user_id');
-            $table->integer('total_citations')->default(0)->after('h_index');
-            $table->json('yearly_data')->nullable()->after('total_citations'); // [{"year": 2024, "citations": 15}, ...]
-            $table->timestamp('last_synced_at')->nullable()->after('yearly_data');
+        Schema::create('citations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->integer('h_index')->default(0);
+            $table->integer('total_citations')->default(0);
+            $table->json('yearly_data')->nullable(); // [{"year": 2024, "citations": 15}, ...]
+            $table->timestamp('last_synced_at')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -42,19 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('citations', function (Blueprint $table) {
-            $table->dropColumn(['h_index', 'total_citations', 'yearly_data', 'last_synced_at']);
-        });
-
-        Schema::table('citations', function (Blueprint $table) {
-            $table->text('title');
-            $table->string('author');
-            $table->unsignedSmallInteger('publication_year');
-            $table->string('journal')->nullable();
-            $table->string('volume')->nullable();
-            $table->string('issue')->nullable();
-            $table->string('pages')->nullable();
-            $table->string('doi')->nullable()->unique();
-        });
+        Schema::dropIfExists('citations');
     }
 };

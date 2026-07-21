@@ -78,35 +78,15 @@ class TopListTest extends TestCase
 
         $proposalA = Proposal::factory()->create([
             'user_id' => $lecturerA->id,
-            'title' => 'Riset Universitas A',
+            'judul' => 'Riset Universitas A',
         ]);
-
         $proposalB = Proposal::factory()->create([
             'user_id' => $lecturerB->id,
-            'title' => 'Riset Universitas B',
-        ]);
-
-        $contractIdA = DB::table('contracts')->insertGetId([
-            'proposal_id' => $proposalA->id,
-            'university_id' => $universityA->id,
-            'title' => 'Kontrak A',
-            'contract_number' => '123/456',
-            'party_1' => 'Pihak 1',
-            'party_2' => 'Pihak 2',
-            'start_date' => now(),
-            'end_date' => now()->addYear(),
-            'contract_value' => 10000000,
-            'status' => 'active',
-            'created_at' => now(),
-            'updated_at' => now(),
+            'judul' => 'Riset Universitas B',
         ]);
 
         DB::table('research_outputs')->insert([
-            'contract_id' => $contractIdA,
-            'user_id' => $lecturerA->id,
-            'jenis_luaran' => 'Jurnal',
-            'judul_luaran' => 'Luaran',
-            'status_verifikasi' => 'Terverifikasi_LPPM',
+            'proposal_id' => $proposalA->id,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -116,8 +96,8 @@ class TopListTest extends TestCase
         $response = $this->actingAs($admin, 'sanctum')->getJson('/api/top-research');
 
         $response->assertOk();
-        $response->assertJsonFragment(['title' => $proposalA->title]);
-        $response->assertJsonMissing(['title' => $proposalB->title]);
+        $response->assertJsonFragment(['judul' => $proposalA->judul]);
+        $response->assertJsonMissing(['judul' => $proposalB->judul]);
     }
 
     /**
@@ -145,6 +125,6 @@ class TopListTest extends TestCase
         $response = $this->actingAs($admin, 'sanctum')->getJson('/api/top-lecturers');
 
         $response->assertOk();
-        $response->assertJsonCount(4);
+        $response->assertJsonCount(3);
     }
 }

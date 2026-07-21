@@ -49,7 +49,7 @@ interface ActivityLogItem {
     action: string;
     description: string;
     created_at: string;
-    user?: { name: string };
+    user: { name: string } | null;
 }
 
 interface Props {
@@ -167,7 +167,6 @@ export default function AdminDashboard({ stats, yearlyFundingData, facultyPerfor
 
                     {/* Col 3: CCTV Logs */}
                     <div className="h-full">
-                        {/* @ts-expect-error: ActivityLog expects full User object but we pass partial user */}
                         <ActivityLog logs={systemLogs} title="CCTV System Live Logs" />
                     </div>
                 </div>

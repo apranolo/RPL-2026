@@ -80,7 +80,7 @@ class AssessmentController extends Controller
         $availableYears = JournalAssessment::whereHas('journal', function ($query) use ($user) {
             $query->where('university_id', $user->university_id);
         })
-            ->selectRaw(\DB::connection()->getDriverName() === 'sqlite' ? "DISTINCT strftime('%Y', assessment_date) as year" : 'DISTINCT YEAR(assessment_date) as year')
+            ->selectRaw('DISTINCT YEAR(assessment_date) as year')
             ->whereNotNull('assessment_date')
             ->orderBy('year', 'desc')
             ->pluck('year');

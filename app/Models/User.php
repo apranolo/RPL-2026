@@ -219,6 +219,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all proposals submitted by this user
+     */
+    public function proposals()
+    {
+        return $this->hasMany(Proposal::class);
+    }
+
+    /**
+     * Get all progress reports submitted by this user
+     */
+    public function progressReports()
+    {
+        return $this->hasMany(ProgressReport::class);
+    }
+
+    /**
+     * Get all monev schedules evaluated by this user
+     */
+    public function evaluatorSchedules()
+    {
+        return $this->hasMany(MonevSchedule::class, 'evaluator_id');
+    }
+
+    /**
      * Get all assessments created by this user
      */
     public function assessments()

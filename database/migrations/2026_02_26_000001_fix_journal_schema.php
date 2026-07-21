@@ -19,19 +19,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (DB::getDriverName() === 'sqlite') {
-            try {
-                DB::statement('DROP INDEX IF EXISTS journals_accreditation_expiry_date_index');
-            } catch (Throwable $e) {
-                // Ignore
-            }
-        } elseif (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
+        if (Schema::hasColumn('journals', 'accreditation_expiry_date')) {
             try {
                 Schema::table('journals', function (Blueprint $table) {
                     $table->dropIndex('journals_accreditation_expiry_date_index');
                 });
-            } catch (Throwable $e) {
-                // Ignore
+            } catch (\Throwable) {
+                // Index already absent — safe to continue.
             }
         }
 

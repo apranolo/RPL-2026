@@ -3,27 +3,22 @@
 use App\Models\Proposal;
 use App\Models\ProposalDocument;
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
-    $this->seed(RoleSeeder::class);
-});
-
 test('authorized user can upload a valid proposal document', function () {
     Storage::fake('public');
 
-    $user = User::factory()->user()->create();
+    $user = User::factory()->create();
     $proposal = Proposal::factory()->create(['user_id' => $user->id]);
 
     $file = UploadedFile::fake()->create('proposal.pdf', 500, 'application/pdf');
 
     $response = $this->actingAs($user)
-        ->postJson(route('user.proposal.documents.store', $proposal), [
+        ->postJson(route('document.upload', $proposal), [
             'file' => $file,
             'document_type' => 'Proposal',
             'description' => 'Proposal utama naskah penelitian',
@@ -44,14 +39,14 @@ test('authorized user can upload a valid proposal document', function () {
 test('unauthorized user cannot upload proposal document', function () {
     Storage::fake('public');
 
-    $owner = User::factory()->user()->create();
+    $owner = User::factory()->create();
     $proposal = Proposal::factory()->create(['user_id' => $owner->id]);
 
-    $otherUser = User::factory()->user()->create();
+    $otherUser = User::factory()->create();
     $file = UploadedFile::fake()->create('proposal.pdf', 500, 'application/pdf');
 
     $response = $this->actingAs($otherUser)
-        ->postJson(route('user.proposal.documents.store', $proposal), [
+        ->postJson(route('document.upload', $proposal), [
             'file' => $file,
             'document_type' => 'Proposal',
         ]);
@@ -63,13 +58,13 @@ test('unauthorized user cannot upload proposal document', function () {
 test('document upload fails with invalid file types or oversized files', function () {
     Storage::fake('public');
 
-    $user = User::factory()->user()->create();
+    $user = User::factory()->create();
     $proposal = Proposal::factory()->create(['user_id' => $user->id]);
 
     // Test oversize file (12MB)
     $largeFile = UploadedFile::fake()->create('large.pdf', 12000, 'application/pdf');
     $response = $this->actingAs($user)
-        ->postJson(route('user.proposal.documents.store', $proposal), [
+        ->postJson(route('document.upload', $proposal), [
             'file' => $largeFile,
             'document_type' => 'Proposal',
         ]);
@@ -80,7 +75,7 @@ test('document upload fails with invalid file types or oversized files', functio
     // Test invalid extension (exe)
     $exeFile = UploadedFile::fake()->create('virus.exe', 100, 'application/x-msdownload');
     $response = $this->actingAs($user)
-        ->postJson(route('user.proposal.documents.store', $proposal), [
+        ->postJson(route('document.upload', $proposal), [
             'file' => $exeFile,
             'document_type' => 'Proposal',
         ]);

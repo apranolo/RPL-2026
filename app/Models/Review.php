@@ -21,6 +21,19 @@ class Review extends Model
      *
      * @var list<string>
      */
+    protected $fillable = [
+        'proposal_id',
+        'reviewer_id',
+        'score',
+        'feedback',
+        'recommendation',
+        'reviewed_at',
+        'status',
+        'notes',
+        'start_date',
+        'end_date',
+        'total_score',
+    ];
 
     /**
      * The attributes that should be cast.
@@ -41,33 +54,24 @@ class Review extends Model
     */
 
     /**
-     * Get the proposal being reviewed
+     * Get the proposal being reviewed.
      */
-    protected $fillable = [
-        'proposal_id',
-        'reviewer_id',
-        'score',
-        'feedback',
-        'reviewed_at',
-        'status',
-        'notes',
-        'start_date',
-        'end_date',
-        'total_score',
-        'recommendation',
-    ];
-
     public function proposal()
     {
         return $this->belongsTo(Proposal::class);
     }
 
     /**
-     * Get the reviewer who wrote this review
+     * Get the reviewer who wrote this review.
      */
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewer_id');
+    }
+
+    public function assessmentCriteria()
+    {
+        return $this->hasMany(AssessmentCriteria::class, 'review_id');
     }
 
     /*
@@ -77,7 +81,7 @@ class Review extends Model
     */
 
     /**
-     * Scope to filter by reviewer
+     * Scope to filter by reviewer.
      */
     public function scopeByReviewer($query, int $reviewerId)
     {
@@ -91,7 +95,7 @@ class Review extends Model
     */
 
     /**
-     * Check if review has feedback
+     * Check if review has feedback.
      */
     public function hasFeedback(): bool
     {
@@ -99,7 +103,7 @@ class Review extends Model
     }
 
     /**
-     * Check if review has recommendation
+     * Check if review has recommendation.
      */
     public function hasRecommendation(): bool
     {
@@ -107,22 +111,16 @@ class Review extends Model
     }
 
     /**
-     * Boot method to handle model events
+     * Boot method to handle model events.
      */
     protected static function boot()
     {
         parent::boot();
 
-        // Auto-set reviewed_at on create
         static::creating(function ($model) {
             if (! $model->reviewed_at) {
                 $model->reviewed_at = now();
             }
         });
-    }
-
-    public function assessmentCriteria()
-    {
-        return $this->hasMany(AssessmentCriteria::class, 'review_id');
     }
 }

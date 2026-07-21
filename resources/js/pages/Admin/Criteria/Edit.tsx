@@ -19,7 +19,6 @@
  * @author JurnalMU Team
  */
 import { AnswerTypePreview } from '@/components/DynamicInput';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -134,8 +133,8 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                             <Pencil className="h-6 w-6 text-amber-600" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Edit Kriteria Penilaian</h1>
-                            <p className="mt-1 text-sm text-muted-foreground">
+                            <h1 className="text-4xl font-bold tracking-tight">Edit Kriteria Penilaian</h1>
+                            <p className="mt-1 text-base text-muted-foreground">
                                 Perbarui kriteria <span className="font-semibold text-foreground">{criterion.code}</span>
                             </p>
                         </div>
@@ -177,7 +176,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                 <p className="text-sm text-muted-foreground">
                                     Sub-kategori menentukan Template &rarr; Kategori &rarr; Sub-Kategori hierarki
                                 </p>
-                                <InputError message={errors.sub_category_id} />
+                                {errors.sub_category_id && <p className="text-sm text-destructive">{errors.sub_category_id}</p>}
                             </div>
                         </CardContent>
                     </Card>
@@ -202,7 +201,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                         className={errors.code ? 'border-destructive' : ''}
                                     />
                                     <p className="text-sm text-muted-foreground">Kode unik untuk identifikasi kriteria</p>
-                                    <InputError message={errors.code} />
+                                    {errors.code && <p className="text-sm text-destructive">{errors.code}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -216,7 +215,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                         placeholder="Otomatis jika kosong"
                                         className={errors.sort_order ? 'border-destructive' : ''}
                                     />
-                                    <InputError message={errors.sort_order} />
+                                    {errors.sort_order && <p className="text-sm text-destructive">{errors.sort_order}</p>}
                                 </div>
                             </div>
 
@@ -232,7 +231,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                     rows={3}
                                     className={errors.question ? 'border-destructive' : ''}
                                 />
-                                <InputError message={errors.question} />
+                                {errors.question && <p className="text-sm text-destructive">{errors.question}</p>}
                             </div>
 
                             <div className="space-y-2">
@@ -246,7 +245,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                     className={errors.description ? 'border-destructive' : ''}
                                 />
                                 <p className="text-sm text-muted-foreground">Berikan penjelasan tambahan untuk membantu evaluator</p>
-                                <InputError message={errors.description} />
+                                {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
                             </div>
                         </CardContent>
                     </Card>
@@ -276,7 +275,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                             <SelectItem value="text">Teks Bebas</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <InputError message={errors.answer_type} />
+                                    {errors.answer_type && <p className="text-sm text-destructive">{errors.answer_type}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -295,7 +294,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                         className={errors.weight ? 'border-destructive' : ''}
                                     />
                                     <p className="text-sm text-muted-foreground">Bobot penilaian (0 - 100)</p>
-                                    <InputError message={errors.weight} />
+                                    {errors.weight && <p className="text-sm text-destructive">{errors.weight}</p>}
                                 </div>
                             </div>
 

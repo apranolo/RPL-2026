@@ -50,24 +50,26 @@ describe('Faculty Performance Analytics (Modul 6 Kelas B)', function () {
 
         // Buat 2 luaran dengan status approved (accepted)
         for ($i = 0; $i < 2; $i++) {
-            DB::table('outputs')->insert([
+            DB::table('research_outputs')->insert([
                 'user_id' => $this->user->id,
-                'type' => 'Jurnal',
-                'title' => 'Luaran '.$i,
-                'year' => date('Y'),
-                'status' => 'verified',
+                'kategori' => 'jurnal',
+                'judul' => 'Luaran '.$i,
+                'file_path' => 'file'.$i.'.pdf',
+                'status' => 'approved',
+                'keterangan' => 'test',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
 
         // Buat 1 luaran pending — TIDAK boleh dihitung sebagai accepted
-        DB::table('outputs')->insert([
+        DB::table('research_outputs')->insert([
             'user_id' => $this->user->id,
-            'type' => 'Buku',
-            'title' => 'Luaran Pending',
-            'year' => date('Y'),
-            'status' => 'pending',
+            'kategori' => 'buku',
+            'judul' => 'Luaran Pending',
+            'file_path' => 'pending.pdf',
+            'status' => 'submitted',
+            'keterangan' => 'test',
             'created_at' => now(),
             'updated_at' => now(),
         ]);

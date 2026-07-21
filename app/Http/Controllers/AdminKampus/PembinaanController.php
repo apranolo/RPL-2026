@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\PembinaanRegistration;
 use App\Models\ReviewerAssignment;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -206,7 +205,7 @@ class PembinaanController extends Controller
     /**
      * Get available reviewers for assignment dropdown.
      */
-    public function getReviewers(Request $request): JsonResponse
+    public function getReviewers(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->user();
 
