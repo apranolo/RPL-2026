@@ -1,53 +1,39 @@
 <?php
 
+/**
+ * Controller untuk perpanjangan due date reviewer assignment pada Proposal.
+ *
+ * Authorization: Hanya SuperAdmin, AdminKampus, dan PengelolaJurnal
+ * yang dapat memperpanjang due date via ProposalPolicy::extendDueDate.
+ */
+
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
-use App\Models\ReviewAssignment;
+use App\Models\ReviewerAssignment;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ReviewAssignmentController extends Controller
 {
     /**
-     * Memproses pengiriman undangan ke Reviewer.
+     * Extend due date for a reviewer assignment.
+     *
+     * Memvalidasi input dan memperbarui kolom due_date pada
+     * reviewer_assignments untuk assignment yang diberikan.
      */
-    public function invite(Request $request)
+    public function extendDue(Request $request, ReviewerAssignment $reviewerAssignment): RedirectResponse
     {
-        // PERBAIKAN 5: Pengecekan Otorisasi (Hanya Editor yang boleh)
-        if (! auth()->user()->hasRole('Editor')) {
-            abort(403, 'Akses ditolak: Hanya Editor yang berhak mengundang Reviewer.');
-        }
+        $this->authorize('extendDueDate', $reviewerAssignment->proposal);
 
-        // 1. Validasi Input Keamanan
         $validated = $request->validate([
-            'submission_id' => 'required|exists:submissions,id',
-            'reviewer_id' => 'required|exists:users,id',
+            'due_date' => ['required', 'date', 'after:today'],
         ]);
 
-        // 2. Pencegahan Duplikasi Undangan
-        $isAlreadyInvited = ReviewAssignment::where('submission_id', $validated['submission_id'])
-            ->where('reviewer_id', $validated['reviewer_id'])
-            ->where('round', 1) // Default saat ini adalah ronde 1
-            ->exists();
-
-        if ($isAlreadyInvited) {
-            // Jika sudah diundang, batalkan dan beri tahu Editor
-            return back()->withErrors(['message' => 'Reviewer tersebut sudah diundang untuk naskah ini pada ronde yang sama.']);
-        }
-
-        // 3. Simpan Data (SLA 7 Hari)
-        // PERBAIKAN 4: Ganti 'Invited' menjadi 'Pending' agar tidak SQL Crash
-        ReviewAssignment::create([
-            'submission_id' => $validated['submission_id'],
-            'reviewer_id' => $validated['reviewer_id'],
-            'round' => 1,
-            'status' => 'Pending', // <--- SUDAH DIPERBAIKI
-            'due_date' => now()->addDays(7),
+        $reviewerAssignment->update([
+            'due_date' => $validated['due_date'],
         ]);
 
-        // Catatan: Email notifikasi akan di-handle oleh Event/Observer dari Modul 7.
-
-        // 4. Berikan flash message ke Inertia (Frontend React)
-        return back()->with('success', 'Undangan berhasil dikirimkan ke Reviewer.');
+        return redirect()->back()->with('success', 'Due date berhasil diperpanjang.');
     }
 }

@@ -437,6 +437,29 @@ export interface ReviewerAssignment {
     updated_at?: string;
 }
 
+// Review Schedule types
+export interface ReviewSchedule {
+    id: number;
+    proposal_id: number;
+    reviewer_id: number;
+    scheduled_at: string;
+    ended_at?: string;
+    location?: string;
+    meeting_link?: string;
+    notes?: string;
+    status: 'scheduled' | 'completed' | 'cancelled';
+    proposal?: {
+        id: number;
+        journal: { id: number; title: string; issn: string };
+        user: { id: number; name: string };
+    };
+    reviewer?: { id: number; name: string; email: string };
+    creator?: { id: number; name: string };
+    updater?: { id: number; name: string };
+    created_at: string;
+    updated_at: string;
+}
+
 // Journal Statistics types for Dashboard
 export interface IndexationStatistic {
     name: string;

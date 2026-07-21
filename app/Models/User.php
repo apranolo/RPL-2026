@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -30,7 +32,7 @@ class User extends Authenticatable
             if ($user->role_id) {
                 $user->roles()->syncWithoutDetaching([$user->role_id => [
                     'assigned_at' => now(),
-                    'assigned_by' => auth()->id() ?? $user->approved_by,
+                    'assigned_by' => Auth::id() ?? $user->approved_by,
                 ]]);
             }
 
@@ -40,7 +42,7 @@ class User extends Authenticatable
                 if ($user->is_reviewer) {
                     $user->roles()->syncWithoutDetaching([$reviewerRole->id => [
                         'assigned_at' => now(),
-                        'assigned_by' => auth()->id() ?? $user->approved_by,
+                        'assigned_by' => Auth::id() ?? $user->approved_by,
                     ]]);
                 } else {
                     $user->roles()->detach($reviewerRole->id);
@@ -107,10 +109,10 @@ class User extends Authenticatable
     }
 
     /*
-     |--------------------------------------------------------------------------
-     | Relationships
-     |--------------------------------------------------------------------------
-     */
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get all submissions created by this user (Author)
@@ -214,6 +216,30 @@ class User extends Authenticatable
     public function journals()
     {
         return $this->hasMany(Journal::class);
+    }
+
+    /**
+     * Get all proposals submitted by this user
+     */
+    public function proposals()
+    {
+        return $this->hasMany(Proposal::class);
+    }
+
+    /**
+     * Get all progress reports submitted by this user
+     */
+    public function progressReports()
+    {
+        return $this->hasMany(ProgressReport::class);
+    }
+
+    /**
+     * Get all monev schedules evaluated by this user
+     */
+    public function evaluatorSchedules()
+    {
+        return $this->hasMany(MonevSchedule::class, 'evaluator_id');
     }
 
     /**
@@ -395,6 +421,18 @@ class User extends Authenticatable
 
         // Check in roles relationship (multi-role)
         return $this->roles()->where('name', Role::ADMIN_KAMPUS)->exists();
+    }
+
+    /**
+     * Check if user is Admin Keuangan
+     */
+    public function isAdminKeuangan(): bool
+    {
+        if ($this->role && $this->role->name === Role::ADMIN_KEUANGAN) {
+            return true;
+        }
+
+        return $this->roles()->where('name', Role::ADMIN_KEUANGAN)->exists();
     }
 
     /**

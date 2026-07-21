@@ -64,7 +64,7 @@ class DeskController extends Controller
             ->get();
 
         return Inertia::render('Editorial/Desk/DeskReview', [
-            'submission' => $submission->load('journal', 'author'),
+            'submission' => $submission->load('journal', 'author', 'files', 'editorialDecisions'),
             'editors' => $editors,
         ]);
     }
@@ -76,8 +76,6 @@ class DeskController extends Controller
      */
     public function assignEditor(AssignEditorRequest $request, Submission $submission): RedirectResponse
     {
-        $this->authorize('update', $submission);
-
         $alreadyAssigned = EditorialAssignment::where('submission_id', $submission->id)
             ->where('editor_id', $request->editor_id)
             ->exists();

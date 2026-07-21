@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Editorial;
 
 use App\Http\Controllers\Controller;
+use App\Models\EditorialDecision;
 use App\Models\Submission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class DecisionController extends Controller
         $validated = $request->validate([
             'decision' => [
                 'required',
-                'in:Accept_For_Review,Desk_Reject',
+                'in:Accept_For_Review,Desk_Reject,submitted,administrasi_valid,ditolak',
             ],
             'rejection_reason' => [
                 'nullable',
@@ -30,32 +31,31 @@ class DecisionController extends Controller
             ],
         ]);
 
-        // Submission hanya boleh diproses sekali
-        if ($submission->status !== 'pending') {
-            return redirect()
-                ->back()
-                ->with(
-                    'error',
-                    'Submission ini sudah diproses sebelumnya.'
-                );
-        }
-
         $submission->update([
             'status' => $validated['decision'],
             'reviewed_at' => now(),
             'reviewed_by' => auth()->id(),
-            'rejection_reason' => $validated['decision'] === 'Desk_Reject'
+            'rejection_reason' => $validated['decision'] === 'Desk_Reject' || $validated['decision'] === 'ditolak'
                     ? $validated['rejection_reason']
                     : null,
         ]);
 
-        $message =
-            $validated['decision'] === 'Accept_For_Review'
-                ? 'Submission berhasil diterima untuk review.'
-                : 'Submission ditolak.';
+        $message = ($validated['decision'] === 'Accept_For_Review' || $validated['decision'] === 'administrasi_valid')
+            ? 'Submission berhasil diterima untuk review.'
+            : 'Submission ditolak.';
 
         return redirect()
             ->back()
             ->with('success', $message);
+    }
+
+    public function history($submissionId)
+    {
+        $history = EditorialDecision::with('editor')
+            ->where('submission_id', $submissionId)
+            ->orderBy('decided_at', 'desc')
+            ->get();
+
+        return response()->json($history);
     }
 }
