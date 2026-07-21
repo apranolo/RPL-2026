@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Contract;
 use App\Models\ProgressReport;
 use App\Models\Proposal;
-use App\Models\Contract;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

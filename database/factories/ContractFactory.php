@@ -36,19 +36,19 @@ class ContractFactory extends Factory
         $year = now()->year;
 
         return [
-            'contract_number'           => sprintf('KON-%d-%04d', $year, static::$contractSequence),
-            'title'                     => $this->faker->sentence(6),
+            'contract_number' => sprintf('KON-%d-%04d', $year, static::$contractSequence),
+            'title' => $this->faker->sentence(6),
             'pembinaan_registration_id' => null,
-            'journal_id'                => null,
-            'university_id'             => University::factory(),
-            'start_date'                => now()->addDays(7),
-            'end_date'                  => now()->addMonths(12),
-            'status'                    => 'draft',
-            'terms'                     => $this->faker->optional(0.6)->paragraphs(2, true),
-            'notes'                     => $this->faker->optional(0.4)->sentence(),
-            'contract_value'            => $this->faker->optional(0.7)->numberBetween(50_000_000, 500_000_000),
-            'created_by'                => User::factory(),
-            'updated_by'                => null,
+            'journal_id' => null,
+            'university_id' => University::factory(),
+            'start_date' => now()->addDays(7),
+            'end_date' => now()->addMonths(12),
+            'status' => 'draft',
+            'terms' => $this->faker->optional(0.6)->paragraphs(2, true),
+            'notes' => $this->faker->optional(0.4)->sentence(),
+            'contract_value' => $this->faker->optional(0.7)->numberBetween(50_000_000, 500_000_000),
+            'created_by' => User::factory(),
+            'updated_by' => null,
         ];
     }
 

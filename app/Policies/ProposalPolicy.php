@@ -24,6 +24,7 @@ class ProposalPolicy
     {
         return $user->isSuperAdmin();
     }
+
     /**
      * Tentukan apakah user boleh mengubah proposal.
      * Hanya pemilik proposal berbasis kepemilikan user ID.

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\UserRole;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -81,4 +80,3 @@ class UserRoleController extends Controller
         return back()->with('success', "Role '{$roleToRevoke->display_name}' has been revoked from {$user->name}.");
     }
 }
-

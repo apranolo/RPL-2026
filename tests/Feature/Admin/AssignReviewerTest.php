@@ -3,7 +3,6 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\User;
-use App\Models\Review;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

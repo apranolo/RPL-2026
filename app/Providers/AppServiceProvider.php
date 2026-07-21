@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\EvaluationSubCategory::class, \App\Policies\EvaluationSubCategoryPolicy::class);
         Gate::policy(\App\Models\EvaluationIndicator::class, \App\Policies\EvaluationIndicatorPolicy::class);
         Gate::policy(\App\Models\EssayQuestion::class, \App\Policies\EssayQuestionPolicy::class);
-
+        Gate::policy(\App\Models\ResearchOutput::class, \App\Policies\ResearchOutputPolicy::class);
         Gate::policy(\App\Models\ResearchSchema::class, \App\Policies\SchemaPolicy::class);
 
         // Research Output Policy

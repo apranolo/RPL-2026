@@ -2,7 +2,6 @@
 
 use App\Models\JournalAssessment;
 use App\Models\ReviewSchedule;
-use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,9 +11,6 @@ use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
 use function Pest\Laravel\delete;
-use function Pest\Laravel\get;
-use function Pest\Laravel\post;
-use function Pest\Laravel\put;
 
 uses(RefreshDatabase::class);
 
@@ -450,7 +446,7 @@ test('search with partial reviewer name match returns correct results', function
 // ─── PROPOSAL MODEL ───────────────────────────────────────
 
 test('proposal model resolves to journal_assessments table', function () {
-    $proposal = new \App\Models\Proposal();
+    $proposal = new \App\Models\Proposal;
     expect($proposal->getTable())->toBe('journal_assessments');
 });
 
