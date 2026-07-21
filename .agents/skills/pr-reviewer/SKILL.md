@@ -83,5 +83,10 @@ Pada tahap pemeriksaan terakhir (pasca batas waktu deadline 19 Juli 2026 23:59 W
      **Capaian Penugasan:** X dari 4 Task Selesai (X%)
      ```
 
-6. **Kebijakan Keputusan Status (Verdict)**:
-   - Jika kualitas kode aman dan fitur utama berfungsi baik, berikan keputusan status **`APPROVED (dengan catatan Late Submission)`** atau **`APPROVED (dengan catatan task tidak selesai semua)`**, lalu lakukan posting ulasan dan merge (dengan `--admin` bypass) sesuai instruksi pengguna.
+6. **Kebijakan Keputusan Status (Verdict) & Penilaian Spreadsheet**:
+   - Apabila pada tabel evaluasi 4 task terdapat status **`SELESAI (Overdue)`**, tugas secara fisik dianggap selesai (kode dapat di-merge ke development).
+   - **NAMUN**, pada ringkasan ulasan/verdict wajib dicantumkan catatan bahwa **status ketercapaian task untuk lembar penilaian spreadsheet dicatat sebagai `Not Completed`**, karena penyempurnaan/perbaikannya dikirimkan melebihi batas waktu deadline push commit (19 Juli 2026 23:59 WIB).
+   - *Matriks Penilaian Spreadsheet*:
+     - **`SELESAI`** (commit <= deadline) -> Spreadsheet: **`Completed`**
+     - **`SELESAI (Overdue)`** (commit > deadline) -> Spreadsheet: **`Not Completed`**
+     - **`BELUM SELESAI`** -> Spreadsheet: **`Not Completed`**
