@@ -5,16 +5,14 @@
  *
  * Model untuk menyimpan keputusan review multi-reviewer.
  * Table: review_decisions
- *
- * @package App\Models
  */
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ReviewDecision extends Model
 {
@@ -50,4 +48,3 @@ class ReviewDecision extends Model
         return $this->belongsTo(ReviewerAssignment::class);
     }
 }
-

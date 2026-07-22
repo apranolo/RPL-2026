@@ -8,8 +8,6 @@
  * beserta keputusan review (score, recommendation, comment) per assignment.
  *
  * Authorization: Hanya SuperAdmin, AdminKampus, dan PengelolaJurnal yang dapat mengakses.
- *
- * @package App\Http\Controllers\Review
  */
 
 namespace App\Http\Controllers\Review;
@@ -28,8 +26,7 @@ class ReviewSummaryController extends Controller
      * Mengambil seluruh penugasan reviewer beserta keputusan review
      * dan mengirimkan ke halaman Inertia Review/Summary.
      *
-     * @param Proposal $proposal Proposal yang diminta rekap review-nya.
-     * @return Response
+     * @param  Proposal  $proposal  Proposal yang diminta rekap review-nya.
      */
     public function index(Proposal $proposal): Response
     {
@@ -44,20 +41,20 @@ class ReviewSummaryController extends Controller
             $decision = $assignment->reviewDecisions->first();
 
             return [
-                'id'              => $assignment->id,
-                'reviewer_name'   => $assignment->reviewer?->name,
-                'due_date'        => optional($assignment->due_date)->format('Y-m-d'),
-                'status'          => $assignment->status,
-                'score'           => $decision?->score,
-                'recommendation'  => $decision?->recommendation,
-                'comment'         => $decision?->comment,
+                'id' => $assignment->id,
+                'reviewer_name' => $assignment->reviewer?->name,
+                'due_date' => optional($assignment->due_date)->format('Y-m-d'),
+                'status' => $assignment->status,
+                'score' => $decision?->score,
+                'recommendation' => $decision?->recommendation,
+                'comment' => $decision?->comment,
             ];
         })->values()->all();
 
         return Inertia::render('Review/Summary', [
             'proposal' => [
-                'id'        => $proposal->id,
-                'judul'     => $proposal->judul,
+                'id' => $proposal->id,
+                'judul' => $proposal->judul,
                 'deskripsi' => $proposal->deskripsi,
             ],
             'assignments' => $assignmentsPayload,

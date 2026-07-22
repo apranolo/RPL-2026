@@ -47,26 +47,16 @@ interface ActionButtonsProps {
 
 const STATUS_LABELS: Record<string, string> = {
     Administrasi_Valid: '✓ Sudah divalidasi',
-    Ditolak:            '✗ Sudah ditolak',
-    Draft:              'Belum disubmit',
+    Ditolak: '✗ Sudah ditolak',
+    Draft: 'Belum disubmit',
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function ActionButtons({
-    proposalId,
-    proposalTitle,
-    status,
-    onReject,
-    disabled = false,
-}: ActionButtonsProps) {
+export default function ActionButtons({ proposalId, proposalTitle, status, onReject, disabled = false }: ActionButtonsProps) {
     // Hanya tampilkan tombol Validasi & Tolak jika status === 'Submitted'
     if (status !== 'Submitted') {
-        return (
-            <span className="text-xs text-muted-foreground">
-                {STATUS_LABELS[status] ?? '—'}
-            </span>
-        );
+        return <span className="text-xs text-muted-foreground">{STATUS_LABELS[status] ?? '—'}</span>;
     }
 
     const handleApprove = () => {
@@ -89,14 +79,7 @@ export default function ActionButtons({
             </Button>
 
             {/* Tombol Tolak (Reject) — membuka modal */}
-            <Button
-                id={`btn-reject-${proposalId}`}
-                size="sm"
-                variant="destructive"
-                disabled={disabled}
-                onClick={onReject}
-                className="gap-1.5"
-            >
+            <Button id={`btn-reject-${proposalId}`} size="sm" variant="destructive" disabled={disabled} onClick={onReject} className="gap-1.5">
                 <XCircle className="h-3.5 w-3.5" />
                 Tolak
             </Button>
