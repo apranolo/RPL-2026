@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Issue;
 use App\Models\Journal;
 use App\Models\Role;
 use App\Models\User;
@@ -12,10 +11,10 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->withoutVite();
 
-    // Pastikan role PENGELOLA_JURNAL ada
+    // Pastikan role USER ada (firstOrCreate, tidak pakai factory)
     $role = Role::firstOrCreate(
-        ['name' => Role::PENGELOLA_JURNAL],
-        ['display_name' => 'Pengelola Jurnal']
+        ['name' => Role::USER],
+        ['display_name' => 'User']
     );
 
     $this->user = User::factory()->create();
@@ -38,11 +37,11 @@ test('production issue create page is rendered', function () {
 
 test('can submit new issue to store', function () {
     $payload = [
-        'volume' => 1,
-        'number' => 2,
-        'year' => 2026,
-        'title' => 'Inovasi Teknologi Terkini',
-        'description' => 'Kumpulan jurnal tentang inovasi terbaru di bidang rekayasa perangkat lunak.',
+        'volume' => '1',
+        'nomor' => '2',
+        'tahun' => 2026,
+        'judul_tematik' => 'Inovasi Teknologi Terkini',
+        'deskripsi' => 'Kumpulan jurnal tentang inovasi terbaru di bidang rekayasa perangkat lunak.',
     ];
 
     $response = $this->actingAs($this->user)
@@ -51,24 +50,24 @@ test('can submit new issue to store', function () {
     $response->assertRedirect(route('production.issue.create'));
     $response->assertSessionHasNoErrors();
 
-    $this->assertDatabaseHas('issues', [
+    $this->assertDatabaseHas('production_issues', [
         'journal_id' => $this->journal->id,
-        'volume' => 1,
-        'number' => 2,
-        'year' => 2026,
-        'title' => 'Inovasi Teknologi Terkini',
+        'volume' => '1',
+        'nomor' => '2',
+        'tahun' => 2026,
+        'judul_tematik' => 'Inovasi Teknologi Terkini',
     ]);
 });
 
 test('production issue edit page is rendered', function () {
-    $issue = Issue::create([
+    $issue = \App\Models\ProductionIssue::create([
         'journal_id' => $this->journal->id,
-        'volume' => 1,
-        'number' => 1,
-        'year' => 2026,
-        'title' => 'Tema Lama',
-        'description' => 'Deskripsi lama',
-        'status' => 'Draft',
+        'volume' => '1',
+        'nomor' => '1',
+        'tahun' => 2026,
+        'judul_tematik' => 'Tema Lama',
+        'deskripsi' => 'Deskripsi lama',
+        'status' => 'draft',
     ]);
 
     $response = $this->actingAs($this->user)
@@ -80,32 +79,32 @@ test('production issue edit page is rendered', function () {
         ->has('issue', fn (Assert $page) => $page
             ->where('id', $issue->id)
             ->where('volume', $issue->volume)
-            ->where('number', $issue->number)
-            ->where('year', $issue->year)
-            ->where('title', $issue->title)
-            ->where('description', $issue->description)
+            ->where('nomor', $issue->nomor)
+            ->where('tahun', $issue->tahun)
+            ->where('judul_tematik', $issue->judul_tematik)
+            ->where('deskripsi', $issue->deskripsi)
             ->where('status', $issue->status)
         )
     );
 });
 
 test('can update existing issue metadata', function () {
-    $issue = Issue::create([
+    $issue = \App\Models\ProductionIssue::create([
         'journal_id' => $this->journal->id,
-        'volume' => 1,
-        'number' => 1,
-        'year' => 2026,
-        'title' => 'Tema Lama',
-        'description' => 'Deskripsi lama',
-        'status' => 'Draft',
+        'volume' => '1',
+        'nomor' => '1',
+        'tahun' => 2026,
+        'judul_tematik' => 'Tema Lama',
+        'deskripsi' => 'Deskripsi lama',
+        'status' => 'draft',
     ]);
 
     $payload = [
-        'volume' => 2,
-        'number' => 3,
-        'year' => 2027,
-        'title' => 'Tema Baru',
-        'description' => 'Deskripsi baru yang diupdate',
+        'volume' => '2',
+        'nomor' => '3',
+        'tahun' => 2027,
+        'judul_tematik' => 'Tema Baru',
+        'deskripsi' => 'Deskripsi baru yang diupdate',
     ];
 
     $response = $this->actingAs($this->user)
@@ -114,14 +113,14 @@ test('can update existing issue metadata', function () {
     $response->assertRedirect(route('production.issue.edit', $issue));
     $response->assertSessionHasNoErrors();
 
-    $this->assertDatabaseHas('issues', [
+    $this->assertDatabaseHas('production_issues', [
         'id' => $issue->id,
         'journal_id' => $this->journal->id,
-        'volume' => 2,
-        'number' => 3,
-        'year' => 2027,
-        'title' => 'Tema Baru',
-        'description' => 'Deskripsi baru yang diupdate',
+        'volume' => '2',
+        'nomor' => '3',
+        'tahun' => 2027,
+        'judul_tematik' => 'Tema Baru',
+        'deskripsi' => 'Deskripsi baru yang diupdate',
     ]);
 });
 
@@ -132,12 +131,12 @@ test('cannot edit issue belonging to another user', function () {
         'user_id' => $otherUser->id,
     ]);
 
-    $issue = Issue::create([
+    $issue = \App\Models\ProductionIssue::create([
         'journal_id' => $otherJournal->id,
-        'volume' => 1,
-        'number' => 1,
-        'year' => 2026,
-        'status' => 'Draft',
+        'volume' => '1',
+        'nomor' => '1',
+        'tahun' => 2026,
+        'status' => 'draft',
     ]);
 
     $response = $this->actingAs($this->user)
@@ -146,9 +145,9 @@ test('cannot edit issue belonging to another user', function () {
     $response->assertStatus(403);
 
     $payload = [
-        'volume' => 2,
-        'number' => 3,
-        'year' => 2027,
+        'volume' => '2',
+        'nomor' => '3',
+        'tahun' => 2027,
     ];
 
     $responsePut = $this->actingAs($this->user)

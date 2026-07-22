@@ -790,6 +790,26 @@ Route::middleware(['auth'])->group(function () {
 
  /*
     |--------------------------------------------------------------------------
+    | Production Routes (Journal Issue Management)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::PENGELOLA_JURNAL])->prefix('production')->name('production.')->group(function () {
+
+        // Issue Management
+        Route::prefix('issues')->name('issue.')->group(function () {
+            Route::get('create', [\App\Http\Controllers\Production\IssueController::class, 'create'])
+                ->name('create');
+            Route::post('/', [\App\Http\Controllers\Production\IssueController::class, 'store'])
+                ->name('store');
+            Route::get('{issue}/edit', [\App\Http\Controllers\Production\IssueController::class, 'edit'])
+                ->name('edit');
+            Route::put('{issue}', [\App\Http\Controllers\Production\IssueController::class, 'update'])
+                ->name('update');
+        });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Review Summary & Assignment Routes (v1.1 - Multi Reviewer)
     | MOCK LOKAL - hapus setelah model resmi di-merge ke development.
     |--------------------------------------------------------------------------
@@ -847,6 +867,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('plagiarism-check', [PlagiarismController::class, 'store'])
                 ->name('plagiarism-check.store');
         });
+
     /*
     |--------------------------------------------------------------------------
     | Reviewer Routes (v1.1)
