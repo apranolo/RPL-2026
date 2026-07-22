@@ -16,7 +16,7 @@ class StoreGalleyRequest extends FormRequest
     {
         return [
             'label' => 'required|string|max:255',
-            'file'  => 'required|file|mimes:pdf,html,xml|max:10240',
+            'file' => 'required|file|mimes:pdf,html,xml|max:10240',
         ];
     }
 }

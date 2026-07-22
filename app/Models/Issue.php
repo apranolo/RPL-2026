@@ -16,14 +16,12 @@ class Issue extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'id_journal',       // HEAD compatibility
         'journal_id',
         'volume',
         'number',
         'year',
         'title',
         'description',
-        'published_at',     // HEAD compatibility
         'publication_date',
         'status',
         'cover_image_path',
@@ -48,7 +46,6 @@ class Issue extends Model
      */
     protected $appends = [
         'cover_image_url',
-        'id_journal',       // HEAD compatibility
         'nomor',
         'tahun',
         'judul_tematik',
@@ -68,7 +65,7 @@ class Issue extends Model
      */
     public function journal()
     {
-        return $this->belongsTo(Journal::class, 'journal_id');
+        return $this->belongsTo(Journal::class);
     }
 
     /**
@@ -76,7 +73,7 @@ class Issue extends Model
      */
     public function galleys()
     {
-        return $this->hasMany(Galley::class, 'issue_id');
+        return $this->hasMany(Galley::class);
     }
 
     /*
@@ -95,22 +92,6 @@ class Issue extends Model
         }
 
         return Storage::url($this->cover_image_path);
-    }
-
-    /**
-     * Get id_journal (alias for journal_id).
-     */
-    public function getIdJournalAttribute(): ?int
-    {
-        return $this->journal_id;
-    }
-
-    /**
-     * Set id_journal (alias for journal_id).
-     */
-    public function setIdJournalAttribute($value): void
-    {
-        $this->attributes['journal_id'] = $value;
     }
 
     /**

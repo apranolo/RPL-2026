@@ -16,13 +16,12 @@ class Galley extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'id_submission', // HEAD compatibility
-        'id_issue',      // HEAD compatibility
         'submission_id',
         'issue_id',
         'label',
         'file_path',
-        'pages',
+        'page_from',
+        'page_to',
         'doi',
         'sequence',
     ];
@@ -33,6 +32,8 @@ class Galley extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'page_from' => 'integer',
+        'page_to' => 'integer',
         'sequence' => 'integer',
     ];
 
@@ -45,6 +46,7 @@ class Galley extends Model
         'file_url',
         'id_submission',
         'id_issue',
+        'pages',
         'file_extension',
     ];
 
@@ -60,7 +62,7 @@ class Galley extends Model
      */
     public function issue()
     {
-        return $this->belongsTo(Issue::class, 'issue_id');
+        return $this->belongsTo(Issue::class);
     }
 
     /**
@@ -68,13 +70,14 @@ class Galley extends Model
      */
     public function submission()
     {
-        return $this->belongsTo(Submission::class, 'submission_id');
+        return $this->belongsTo(Submission::class);
     }
 
     /*
     |--------------------------------------------------------------------------
     | Accessors & Mutators
     |--------------------------------------------------------------------------
+    |
     */
 
     /**
@@ -119,6 +122,26 @@ class Galley extends Model
     public function setIdIssueAttribute($value): void
     {
         $this->attributes['issue_id'] = $value;
+    }
+
+    /**
+     * Get pages (formatted page range).
+     */
+    public function getPagesAttribute(): ?string
+    {
+        if ($this->page_from === null && $this->page_to === null) {
+            return null;
+        }
+
+        if ($this->page_from !== null && $this->page_to !== null) {
+            if ($this->page_from === $this->page_to) {
+                return (string) $this->page_from;
+            }
+
+            return "{$this->page_from}-{$this->page_to}";
+        }
+
+        return (string) ($this->page_from ?? $this->page_to);
     }
 
     /**

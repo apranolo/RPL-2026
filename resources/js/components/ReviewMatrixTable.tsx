@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { router, usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { CalendarDays, CheckCircle, Clock, Edit2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -88,7 +88,7 @@ export function ReviewMatrixTable({ assignments }: Props) {
     const getStatusBadge = (status: string) => {
         const config = statusConfig[status] ?? { label: status, variant: 'secondary' as const, icon: null };
         return (
-            <Badge variant={config.variant} className="flex items-center gap-1 w-fit">
+            <Badge variant={config.variant} className="flex w-fit items-center gap-1">
                 {config.icon}
                 {config.label}
             </Badge>
@@ -113,7 +113,7 @@ export function ReviewMatrixTable({ assignments }: Props) {
 
     return (
         <>
-            <div className="rounded-lg border shadow-sm overflow-hidden">
+            <div className="overflow-hidden rounded-lg border shadow-sm">
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-muted/50">
@@ -125,10 +125,10 @@ export function ReviewMatrixTable({ assignments }: Props) {
                                 </div>
                             </TableHead>
                             <TableHead className="font-semibold">Status</TableHead>
-                            <TableHead className="font-semibold text-center">Skor</TableHead>
+                            <TableHead className="text-center font-semibold">Skor</TableHead>
                             <TableHead className="font-semibold">Rekomendasi</TableHead>
                             <TableHead className="font-semibold">Komentar</TableHead>
-                            <TableHead className="font-semibold text-right">Aksi</TableHead>
+                            <TableHead className="text-right font-semibold">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -141,11 +141,9 @@ export function ReviewMatrixTable({ assignments }: Props) {
                                 : null;
 
                             return (
-                                <TableRow key={assignment.id} className="hover:bg-muted/30 transition-colors">
+                                <TableRow key={assignment.id} className="transition-colors hover:bg-muted/30">
                                     <TableCell className="font-medium">
-                                        {assignment.reviewer_name ?? (
-                                            <span className="italic text-muted-foreground">Tidak diketahui</span>
-                                        )}
+                                        {assignment.reviewer_name ?? <span className="text-muted-foreground italic">Tidak diketahui</span>}
                                     </TableCell>
                                     <TableCell>
                                         {assignment.due_date ? (
@@ -157,40 +155,31 @@ export function ReviewMatrixTable({ assignments }: Props) {
                                                 })}
                                             </span>
                                         ) : (
-                                            <span className="italic text-muted-foreground text-sm">—</span>
+                                            <span className="text-sm text-muted-foreground italic">—</span>
                                         )}
                                     </TableCell>
                                     <TableCell>{getStatusBadge(assignment.status)}</TableCell>
                                     <TableCell className="text-center">
-                                        <span className={getScoreColor(assignment.score)}>
-                                            {assignment.score !== null ? assignment.score : '—'}
-                                        </span>
+                                        <span className={getScoreColor(assignment.score)}>{assignment.score !== null ? assignment.score : '—'}</span>
                                     </TableCell>
                                     <TableCell>
                                         {recommendationCfg ? (
-                                            <span className={`text-sm font-medium ${recommendationCfg.color}`}>
-                                                {recommendationCfg.label}
-                                            </span>
+                                            <span className={`text-sm font-medium ${recommendationCfg.color}`}>{recommendationCfg.label}</span>
                                         ) : (
-                                            <span className="italic text-muted-foreground text-sm">—</span>
+                                            <span className="text-sm text-muted-foreground italic">—</span>
                                         )}
                                     </TableCell>
                                     <TableCell className="max-w-[220px]">
                                         {assignment.comment ? (
-                                            <p className="text-sm text-muted-foreground truncate" title={assignment.comment}>
+                                            <p className="truncate text-sm text-muted-foreground" title={assignment.comment}>
                                                 {assignment.comment}
                                             </p>
                                         ) : (
-                                            <span className="italic text-muted-foreground text-sm">—</span>
+                                            <span className="text-sm text-muted-foreground italic">—</span>
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="gap-1 text-xs"
-                                            onClick={() => openExtendDialog(assignment)}
-                                        >
+                                        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => openExtendDialog(assignment)}>
                                             <CalendarDays className="h-3 w-3" />
                                             Perpanjang
                                         </Button>
@@ -210,7 +199,7 @@ export function ReviewMatrixTable({ assignments }: Props) {
                     </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div>
-                            <p className="text-sm text-muted-foreground mb-1">Reviewer</p>
+                            <p className="mb-1 text-sm text-muted-foreground">Reviewer</p>
                             <p className="font-semibold">{selectedAssignment?.reviewer_name}</p>
                         </div>
                         <div className="space-y-2">

@@ -12,17 +12,15 @@ class TopLecturerController extends Controller
 {
     /**
      * Mengambil top 5 dosen paling produktif berdasarkan jumlah proposal yang diajukan.
-     *
-     * @return JsonResponse
      */
     public function getTop(): JsonResponse
     {
         $universityId = Auth::user()->university_id;
 
         $topLecturers = User::select(
-                'users.name',
-                DB::raw('COUNT(proposals.id) as score')
-            )
+            'users.name',
+            DB::raw('COUNT(proposals.id) as score')
+        )
             ->join('proposals', 'users.id', '=', 'proposals.user_id')
             ->where('users.university_id', $universityId)
             ->groupBy('users.id', 'users.name')
