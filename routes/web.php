@@ -49,11 +49,6 @@ use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
-use App\Http\Controllers\Editorial\DecisionController;
-use App\Http\Controllers\Editorial\DeskController;
-use App\Http\Controllers\Revision\EditorRevisionController;
-use App\Http\Controllers\Revision\RevisionController;
-use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
@@ -168,14 +163,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // revisi ded code
-    Route::get('/monev/cetak-rekap', [\App\Http\Controllers\MonevDocumentController::class, 'printRekap'])
-        ->name('monev.printRekap')
-        ->middleware('role:'.Role::SUPER_ADMIN.'|'.Role::ADMIN_KAMPUS.'|'.Role::USER);
-
-    // Author Submission Wizard Step 4 Routes
-    Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
-    Route::post('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'saveStep4'])->name('submissions.wizard.save-step4');
+    // Dashboard Author (Submissions)
+    Route::get('/submission', function () {
+        return Inertia::render('Submission/Index');
+    })->name('submissions.index');
 
     // Dashboard Admin
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -718,6 +709,14 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('reorder', [\App\Http\Controllers\User\AssessmentIssueController::class, 'reorder'])
                     ->name('reorder');
             });
+        });
+
+        // Submission Wizard (Step 5: Confirm & Submit)
+        Route::prefix('submission-wizard')->name('submission-wizard.')->group(function () {
+            Route::get('{submission}/confirm', [SubmissionWizardController::class, 'confirm'])
+                ->name('confirm');
+            Route::post('{submission}/final-submit', [SubmissionWizardController::class, 'finalSubmit'])
+                ->name('final-submit');
         });
 
         // Pembinaan Registration (v1.1)

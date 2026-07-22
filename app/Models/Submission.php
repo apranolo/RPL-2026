@@ -6,69 +6,106 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Submission extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'journal_id',
         'author_id',
         'title',
-        'abstract',
+        'description',
         'keywords',
+        'language',
         'status',
-        'file_path',
-        'author_notes',
+        'rejection_reason',
     ];
 
-    protected $appends = [
-        'user_id',
+    protected $casts = [
+        'keywords' => 'array',
     ];
 
-    public function author(): BelongsTo
+    protected $appends = ['id_user', 'id_journal', 'abstract'];
+
+    public function getIdUserAttribute()
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->author_id;
     }
 
-    public function user(): BelongsTo
+    public function setIdUserAttribute($value)
     {
-        return $this->belongsTo(User::class, 'author_id');
+        $this->author_id = $value;
     }
 
+    public function getIdJournalAttribute()
+    {
+        return $this->journal_id;
+    }
+
+    public function setIdJournalAttribute($value)
+    {
+        $this->journal_id = $value;
+    }
+
+    public function getAuthorIdAttribute()
+    {
+        return $this->author_id;
+    }
+
+    public function setAuthorIdAttribute($value)
+    {
+        $this->author_id = $value;
+    }
+
+    public function getAbstractAttribute()
+    {
+        return $this->description;
+    }
+
+    public function setAbstractAttribute($value)
+    {
+        $this->description = $value;
+    }
+
+    /**
+     * Relasi ke Jurnal
+     */
     public function journal(): BelongsTo
     {
         return $this->belongsTo(Journal::class);
     }
 
-    public function files(): HasMany
+    /**
+     * Relasi ke User (Author) menggunakan author_id
+     */
+    public function user(): BelongsTo
     {
-        return $this->hasMany(SubmissionFile::class);
+        return $this->belongsTo(User::class, 'author_id');
     }
 
+    /**
+     * Relasi ke User (Author) - alias author()
+     */
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /**
+     * Relasi ke kontributor pendamping (Co-Authors)
+     */
     public function contributors(): HasMany
     {
         return $this->hasMany(SubmissionContributor::class);
     }
 
-    public function revisionRounds(): HasMany
+    /**
+     * Relasi ke file-file lampiran
+     */
+    public function files(): HasMany
     {
-        return $this->hasMany(RevisionRound::class, 'id_submission', 'id');
-    }
-
-    public function copyeditingTask(): HasOne
-    {
-        return $this->hasOne(CopyeditingTask::class, 'id_submission', 'id');
-    }
-
-    public function getUserIdAttribute(): ?int
-    {
-        return $this->author_id;
-    }
-
-    public function setUserIdAttribute($value): void
-    {
-        $this->attributes['author_id'] = $value;
+        return $this->hasMany(SubmissionFile::class);
     }
 }

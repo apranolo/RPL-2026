@@ -1,64 +1,176 @@
-import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
-import React from 'react';
+/**
+ * WizardProgressBar Component
+ *
+ * @description Step indicator showing progress through the submission wizard.
+ *              Each step displays its label, completion status (complete / current / upcoming),
+ *              and a connecting line between steps.
+ *
+ * @usage
+ * ```tsx
+ * <WizardProgressBar
+ *     steps={[
+ *         { label: 'Info Dasar', description: '...', complete: true },
+ *         { label: 'Kontributor', description: '...', complete: true },
+ *         { label: 'Terbitan', description: '...', complete: false },
+ *         { label: 'Evaluasi', description: '...', complete: false },
+ *         { label: 'Konfirmasi', description: '...', complete: false },
+ *     ]}
+ *     currentStep={2}
+ * />
+ * ```
+ */
 
-interface WizardProgressBarProps {
-    currentStep: number;
-    className?: string;
-    steps?: any[];
+import { cn } from '@/lib/utils';
+import { Check, Circle } from 'lucide-react';
+
+export interface WizardStep {
+    label: string;
+    description?: string;
+    complete: boolean;
 }
 
-export const WizardProgressBar: React.FC<WizardProgressBarProps> = ({ currentStep, className, steps: propSteps }) => {
-    const steps = propSteps || [
-        { number: 1, label: 'Start' },
-        { number: 2, label: 'Upload' },
-        { number: 3, label: 'Metadata' },
-        { number: 4, label: 'Contributors' },
-        { number: 5, label: 'Confirm' },
-    ];
+interface WizardProgressBarProps {
+    steps: WizardStep[];
+    currentStep: number; // 0-indexed
+    className?: string;
+}
 
+export default function WizardProgressBar({ steps, currentStep, className }: WizardProgressBarProps) {
     return (
-        <div className={cn('w-full px-2 py-4', className)} aria-label="Progress">
-            <ol className="mx-auto flex w-full max-w-4xl items-center justify-between">
-                {steps.map((step, idx) => {
-                    const isCompleted = step.number < currentStep;
-                    const isActive = step.number === currentStep;
+        <nav aria-label="Wizard Progress" className={cn('w-full', className)}>
+            {/* Desktop / Tablet layout */}
+            <ol className="hidden items-center sm:flex">
+                {steps.map((step, index) => {
+                    const isComplete = step.complete;
+                    const isCurrent = index === currentStep;
+                    const isUpcoming = !isComplete && !isCurrent;
 
                     return (
-                        <React.Fragment key={step.number}>
-                            <li className="flex items-center space-x-2.5">
-                                <span
-                                    className={cn(
-                                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-medium',
-                                        isCompleted && 'border-emerald-500 bg-emerald-100 text-emerald-700',
-                                        isActive && 'border-primary bg-primary font-bold text-primary-foreground ring-2 ring-primary/20',
-                                        !isCompleted && !isActive && 'border-gray-300 bg-background text-gray-500',
-                                    )}
-                                >
-                                    {isCompleted ? <Check className="h-4 w-4 stroke-[3px]" /> : step.number}
-                                </span>
-                                <span
-                                    className={cn(
-                                        'hidden text-sm font-medium sm:inline',
-                                        isActive && 'font-semibold text-primary',
-                                        isCompleted && 'text-emerald-600',
-                                        !isActive && !isCompleted && 'text-muted-foreground',
-                                    )}
-                                >
-                                    {step.label}
-                                </span>
-                            </li>
-                            {idx < steps.length - 1 && (
+                        <li
+                            key={index}
+                            className={cn('flex items-center', index < steps.length - 1 ? 'flex-1' : '')}
+                        >
+                            {/* Step circle + label */}
+                            <div className="flex flex-col items-center gap-2">
                                 <div
-                                    className={cn('mx-4 hidden h-0.5 flex-1 sm:block', step.number < currentStep ? 'bg-emerald-500' : 'bg-gray-200')}
-                                />
+                                    className={cn(
+                                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-300',
+                                        isComplete &&
+                                            'border-emerald-500 bg-emerald-500 text-white shadow-lg shadow-emerald-500/25',
+                                        isCurrent &&
+                                            'border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/20 dark:bg-blue-950 dark:text-blue-400',
+                                        isUpcoming &&
+                                            'border-muted-foreground/30 bg-muted text-muted-foreground',
+                                    )}
+                                >
+                                    {isComplete ? (
+                                        <Check className="h-5 w-5" strokeWidth={3} />
+                                    ) : (
+                                        <span>{index + 1}</span>
+                                    )}
+                                </div>
+
+                                <div className="text-center">
+                                    <p
+                                        className={cn(
+                                            'text-xs font-medium transition-colors',
+                                            isComplete && 'text-emerald-600 dark:text-emerald-400',
+                                            isCurrent && 'text-blue-600 dark:text-blue-400',
+                                            isUpcoming && 'text-muted-foreground',
+                                        )}
+                                    >
+                                        {step.label}
+                                    </p>
+                                    {step.description && (
+                                        <p className="mt-0.5 max-w-[120px] text-[10px] leading-tight text-muted-foreground">
+                                            {step.description}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Connector line */}
+                            {index < steps.length - 1 && (
+                                <div className="mx-2 mb-8 h-0.5 flex-1">
+                                    <div
+                                        className={cn(
+                                            'h-full rounded-full transition-all duration-500',
+                                            step.complete
+                                                ? 'bg-emerald-500'
+                                                : 'bg-muted-foreground/20',
+                                        )}
+                                    />
+                                </div>
                             )}
-                        </React.Fragment>
+                        </li>
                     );
                 })}
             </ol>
-        </div>
-    );
-};
 
-export default WizardProgressBar;
+            {/* Mobile layout */}
+            <ol className="space-y-3 sm:hidden">
+                {steps.map((step, index) => {
+                    const isComplete = step.complete;
+                    const isCurrent = index === currentStep;
+                    const isUpcoming = !isComplete && !isCurrent;
+
+                    return (
+                        <li key={index} className="flex items-start gap-3">
+                            {/* Step indicator column */}
+                            <div className="flex flex-col items-center">
+                                <div
+                                    className={cn(
+                                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-300',
+                                        isComplete &&
+                                            'border-emerald-500 bg-emerald-500 text-white',
+                                        isCurrent &&
+                                            'border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400',
+                                        isUpcoming &&
+                                            'border-muted-foreground/30 bg-muted text-muted-foreground',
+                                    )}
+                                >
+                                    {isComplete ? (
+                                        <Check className="h-4 w-4" strokeWidth={3} />
+                                    ) : (
+                                        <span>{index + 1}</span>
+                                    )}
+                                </div>
+
+                                {/* Vertical connector */}
+                                {index < steps.length - 1 && (
+                                    <div
+                                        className={cn(
+                                            'mt-1 h-6 w-0.5 rounded-full transition-all duration-500',
+                                            isComplete
+                                                ? 'bg-emerald-500'
+                                                : 'bg-muted-foreground/20',
+                                        )}
+                                    />
+                                )}
+                            </div>
+
+                            {/* Step content */}
+                            <div className="pb-2">
+                                <p
+                                    className={cn(
+                                        'text-sm font-medium leading-none transition-colors',
+                                        isComplete && 'text-emerald-600 dark:text-emerald-400',
+                                        isCurrent && 'text-blue-600 dark:text-blue-400',
+                                        isUpcoming && 'text-muted-foreground',
+                                    )}
+                                >
+                                    {step.label}
+                                </p>
+                                {step.description && (
+                                    <p className="mt-1 text-xs leading-tight text-muted-foreground">
+                                        {step.description}
+                                    </p>
+                                )}
+                            </div>
+                        </li>
+                    );
+                })}
+            </ol>
+        </nav>
+    );
+}

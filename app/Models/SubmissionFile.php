@@ -21,8 +21,15 @@ class SubmissionFile extends Model
         'file_path',
         'file_type',
         'mime_type',
-        'file_size',
+        'file_type',
     ];
+
+    protected $appends = ['id_submission'];
+
+    public function getIdSubmissionAttribute()
+    {
+        return $this->submission_id;
+    }
 
     /**
      * Mendefinisikan relasi inverse ke model Submission.
