@@ -3,28 +3,62 @@
 namespace App\Http\Controllers\Editorial;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Editorial\AssignEditorRequest;
-use App\Models\EditorialAssignment;
 use App\Models\Submission;
-use App\Models\User;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
-/**
- * DeskController
- *
- * Mengelola tampilan dan penugasan Section Editor
- * pada tahap Desk Review naskah ilmiah.
- */
+
+use Inertia\Inertia;
+
+
+
 class DeskController extends Controller
 {
     /**
+
+     * Update round tracking submission (ronde ke-N).
+     *
+     * SECURITY NOTE: akses rute ini WAJIB melewati middleware 'auth' dan
+     * dibatasi peran Editor (lihat routes/web.php ->
+     * editorial.desk.update-round). Sebelumnya rute ini sempat terdaftar
+     * di luar grup 'auth' sehingga bisa diakses guest — sudah diperbaiki
+     * di sisi routing, bukan di controller ini.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Submission  $submission
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateRound(Request $request, Submission $submission)
+    {
+        // 1. Validasi input ronde
+        $validated = $request->validate([
+            'current_round' => 'required|integer|min:1',
+            'notes'         => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            // 2. Update kolom round tracking pada model Submission
+            $submission->update([
+                'current_round' => $validated['current_round'],
+            ]);
+
+            // 3. Kembali ke halaman sebelumnya dengan pesan sukses
+            return redirect()->back()->with(
+                'success',
+                'Ronde tracking submission berhasil diperbarui ke ronde ' . $validated['current_round']
+            );
+        } catch (\Exception $e) {
+            // Jika terjadi error sistem
+            return redirect()->back()->with('error', 'Gagal memperbarui ronde tracking submission.');
+        }
+    }
+
+
+         /**
      * Display the editorial desk inbox with tabs for different statuses.
      */
-    public function inbox(Request $request)
+            public function inbox(Request $request)
     {
+        // Calculate counts for each tab
         $counts = [
             'unassigned' => Submission::where('status', 'unassigned')->count(),
             'active' => Submission::where('status', 'active')->count(),
@@ -51,51 +85,18 @@ class DeskController extends Controller
         ]);
     }
 
-    /**
-     * Tampilkan halaman Desk Review beserta data submission dan daftar editor.
-     *
-     * GET /editorial/desk/{submission}/review
-     */
-    public function show(Submission $submission): Response
+    public function show($id)
     {
-        $editors = User::select('id', 'name', 'email')
-            ->where('is_reviewer', true)
-            ->whereNull('deleted_at')
-            ->get();
+        $submission = Submission::with(['files', 'author', 'editorialDecisions'])->findOrFail($id);
 
-        return Inertia::render('Editorial/Desk/DeskReview', [
-            'submission' => $submission->load('journal', 'author', 'files', 'editorialDecisions'),
-            'editors' => $editors,
-        ]);
-    }
+        $user = auth()->user();
 
-    /**
-     * Tugaskan Section Editor ke submission.
-     *
-     * POST /editorial/desk/{submission}/assign-editor
-     */
-    public function assignEditor(AssignEditorRequest $request, Submission $submission): RedirectResponse
-    {
-        $alreadyAssigned = EditorialAssignment::where('submission_id', $submission->id)
-            ->where('editor_id', $request->editor_id)
-            ->exists();
-
-        if ($alreadyAssigned) {
-            return redirect()
-                ->back()
-                ->withErrors(['editor_id' => 'Section Editor ini sudah ditugaskan ke submission tersebut.']);
+        if (! $user || (! $user->hasRole('Editor') && ! $user->hasRole('Super Admin'))) {
+            abort(403, 'Anda tidak memiliki akses untuk melihat naskah ini.');
         }
 
-        EditorialAssignment::create([
-            'editor_id' => $request->editor_id,
-            'submission_id' => $submission->id,
-            'assigned_by' => auth()->id(),
-            'assigned_at' => now(),
-            'status' => 'assigned',
+        return Inertia::render('Editorial/Desk/Show', [
+            'submission' => $submission,
         ]);
-
-        return redirect()
-            ->back()
-            ->with('success', 'Section Editor berhasil ditugaskan.');
     }
 }
