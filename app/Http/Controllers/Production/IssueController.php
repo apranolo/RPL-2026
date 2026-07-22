@@ -264,20 +264,4 @@ class IssueController extends Controller
 
         abort(403, 'Akses tidak sah.');
     }
-
-    /**
-     * Hapus Issue Draft (hanya jika belum ada artikel).
-     */
-    public function destroy(Request $request, $id)
-    {
-        $issue = Issue::findOrFail($id);
-
-        if ($issue->status !== 'Draft') {
-            return back()->with('error', 'Hanya issue berstatus Draft yang dapat dihapus.');
-        }
-
-        $issue->delete();
-
-        return back()->with('success', 'Issue Draft berhasil dihapus.');
-    }
 }
