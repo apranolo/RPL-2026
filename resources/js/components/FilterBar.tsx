@@ -27,15 +27,16 @@ export function FilterBar({ currentYear, currentScheme, schemeOptions = [] }: Fi
 
     const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
 
-    const schemes = schemeOptions.length > 0
-        ? schemeOptions
-        : [
-            { value: 'all', label: 'Semua Skema' },
-            { value: 'draft', label: 'Draft' },
-            { value: 'active', label: 'Aktif' },
-            { value: 'completed', label: 'Selesai' },
-            { value: 'cancelled', label: 'Dibatalkan' },
-        ];
+    const schemes =
+        schemeOptions.length > 0
+            ? schemeOptions
+            : [
+                  { value: 'all', label: 'Semua Skema' },
+                  { value: 'draft', label: 'Draft' },
+                  { value: 'active', label: 'Aktif' },
+                  { value: 'completed', label: 'Selesai' },
+                  { value: 'cancelled', label: 'Dibatalkan' },
+              ];
 
     const handleFilter = () => {
         router.get(

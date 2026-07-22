@@ -2,33 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SchemaResource;
 use App\Models\ResearchSchema;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-/**
- * SchemaController
- *
- * Manages CRUD operations for Research Schema (Skema Penelitian).
- *
- * @route /admin/schema/*
- */
 class SchemaController extends Controller
 {
     /**
-     * Display a listing of research schemas.
-     *
-     * @route GET /admin/schema
+     * Display a listing of the Schema (Tabel Skema Penelitian).
      */
     public function index(Request $request): Response
     {
-        // Check authorization
         $this->authorize('viewAny', ResearchSchema::class);
 
-        $query = ResearchSchema::query();
+        $query = ResearchSchema::withCount('proposals');
 
+        // Filter pencarian berdasarkan nama atau deskripsi
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -37,131 +28,165 @@ class SchemaController extends Controller
             });
         }
 
-        $schemas = $query
-            ->withCount('proposals')
-            ->latest()
-            ->paginate(10)
-            ->withQueryString()
-            ->through(fn ($schema) => [
-                'id'              => $schema->id,
-                'name'            => $schema->name,
-                'description'     => $schema->description,
-                'proposals_count' => $schema->proposals_count,
-                'created_at'      => $schema->created_at?->format('Y-m-d H:i'),
-            ]);
+        // Filter berdasarkan status aktif
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        // Sorting (default: terbaru)
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDir = $request->input('sort_dir', 'desc');
+        $allowedSorts = ['name', 'created_at', 'max_funding', 'is_active', 'proposals_count'];
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
+        }
+
+        $schemas = $query->paginate($request->input('per_page', 10))->withQueryString();
 
         return Inertia::render('Admin/Schema/Index', [
-            'schemas' => $schemas,
-            'filters' => $request->only(['search']),
+            'schemas' => SchemaResource::collection($schemas),
+            'filters' => [
+                'search' => $request->search ?? '',
+                'is_active' => $request->is_active ?? '',
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
+            ],
         ]);
     }
 
     /**
-     * Show the form for creating a new research schema.
-     *
-     * @route GET /admin/schema/create
+     * Show the form for creating a new Schema.
      */
     public function create(): Response
     {
-        // Check authorization
         $this->authorize('create', ResearchSchema::class);
 
         return Inertia::render('Admin/Schema/Create');
     }
 
     /**
-     * Store a newly created research schema in storage.
-     *
-     * @route POST /admin/schema
+     * Display the specified Schema.
      */
-    public function store(Request $request): RedirectResponse
+    public function show(Request $request, ResearchSchema $schema): Response
     {
-        // Check authorization
-        $this->authorize('create', ResearchSchema::class);
+        $this->authorize('view', $schema);
 
-        $validated = $request->validate([
-            'name'        => 'required|string|max:255|unique:research_schemas,name',
-            'description' => 'nullable|string|max:1000',
-        ], [
-            'name.required' => 'Nama skema wajib diisi.',
-            'name.unique'   => 'Nama skema sudah digunakan, silakan gunakan nama lain.',
-            'name.max'      => 'Nama skema maksimal 255 karakter.',
-            'description.max' => 'Deskripsi maksimal 1000 karakter.',
-        ]);
+        $schema->loadCount('proposals');
 
-        $schema = ResearchSchema::create($validated);
+        $proposalsQuery = $schema->proposals()->with(['user.university']);
 
-        return redirect()
-            ->route('admin.schema.index')
-            ->with('success', "Skema Penelitian '{$schema->name}' berhasil ditambahkan.");
-    }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $proposalsQuery->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
 
-    /**
-     * Show the form for editing the specified research schema.
-     *
-     * @route GET /admin/schema/{schema}/edit
-     */
-    public function edit(ResearchSchema $schema): Response
-    {
-        // Check authorization
-        $this->authorize('update', $schema);
+        if ($request->filled('status')) {
+            $proposalsQuery->where('status_proposal', $request->status);
+        }
 
-        return Inertia::render('Admin/Schema/Edit', [
-            'schema' => [
-                'id'          => $schema->id,
-                'name'        => $schema->name,
-                'description' => $schema->description,
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDir = $request->input('sort_dir', 'desc');
+        $allowedSorts = ['title', 'status_proposal', 'created_at'];
+
+        if (in_array($sortBy, $allowedSorts)) {
+            $proposalsQuery->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
+        }
+
+        $proposals = $proposalsQuery->paginate($request->input('per_page', 10))->withQueryString();
+
+        return Inertia::render('Admin/Schema/Show', [
+            'schema' => new SchemaResource($schema),
+            'proposals' => $proposals,
+            'filters' => [
+                'search' => $request->search ?? '',
+                'status' => $request->status ?? '',
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
             ],
         ]);
     }
 
     /**
-     * Update the specified research schema in storage.
-     *
-     * @route PUT/PATCH /admin/schema/{schema}
+     * Show the form for editing the specified Schema.
      */
-    public function update(Request $request, ResearchSchema $schema): RedirectResponse
+    public function edit(ResearchSchema $schema): Response
     {
-        // Check authorization
+        $this->authorize('update', $schema);
+
+        return Inertia::render('Admin/Schema/Edit', [
+            'schema' => new SchemaResource($schema),
+        ]);
+    }
+
+    /**
+     * Store a newly created Schema.
+     */
+    public function store(Request $request)
+    {
+
+        $this->authorize('create', ResearchSchema::class);
+
+        $validated = $request->validate([
+
+            'name' => 'required|string|max:255|unique:research_schemas,name',
+
+            'description' => 'nullable|string|max:1000',
+
+        ]);
+
+        ResearchSchema::create($validated);
+
+        return redirect()->route('admin.schema.index')
+            ->with('success', "Skema Penelitian '{$validated['name']}' berhasil ditambahkan.");
+
+    }
+
+    /**
+     * Update the specified Schema.
+     */
+    public function update(Request $request, ResearchSchema $schema)
+    {
+
         $this->authorize('update', $schema);
 
         $validated = $request->validate([
-            'name'        => 'required|string|max:255|unique:research_schemas,name,' . $schema->id,
+
+            'name' => 'required|string|max:255|unique:research_schemas,name,'.$schema->id,
+
             'description' => 'nullable|string|max:1000',
-        ], [
-            'name.required' => 'Nama skema wajib diisi.',
-            'name.unique'   => 'Nama skema sudah digunakan, silakan gunakan nama lain.',
-            'name.max'      => 'Nama skema maksimal 255 karakter.',
-            'description.max' => 'Deskripsi maksimal 1000 karakter.',
+
         ]);
 
         $schema->update($validated);
 
-        return redirect()
-            ->route('admin.schema.index')
-            ->with('success', "Skema Penelitian '{$schema->name}' berhasil diperbarui.");
+        return redirect()->route('admin.schema.index')
+            ->with('success', "Skema Penelitian '{$validated['name']}' berhasil diperbarui.");
+
     }
 
     /**
-     * Remove the specified research schema from storage.
-     *
-     * @route DELETE /admin/schema/{schema}
+     * Remove the specified Schema.
      */
-    public function destroy(ResearchSchema $schema): RedirectResponse
+    public function destroy(ResearchSchema $schema)
     {
-        // Check authorization
+
         $this->authorize('delete', $schema);
 
-        // Prevent deletion if schema has associated proposals
-        if ($schema->proposals()->count() > 0) {
-            return back()->with('error', "Skema '{$schema->name}' tidak dapat dihapus karena masih memiliki proposal terkait.");
+        // Check if there are proposals using this schema
+        if ($schema->proposals()->exists()) {
+            abort(403, 'Tidak dapat menghapus skema yang sedang digunakan oleh proposal.');
         }
 
-        $schemaName = $schema->name;
+        $name = $schema->name;
         $schema->delete();
 
-        return redirect()
-            ->route('admin.schema.index')
-            ->with('success', "Skema Penelitian '{$schemaName}' berhasil dihapus.");
+        return redirect()->route('admin.schema.index')
+            ->with('success', "Skema Penelitian '{$name}' berhasil dihapus.");
+
     }
 }

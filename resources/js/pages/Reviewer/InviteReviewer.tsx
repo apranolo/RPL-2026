@@ -1,8 +1,7 @@
-import React from 'react';
-import { Head, useForm } from '@inertiajs/react';
+import ReviewerCandidateCard from '@/components/ReviewerCandidateCard';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import ReviewerCandidateCard from '@/components/ReviewerCandidateCard';
+import { Head, useForm } from '@inertiajs/react';
 
 // Definisi tipe data sesuai standar TypeScript
 interface Submission {
@@ -37,27 +36,27 @@ export default function InviteReviewer({ submission, candidates }: Props) {
 
     // Fungsi untuk mengirim data ke Controller saat tombol "Undang" ditekan
     const handleInvite = (reviewerId: number) => {
-        post(route('review.invite', {
-            submission_id: submission.id,
-            reviewer_id: reviewerId
-        }), {
-            preserveScroll: true, // Mencegah layar lompat ke atas saat loading
-        });
+        post(
+            route('review.invite', {
+                submission_id: submission.id,
+                reviewer_id: reviewerId,
+            }),
+            {
+                preserveScroll: true, // Mencegah layar lompat ke atas saat loading
+            },
+        );
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Pilih Kandidat Reviewer" />
 
-            <div className="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
-                
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-8">
                 {/* Header: Info Naskah */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-border pb-5">
+                <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                            Pilih Kandidat Reviewer
-                        </h1>
-                        <p className="text-sm text-muted-foreground mt-2 max-w-3xl">
+                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Pilih Kandidat Reviewer</h1>
+                        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
                             <strong>Naskah:</strong> {submission.title}
                         </p>
                     </div>
@@ -65,16 +64,16 @@ export default function InviteReviewer({ submission, candidates }: Props) {
 
                 {/* Grid: Daftar Kandidat */}
                 <div>
-                    <h2 className="text-lg font-semibold mb-4">Rekomendasi Pakar</h2>
-                    
+                    <h2 className="mb-4 text-lg font-semibold">Rekomendasi Pakar</h2>
+
                     {!candidates || candidates.length === 0 ? (
-                        <div className="p-8 text-center bg-slate-50 rounded-lg border border-slate-200">
+                        <div className="rounded-lg border border-slate-200 bg-slate-50 p-8 text-center">
                             <p className="text-muted-foreground">Tidak ada kandidat reviewer yang tersedia saat ini.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {candidates.map((candidate) => (
-                                <ReviewerCandidateCard 
+                                <ReviewerCandidateCard
                                     key={candidate.id}
                                     id={candidate.id}
                                     name={candidate.name}

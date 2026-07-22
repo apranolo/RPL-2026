@@ -2,9 +2,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 interface User {
-    id: number;
+    id?: number;
     name: string;
-    email: string;
+    email?: string;
 }
 
 interface Loggable {
@@ -14,7 +14,7 @@ interface Loggable {
 
 interface ActivityLogItem {
     id: number;
-    user?: User;
+    user?: User | null;
     action: string;
     description: string;
     created_at: string;

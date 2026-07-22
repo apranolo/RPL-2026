@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\ResearchSchema;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,12 +18,16 @@ class ProposalFactory extends Factory
      */
     public function definition(): array
     {
+        $status = $this->faker->randomElement(['Draft', 'Submitted', 'Administrasi_Valid', 'Ditolak']);
+
         return [
-            //
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
-            'user_id' => \App\Models\User::inRandomOrder()->first()->id ?? 1,
-            'research_schema_id' => ResearchSchema::inRandomOrder()->first()->id ?? 1,
+            'user_id' => User::factory(),
+            'research_schema_id' => ResearchSchema::factory(),
+            'status_proposal' => $status,
+            'rejection_reason' => $status === 'Ditolak' ? $this->faker->sentence : null,
+            'file_dokumen_proposal' => 'proposals/dummy_proposal.pdf',
         ];
     }
 }
