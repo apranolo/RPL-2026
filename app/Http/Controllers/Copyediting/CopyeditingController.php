@@ -73,4 +73,43 @@ class CopyeditingController extends Controller
 
         return redirect()->back()->with('success', 'Copyeditor berhasil ditugaskan ke submission.');
     }
+
+    /**
+     * Upload file hasil copyedit oleh Copyeditor.
+     */
+    public function uploadCopyedited(Request $request, $id)
+    {
+        $request->validate([
+            'copyedited_file' => 'required|file|mimes:pdf,doc,docx|max:10240',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        if ($request->hasFile('copyedited_file')) {
+            $path = $request->file('copyedited_file')->store('copyedited', 'public');
+
+            CopyeditingTask::where('id_submission', $id)->update([
+                'file_copyedited' => $path,
+                'copyeditor_notes' => $request->notes,
+                'status' => 'Completed',
+            ]);
+
+            return back()->with('success', 'File hasil copyediting berhasil diunggah.');
+        }
+
+        return back()->with('error', 'Gagal mengunggah file copyedit.');
+    }
+
+    /**
+     * Persetujuan Author atas hasil copyediting.
+     */
+    public function authorApprove(Request $request, $id)
+    {
+        CopyeditingTask::where('id_submission', $id)->update([
+            'author_approved' => true,
+            'approved_at' => now(),
+            'status' => 'ApprovedByAuthor',
+        ]);
+
+        return back()->with('success', 'Hasil copyediting telah disetujui oleh Author.');
+    }
 }
