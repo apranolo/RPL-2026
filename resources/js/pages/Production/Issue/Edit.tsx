@@ -1,25 +1,28 @@
 /**
- * IssueCreate Component
+ * IssueEdit Component
  *
  * @description
- * A form page for creating new journal production issues.
- * Users can input issue metadata including volume, number, year,
- * thematic title, and description.
+ * A form page for editing existing journal production issue metadata.
+ * Pre-populates form fields with current issue data and sends a PUT
+ * request to update volume, number, year, thematic title, and description.
  *
  * @component
+ *
+ * @props
+ * @property {IssueData} issue - The existing issue data to edit
  *
  * @formData
  * @property {string} volume - Issue volume number
  * @property {string} nomor - Issue number within the volume
- * @property {number} tahun - Publication year (defaults to current year)
+ * @property {number} tahun - Publication year
  * @property {string} judul_tematik - Thematic title (optional)
- * @property {string} deskripsi - Issue description
+ * @property {string} deskripsi - Issue description (optional)
  *
- * @route GET /production/issues/create
- * @route POST /production/issues (form submission via store())
+ * @route GET /production/issues/{issue}/edit
+ * @route PUT /production/issues/{issue} (form submission via update())
  *
  * @author ANGGASTA VYAKTATAMA KAHFI
- * @filepath /resources/js/pages/Production/Issue/Create.tsx
+ * @filepath /resources/js/pages/Production/Issue/Edit.tsx
  */
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -31,6 +34,20 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+
+interface IssueData {
+    id: number;
+    volume: string;
+    number: string;
+    year: number;
+    judul_tematik: string | null;
+    deskripsi: string | null;
+    status: string;
+}
+
+interface EditProps {
+    issue: IssueData;
+}
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -46,35 +63,35 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '#',
     },
     {
-        title: 'Create',
+        title: 'Edit',
         href: '#',
     },
 ];
 
-export default function IssueCreate() {
-    const { data, setData, post, processing, errors } = useForm({
-        volume: '',
-        nomor: '',
-        tahun: new Date().getFullYear(),
-        judul_tematik: '',
-        deskripsi: '',
+export default function IssueEdit({ issue }: EditProps) {
+    const { data, setData, put, processing, errors } = useForm({
+        volume: issue.volume,
+        number: issue.number,
+        year: issue.year,
+        judul_tematik: issue.judul_tematik ?? '',
+        deskripsi: issue.deskripsi ?? '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('production.issue.store'), {
+        put(route('production.issue.update', issue.id), {
             onSuccess: () => {
-                toast.success('Issue berhasil dibuat');
+                toast.success('Issue berhasil diperbarui');
             },
             onError: () => {
-                toast.error('Gagal membuat issue. Periksa kembali form yang diisi.');
+                toast.error('Gagal memperbarui issue. Periksa kembali form yang diisi.');
             },
         });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Buat Issue Baru" />
+            <Head title="Edit Issue" />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 sm:p-6">
                 <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
@@ -86,8 +103,8 @@ export default function IssueCreate() {
                                 Kembali
                             </Button>
                         </Link>
-                        <h1 className="text-3xl font-bold text-foreground">Buat Issue Baru</h1>
-                        <p className="mt-1 text-muted-foreground">Tambahkan metadata issue baru ke dalam jurnal.</p>
+                        <h1 className="text-3xl font-bold text-foreground">Edit Issue</h1>
+                        <p className="mt-1 text-muted-foreground">Perbarui metadata issue jurnal Anda.</p>
                     </div>
 
                     {/* Form */}
@@ -118,36 +135,36 @@ export default function IssueCreate() {
 
                                 {/* Nomor */}
                                 <div>
-                                    <Label htmlFor="nomor">
+                                    <Label htmlFor="number">
                                         Nomor <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
-                                        id="nomor"
+                                        id="number"
                                         type="text"
-                                        value={data.nomor}
-                                        onChange={(e) => setData('nomor', e.target.value)}
+                                        value={data.number}
+                                        onChange={(e) => setData('number', e.target.value)}
                                         placeholder="Contoh: 1"
                                         required
                                         className="mt-2"
                                     />
-                                    <InputError message={errors.nomor} />
+                                    <InputError message={errors.number} />
                                 </div>
 
                                 {/* Tahun */}
                                 <div>
-                                    <Label htmlFor="tahun">
+                                    <Label htmlFor="year">
                                         Tahun <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
-                                        id="tahun"
+                                        id="year"
                                         type="number"
-                                        value={data.tahun}
-                                        onChange={(e) => setData('tahun', parseInt(e.target.value))}
+                                        value={data.year}
+                                        onChange={(e) => setData('year', parseInt(e.target.value))}
                                         placeholder="Contoh: 2026"
                                         required
                                         className="mt-2"
                                     />
-                                    <InputError message={errors.tahun} />
+                                    <InputError message={errors.year} />
                                 </div>
                             </div>
                         </div>
@@ -196,7 +213,7 @@ export default function IssueCreate() {
                                 </Button>
                             </Link>
                             <Button type="submit" disabled={processing}>
-                                {processing ? 'Menyimpan...' : 'Simpan Issue'}
+                                {processing ? 'Menyimpan...' : 'Perbarui Issue'}
                             </Button>
                         </div>
                     </form>
