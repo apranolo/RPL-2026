@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Funding;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class MonevReportController extends Controller
 {
@@ -39,39 +39,39 @@ class MonevReportController extends Controller
 
         // Summary Calculations (excluding cancelled)
         $summaryQuery = clone $contractQuery;
-        
+
         $total_program = (clone $summaryQuery)->count();
         $program_selesai = (clone $summaryQuery)->where('status', Contract::STATUS_COMPLETED)->count();
         $program_berjalan = (clone $summaryQuery)->where('status', Contract::STATUS_ACTIVE)->count();
         $program_tertunda = (clone $summaryQuery)->where('status', Contract::STATUS_CANCELLED)->count();
 
         $total_anggaran = (clone $summaryQuery)->sum('contract_value');
-        
+
         // Funding query
         $fundingQuery = Funding::where('status', Funding::STATUS_DISBURSED);
         if ($universityId) {
-            $fundingQuery->whereHas('contract', function($q) use ($universityId) {
+            $fundingQuery->whereHas('contract', function ($q) use ($universityId) {
                 $q->where('university_id', $universityId);
             });
         }
         $anggaran_terserap = $fundingQuery->sum('amount');
-        
+
         $persentase_serapan = $total_anggaran > 0 ? round(($anggaran_terserap / $total_anggaran) * 100, 2) : 0;
 
         // Kinerja Bidang Ilmu (menggunakan relasi Contract -> Proposal -> User -> ScientificField)
         // karena entitas Fakultas secara eksplisit tidak ada dalam schema saat ini.
         $contractsForKinerja = (clone $contractQuery)->with(['proposal.user.scientificField', 'progressReports'])->get();
         $kinerjaMap = [];
-        
+
         foreach ($contractsForKinerja as $c) {
             $field = $c->proposal->user->scientificField->name ?? 'Belum Diketahui';
-            if (!isset($kinerjaMap[$field])) {
+            if (! isset($kinerjaMap[$field])) {
                 $kinerjaMap[$field] = ['total_progres' => 0, 'count' => 0];
             }
-            
+
             $latestReport = $c->progressReports->sortByDesc('created_at')->first();
             $progress = $latestReport ? $latestReport->progress_percentage : 0;
-            
+
             $kinerjaMap[$field]['total_progres'] += $progress;
             $kinerjaMap[$field]['count']++;
         }
@@ -97,16 +97,16 @@ class MonevReportController extends Controller
 
         // Penelitian Terbaru with filters and pagination
         $listQuery = clone $contractQuery;
-        $listQuery->with(['proposal.user', 'progressReports' => function($q) {
+        $listQuery->with(['proposal.user', 'progressReports' => function ($q) {
             $q->latest();
         }]);
 
         if ($search) {
             $listQuery->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhereHas('proposal.user', function($q2) use ($search) {
-                      $q2->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('proposal.user', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -120,7 +120,7 @@ class MonevReportController extends Controller
             $latestReport = $contract->progressReports->first();
             $progress = $latestReport ? $latestReport->progress_percentage : 0;
             $updatedAt = $latestReport ? $latestReport->updated_at : $contract->updated_at;
-            
+
             $statusLabel = 'Draft';
             if ($contract->status === Contract::STATUS_ACTIVE) {
                 $statusLabel = 'Berjalan';
@@ -154,10 +154,10 @@ class MonevReportController extends Controller
             'anggaran' => [
                 'total_anggaran' => $total_anggaran,
                 'anggaran_terserap' => $anggaran_terserap,
-                'persentase_serapan' => $persentase_serapan
+                'persentase_serapan' => $persentase_serapan,
             ],
             'kinerja_fakultas' => $kinerja_fakultas,
-            'penelitian_terbaru' => $paginator
+            'penelitian_terbaru' => $paginator,
         ];
 
         return Inertia::render('Admin/Monev/Report', [
@@ -165,7 +165,7 @@ class MonevReportController extends Controller
             'filters' => [
                 'search' => $search ?? '',
                 'status' => $statusFilter ?? '',
-            ]
+            ],
         ]);
     }
 
@@ -176,7 +176,7 @@ class MonevReportController extends Controller
     {
         $request->validate([
             'id' => 'required|integer',
-            'action' => 'required|string|in:Lanjut,Stop'
+            'action' => 'required|string|in:Lanjut,Stop',
         ]);
 
         $id = $request->input('id');
@@ -203,12 +203,12 @@ class MonevReportController extends Controller
 
         $contract = $query->first();
 
-        if (!$contract) {
+        if (! $contract) {
             return redirect()->back()->with('error', 'Penelitian (Kontrak) tidak ditemukan atau Anda tidak memiliki akses.');
         }
 
         $contract->update([
-            'status' => $status
+            'status' => $status,
         ]);
 
         return redirect()->back()->with('success', 'Status penelitian berhasil diperbarui.');

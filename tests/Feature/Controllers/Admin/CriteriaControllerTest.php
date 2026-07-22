@@ -155,8 +155,8 @@ test('Super Admin can store criteria in batch', function () {
                 'requires_attachment' => false,
                 'sort_order' => 2,
                 'is_active' => false,
-            ]
-        ]
+            ],
+        ],
     ];
 
     actingAs($this->superAdmin)
@@ -196,8 +196,8 @@ test('Non-Super Admin cannot store criteria', function () {
                 'answer_type' => 'boolean',
                 'requires_attachment' => true,
                 'is_active' => true,
-            ]
-        ]
+            ],
+        ],
     ];
 
     actingAs($this->adminKampus)

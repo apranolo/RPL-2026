@@ -24,6 +24,14 @@ interface JournalsByStatus {
     rejected: number;
 }
 
+interface ProposalStats {
+    total: number;
+    masuk: number;
+    lolos: number;
+    gagal: number;
+    success_rate: number;
+}
+
 interface DashboardProps extends PageProps {
     stats: {
         total_journals: number;
@@ -34,6 +42,7 @@ interface DashboardProps extends PageProps {
         journals_by_status?: JournalsByStatus;
     };
     statistics: JournalStatistics;
+    proposal_stats: ProposalStats;
 }
 
 export default function Dashboard({ stats, statistics }: DashboardProps) {

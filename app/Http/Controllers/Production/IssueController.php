@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreIssueRequest;
 use App\Models\Galley;
 use App\Models\Issue;
 use App\Models\Journal;
@@ -19,9 +18,9 @@ class IssueController extends Controller
      */
     public function index(Request $request, $journalId = null)
     {
-        if (!$journalId) {
+        if (! $journalId) {
             $journal = $request->user()->journals()->first();
-            if (!$journal) {
+            if (! $journal) {
                 return redirect()->route('dashboard')->with('error', 'Anda belum memiliki jurnal.');
             }
             $journalId = $journal->id;
@@ -120,7 +119,7 @@ class IssueController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            return redirect()->back()->with('error', 'Gagal publish issue: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal publish issue: '.$e->getMessage());
         }
     }
 
@@ -136,60 +135,6 @@ class IssueController extends Controller
     }
 
     /**
-     * Show the form for creating a new production issue.
-     */
-    public function create()
-    {
-        return Inertia::render('Production/Issue/Create');
-    }
-
-    /**
-     * Store a newly created production issue in storage.
-     */
-    public function store(StoreIssueRequest $request)
-    {
-        $validated = $request->validated();
-
-        try {
-            // Get the user's first journal as default context
-            $journal = $request->user()->journals()->first();
-
-            if (! $journal) {
-                return back()->withErrors([
-                    'journal_id' => 'Anda belum memiliki jurnal. Silakan buat jurnal terlebih dahulu.',
-                ]);
-            }
-
-            // Validasi keunikan kombinasi [volume, number, year]
-            $exists = Issue::where('journal_id', $journal->id)
-                ->where('volume', $validated['volume'])
-                ->where('number', $validated['number'])
-                ->where('year', $validated['year'])
-                ->exists();
-
-            if ($exists) {
-                return back()->withErrors([
-                    'number' => 'Kombinasi Volume, Nomor, dan Tahun sudah digunakan.',
-                ])->withInput();
-            }
-
-            Issue::create([
-                ...$validated,
-                'journal_id' => $journal->id,
-                'status' => 'Draft',
-            ]);
-
-            return redirect()
-                ->route('production.issue.create')
-                ->with('success', 'Issue berhasil dibuat');
-        } catch (\Exception $e) {
-            return back()
-                ->withInput()
-                ->with('error', 'Gagal membuat issue: '.$e->getMessage());
-        }
-    }
-
-    /**
      * Authorize that the user owns or can manage the journal.
      */
     private function authorizeJournal(Journal $journal, User $user): void
@@ -202,6 +147,7 @@ class IssueController extends Controller
             if ($journal->university_id !== $user->university_id) {
                 abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
             }
+
             return;
         }
 
@@ -209,6 +155,7 @@ class IssueController extends Controller
             if ($journal->user_id !== $user->id) {
                 abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
             }
+
             return;
         }
 

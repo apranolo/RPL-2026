@@ -13,6 +13,7 @@ class UpdateContractRequest extends FormRequest
     public function authorize(): bool
     {
         $this->authorize('update', $this->route('contract'));
+
         return true;
     }
 
