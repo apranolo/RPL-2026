@@ -4,6 +4,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { ROLE_NAMES } from '@/constants/roles';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
+
 import {
     Award,
     BookOpen,
@@ -12,12 +13,15 @@ import {
     Building2,
     CalendarDays,
     ClipboardList,
+    FileText,
+    GraduationCap,
     LayoutGrid,
     Library,
     LifeBuoy,
     UserCheck,
     Users,
 } from 'lucide-react';
+
 import AppLogo from './app-logo';
 
 // Common navigation items shared across all roles
@@ -140,6 +144,29 @@ export function AppSidebar() {
         }
 
         roleNavItems = [...adminKampusItems, ...commonNavItems];
+    } else if (user.role.name === 'Reviewer') {
+        roleNavItems = [
+            {
+                title: 'Penugasan',
+                href: route('reviewer.assignments.index'),
+                icon: ClipboardList,
+            },
+            {
+                title: 'Profil Reviewer',
+                href: route('reviewer.profile.show'),
+                icon: UserCheck,
+            },
+            ...commonNavItems,
+        ];
+    } else if (user.role.name === ROLE_NAMES.ADMIN_KEUANGAN) {
+        roleNavItems = [
+            {
+                title: 'Kontrak',
+                href: route('finance.contracts.index'),
+                icon: FileText,
+            },
+            ...commonNavItems,
+        ];
     } else if (user.role.name === ROLE_NAMES.USER) {
         roleNavItems = [
             {
@@ -151,6 +178,11 @@ export function AppSidebar() {
                 title: 'Jurnal',
                 href: route('user.journals.index'),
                 icon: BookOpen,
+            },
+            {
+                title: 'Sitasi',
+                href: route('profile.citation'),
+                icon: GraduationCap,
             },
             {
                 title: 'Pembinaan',
