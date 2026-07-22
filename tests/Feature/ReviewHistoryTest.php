@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Role;
-use App\Models\University;
-use App\Models\ResearchSchema;
 use App\Models\Proposal;
+use App\Models\ResearchSchema;
 use App\Models\Review;
 use App\Models\ReviewSchedule;
+use App\Models\Role;
+use App\Models\University;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -92,7 +92,7 @@ test('logged in reviewer can access their own review history', function () {
 test('admin kampus can access review history of reviewer from the same university', function () {
     $university = University::factory()->create();
     $admin = User::factory()->adminKampus($university->id)->create();
-    
+
     $reviewer = User::factory()->create([
         'role_id' => Role::where('name', Role::REVIEWER)->value('id'),
         'university_id' => $university->id,
@@ -113,7 +113,7 @@ test('admin kampus can access review history of reviewer from the same universit
 test('admin kampus cannot access review history of reviewer from a different university', function () {
     $univ1 = University::factory()->create();
     $univ2 = University::factory()->create();
-    
+
     $admin = User::factory()->adminKampus($univ1->id)->create();
     $reviewer = User::factory()->create([
         'role_id' => Role::where('name', Role::REVIEWER)->value('id'),

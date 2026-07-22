@@ -52,30 +52,30 @@ class ProgressController extends Controller
             // Upload dokumen laporan (opsional)
             $dokumenLaporanPath = null;
             if ($request->hasFile('dokumen_laporan')) {
-                $file     = $request->file('dokumen_laporan');
-                $fileName = time() . '_laporan_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+                $file = $request->file('dokumen_laporan');
+                $fileName = time().'_laporan_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
                 $dokumenLaporanPath = $file->storeAs('progress_reports/dokumen', $fileName, 'public');
             }
 
             // Upload file logbook (opsional)
             $logbookPath = null;
             if ($request->hasFile('logbook')) {
-                $file     = $request->file('logbook');
-                $fileName = time() . '_logbook_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+                $file = $request->file('logbook');
+                $fileName = time().'_logbook_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
                 $logbookPath = $file->storeAs('progress_reports/logbook', $fileName, 'public');
             }
 
             // Buat record laporan kemajuan
             $progress = ProgressReport::create([
-                'user_id'           => $user->id,
-                'judul'             => $validated['judul'],
-                'periode'           => $validated['periode'],
-                'tanggal_laporan'   => $validated['tanggal_laporan'],
-                'deskripsi'         => $validated['deskripsi'],
-                'catatan'           => $validated['catatan'] ?? null,
-                'status'            => $validated['status'] ?? 'draft',
-                'dokumen_laporan'   => $dokumenLaporanPath,
-                'logbook'           => $logbookPath,
+                'user_id' => $user->id,
+                'judul' => $validated['judul'],
+                'periode' => $validated['periode'],
+                'tanggal_laporan' => $validated['tanggal_laporan'],
+                'deskripsi' => $validated['deskripsi'],
+                'catatan' => $validated['catatan'] ?? null,
+                'status' => $validated['status'] ?? 'draft',
+                'dokumen_laporan' => $dokumenLaporanPath,
+                'logbook' => $logbookPath,
             ]);
 
             DB::commit();
@@ -96,9 +96,9 @@ class ProgressController extends Controller
             }
 
             Log::error('Gagal menyimpan laporan kemajuan', [
-                'user_id'   => $request->user()?->id,
+                'user_id' => $request->user()?->id,
                 'exception' => $e->getMessage(),
-                'trace'     => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()
