@@ -1,16 +1,13 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
-use App\Models\AuthorProfile;
 
 class User extends Authenticatable
 {
@@ -222,6 +219,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all proposals submitted by this user
+     */
+    public function proposals()
+    {
+        return $this->hasMany(Proposal::class);
+    }
+
+    /**
+     * Get all progress reports submitted by this user
+     */
+    public function progressReports()
+    {
+        return $this->hasMany(ProgressReport::class);
+    }
+
+    /**
+     * Get all monev schedules evaluated by this user
+     */
+    public function evaluatorSchedules()
+    {
+        return $this->hasMany(MonevSchedule::class, 'evaluator_id');
+    }
+
+    /**
      * Get all assessments created by this user
      */
     public function assessments()
@@ -258,7 +279,7 @@ class User extends Authenticatable
         return $this->hasOne(AuthorProfile::class);
     }
 
-/**
+    /**
      * Get the reviewer profile of this user
      */
     public function reviewerProfile()

@@ -97,10 +97,14 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
 
     const getStatusBadgeVariant = (status: string) => {
         switch (status) {
-            case 'completed': return 'default';
-            case 'in_progress': return 'warning';
-            case 'assigned': return 'secondary';
-            default: return 'outline';
+            case 'completed':
+                return 'default';
+            case 'in_progress':
+                return 'warning';
+            case 'assigned':
+                return 'secondary';
+            default:
+                return 'outline';
         }
     };
 
@@ -171,7 +175,7 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                                     <CardHeader>
                                                         <div className="flex items-start justify-between gap-2">
                                                             <div className="flex-1">
-                                                                 <CardTitle className="line-clamp-2 text-lg font-bold">
+                                                                <CardTitle className="line-clamp-2 text-lg font-bold">
                                                                     {review.proposal?.title || 'Proposal Penelitian'}
                                                                 </CardTitle>
                                                                 <CardDescription className="mt-1 flex items-center gap-2">
@@ -211,7 +215,7 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                                                     {review.recommendation}
                                                                 </Badge>
                                                                 {review.feedback && (
-                                                                    <p className="mt-2 line-clamp-3 text-muted-foreground text-xs italic">
+                                                                    <p className="mt-2 line-clamp-3 text-xs text-muted-foreground italic">
                                                                         "{review.feedback}"
                                                                     </p>
                                                                 )}
@@ -226,7 +230,11 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                                             </Link>
                                                         </Button>
                                                         <Button variant="default" size="sm" asChild className="w-full">
-                                                            <a href={route('review.print', { type: 'proposal', id: review.id })} target="_blank" rel="noopener noreferrer">
+                                                            <a
+                                                                href={route('review.print', { type: 'proposal', id: review.id })}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                            >
                                                                 <FileText className="mr-2 h-4 w-4" />
                                                                 Cetak BA
                                                             </a>
@@ -244,21 +252,13 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                                 </div>
                                                 <div className="flex gap-2">
                                                     {reviews.prev_page_url && (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => router.get(reviews.prev_page_url!)}
-                                                        >
+                                                        <Button variant="outline" size="sm" onClick={() => router.get(reviews.prev_page_url!)}>
                                                             <ChevronLeft className="h-4 w-4" />
                                                             Sebelumnya
                                                         </Button>
                                                     )}
                                                     {reviews.next_page_url && (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => router.get(reviews.next_page_url!)}
-                                                        >
+                                                        <Button variant="outline" size="sm" onClick={() => router.get(reviews.next_page_url!)}>
                                                             Selanjutnya
                                                             <ChevronRight className="h-4 w-4" />
                                                         </Button>

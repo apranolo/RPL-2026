@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class RevisionRound extends Model
 {
@@ -11,6 +11,7 @@ class RevisionRound extends Model
 
     // 1. Memberitahu nama tabel dan primary key yang benar
     protected $table = 'revision_rounds';
+
     protected $primaryKey = 'id_round';
 
     // 2. Mengizinkan kolom-kolom ini diisi secara otomatis (Mass Assignment)
@@ -26,11 +27,5 @@ class RevisionRound extends Model
     public function submission()
     {
         return $this->belongsTo(Submission::class, 'id_submission', 'id');
-    }
-
-    // 4. Relasi ke SubmissionFile yang diunggah Author pada ronde ini
-    public function submissionFiles()
-    {
-        return $this->hasMany(SubmissionFile::class, 'revision_round_id', 'id_round');
     }
 }
