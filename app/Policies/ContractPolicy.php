@@ -59,6 +59,7 @@ class ContractPolicy
             if ($user->hasRole('admin_kampus')) {
                 return $user->university_id === $contract->researcher->university_id;
             }
+
             return true;
         }
 

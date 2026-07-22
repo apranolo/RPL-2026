@@ -29,9 +29,7 @@ function useIsDark() {
     return isDark;
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Citation Profile', href: '/profile/citation' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Citation Profile', href: '/profile/citation' }];
 
 interface Citation {
     id: number;
@@ -77,11 +75,7 @@ export default function CitationProfile({ citationData }: Props) {
 
     function handleSync() {
         setSyncing(true);
-        router.post(
-            route('profile.citation.sync'),
-            {},
-            { onFinish: () => setSyncing(false) },
-        );
+        router.post(route('profile.citation.sync'), {}, { onFinish: () => setSyncing(false) });
     }
 
     const yearlyData = citationData?.yearly_data ?? [];
@@ -92,7 +86,6 @@ export default function CitationProfile({ citationData }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Citation Profile" />
             <div className="flex flex-col gap-6 p-4 sm:p-6">
-
                 {/* Header with sync action (top-right per spec) */}
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -115,8 +108,7 @@ export default function CitationProfile({ citationData }: Props) {
                     <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-sidebar-border/70 bg-white px-6 py-16 text-center dark:border-sidebar-border dark:bg-neutral-950">
                         <p className="font-medium">Belum ada data sitasi</p>
                         <p className="max-w-md text-sm text-muted-foreground">
-                            Klik tombol "Sinkronisasi Google Scholar" untuk menarik statistik
-                            sitasi dan h-index Anda dari Google Scholar.
+                            Klik tombol "Sinkronisasi Google Scholar" untuk menarik statistik sitasi dan h-index Anda dari Google Scholar.
                         </p>
                     </div>
                 ) : (
@@ -139,9 +131,7 @@ export default function CitationProfile({ citationData }: Props) {
 
                         {/* Yearly citation trend (line chart per spec) */}
                         <div className="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                Tren Sitasi Tahunan
-                            </h2>
+                            <h2 className="mb-4 text-sm font-semibold tracking-wide text-muted-foreground uppercase">Tren Sitasi Tahunan</h2>
                             <ReactApexChart
                                 type="line"
                                 height={260}

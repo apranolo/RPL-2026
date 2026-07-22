@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
-use App\Models\Submission;
 use App\Models\Galley;
 use App\Models\Issue;
 use App\Models\Journal;
@@ -19,9 +18,9 @@ class IssueController extends Controller
      */
     public function index(Request $request, $journalId = null)
     {
-        if (!$journalId) {
+        if (! $journalId) {
             $journal = $request->user()->journals()->first();
-            if (!$journal) {
+            if (! $journal) {
                 return redirect()->route('dashboard')->with('error', 'Anda belum memiliki jurnal.');
             }
             $journalId = $journal->id;
@@ -120,7 +119,7 @@ class IssueController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            return redirect()->back()->with('error', 'Gagal publish issue: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal publish issue: '.$e->getMessage());
         }
     }
 
@@ -148,6 +147,7 @@ class IssueController extends Controller
             if ($journal->university_id !== $user->university_id) {
                 abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
             }
+
             return;
         }
 
@@ -155,6 +155,7 @@ class IssueController extends Controller
             if ($journal->user_id !== $user->id) {
                 abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
             }
+
             return;
         }
 
