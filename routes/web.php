@@ -163,14 +163,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // revisi ded code
-    Route::get('/monev/cetak-rekap', [\App\Http\Controllers\MonevDocumentController::class, 'printRekap'])
-        ->name('monev.printRekap')
-        ->middleware('role:'.Role::SUPER_ADMIN.'|'.Role::ADMIN_KAMPUS.'|'.Role::USER);
-
-    // Author Submission Wizard Step 4 Routes
-    Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
-    Route::post('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'saveStep4'])->name('submissions.wizard.save-step4');
+    // Dashboard Author (Submissions)
+    Route::get('/submission', function () {
+        return Inertia::render('Submission/Index');
+    })->name('submissions.index');
 
     // Dashboard Admin
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -715,6 +711,14 @@ Route::middleware(['auth'])->group(function () {
             });
         });
 
+        // Submission Wizard (Step 5: Confirm & Submit)
+        Route::prefix('submission-wizard')->name('submission-wizard.')->group(function () {
+            Route::get('{submission}/confirm', [SubmissionWizardController::class, 'confirm'])
+                ->name('confirm');
+            Route::post('{submission}/final-submit', [SubmissionWizardController::class, 'finalSubmit'])
+                ->name('final-submit');
+        });
+
         // Pembinaan Registration (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             // Category-specific routes
@@ -785,12 +789,32 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
+ /*
+    |--------------------------------------------------------------------------
+    | Production Routes (Journal Issue Management)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:'.Role::PENGELOLA_JURNAL])->prefix('production')->name('production.')->group(function () {
+
+        // Issue Management
+        Route::prefix('issues')->name('issue.')->group(function () {
+            Route::get('create', [\App\Http\Controllers\Production\IssueController::class, 'create'])
+                ->name('create');
+            Route::post('/', [\App\Http\Controllers\Production\IssueController::class, 'store'])
+                ->name('store');
+            Route::get('{issue}/edit', [\App\Http\Controllers\Production\IssueController::class, 'edit'])
+                ->name('edit');
+            Route::put('{issue}', [\App\Http\Controllers\Production\IssueController::class, 'update'])
+                ->name('update');
+        });
+    });
+
     /*
-       |--------------------------------------------------------------------------
-       | Review Summary & Assignment Routes (v1.1 - Multi Reviewer)
-       | MOCK LOKAL - hapus setelah model resmi di-merge ke development.
-       |--------------------------------------------------------------------------
-       */
+    |--------------------------------------------------------------------------
+    | Review Summary & Assignment Routes (v1.1 - Multi Reviewer)
+    | MOCK LOKAL - hapus setelah model resmi di-merge ke development.
+    |--------------------------------------------------------------------------
+    */
     // NOTE: Authorization enforced via ProposalPolicy in the controllers.
     Route::middleware(['auth'])->name('review.')->group(function () {
         // Rekap summary review multi-reviewer per proposal
@@ -844,6 +868,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('plagiarism-check', [PlagiarismController::class, 'store'])
                 ->name('plagiarism-check.store');
         });
+
     /*
     |--------------------------------------------------------------------------
     | Reviewer Routes (v1.1)
