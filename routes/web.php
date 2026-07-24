@@ -201,6 +201,15 @@ Route::middleware(['auth'])->group(function () {
     */
     Route::middleware(['role:'.Role::SUPER_ADMIN])->prefix('admin')->name('admin.')->group(function () {
 
+        // Announcement Management
+        Route::match(['post', 'patch'], 'announcements/{announcement}/toggle-featured', [\App\Http\Controllers\Admin\AnnouncementController::class, 'toggleFeatured'])
+            ->name('announcements.toggle-featured');
+        Route::match(['post', 'patch'], 'announcements/{announcement}/toggle-active', [\App\Http\Controllers\Admin\AnnouncementController::class, 'toggleActive'])
+            ->name('announcements.toggle-active');
+        Route::post('announcements/{id}/restore', [\App\Http\Controllers\Admin\AnnouncementController::class, 'restore'])
+            ->name('announcements.restore');
+        Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);
+
         // Sistem Profil (Ubah Logo/Nama App)
         Route::get('settings/profile', [SettingsCtrl::class, 'index'])->name('settings.profile');
         Route::post('settings/profile', [SettingsCtrl::class, 'update'])->name('settings.profile.update');

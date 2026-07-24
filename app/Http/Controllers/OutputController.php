@@ -132,24 +132,27 @@ class OutputController extends Controller
         // ── Otorisasi: hanya pemilik atau Super Admin yang boleh update (RBAC) ──
         $this->authorize('update', $output);
 
-        $validated = $request->validate([
-            'proposal_id' => 'nullable|integer|exists:proposals,id',  // nullable: produk tidak wajib punya proposal
-            'kategori' => 'required|string|max:255',
-            'judul' => 'required|string|max:255',
+        $request->validate([
+            'proposal_id' => 'nullable|integer|exists:proposals,id',
+            'kategori' => 'nullable|string|max:255',
+            'jenis_luaran' => 'nullable|string|max:255',
+            'judul' => 'nullable|string|max:255',
+            'judul_luaran' => 'nullable|string|max:255',
             'keterangan' => 'nullable|string',
             'file_path' => 'nullable|string|max:255',
-            'status' => 'required|in:draft,submitted,approved,rejected,published,patented',
-            // ── Kolom spesifik Produk/Prototipe ──────────────────────────────
+            'status' => 'nullable|string',
             'tkt_level' => 'nullable|integer|min:1|max:9',
             'version' => 'nullable|string|max:50',
             'year' => 'nullable|integer|min:2000|max:'.(date('Y') + 1),
             'url' => 'nullable|url',
-            'cover_image' => 'nullable|string|max:255',   // path string — file upload ditangani OutputDocController
-            'document' => 'nullable|string|max:255',   // path string — file upload ditangani OutputDocController
         ]);
 
-        // user_id TIDAK diambil dari input — selalu diikat ke pemilik record yg sudah ada (RBAC)
-        $output->update($validated);
+        $output->update([
+            'jenis_luaran' => $request->input('jenis_luaran', $request->input('kategori', $output->jenis_luaran)),
+            'judul_luaran' => $request->input('judul_luaran', $request->input('judul', $output->judul_luaran)),
+            'tahun_capaian' => $request->input('tahun_capaian', $output->tahun_capaian),
+            'keterangan' => $request->input('keterangan', $output->keterangan),
+        ]);
 
         return redirect()->route('user.outputs.index')->with('message', 'Output berhasil diperbarui.');
     }
@@ -240,7 +243,7 @@ class OutputController extends Controller
 
             return redirect()->back()->with([
                 'success' => 'Data HKI berhasil disimpan.',
-                'data' => array_merge($validated, ['file_path' => $filePath]),
+                'data' => array_merge(\Illuminate\Support\Arr::except($validated, ['file_sertifikat_atau_cover', 'file_cover_atau_halaman_hak_cipta']), ['file_path' => $filePath]),
             ]);
         } catch (\Exception $e) {
             Log::error('Error storing HKI: '.$e->getMessage());
@@ -317,7 +320,7 @@ class OutputController extends Controller
 
             return redirect()->back()->with([
                 'success' => 'Data Buku berhasil disimpan.',
-                'data' => array_merge($validated, ['file_path' => $filePath]),
+                'data' => array_merge(\Illuminate\Support\Arr::except($validated, ['file_sertifikat_atau_cover', 'file_cover_atau_halaman_hak_cipta']), ['file_path' => $filePath]),
             ]);
         } catch (\Exception $e) {
             Log::error('Error storing Book: '.$e->getMessage());

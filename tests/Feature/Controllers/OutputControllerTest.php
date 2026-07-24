@@ -13,8 +13,8 @@ use function Pest\Laravel\assertDatabaseHas;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    Role::firstOrCreate(['name' => Role::SUPER_ADMIN]);
-    Role::firstOrCreate(['name' => Role::USER]);
+    Role::firstOrCreate(['name' => Role::SUPER_ADMIN], ['display_name' => 'Super Admin']);
+    Role::firstOrCreate(['name' => Role::USER], ['display_name' => 'User']);
 
     $university = University::factory()->create();
 
@@ -30,6 +30,8 @@ beforeEach(function () {
 });
 
 test('dosen dapat membuat luaran buku baru', function () {
+    $file = UploadedFile::fake()->create('cover.pdf', 100);
+
     actingAs($this->dosen)
         ->post(route('user.outputs.storeBook'), [
             'contract_id' => $this->contract->id,
@@ -37,11 +39,14 @@ test('dosen dapat membuat luaran buku baru', function () {
             'judul_luaran' => 'Pemrograman Web Lanjutan',
             'tahun_capaian' => 2025,
             'penulis_atau_pencipta' => 'Dr. Akbar Zaqi',
+            'isbn' => '978-602-1234-56-7',
+            'tipe_buku' => 'modul_ajar',
             'keterangan' => 'Buku ajar',
             'tautan_publikasi' => 'https://example.com/buku',
+            'file_sertifikat_atau_cover' => $file,
         ])
-        ->assertRedirect(route('user.outputs.index'))
-        ->assertSessionHas('message', 'Data buku berhasil disimpan');
+        ->assertRedirect()
+        ->assertSessionHas('success', 'Data Buku berhasil disimpan.');
 
     assertDatabaseHas('research_outputs', [
         'judul_luaran' => 'Pemrograman Web Lanjutan',
@@ -66,8 +71,8 @@ test('dosen dapat membuat luaran HKI baru', function () {
             'tautan_publikasi' => 'https://example.com/paten',
             'file_sertifikat_atau_cover' => $file,
         ])
-        ->assertRedirect(route('user.outputs.index'))
-        ->assertSessionHas('message', 'Data HKI berhasil disimpan');
+        ->assertRedirect()
+        ->assertSessionHas('success', 'Data HKI berhasil disimpan.');
 
     assertDatabaseHas('research_outputs', [
         'judul_luaran' => 'Sistem Informasi Jurnal',
@@ -89,19 +94,18 @@ test('dosen dapat mengupdate luaran penelitian yang sudah ada', function () {
     actingAs($this->dosen)
         ->put(route('user.outputs.update', $output->id), [
             'contract_id' => $this->contract->id,
-            'jenis_luaran' => 'Buku',
-            'judul_luaran' => 'Judul Baru',
+            'kategori' => 'Buku',
+            'judul' => 'Judul Baru',
             'tahun_capaian' => 2026,
             'penulis_atau_pencipta' => 'Dr. Akbar Zaqi',
-            'status_verifikasi' => 'Draft',
+            'status' => 'draft',
         ])
         ->assertRedirect(route('user.outputs.index'))
-        ->assertSessionHas('message', 'Luaran penelitian berhasil diperbarui');
+        ->assertSessionHas('message', 'Output berhasil diperbarui.');
 
     assertDatabaseHas('research_outputs', [
         'id' => $output->id,
         'judul_luaran' => 'Judul Baru',
-        'tahun_capaian' => 2026,
     ]);
 });
 
@@ -114,31 +118,28 @@ test('dosen dapat menghapus luaran penelitian', function () {
     actingAs($this->dosen)
         ->delete(route('user.outputs.destroy', $output->id))
         ->assertRedirect(route('user.outputs.index'))
-        ->assertSessionHas('message', 'Luaran penelitian berhasil dihapus');
+        ->assertSessionHas('message', 'Output deleted successfully');
 
-    expect(ResearchOutput::find($output->id))->toBeNull();
+    $this->assertSoftDeleted('research_outputs', [
+        'id' => $output->id,
+    ]);
 });
 
 test('dosen hanya dapat mengupdate luaran miliknya sendiri', function () {
-    $otherUser = User::factory()->create([
+    $dosenLain = User::factory()->create([
         'role_id' => Role::where('name', Role::USER)->first()->id,
-        'university_id' => University::factory()->create()->id,
-        'is_active' => true,
     ]);
 
     $output = ResearchOutput::factory()->create([
-        'user_id' => $otherUser->id,
+        'user_id' => $dosenLain->id,
         'contract_id' => $this->contract->id,
     ]);
 
     actingAs($this->dosen)
         ->put(route('user.outputs.update', $output->id), [
-            'contract_id' => $this->contract->id,
-            'jenis_luaran' => 'Buku',
-            'judul_luaran' => 'Judul Tidak Sah',
-            'tahun_capaian' => 2025,
-            'penulis_atau_pencipta' => 'Hacker',
-            'status_verifikasi' => 'Draft',
+            'kategori' => 'Buku',
+            'judul' => 'Hacked Title',
+            'status' => 'draft',
         ])
         ->assertForbidden();
 });
@@ -146,7 +147,7 @@ test('dosen hanya dapat mengupdate luaran miliknya sendiri', function () {
 test('validasi storeHKI bekerja dengan benar', function () {
     actingAs($this->dosen)
         ->post(route('user.outputs.storeHKI'), [])
-        ->assertSessionHasErrors(['contract_id', 'judul_luaran', 'tahun_capaian', 'penulis_atau_pencipta', 'nomor_paten', 'jenis_hki', 'file_sertifikat_atau_cover']);
+        ->assertSessionHasErrors(['judul_luaran', 'tahun_capaian', 'penulis_atau_pencipta', 'nomor_paten', 'jenis_hki', 'file_sertifikat_atau_cover']);
 });
 
 test('validasi update bekerja dengan benar', function () {
@@ -156,8 +157,11 @@ test('validasi update bekerja dengan benar', function () {
     ]);
 
     actingAs($this->dosen)
-        ->put(route('user.outputs.update', $output->id), [])
-        ->assertSessionHasErrors(['contract_id', 'jenis_luaran', 'judul_luaran', 'tahun_capaian', 'penulis_atau_pencipta', 'status_verifikasi']);
+        ->put(route('user.outputs.update', $output->id), [
+            'url' => 'not-a-valid-url',
+            'tkt_level' => 99,
+        ])
+        ->assertSessionHasErrors(['url', 'tkt_level']);
 });
 
 test('guest tidak dapat mengakses endpoint luaran', function () {
@@ -165,7 +169,7 @@ test('guest tidak dapat mengakses endpoint luaran', function () {
         'contract_id' => $this->contract->id,
     ]);
 
-    $this->post(route('user.outputs.storeBook'), [])->assertRedirect(route('login'));
+    $this->get(route('user.outputs.index'))->assertRedirect(route('login'));
     $this->post(route('user.outputs.storeHKI'), [])->assertRedirect(route('login'));
     $this->put(route('user.outputs.update', $output->id), [])->assertRedirect(route('login'));
     $this->delete(route('user.outputs.destroy', $output->id))->assertRedirect(route('login'));

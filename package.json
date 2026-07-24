@@ -20,11 +20,7 @@
         "@testing-library/react": "^16.3.2",
         "@testing-library/user-event": "^14.6.1",
         "@types/node": "^22.13.5",
-feature/submission-module
         "@types/react": "^19.2.17",
-
-        "@types/react": "^19.2.14",
- development
         "@types/react-dom": "^19.2.3",
         "@vitest/ui": "^4.0.18",
         "eslint": "^9.17.0",
@@ -78,6 +74,7 @@ feature/submission-module
         "cmdk": "^1.1.1",
         "concurrently": "^9.0.1",
         "date-fns": "^4.1.0",
+        "detect-node-es": "^1.1.0",
         "dotenv": "^16.4.5",
         "globals": "^15.14.0",
         "laravel-vite-plugin": "^2.0",

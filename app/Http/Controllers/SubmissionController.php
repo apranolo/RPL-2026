@@ -31,36 +31,7 @@ class SubmissionController extends Controller
     }
 
     /**
-     * Menyimpan naskah baru ke dalam sistem.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'abstract' => 'nullable|string',
-            'description' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,doc,docx,zip|max:5120',
-        ]);
-
-        $filePath = null;
-        if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('submissions', 'public');
-        }
-
-        Submission::create([
-            'user_id' => Auth::id(),
-            'title' => $validated['title'],
-            'abstract' => $validated['abstract'] ?? $validated['description'] ?? '',
-            'file_path' => $filePath,
-            'status' => 'Draft', 
-        ]);
-
-        return redirect()->route('submissions.index')
-            ->with('success', 'Naskah berhasil disimpan sebagai Draft.');
-    }
-
-    /**
-     * 2. MENAMPILKAN FORMULIR UNTUK MEMBUAT PENGAJUAN BARU
+     * MENAMPILKAN FORMULIR UNTUK MEMBUAT PENGAJUAN BARU
      */
     public function create(): Response
     {
@@ -68,7 +39,7 @@ class SubmissionController extends Controller
     }
 
     /**
-     * 3. MENYIMPAN DATA BARU DARI FORMULIR KE DATABASE
+     * MENYIMPAN DATA BARU DARI FORMULIR KE DATABASE
      */
     public function store(Request $request)
     {
@@ -93,6 +64,8 @@ class SubmissionController extends Controller
 
         return redirect()->route('submissions.index')->with('success', 'Pengajuan berhasil dikirim!');
     }
+
+    /**
      * Menampilkan halaman detail naskah beserta linimasa status.
      */
     public function show(Submission $submission): Response
@@ -110,13 +83,11 @@ class SubmissionController extends Controller
         return Inertia::render('Submission/Show', [
             'submission' => $submission,
             'tracking' => $submission->statusHistories,
->>>>>>> e61e90173d9a79656f141463c8caa7f9aa9fc6f0
         ]);
     }
 
     /**
-<<<<<<< HEAD
-     * 5. MENAMPILKAN FORMULIR EDIT (Misal untuk admin merubah status)
+     * MENAMPILKAN FORMULIR EDIT (Misal untuk admin merubah status)
      */
     public function edit($id)
     {
@@ -129,7 +100,7 @@ class SubmissionController extends Controller
     }
 
     /**
-     * 6. MEMPROSES UPDATE/PERUBAHAN DATA DI DATABASE
+     * MEMPROSES UPDATE/PERUBAHAN DATA DI DATABASE
      */
     public function update(Request $request, $id)
     {
@@ -147,7 +118,7 @@ class SubmissionController extends Controller
     }
 
     /**
-     * 7. MENGHAPUS DATA PENGAJUAN
+     * MENGHAPUS DATA PENGAJUAN
      */
     public function destroy($id)
     {
@@ -163,8 +134,8 @@ class SubmissionController extends Controller
 
         return redirect()->route('submissions.index')->with('success', 'Pengajuan berhasil dihapus!');
     }
-}
-=======
+
+    /**
      * Membatalkan (menghapus) naskah yang masih berstatus draft.
      * Hanya author pemilik naskah yang boleh membatalkan.
      *
@@ -185,9 +156,6 @@ class SubmissionController extends Controller
 
         $submission->delete();
 
-        // TODO: ganti ke route('submissions.index') begitu halaman
-        // daftar submission dibuat. Untuk saat ini rute itu belum ada
-        // di web.php, jadi redirect ke dashboard agar tidak 404.
         return redirect()
             ->route('dashboard')
             ->with(
@@ -196,8 +164,3 @@ class SubmissionController extends Controller
             );
     }
 }
-<<<<<<< HEAD
-development
-=======
->>>>>>> e61e90173d9a79656f141463c8caa7f9aa9fc6f0
->>>>>>> 0655c6d2010f1cbc9a09a5f3a5e3b9f1fcb70f61

@@ -56,6 +56,10 @@ class AppServiceProvider extends ServiceProvider
             return $user->isSuperAdmin() || $user->isAdminKampus();
         });
 
+        Gate::define('manage-announcements', function ($user) {
+            return $user->isSuperAdmin();
+        });
+
         Gate::define('view-all-journals', function ($user) {
             return $user->isSuperAdmin();
         });
