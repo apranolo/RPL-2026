@@ -90,15 +90,7 @@ export default function ExportButtons({ filters = {}, data = [], className = '' 
 
         try {
             // CSV header
-            const headers = [
-                'No',
-                'Judul Proposal',
-                'Nama Dosen',
-                'Fakultas',
-                'Skema Penelitian',
-                'Status Proposal',
-                'Nominal Dana (Rp)',
-            ];
+            const headers = ['No', 'Judul Proposal', 'Nama Dosen', 'Fakultas', 'Skema Penelitian', 'Status Proposal', 'Nominal Dana (Rp)'];
 
             // CSV rows
             const rows = data.map((proposal, index) => [
@@ -145,12 +137,8 @@ export default function ExportButtons({ filters = {}, data = [], className = '' 
                 <DropdownMenuSeparator />
 
                 {/* PDF Export */}
-                <DropdownMenuItem onClick={handleExportPdf} disabled={isExportingPdf} className="gap-2 cursor-pointer" id="export-pdf-btn">
-                    {isExportingPdf ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-red-500" />
-                    ) : (
-                        <FileText className="h-4 w-4 text-red-500" />
-                    )}
+                <DropdownMenuItem onClick={handleExportPdf} disabled={isExportingPdf} className="cursor-pointer gap-2" id="export-pdf-btn">
+                    {isExportingPdf ? <Loader2 className="h-4 w-4 animate-spin text-red-500" /> : <FileText className="h-4 w-4 text-red-500" />}
                     <div>
                         <div className="font-medium">Download PDF</div>
                         <div className="text-xs text-muted-foreground">Laporan lengkap</div>
@@ -161,7 +149,7 @@ export default function ExportButtons({ filters = {}, data = [], className = '' 
                 <DropdownMenuItem
                     onClick={handleExportXls}
                     disabled={isExportingXls || data.length === 0}
-                    className="gap-2 cursor-pointer"
+                    className="cursor-pointer gap-2"
                     id="export-xls-btn"
                 >
                     {isExportingXls ? (
@@ -171,9 +159,7 @@ export default function ExportButtons({ filters = {}, data = [], className = '' 
                     )}
                     <div>
                         <div className="font-medium">Download XLS</div>
-                        <div className="text-xs text-muted-foreground">
-                            {data.length > 0 ? `${data.length} baris data` : 'Tidak ada data'}
-                        </div>
+                        <div className="text-xs text-muted-foreground">{data.length > 0 ? `${data.length} baris data` : 'Tidak ada data'}</div>
                     </div>
                 </DropdownMenuItem>
             </DropdownMenuContent>

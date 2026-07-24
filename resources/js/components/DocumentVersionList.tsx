@@ -46,16 +46,16 @@ interface DocumentVersionListProps {
 
 const STATUS_STYLE: Record<string, string> = {
     Awaiting_Revision: 'bg-amber-50 text-amber-800 border-amber-200',
-    Submitted:         'bg-blue-50 text-blue-800 border-blue-200',
-    Approved:          'bg-emerald-50 text-emerald-800 border-emerald-200',
-    Rejected:          'bg-rose-50 text-rose-800 border-rose-200',
+    Submitted: 'bg-blue-50 text-blue-800 border-blue-200',
+    Approved: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    Rejected: 'bg-rose-50 text-rose-800 border-rose-200',
 };
 
 const STATUS_LABEL: Record<string, string> = {
     Awaiting_Revision: 'Menunggu Revisi',
-    Submitted:         'Revisi Dikirim',
-    Approved:          'Disetujui',
-    Rejected:          'Ditolak',
+    Submitted: 'Revisi Dikirim',
+    Approved: 'Disetujui',
+    Rejected: 'Ditolak',
 };
 
 // ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ function FileRow({ file }: { file: SubmissionFileItem }) {
         <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-4 py-2.5 transition-colors hover:bg-muted/50">
             <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground" aria-hidden="true" />
             <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium leading-tight" title={file.file_name}>
+                <p className="truncate text-sm leading-tight font-medium" title={file.file_name}>
                     {file.file_name}
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
@@ -98,13 +98,7 @@ function FileRow({ file }: { file: SubmissionFileItem }) {
                 </p>
             </div>
             <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" asChild>
-                <a
-                    href={downloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download={file.file_name}
-                    aria-label={`Unduh ${file.file_name}`}
-                >
+                <a href={downloadUrl} target="_blank" rel="noopener noreferrer" download={file.file_name} aria-label={`Unduh ${file.file_name}`}>
                     <Download className="h-4 w-4" />
                 </a>
             </Button>
@@ -119,7 +113,7 @@ function FileRow({ file }: { file: SubmissionFileItem }) {
 function RoundCard({ round }: { round: RevisionRoundItem }) {
     const statusStyle = STATUS_STYLE[round.status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
     const statusLabel = STATUS_LABEL[round.status] ?? round.status;
-    const files       = round.submission_files ?? [];
+    const files = round.submission_files ?? [];
 
     return (
         <div className="flex gap-4">
@@ -146,17 +140,11 @@ function RoundCard({ round }: { round: RevisionRoundItem }) {
             {/* Konten ronde */}
             <div className="mb-6 flex-1">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-foreground">
-                        Ronde {round.round_number}
-                    </span>
+                    <span className="text-sm font-semibold text-foreground">Ronde {round.round_number}</span>
                     <Badge variant="outline" className={cn('text-xs', statusStyle)}>
                         {statusLabel}
                     </Badge>
-                    {round.due_date && (
-                        <span className="text-xs text-muted-foreground">
-                            Tenggat: {formatDate(round.due_date)}
-                        </span>
-                    )}
+                    {round.due_date && <span className="text-xs text-muted-foreground">Tenggat: {formatDate(round.due_date)}</span>}
                 </div>
 
                 {round.editor_decision_note && (
@@ -196,10 +184,7 @@ function RoundCard({ round }: { round: RevisionRoundItem }) {
  * Tipe data selaras dengan model resmi RevisionRound (primary key: id_round)
  * dan SubmissionFile (foreign key: submission_id) dari branch development.
  */
-export default function DocumentVersionList({
-    revisionRounds,
-    className,
-}: DocumentVersionListProps) {
+export default function DocumentVersionList({ revisionRounds, className }: DocumentVersionListProps) {
     if (revisionRounds.length === 0) {
         return (
             <div className={cn('flex flex-col items-center gap-2 py-8 text-center text-muted-foreground', className)}>
@@ -213,9 +198,7 @@ export default function DocumentVersionList({
         <div className={cn('w-full space-y-0', className)}>
             <div className="mb-4 flex items-center gap-2">
                 <History className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                <span className="text-sm font-semibold text-foreground">
-                    Riwayat Versi Naskah
-                </span>
+                <span className="text-sm font-semibold text-foreground">Riwayat Versi Naskah</span>
                 <Badge variant="secondary" className="text-xs">
                     {revisionRounds.length} Ronde
                 </Badge>

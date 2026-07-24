@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Model for the `skema_pendanaan` lookup table.
  *
- * @property int         $id
- * @property string      $nama
+ * @property int $id
+ * @property string $nama
  * @property string|null $deskripsi
- * @property bool        $is_active
+ * @property bool $is_active
  */
 class SkemaPendanaan extends Model
 {

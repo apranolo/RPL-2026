@@ -26,7 +26,7 @@ class SubmissionController extends Controller
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error'),
-            ]
+            ],
         ]);
     }
 
@@ -44,9 +44,9 @@ class SubmissionController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'title'       => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'file'        => 'required|file|mimes:pdf,doc,docx,zip|max:5120', 
+            'file' => 'required|file|mimes:pdf,doc,docx,zip|max:5120',
         ]);
 
         if ($request->hasFile('file')) {
@@ -55,11 +55,11 @@ class SubmissionController extends Controller
         }
 
         Submission::create([
-            'user_id'     => auth()->id(),
-            'title'       => $validatedData['title'],
+            'user_id' => auth()->id(),
+            'title' => $validatedData['title'],
             'description' => $validatedData['description'],
-            'file_path'   => $validatedData['file_path'] ?? null,
-            'status'      => 'pending', 
+            'file_path' => $validatedData['file_path'] ?? null,
+            'status' => 'pending',
         ]);
 
         return redirect()->route('submissions.index')->with('success', 'Pengajuan berhasil dikirim!');
@@ -95,7 +95,7 @@ class SubmissionController extends Controller
 
         // Mengarahkan ke file React: resources/js/pages/Submission/Edit.tsx
         return Inertia::render('Submission/Edit', [
-            'submission' => $submission
+            'submission' => $submission,
         ]);
     }
 
@@ -111,7 +111,7 @@ class SubmissionController extends Controller
         ]);
 
         $submission->update([
-            'status' => $request->status
+            'status' => $request->status,
         ]);
 
         return redirect()->route('submissions.index')->with('success', 'Status pengajuan berhasil diperbarui!');

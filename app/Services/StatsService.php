@@ -24,10 +24,10 @@ class StatsService
      * out of total proposals that have a final decision
      * (administrasi_valid or ditolak) — drafts are excluded.
      *
-     * @param  int|null  $userId        Filter by specific researcher (Dosen)
+     * @param  int|null  $userId  Filter by specific researcher (Dosen)
      * @param  int|null  $universityId  Filter by specific university (Admin Kampus)
      *                                  Scoped via the pengusul's university_id.
-     * @return float  Percentage 0–100, rounded to 1 decimal place
+     * @return float Percentage 0–100, rounded to 1 decimal place
      */
     public function successRate(?int $userId = null, ?int $universityId = null): float
     {
@@ -73,7 +73,6 @@ class StatsService
      * - success_rate:      percentage of lolos out of decided (lolos + gagal)
      * - total_pendanaan:   sum of approved funding amounts (IDR)
      *
-     * @param  int  $userId
      * @return array{total: int, masuk: int, lolos: int, gagal: int, draft: int, success_rate: float, total_pendanaan: float}
      */
     public function getProposalSummaryForUser(int $userId): array
@@ -92,20 +91,20 @@ class StatsService
             ")
             ->first();
 
-        $total           = (int)   ($counts->total           ?? 0);
-        $masuk           = (int)   ($counts->masuk           ?? 0);
-        $lolos           = (int)   ($counts->lolos           ?? 0);
-        $gagal           = (int)   ($counts->gagal           ?? 0);
-        $draft           = (int)   ($counts->draft           ?? 0);
-        $totalPendanaan  = (float) ($counts->total_pendanaan ?? 0.0);
+        $total = (int) ($counts->total ?? 0);
+        $masuk = (int) ($counts->masuk ?? 0);
+        $lolos = (int) ($counts->lolos ?? 0);
+        $gagal = (int) ($counts->gagal ?? 0);
+        $draft = (int) ($counts->draft ?? 0);
+        $totalPendanaan = (float) ($counts->total_pendanaan ?? 0.0);
 
         return [
-            'total'           => $total,
-            'masuk'           => $masuk,
-            'lolos'           => $lolos,
-            'gagal'           => $gagal,
-            'draft'           => $draft,
-            'success_rate'    => $this->successRate(userId: $userId),
+            'total' => $total,
+            'masuk' => $masuk,
+            'lolos' => $lolos,
+            'gagal' => $gagal,
+            'draft' => $draft,
+            'success_rate' => $this->successRate(userId: $userId),
             'total_pendanaan' => $totalPendanaan,
         ];
     }
@@ -117,7 +116,6 @@ class StatsService
      * only proposals submitted by researchers belonging to the given
      * university are counted.
      *
-     * @param  int  $universityId
      * @return array{total: int, masuk: int, lolos: int, gagal: int, draft: int, success_rate: float, total_pendanaan: float}
      */
     public function getProposalSummaryForUniversity(int $universityId): array
@@ -137,20 +135,20 @@ class StatsService
             ")
             ->first();
 
-        $total           = (int)   ($counts->total           ?? 0);
-        $masuk           = (int)   ($counts->masuk           ?? 0);
-        $lolos           = (int)   ($counts->lolos           ?? 0);
-        $gagal           = (int)   ($counts->gagal           ?? 0);
-        $draft           = (int)   ($counts->draft           ?? 0);
-        $totalPendanaan  = (float) ($counts->total_pendanaan ?? 0.0);
+        $total = (int) ($counts->total ?? 0);
+        $masuk = (int) ($counts->masuk ?? 0);
+        $lolos = (int) ($counts->lolos ?? 0);
+        $gagal = (int) ($counts->gagal ?? 0);
+        $draft = (int) ($counts->draft ?? 0);
+        $totalPendanaan = (float) ($counts->total_pendanaan ?? 0.0);
 
         return [
-            'total'           => $total,
-            'masuk'           => $masuk,
-            'lolos'           => $lolos,
-            'gagal'           => $gagal,
-            'draft'           => $draft,
-            'success_rate'    => $this->successRate(universityId: $universityId),
+            'total' => $total,
+            'masuk' => $masuk,
+            'lolos' => $lolos,
+            'gagal' => $gagal,
+            'draft' => $draft,
+            'success_rate' => $this->successRate(universityId: $universityId),
             'total_pendanaan' => $totalPendanaan,
         ];
     }
@@ -175,20 +173,20 @@ class StatsService
             ")
             ->first();
 
-        $total           = (int)   ($counts->total           ?? 0);
-        $masuk           = (int)   ($counts->masuk           ?? 0);
-        $lolos           = (int)   ($counts->lolos           ?? 0);
-        $gagal           = (int)   ($counts->gagal           ?? 0);
-        $draft           = (int)   ($counts->draft           ?? 0);
-        $totalPendanaan  = (float) ($counts->total_pendanaan ?? 0.0);
+        $total = (int) ($counts->total ?? 0);
+        $masuk = (int) ($counts->masuk ?? 0);
+        $lolos = (int) ($counts->lolos ?? 0);
+        $gagal = (int) ($counts->gagal ?? 0);
+        $draft = (int) ($counts->draft ?? 0);
+        $totalPendanaan = (float) ($counts->total_pendanaan ?? 0.0);
 
         return [
-            'total'           => $total,
-            'masuk'           => $masuk,
-            'lolos'           => $lolos,
-            'gagal'           => $gagal,
-            'draft'           => $draft,
-            'success_rate'    => $this->successRate(),
+            'total' => $total,
+            'masuk' => $masuk,
+            'lolos' => $lolos,
+            'gagal' => $gagal,
+            'draft' => $draft,
+            'success_rate' => $this->successRate(),
             'total_pendanaan' => $totalPendanaan,
         ];
     }

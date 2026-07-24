@@ -794,11 +794,11 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
- /*
-    |--------------------------------------------------------------------------
-    | Production Routes (Journal Issue Management)
-    |--------------------------------------------------------------------------
-    */
+    /*
+       |--------------------------------------------------------------------------
+       | Production Routes (Journal Issue Management)
+       |--------------------------------------------------------------------------
+       */
     Route::middleware(['role:'.Role::PENGELOLA_JURNAL])->prefix('production')->name('production.')->group(function () {
 
         // Issue Management
@@ -942,7 +942,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
             ->name('funding.upload-bukti');
     });
-    
+
     /*
     |--------------------------------------------------------------------------
     | Finance & Funding Routes

@@ -15,18 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import {
-    AlertTriangle,
-    ArrowLeft,
-    BookOpen,
-    CheckCircle,
-    FileText,
-    Send,
-    Users,
-    Globe,
-    Tag,
-    UserCheck,
-} from 'lucide-react';
+import { AlertTriangle, ArrowLeft, BookOpen, CheckCircle, FileText, Globe, Send, Tag, UserCheck, Users } from 'lucide-react';
 import { useState } from 'react';
 
 // ─── Type Definitions ───────────────────────────────────────────────
@@ -107,7 +96,7 @@ export default function Step5Confirm({ submission }: Props) {
     // Data validations
     const hasTitle = !!submission.title?.trim();
     const hasAbstract = !!submission.abstract?.trim();
-    const hasMainManuscript = submission.files?.some(f => f.file_type === 'ManuscriptMain') ?? false;
+    const hasMainManuscript = submission.files?.some((f) => f.file_type === 'ManuscriptMain') ?? false;
     const hasJournal = !!submission.journal;
 
     const validationErrors: string[] = [];
@@ -129,7 +118,7 @@ export default function Step5Confirm({ submission }: Props) {
             {
                 preserveScroll: true,
                 onError: () => setSubmitting(false),
-            }
+            },
         );
     };
 
@@ -142,7 +131,10 @@ export default function Step5Confirm({ submission }: Props) {
             const parsed = JSON.parse(submission.keywords);
             parsedKeywords = Array.isArray(parsed) ? parsed : [submission.keywords];
         } catch {
-            parsedKeywords = submission.keywords.split(',').map(k => k.trim()).filter(Boolean);
+            parsedKeywords = submission.keywords
+                .split(',')
+                .map((k) => k.trim())
+                .filter(Boolean);
         }
     }
 
@@ -153,12 +145,10 @@ export default function Step5Confirm({ submission }: Props) {
             <div className="mx-auto max-w-5xl space-y-8 pb-12">
                 {/* ── Page Header ───────────────────────────── */}
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-violet-400">
+                    <h1 className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent dark:from-blue-400 dark:to-violet-400">
                         Konfirmasi &amp; Kirim Naskah
                     </h1>
-                    <p className="text-muted-foreground">
-                        Tinjau ringkasan naskah artikel Anda sebelum melakukan pengiriman final ke dewan editor.
-                    </p>
+                    <p className="text-muted-foreground">Tinjau ringkasan naskah artikel Anda sebelum melakukan pengiriman final ke dewan editor.</p>
                 </div>
 
                 {/* ── Wizard Progress Bar ───────────────────── */}
@@ -193,9 +183,7 @@ export default function Step5Confirm({ submission }: Props) {
                         <CardContent className="flex items-center gap-3 py-4">
                             <CheckCircle className="h-6 w-6 shrink-0 text-emerald-600 dark:text-emerald-400" />
                             <div className="space-y-0.5">
-                                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-                                    Dokumen Lengkap &amp; Siap Kirim
-                                </p>
+                                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Dokumen Lengkap &amp; Siap Kirim</p>
                                 <p className="text-xs text-emerald-700 dark:text-emerald-400">
                                     Semua persyaratan pengisian naskah utama dan metadata dasar telah dipenuhi.
                                 </p>
@@ -215,17 +203,13 @@ export default function Step5Confirm({ submission }: Props) {
                     <CardContent className="pt-6">
                         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                    Nama Jurnal
-                                </dt>
+                                <dt className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Nama Jurnal</dt>
                                 <dd className="mt-1 text-sm font-bold text-foreground">
                                     {submission.journal?.title || submission.journal?.name || '—'}
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                    ISSN / E-ISSN
-                                </dt>
+                                <dt className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">ISSN / E-ISSN</dt>
                                 <dd className="mt-1 text-sm text-foreground">
                                     {submission.journal?.issn || '—'}
                                     {submission.journal?.e_issn && ` / ${submission.journal.e_issn}`}
@@ -255,22 +239,15 @@ export default function Step5Confirm({ submission }: Props) {
                                         key={file.id}
                                         className="flex items-center justify-between gap-4 rounded-lg border border-slate-100 bg-slate-50/30 p-4 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/20 dark:hover:bg-slate-900/45"
                                     >
-                                        <div className="flex items-center gap-3 min-w-0">
+                                        <div className="flex min-w-0 items-center gap-3">
                                             <FileText className="h-8 w-8 shrink-0 text-slate-400" />
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-foreground">
-                                                    {file.file_path.split('/').pop()}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    Ukuran: {formatBytes(file.file_size)}
-                                                </p>
+                                                <p className="truncate text-sm font-semibold text-foreground">{file.file_path.split('/').pop()}</p>
+                                                <p className="text-xs text-muted-foreground">Ukuran: {formatBytes(file.file_size)}</p>
                                             </div>
                                         </div>
                                         <div>
-                                            <Badge
-                                                variant={file.file_type === 'ManuscriptMain' ? 'default' : 'secondary'}
-                                                className="shrink-0"
-                                            >
+                                            <Badge variant={file.file_type === 'ManuscriptMain' ? 'default' : 'secondary'} className="shrink-0">
                                                 {file.file_type === 'ManuscriptMain' ? 'Manuskrip Utama' : 'File Pendukung'}
                                             </Badge>
                                         </div>
@@ -278,8 +255,8 @@ export default function Step5Confirm({ submission }: Props) {
                                 ))}
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground border-2 border-dashed border-slate-200 rounded-lg dark:border-slate-800">
-                                <FileText className="h-10 w-10 text-slate-300 mb-2" />
+                            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-200 py-6 text-center text-muted-foreground dark:border-slate-800">
+                                <FileText className="mb-2 h-10 w-10 text-slate-300" />
                                 <span className="text-sm italic">Belum ada berkas naskah yang diunggah.</span>
                             </div>
                         )}
@@ -294,42 +271,34 @@ export default function Step5Confirm({ submission }: Props) {
                             Langkah 3 — Informasi &amp; Metadata
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-6 space-y-6">
+                    <CardContent className="space-y-6 pt-6">
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             <div className="sm:col-span-2">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                    Judul Artikel
-                                </span>
-                                <h2 className="mt-1 text-base font-bold text-foreground leading-snug">
+                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Judul Artikel</span>
+                                <h2 className="mt-1 text-base leading-snug font-bold text-foreground">
                                     {submission.title || <span className="text-red-500 italic">Judul belum diisi</span>}
                                 </h2>
                             </div>
                             <div>
-                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                                <span className="flex items-center gap-1.5 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                     <Globe className="h-3.5 w-3.5 text-muted-foreground" /> Bahasa Pengantar
                                 </span>
-                                <p className="mt-1 text-sm font-medium">
-                                    {submission.language === 'en' ? 'English (en)' : 'Bahasa Indonesia (id)'}
-                                </p>
+                                <p className="mt-1 text-sm font-medium">{submission.language === 'en' ? 'English (en)' : 'Bahasa Indonesia (id)'}</p>
                             </div>
                         </div>
 
                         <Separator />
 
                         <div>
-                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                Abstrak
-                            </span>
-                            <div className="mt-2 text-sm text-foreground leading-relaxed whitespace-pre-line bg-slate-50/30 border border-slate-100 rounded-md p-4 dark:border-slate-800 dark:bg-slate-900/20">
-                                {submission.abstract || (
-                                    <span className="text-red-500 italic">Abstrak naskah belum diisi</span>
-                                )}
+                            <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Abstrak</span>
+                            <div className="mt-2 rounded-md border border-slate-100 bg-slate-50/30 p-4 text-sm leading-relaxed whitespace-pre-line text-foreground dark:border-slate-800 dark:bg-slate-900/20">
+                                {submission.abstract || <span className="text-red-500 italic">Abstrak naskah belum diisi</span>}
                             </div>
                         </div>
 
                         {parsedKeywords.length > 0 && (
                             <div>
-                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
+                                <span className="mb-2 block text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                     Kata Kunci (Keywords)
                                 </span>
                                 <div className="flex flex-wrap gap-1.5">
@@ -354,10 +323,10 @@ export default function Step5Confirm({ submission }: Props) {
                     </CardHeader>
                     <CardContent className="pt-6">
                         {submission.contributors && submission.contributors.length > 0 ? (
-                            <div className="overflow-hidden border border-slate-100 rounded-lg dark:border-slate-800">
-                                <table className="w-full text-left text-sm border-collapse">
+                            <div className="overflow-hidden rounded-lg border border-slate-100 dark:border-slate-800">
+                                <table className="w-full border-collapse text-left text-sm">
                                     <thead className="bg-slate-50 dark:bg-slate-900/40">
-                                        <tr className="border-b border-slate-100 text-xs font-semibold uppercase text-muted-foreground dark:border-slate-800">
+                                        <tr className="border-b border-slate-100 text-xs font-semibold text-muted-foreground uppercase dark:border-slate-800">
                                             <th className="px-4 py-3">Nama</th>
                                             <th className="px-4 py-3">Email</th>
                                             <th className="px-4 py-3">Afiliasi</th>
@@ -385,8 +354,8 @@ export default function Step5Confirm({ submission }: Props) {
                                 </table>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground border-2 border-dashed border-slate-200 rounded-lg dark:border-slate-800">
-                                <Users className="h-10 w-10 text-slate-300 mb-2" />
+                            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-200 py-6 text-center text-muted-foreground dark:border-slate-800">
+                                <Users className="mb-2 h-10 w-10 text-slate-300" />
                                 <span className="text-sm italic">Belum ada penulis pendamping yang didaftarkan.</span>
                             </div>
                         )}
@@ -394,7 +363,7 @@ export default function Step5Confirm({ submission }: Props) {
                 </Card>
 
                 {/* ── Confirmation Checkbox & Submit ────────── */}
-                <Card className="border-2 border-blue-200 dark:border-blue-900 bg-blue-50/20">
+                <Card className="border-2 border-blue-200 bg-blue-50/20 dark:border-blue-900">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-lg">
                             <Send className="h-5 w-5 text-blue-500" />
@@ -405,7 +374,7 @@ export default function Step5Confirm({ submission }: Props) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-white dark:bg-slate-900/50 dark:border-slate-800 p-4">
+                        <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900/50">
                             <Checkbox
                                 id="confirm-submission"
                                 checked={confirmed}
@@ -413,15 +382,13 @@ export default function Step5Confirm({ submission }: Props) {
                                 disabled={!isValid}
                             />
                             <Label htmlFor="confirm-submission" className="cursor-pointer text-sm leading-relaxed text-foreground select-none">
-                                Saya bersaksi bahwa saya telah meninjau keseluruhan data pengajuan naskah ilmiah di atas. Semua informasi yang diisi serta berkas manuskrip yang dilampirkan adalah benar dan orisinal milik tim penulis.
+                                Saya bersaksi bahwa saya telah meninjau keseluruhan data pengajuan naskah ilmiah di atas. Semua informasi yang diisi
+                                serta berkas manuskrip yang dilampirkan adalah benar dan orisinal milik tim penulis.
                             </Label>
                         </div>
 
-                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between pt-2">
-                            <Button
-                                variant="outline"
-                                onClick={() => router.visit(route('submissions.index'))}
-                            >
+                        <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-between">
+                            <Button variant="outline" onClick={() => router.visit(route('submissions.index'))}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Kembali ke Dashboard Author
                             </Button>
@@ -430,7 +397,7 @@ export default function Step5Confirm({ submission }: Props) {
                                 size="lg"
                                 disabled={!canSubmit}
                                 onClick={handleFinalSubmit}
-                                className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md text-white border-none"
+                                className="gap-2 border-none bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:from-blue-700 hover:to-indigo-700"
                             >
                                 {submitting ? (
                                     <>
@@ -440,19 +407,8 @@ export default function Step5Confirm({ submission }: Props) {
                                             fill="none"
                                             viewBox="0 0 24 24"
                                         >
-                                            <circle
-                                                className="opacity-25"
-                                                cx="12"
-                                                cy="12"
-                                                r="10"
-                                                stroke="currentColor"
-                                                strokeWidth="4"
-                                            />
-                                            <path
-                                                className="opacity-75"
-                                                fill="currentColor"
-                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                                            />
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                                         </svg>
                                         Mengirim…
                                     </>

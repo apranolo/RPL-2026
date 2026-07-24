@@ -30,17 +30,7 @@
  */
 
 import { cn } from '@/lib/utils';
-import {
-    AlertCircle,
-    CheckCircle2,
-    ExternalLink,
-    File,
-    FileText,
-    ImageIcon,
-    Trash2,
-    UploadCloud,
-    X,
-} from 'lucide-react';
+import { AlertCircle, CheckCircle2, ExternalLink, File, FileText, ImageIcon, Trash2, UploadCloud, X } from 'lucide-react';
 import { DragEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 
 // ---------------------------------------------------------------------------
@@ -98,11 +88,7 @@ const IMAGE_ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
 const IMAGE_ACCEPT_EXT = '.jpg,.jpeg,.png';
 const IMAGE_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
 
-const DOC_ACCEPTED_TYPES = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-];
+const DOC_ACCEPTED_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
 const DOC_ACCEPT_EXT = '.pdf,.doc,.docx';
 const DOC_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -166,15 +152,11 @@ export function FilePreview({
 
     const validate = (file: File): string | null => {
         if (variant === 'image') {
-            if (!IMAGE_ACCEPTED_TYPES.includes(file.type))
-                return 'Format harus JPEG atau PNG.';
-            if (file.size > IMAGE_MAX_BYTES)
-                return `Ukuran maks. 2 MB. File ini ${formatBytes(file.size)}.`;
+            if (!IMAGE_ACCEPTED_TYPES.includes(file.type)) return 'Format harus JPEG atau PNG.';
+            if (file.size > IMAGE_MAX_BYTES) return `Ukuran maks. 2 MB. File ini ${formatBytes(file.size)}.`;
         } else {
-            if (!DOC_ACCEPTED_TYPES.includes(file.type))
-                return 'Format harus PDF, DOC, atau DOCX.';
-            if (file.size > DOC_MAX_BYTES)
-                return `Ukuran maks. 10 MB. File ini ${formatBytes(file.size)}.`;
+            if (!DOC_ACCEPTED_TYPES.includes(file.type)) return 'Format harus PDF, DOC, atau DOCX.';
+            if (file.size > DOC_MAX_BYTES) return `Ukuran maks. 10 MB. File ini ${formatBytes(file.size)}.`;
         }
         return null;
     };
@@ -211,8 +193,7 @@ export function FilePreview({
         }
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-        handleFile(e.target.files?.[0] ?? null);
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => handleFile(e.target.files?.[0] ?? null);
 
     const handleDrop = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -255,7 +236,7 @@ export function FilePreview({
     // ---- Shared drop-zone classes ---------------------------------------------
 
     const dropZoneBase = cn(
-        'relative flex cursor-pointer select-none flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all duration-200',
+        'relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all duration-200 select-none',
         'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none',
         disabled && 'cursor-not-allowed opacity-60',
     );
@@ -277,14 +258,10 @@ export function FilePreview({
                 {label && (
                     <div className="flex items-center gap-1.5">
                         <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {label}
-                        </span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{label}</span>
                     </div>
                 )}
-                {description && (
-                    <p className="text-xs text-muted-foreground">{description}</p>
-                )}
+                {description && <p className="text-xs text-muted-foreground">{description}</p>}
 
                 {/* Drop zone */}
                 <div
@@ -294,29 +271,22 @@ export function FilePreview({
                     onClick={() => !disabled && inputRef.current?.click()}
                     onKeyDown={handleKeyDown}
                     onDrop={handleDrop}
-                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragOver={(e) => {
+                        e.preventDefault();
+                        setDragOver(true);
+                    }}
                     onDragLeave={() => setDragOver(false)}
-                    className={cn(
-                        dropZoneBase,
-                        dropZoneColor,
-                        displayImage ? 'h-auto overflow-hidden p-0' : 'h-44 p-6',
-                    )}
+                    className={cn(dropZoneBase, dropZoneColor, displayImage ? 'h-auto overflow-hidden p-0' : 'h-44 p-6')}
                 >
                     {displayImage ? (
                         <>
                             {/* Preview image */}
-                            <img
-                                src={displayImage}
-                                alt="Preview"
-                                className="block max-h-64 w-full object-contain"
-                            />
+                            <img src={displayImage} alt="Preview" className="block max-h-64 w-full object-contain" />
 
                             {/* Hover overlay */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-xl bg-black/50 opacity-0 transition-opacity duration-200 hover:opacity-100">
                                 <UploadCloud className="h-8 w-8 text-white" />
-                                <p className="text-sm font-medium text-white">
-                                    Klik untuk ganti gambar
-                                </p>
+                                <p className="text-sm font-medium text-white">Klik untuk ganti gambar</p>
                             </div>
 
                             {/* Clear new-file button */}
@@ -346,21 +316,17 @@ export function FilePreview({
                     ) : (
                         /* Empty state */
                         <div className="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
-                            <div className={cn(
-                                'rounded-full p-3 transition-colors',
-                                dragOver
-                                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400'
-                                    : 'bg-gray-100 dark:bg-gray-700',
-                            )}>
+                            <div
+                                className={cn(
+                                    'rounded-full p-3 transition-colors',
+                                    dragOver ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400' : 'bg-gray-100 dark:bg-gray-700',
+                                )}
+                            >
                                 <UploadCloud className="h-7 w-7" />
                             </div>
                             <div className="text-center">
-                                <p className="text-sm font-medium">
-                                    {dragOver ? 'Lepaskan untuk upload' : 'Klik atau seret gambar ke sini'}
-                                </p>
-                                <p className="mt-0.5 text-xs text-muted-foreground">
-                                    JPEG, PNG · Maks 2 MB
-                                </p>
+                                <p className="text-sm font-medium">{dragOver ? 'Lepaskan untuk upload' : 'Klik atau seret gambar ke sini'}</p>
+                                <p className="mt-0.5 text-xs text-muted-foreground">JPEG, PNG · Maks 2 MB</p>
                             </div>
                         </div>
                     )}
@@ -384,11 +350,7 @@ export function FilePreview({
                 )}
 
                 {/* Helper text */}
-                {!displayImage && !combinedError && (
-                    <p className="text-xs text-muted-foreground">
-                        Format: JPG / PNG · Maks 2 MB
-                    </p>
-                )}
+                {!displayImage && !combinedError && <p className="text-xs text-muted-foreground">Format: JPG / PNG · Maks 2 MB</p>}
 
                 {/* Hidden input */}
                 <input
@@ -414,14 +376,10 @@ export function FilePreview({
             {label && (
                 <div className="flex items-center gap-1.5">
                     <FileText className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {label}
-                    </span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{label}</span>
                 </div>
             )}
-            {description && (
-                <p className="text-xs text-muted-foreground">{description}</p>
-            )}
+            {description && <p className="text-xs text-muted-foreground">{description}</p>}
 
             {/* Drop zone */}
             <div
@@ -431,7 +389,10 @@ export function FilePreview({
                 onClick={() => !disabled && inputRef.current?.click()}
                 onKeyDown={handleKeyDown}
                 onDrop={handleDrop}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                }}
                 onDragLeave={() => setDragOver(false)}
                 className={cn(dropZoneBase, dropZoneColor, 'p-4')}
             >
@@ -439,23 +400,20 @@ export function FilePreview({
                     /* ── File card ── */
                     <div className="flex w-full items-center gap-3">
                         {/* Icon */}
-                        <div className={cn(
-                            'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg',
-                            localFile
-                                ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400'
-                                : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
-                        )}>
-                            <DocIcon
-                                name={displayDocName}
-                                className="h-5 w-5"
-                            />
+                        <div
+                            className={cn(
+                                'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg',
+                                localFile
+                                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400'
+                                    : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
+                            )}
+                        >
+                            <DocIcon name={displayDocName} className="h-5 w-5" />
                         </div>
 
                         {/* Info */}
                         <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-                                {displayDocName ?? 'Dokumen tersimpan'}
-                            </p>
+                            <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{displayDocName ?? 'Dokumen tersimpan'}</p>
                             <div className="mt-0.5 flex flex-wrap items-center gap-2">
                                 {localFile && (
                                     <span className="text-xs text-muted-foreground">
@@ -474,11 +432,7 @@ export function FilePreview({
                                         <ExternalLink className="h-3 w-3" />
                                     </a>
                                 )}
-                                {localFile && (
-                                    <span className="text-xs text-green-600 dark:text-green-400">
-                                        Siap diupload
-                                    </span>
-                                )}
+                                {localFile && <span className="text-xs text-green-600 dark:text-green-400">Siap diupload</span>}
                             </div>
                         </div>
 
@@ -515,21 +469,17 @@ export function FilePreview({
                 ) : (
                     /* ── Empty state ── */
                     <div className="flex flex-col items-center gap-2 py-4 text-gray-500 dark:text-gray-400">
-                        <div className={cn(
-                            'rounded-full p-3 transition-colors',
-                            dragOver
-                                ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400'
-                                : 'bg-gray-100 dark:bg-gray-700',
-                        )}>
+                        <div
+                            className={cn(
+                                'rounded-full p-3 transition-colors',
+                                dragOver ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400' : 'bg-gray-100 dark:bg-gray-700',
+                            )}
+                        >
                             <UploadCloud className="h-7 w-7" />
                         </div>
                         <div className="text-center">
-                            <p className="text-sm font-medium">
-                                {dragOver ? 'Lepaskan untuk upload' : 'Klik atau seret dokumen ke sini'}
-                            </p>
-                            <p className="mt-0.5 text-xs text-muted-foreground">
-                                PDF, DOC, DOCX · Maks 10 MB
-                            </p>
+                            <p className="text-sm font-medium">{dragOver ? 'Lepaskan untuk upload' : 'Klik atau seret dokumen ke sini'}</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">PDF, DOC, DOCX · Maks 10 MB</p>
                         </div>
                     </div>
                 )}
@@ -544,11 +494,7 @@ export function FilePreview({
             )}
 
             {/* Helper text */}
-            {!hasContent && !combinedError && (
-                <p className="text-xs text-muted-foreground">
-                    Format: PDF / DOC / DOCX · Maks 10 MB
-                </p>
-            )}
+            {!hasContent && !combinedError && <p className="text-xs text-muted-foreground">Format: PDF / DOC / DOCX · Maks 10 MB</p>}
 
             {/* Hidden input */}
             <input

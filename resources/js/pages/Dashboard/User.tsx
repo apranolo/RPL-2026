@@ -28,16 +28,7 @@ import StatsCard from '@/components/StatsCard';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type PageProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import {
-    BookOpen,
-    CheckCircle,
-    ClipboardList,
-    DraftingCompass,
-    FileText,
-    InboxIcon,
-    Percent,
-    XCircle,
-} from 'lucide-react';
+import { BookOpen, CheckCircle, ClipboardList, DraftingCompass, FileText, InboxIcon, Percent, XCircle } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -96,9 +87,7 @@ interface UserDashboardProps extends PageProps {
 // Breadcrumbs
 // ─────────────────────────────────────────────────────────────────────────────
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper – format IDR currency
@@ -133,26 +122,13 @@ function SuccessRing({ rate }: { rate: number }) {
     const radius = 36;
     const circumference = 2 * Math.PI * radius;
     const filled = (rate / 100) * circumference;
-    const color =
-        rate >= 75
-            ? 'text-emerald-500'
-            : rate >= 40
-              ? 'text-amber-500'
-              : 'text-red-500';
+    const color = rate >= 75 ? 'text-emerald-500' : rate >= 40 ? 'text-amber-500' : 'text-red-500';
 
     return (
         <div className="relative flex h-24 w-24 items-center justify-center">
             <svg className="-rotate-90" width="96" height="96" viewBox="0 0 96 96">
                 {/* Track */}
-                <circle
-                    cx="48"
-                    cy="48"
-                    r={radius}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    className="text-muted/30"
-                />
+                <circle cx="48" cy="48" r={radius} fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/30" />
                 {/* Progress */}
                 <circle
                     cx="48"
@@ -191,17 +167,13 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
             <Head title="Dashboard Peneliti" />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4 sm:p-6">
-
                 {/* ── Welcome banner ─────────────────────────────────────── */}
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">
-                            Selamat datang,{' '}
-                            <span className="text-primary">{user.name}</span> 👋
+                            Selamat datang, <span className="text-primary">{user.name}</span> 👋
                         </h1>
-                        <p className="mt-0.5 text-sm text-muted-foreground">
-                            Berikut ringkasan proposal riset dan pendanaan penelitian Anda.
-                        </p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">Berikut ringkasan proposal riset dan pendanaan penelitian Anda.</p>
                     </div>
                     <Link
                         href={route('user.pembinaan.akreditasi')}
@@ -214,10 +186,7 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
 
                 {/* ── Section: Ringkasan Proposal Riset ───────────────────── */}
                 <section aria-labelledby="proposal-section-title">
-                    <h2
-                        id="proposal-section-title"
-                        className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
-                    >
+                    <h2 id="proposal-section-title" className="mb-3 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
                         Ringkasan Proposal Riset
                     </h2>
 
@@ -256,10 +225,7 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
 
                 {/* ── Section: Hasil Seleksi ───────────────────────────────── */}
                 <section aria-labelledby="seleksi-section-title">
-                    <h2
-                        id="seleksi-section-title"
-                        className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
-                    >
+                    <h2 id="seleksi-section-title" className="mb-3 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
                         Hasil Seleksi Administrasi
                     </h2>
 
@@ -288,10 +254,7 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
 
                 {/* ── Section: Pendanaan Riset ─────────────────────────────── */}
                 <section aria-labelledby="pendanaan-section-title">
-                    <h2
-                        id="pendanaan-section-title"
-                        className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
-                    >
+                    <h2 id="pendanaan-section-title" className="mb-3 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
                         Metrik Pendanaan Riset
                     </h2>
 
@@ -309,19 +272,11 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                         {/* Tingkat Keberhasilan (numeric) */}
                         <StatsCard
                             title="Tingkat Keberhasilan"
-                            value={
-                                proposal_stats.success_rate !== null
-                                    ? `${Number(proposal_stats.success_rate).toFixed(1)}%`
-                                    : '—'
-                            }
+                            value={proposal_stats.success_rate !== null ? `${Number(proposal_stats.success_rate).toFixed(1)}%` : '—'}
                             description="Persentase proposal diterima dari total yang diputuskan"
                             icon={Percent}
                             variant="cyan"
-                            progress={
-                                proposal_stats.success_rate
-                                    ? Math.min(100, Number(proposal_stats.success_rate))
-                                    : 0
-                            }
+                            progress={proposal_stats.success_rate ? Math.min(100, Number(proposal_stats.success_rate)) : 0}
                             progressLabel="Tingkat keberhasilan"
                             id="stat-success-rate"
                         />
@@ -331,10 +286,7 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                 {/* ── Success Rate Ring Card ───────────────────────────────── */}
                 {(proposal_stats.lolos > 0 || proposal_stats.gagal > 0) && (
                     <section aria-labelledby="success-rate-title">
-                        <h2
-                            id="success-rate-title"
-                            className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
-                        >
+                        <h2 id="success-rate-title" className="mb-3 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
                             Tingkat Keberhasilan
                         </h2>
 
@@ -347,12 +299,9 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
 
                                 {/* Detail */}
                                 <div className="flex-1">
-                                    <p className="text-base font-semibold">
-                                        Tingkat Keberhasilan Proposal Riset
-                                    </p>
+                                    <p className="text-base font-semibold">Tingkat Keberhasilan Proposal Riset</p>
                                     <p className="mt-1 text-sm text-muted-foreground">
-                                        Persentase proposal yang diterima (administrasi valid) dari
-                                        total proposal yang telah mendapat keputusan akhir
+                                        Persentase proposal yang diterima (administrasi valid) dari total proposal yang telah mendapat keputusan akhir
                                         (diterima + ditolak).
                                     </p>
 
@@ -361,30 +310,21 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                                         <div className="flex items-center gap-2">
                                             <span className="inline-block h-3 w-3 rounded-full bg-emerald-500" />
                                             <span className="text-sm text-muted-foreground">
-                                                Diterima:{' '}
-                                                <strong className="text-foreground">
-                                                    {proposal_stats.lolos}
-                                                </strong>
+                                                Diterima: <strong className="text-foreground">{proposal_stats.lolos}</strong>
                                             </span>
                                         </div>
                                         {/* Ditolak */}
                                         <div className="flex items-center gap-2">
                                             <span className="inline-block h-3 w-3 rounded-full bg-red-500" />
                                             <span className="text-sm text-muted-foreground">
-                                                Ditolak:{' '}
-                                                <strong className="text-foreground">
-                                                    {proposal_stats.gagal}
-                                                </strong>
+                                                Ditolak: <strong className="text-foreground">{proposal_stats.gagal}</strong>
                                             </span>
                                         </div>
                                         {/* Menunggu */}
                                         <div className="flex items-center gap-2">
                                             <span className="inline-block h-3 w-3 rounded-full bg-amber-500" />
                                             <span className="text-sm text-muted-foreground">
-                                                Menunggu:{' '}
-                                                <strong className="text-foreground">
-                                                    {proposal_stats.masuk}
-                                                </strong>
+                                                Menunggu: <strong className="text-foreground">{proposal_stats.masuk}</strong>
                                             </span>
                                         </div>
                                     </div>
@@ -393,9 +333,7 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                                     <div className="mt-4 space-y-1">
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Keberhasilan</span>
-                                            <span className="font-semibold">
-                                                {proposal_stats.success_rate}%
-                                            </span>
+                                            <span className="font-semibold">{proposal_stats.success_rate}%</span>
                                         </div>
                                         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                                             <div
@@ -429,8 +367,7 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                         <BookOpen className="mx-auto h-12 w-12 text-muted-foreground/50" />
                         <h3 className="mt-4 text-lg font-semibold">Belum Ada Proposal Riset</h3>
                         <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                            Anda belum mengajukan proposal penelitian apapun. Mulai dengan membuat
-                            proposal pertama Anda.
+                            Anda belum mengajukan proposal penelitian apapun. Mulai dengan membuat proposal pertama Anda.
                         </p>
                         <Link
                             href={route('user.pembinaan.akreditasi')}

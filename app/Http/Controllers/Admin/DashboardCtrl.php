@@ -20,8 +20,6 @@ class DashboardCtrl extends Controller
      * - assessment_status   : count of assessments grouped by status
      * - by_category         : breakdown per pembinaan category (akreditasi / indeksasi)
      * - pembinaan_summary   : per-pembinaan program stats
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function getMonevStat(Request $request): JsonResponse
     {

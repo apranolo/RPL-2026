@@ -7,11 +7,11 @@
  * @author 2300018400
  */
 
+import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
-import { type BreadcrumbItem } from '@/types';
 
 interface Journal {
     id: number;
@@ -78,20 +78,13 @@ export default function DeskReview({ submission }: Props) {
             <Head title="Desk Review" />
 
             <div className="mx-auto max-w-2xl p-6">
-
                 {/* Header */}
-                <h1 className="mb-1 text-2xl font-bold text-foreground">
-                    Desk Review
-                </h1>
-                <p className="mb-6 text-sm text-muted-foreground">
-                    Tinjau submission dan berikan keputusan penerimaan atau penolakan.
-                </p>
+                <h1 className="mb-1 text-2xl font-bold text-foreground">Desk Review</h1>
+                <p className="mb-6 text-sm text-muted-foreground">Tinjau submission dan berikan keputusan penerimaan atau penolakan.</p>
 
                 {/* Info Submission */}
                 <div className="mb-6 rounded-lg border border-border bg-muted/50 p-4">
-                    <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Detail Submission
-                    </h2>
+                    <h2 className="mb-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Detail Submission</h2>
                     <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Judul</span>
@@ -162,18 +155,13 @@ export default function DeskReview({ submission }: Props) {
                                 </button>
                             </div>
 
-                            {errors.decision && (
-                                <p className="mt-1 text-sm text-destructive">{errors.decision}</p>
-                            )}
+                            {errors.decision && <p className="mt-1 text-sm text-destructive">{errors.decision}</p>}
                         </div>
 
                         {/* Catatan penolakan — wajib jika Desk_Reject */}
                         {decision === 'Desk_Reject' && (
                             <div>
-                                <label
-                                    htmlFor="rejection_reason"
-                                    className="mb-1 block text-sm font-medium text-foreground"
-                                >
+                                <label htmlFor="rejection_reason" className="mb-1 block text-sm font-medium text-foreground">
                                     Catatan Penolakan <span className="text-destructive">*</span>
                                 </label>
                                 <textarea
@@ -182,26 +170,20 @@ export default function DeskReview({ submission }: Props) {
                                     value={data.rejection_reason}
                                     onChange={(e) => setData('rejection_reason', e.target.value)}
                                     placeholder="Jelaskan alasan penolakan submission ini..."
-                                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
                                 />
-                                {errors.rejection_reason && (
-                                    <p className="mt-1 text-sm text-destructive">{errors.rejection_reason}</p>
-                                )}
+                                {errors.rejection_reason && <p className="mt-1 text-sm text-destructive">{errors.rejection_reason}</p>}
                             </div>
                         )}
 
                         {/* Submit */}
                         <div className="flex justify-end pt-2">
-                            <Button
-                                type="submit"
-                                disabled={processing || !decision}
-                            >
+                            <Button type="submit" disabled={processing || !decision}>
                                 {processing ? 'Menyimpan...' : 'Simpan Keputusan'}
                             </Button>
                         </div>
                     </form>
                 )}
-
             </div>
         </AppLayout>
     );
@@ -231,9 +213,5 @@ function StatusBadge({ status }: { status: string }) {
         className: 'bg-muted text-muted-foreground border border-border',
     };
 
-    return (
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${className}`}>
-            {label}
-        </span>
-    );
+    return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${className}`}>{label}</span>;
 }

@@ -6,15 +6,7 @@ import { ReactNode } from 'react';
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type StatsCardVariant =
-    | 'default'
-    | 'blue'
-    | 'green'
-    | 'amber'
-    | 'red'
-    | 'purple'
-    | 'cyan'
-    | 'orange';
+export type StatsCardVariant = 'default' | 'blue' | 'green' | 'amber' | 'red' | 'purple' | 'cyan' | 'orange';
 
 export interface StatsCardTrend {
     /** Positive means upward trend, negative means downward */
@@ -60,10 +52,7 @@ export interface StatsCardProps {
 // Variant config
 // ─────────────────────────────────────────────────────────────────────────────
 
-const variantConfig: Record<
-    StatsCardVariant,
-    { iconBg: string; iconColor: string; progressColor: string; badgeBg: string }
-> = {
+const variantConfig: Record<StatsCardVariant, { iconBg: string; iconColor: string; progressColor: string; badgeBg: string }> = {
     default: {
         iconBg: 'bg-slate-100 dark:bg-slate-800/60',
         iconColor: 'text-slate-600 dark:text-slate-300',
@@ -136,13 +125,10 @@ export function StatsCard({
     const colors = variantConfig[variant];
 
     // Compute trend direction
-    const trendDirection = trend
-        ? (trend.direction ?? (trend.value >= 0 ? 'up' : 'down'))
-        : null;
+    const trendDirection = trend ? (trend.direction ?? (trend.value >= 0 ? 'up' : 'down')) : null;
 
     const positiveIsGood = trend?.positiveIsGood ?? true;
-    const trendIsGood =
-        trendDirection === 'up' ? positiveIsGood : !positiveIsGood;
+    const trendIsGood = trendDirection === 'up' ? positiveIsGood : !positiveIsGood;
 
     if (loading) {
         return (
@@ -184,7 +170,7 @@ export function StatsCard({
 
             {/* Header: label + icon */}
             <div className="flex items-start justify-between">
-                <p className="text-sm font-medium leading-none text-muted-foreground">{title}</p>
+                <p className="text-sm leading-none font-medium text-muted-foreground">{title}</p>
 
                 {Icon && (
                     <div className="relative">
@@ -199,7 +185,7 @@ export function StatsCard({
                         {badge && (
                             <span
                                 className={cn(
-                                    'absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white',
+                                    'absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white',
                                     colors.badgeBg,
                                 )}
                             >
@@ -216,27 +202,15 @@ export function StatsCard({
             </div>
 
             {/* Description */}
-            {description && (
-                <p className="mt-1 text-xs text-muted-foreground">{description}</p>
-            )}
+            {description && <p className="mt-1 text-xs text-muted-foreground">{description}</p>}
 
             {/* Trend */}
             {trend && trendDirection && (
                 <div className="mt-2 flex items-center gap-1">
                     {trendDirection === 'up' ? (
-                        <TrendingUp
-                            className={cn(
-                                'h-3.5 w-3.5',
-                                trendIsGood ? 'text-emerald-500' : 'text-red-500',
-                            )}
-                        />
+                        <TrendingUp className={cn('h-3.5 w-3.5', trendIsGood ? 'text-emerald-500' : 'text-red-500')} />
                     ) : (
-                        <TrendingDown
-                            className={cn(
-                                'h-3.5 w-3.5',
-                                trendIsGood ? 'text-emerald-500' : 'text-red-500',
-                            )}
-                        />
+                        <TrendingDown className={cn('h-3.5 w-3.5', trendIsGood ? 'text-emerald-500' : 'text-red-500')} />
                     )}
                     <span
                         className={cn(
@@ -244,11 +218,10 @@ export function StatsCard({
                             trendIsGood ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400',
                         )}
                     >
-                        {trend.value > 0 ? '+' : ''}{trend.value}%
+                        {trend.value > 0 ? '+' : ''}
+                        {trend.value}%
                     </span>
-                    {trend.label && (
-                        <span className="text-xs text-muted-foreground">{trend.label}</span>
-                    )}
+                    {trend.label && <span className="text-xs text-muted-foreground">{trend.label}</span>}
                 </div>
             )}
 
@@ -263,10 +236,7 @@ export function StatsCard({
                     )}
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                            className={cn(
-                                'h-full rounded-full transition-all duration-700 ease-out',
-                                colors.progressColor,
-                            )}
+                            className={cn('h-full rounded-full transition-all duration-700 ease-out', colors.progressColor)}
                             style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
                             role="progressbar"
                             aria-valuenow={progress}

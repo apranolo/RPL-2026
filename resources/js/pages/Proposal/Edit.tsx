@@ -46,10 +46,9 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Edit Proposal" />
             <div className="mx-auto max-w-2xl p-6">
-                <div className="rounded-xl bg-card p-6 shadow text-card-foreground">
-
-                        {/*punya akbarzaqi*/
-                     /*<div className="mx-auto max-w-2xl p-6">
+                <div className="rounded-xl bg-card p-6 text-card-foreground shadow">
+                    {/*punya akbarzaqi*/
+                    /*<div className="mx-auto max-w-2xl p-6">
                     <div className="rounded-xl bg-white p-6 shadow">
                     <h1 className="mb-6 text-2xl font-bold">Edit Proposal</h1> */}
 
@@ -66,12 +65,10 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
                                 value={data.judul}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('judul', e.target.value)}
                                 className={`w-full rounded-lg border bg-transparent px-3 py-2 focus:ring-2 focus:outline-none ${
-                                    errors.judul 
-                                        ? 'border-destructive focus:ring-destructive' 
-                                        : 'border-input focus:ring-primary'
+                                    errors.judul ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-primary'
                                 }`}
                             />
-                            <InputError message={errors.judul} />
+                            {errors.judul && <p className="mt-1 text-sm text-red-500">{errors.judul}</p>}
                         </div>
 
                         {/* Deskripsi */}
@@ -86,13 +83,11 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
                                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setData('deskripsi', e.target.value)}
                                 rows={4}
                                 className={`w-full rounded-lg border bg-transparent px-3 py-2 focus:ring-2 focus:outline-none ${
-                                    errors.deskripsi 
-                                        ? 'border-destructive focus:ring-destructive' 
-                                        : 'border-input focus:ring-primary'
+                                    errors.deskripsi ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-primary'
                                 }`}
                             />
 
-                            <InputError message={errors.deskripsi} />
+                            {errors.deskripsi && <p className="mt-1 text-sm text-red-500">{errors.deskripsi}</p>}
                         </div>
 
                         {/* Button */}
@@ -100,7 +95,7 @@ export default function Edit({ proposal }: { proposal: Proposal }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="rounded-lg bg-primary px-5 py-2 text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                                className="rounded-lg bg-primary px-5 py-2 text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
                             >
                                 {processing ? 'Updating...' : 'Update'}
                             </button>

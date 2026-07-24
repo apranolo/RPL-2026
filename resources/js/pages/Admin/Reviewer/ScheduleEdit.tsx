@@ -108,10 +108,7 @@ export default function ScheduleEdit({ schedule, proposals, reviewers }: Props) 
                                 <Label htmlFor="proposal_id">
                                     Assessment (Proposal) <span className="text-destructive">*</span>
                                 </Label>
-                                <Select
-                                    value={data.proposal_id}
-                                    onValueChange={(value) => setData('proposal_id', value)}
-                                >
+                                <Select value={data.proposal_id} onValueChange={(value) => setData('proposal_id', value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select an assessment" />
                                     </SelectTrigger>
@@ -123,19 +120,14 @@ export default function ScheduleEdit({ schedule, proposals, reviewers }: Props) 
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                {errors.proposal_id && (
-                                    <p className="text-sm text-destructive">{errors.proposal_id}</p>
-                                )}
+                                {errors.proposal_id && <p className="text-sm text-destructive">{errors.proposal_id}</p>}
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="reviewer_id">
                                     Reviewer <span className="text-destructive">*</span>
                                 </Label>
-                                <Select
-                                    value={data.reviewer_id}
-                                    onValueChange={(value) => setData('reviewer_id', value)}
-                                >
+                                <Select value={data.reviewer_id} onValueChange={(value) => setData('reviewer_id', value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a reviewer" />
                                     </SelectTrigger>
@@ -147,9 +139,7 @@ export default function ScheduleEdit({ schedule, proposals, reviewers }: Props) 
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                {errors.reviewer_id && (
-                                    <p className="text-sm text-destructive">{errors.reviewer_id}</p>
-                                )}
+                                {errors.reviewer_id && <p className="text-sm text-destructive">{errors.reviewer_id}</p>}
                             </div>
 
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -167,9 +157,7 @@ export default function ScheduleEdit({ schedule, proposals, reviewers }: Props) 
                                             className="pl-10"
                                         />
                                     </div>
-                                    {errors.scheduled_at && (
-                                        <p className="text-sm text-destructive">{errors.scheduled_at}</p>
-                                    )}
+                                    {errors.scheduled_at && <p className="text-sm text-destructive">{errors.scheduled_at}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -184,9 +172,7 @@ export default function ScheduleEdit({ schedule, proposals, reviewers }: Props) 
                                             className="pl-10"
                                         />
                                     </div>
-                                    {errors.ended_at && (
-                                        <p className="text-sm text-destructive">{errors.ended_at}</p>
-                                    )}
+                                    {errors.ended_at && <p className="text-sm text-destructive">{errors.ended_at}</p>}
                                 </div>
                             </div>
 
@@ -194,10 +180,7 @@ export default function ScheduleEdit({ schedule, proposals, reviewers }: Props) 
                                 <Label htmlFor="status">
                                     Status <span className="text-destructive">*</span>
                                 </Label>
-                                <Select
-                                    value={data.status}
-                                    onValueChange={(value) => setData('status', value)}
-                                >
+                                <Select value={data.status} onValueChange={(value) => setData('status', value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
@@ -207,9 +190,7 @@ export default function ScheduleEdit({ schedule, proposals, reviewers }: Props) 
                                         <SelectItem value="cancelled">Cancelled</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                {errors.status && (
-                                    <p className="text-sm text-destructive">{errors.status}</p>
-                                )}
+                                {errors.status && <p className="text-sm text-destructive">{errors.status}</p>}
                             </div>
 
                             <div className="space-y-2">
@@ -233,9 +214,7 @@ export default function ScheduleEdit({ schedule, proposals, reviewers }: Props) 
                                     value={data.meeting_link}
                                     onChange={(e) => setData('meeting_link', e.target.value)}
                                 />
-                                {errors.meeting_link && (
-                                    <p className="text-sm text-destructive">{errors.meeting_link}</p>
-                                )}
+                                {errors.meeting_link && <p className="text-sm text-destructive">{errors.meeting_link}</p>}
                             </div>
 
                             <div className="space-y-2">

@@ -112,30 +112,15 @@ export function JournalForm({ journals = [] }: Props) {
                     </div>
                     <div>
                         <Label htmlFor="volume">Volume</Label>
-                        <Input
-                            id="volume"
-                            value={data.volume}
-                            onChange={(e) => setData('volume', e.target.value)}
-                            placeholder="Vol."
-                        />
+                        <Input id="volume" value={data.volume} onChange={(e) => setData('volume', e.target.value)} placeholder="Vol." />
                     </div>
                     <div>
                         <Label htmlFor="issue">Nomor/Issue</Label>
-                        <Input
-                            id="issue"
-                            value={data.issue}
-                            onChange={(e) => setData('issue', e.target.value)}
-                            placeholder="No."
-                        />
+                        <Input id="issue" value={data.issue} onChange={(e) => setData('issue', e.target.value)} placeholder="No." />
                     </div>
                     <div>
                         <Label htmlFor="pages">Halaman</Label>
-                        <Input
-                            id="pages"
-                            value={data.pages}
-                            onChange={(e) => setData('pages', e.target.value)}
-                            placeholder="Contoh: 1-15"
-                        />
+                        <Input id="pages" value={data.pages} onChange={(e) => setData('pages', e.target.value)} placeholder="Contoh: 1-15" />
                     </div>
                 </div>
 
@@ -143,21 +128,11 @@ export function JournalForm({ journals = [] }: Props) {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <Label htmlFor="doi">DOI</Label>
-                        <Input
-                            id="doi"
-                            value={data.doi}
-                            onChange={(e) => setData('doi', e.target.value)}
-                            placeholder="10.xxxx/xxxxx"
-                        />
+                        <Input id="doi" value={data.doi} onChange={(e) => setData('doi', e.target.value)} placeholder="10.xxxx/xxxxx" />
                     </div>
                     <div>
                         <Label htmlFor="url">URL Artikel</Label>
-                        <Input
-                            id="url"
-                            value={data.url}
-                            onChange={(e) => setData('url', e.target.value)}
-                            placeholder="https://..."
-                        />
+                        <Input id="url" value={data.url} onChange={(e) => setData('url', e.target.value)} placeholder="https://..." />
                         {errors.url && <p className="mt-1 text-sm text-red-500">{errors.url}</p>}
                     </div>
                 </div>
@@ -166,21 +141,11 @@ export function JournalForm({ journals = [] }: Props) {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div>
                         <Label htmlFor="issn">ISSN</Label>
-                        <Input
-                            id="issn"
-                            value={data.issn}
-                            onChange={(e) => setData('issn', e.target.value)}
-                            placeholder="xxxx-xxxx"
-                        />
+                        <Input id="issn" value={data.issn} onChange={(e) => setData('issn', e.target.value)} placeholder="xxxx-xxxx" />
                     </div>
                     <div>
                         <Label htmlFor="e_issn">E-ISSN</Label>
-                        <Input
-                            id="e_issn"
-                            value={data.e_issn}
-                            onChange={(e) => setData('e_issn', e.target.value)}
-                            placeholder="xxxx-xxxx"
-                        />
+                        <Input id="e_issn" value={data.e_issn} onChange={(e) => setData('e_issn', e.target.value)} placeholder="xxxx-xxxx" />
                     </div>
                     <div>
                         <Label htmlFor="publisher">Penerbit</Label>
@@ -197,10 +162,7 @@ export function JournalForm({ journals = [] }: Props) {
                 {journals.length > 0 && (
                     <div>
                         <Label htmlFor="journal_id">Tautkan ke Jurnal (Opsional)</Label>
-                        <Select
-                            value={data.journal_id}
-                            onValueChange={(value) => setData('journal_id', value)}
-                        >
+                        <Select value={data.journal_id} onValueChange={(value) => setData('journal_id', value)}>
                             <SelectTrigger id="journal_id">
                                 <SelectValue placeholder="Pilih jurnal yang terdaftar..." />
                             </SelectTrigger>
@@ -225,13 +187,9 @@ export function JournalForm({ journals = [] }: Props) {
                         <Upload className="h-5 w-5 text-gray-400" />
                         <div className="text-sm">
                             {data.file ? (
-                                <span className="font-medium text-blue-600 dark:text-blue-400">
-                                    {data.file.name}
-                                </span>
+                                <span className="font-medium text-blue-600 dark:text-blue-400">{data.file.name}</span>
                             ) : (
-                                <span className="text-gray-500 dark:text-gray-400">
-                                    Klik untuk memilih berkas PDF
-                                </span>
+                                <span className="text-gray-500 dark:text-gray-400">Klik untuk memilih berkas PDF</span>
                             )}
                         </div>
                     </div>

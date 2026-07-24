@@ -24,6 +24,14 @@ interface Submission {
     contributors?: Contributor[];
 }
 
+const wizardSteps = [
+    { label: 'Start', description: 'Pilih Jurnal', complete: true },
+    { label: 'Upload', description: 'Upload File', complete: true },
+    { label: 'Metadata', description: 'Informasi Artikel', complete: true },
+    { label: 'Contributor', description: 'Penulis', complete: true },
+    { label: 'Confirm', description: 'Final Submit', complete: false },
+];
+
 type Step4ContributorsProps = {
     submission: Submission;
 };
@@ -121,7 +129,7 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
             <div className="mx-auto max-w-4xl space-y-6 pb-12">
                 {/* Progress Bar */}
                 <Card className="border-none bg-transparent shadow-none">
-                    <WizardProgressBar currentStep={4} />
+                    <WizardProgressBar steps={wizardSteps} currentStep={3} />
                 </Card>
 
                 {/* Main Content Card */}

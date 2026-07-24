@@ -79,7 +79,6 @@ const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
     { value: 'patented', label: 'Sudah Dipatenkan' },
 ];
 
-
 // ---------------------------------------------------------------------------
 // ProductForm
 // ---------------------------------------------------------------------------
@@ -123,7 +122,6 @@ export default function ProductForm({ submitUrl, cancelUrl, initialData, current
 
     // ---- Render ----
     return (
-
         <form onSubmit={handleSubmit} className="space-y-8">
             {/* ── Error Summary ── */}
             {hasErrors && (

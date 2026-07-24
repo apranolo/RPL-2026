@@ -3,8 +3,8 @@
  * @description Halaman form penilaian rubrik bagi Reviewer.
  * Menampilkan naskah anonim dan mengelola input skor per kriteria.
  */
-import AppLayout from '@/layouts/app-layout';
 import RubricScoreInput from '@/components/RubricScoreInput';
+import AppLayout from '@/layouts/app-layout';
 import { useForm } from '@inertiajs/react';
 
 interface Manuscript {
@@ -66,33 +66,33 @@ export default function FormReview({ manuscript, reviewDecision }: Props) {
 
     return (
         <AppLayout>
-            <div className="max-w-3xl mx-auto p-6">
-                <h1 className="text-2xl font-bold mb-4">Form Penilaian Reviewer</h1>
+            <div className="mx-auto max-w-3xl p-6">
+                <h1 className="mb-4 text-2xl font-bold">Form Penilaian Reviewer</h1>
 
                 {/* Naskah Anonim */}
-                <div className="bg-white border rounded-lg p-5 mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Naskah (Anonim)</h2>
-                    <p className="text-sm text-gray-500 mb-1">Judul:</p>
-                    <p className="font-medium mb-3">{manuscript.title}</p>
-                    <p className="text-sm text-gray-500 mb-1">Abstrak:</p>
-                    <p className="text-sm mb-3">{manuscript.abstract}</p>
-                    <p className="text-sm text-gray-500 mb-1">Kata Kunci:</p>
+                <div className="mb-6 rounded-lg border bg-white p-5">
+                    <h2 className="mb-2 text-lg font-semibold">Naskah (Anonim)</h2>
+                    <p className="mb-1 text-sm text-gray-500">Judul:</p>
+                    <p className="mb-3 font-medium">{manuscript.title}</p>
+                    <p className="mb-1 text-sm text-gray-500">Abstrak:</p>
+                    <p className="mb-3 text-sm">{manuscript.abstract}</p>
+                    <p className="mb-1 text-sm text-gray-500">Kata Kunci:</p>
                     <p className="text-sm">{manuscript.keywords}</p>
                 </div>
 
                 {/* Rubrik Penilaian */}
-                <div className="bg-white border rounded-lg p-5 mb-6">
-                    <h2 className="text-lg font-semibold mb-4">Rubrik Penilaian (1–5)</h2>
+                <div className="mb-6 rounded-lg border bg-white p-5">
+                    <h2 className="mb-4 text-lg font-semibold">Rubrik Penilaian (1–5)</h2>
                     <RubricScoreInput scores={scores} onChange={handleScoreChange} />
                 </div>
 
                 {/* Rekomendasi */}
-                <div className="bg-white border rounded-lg p-5 mb-6">
-                    <h2 className="text-lg font-semibold mb-4">Rekomendasi & Komentar</h2>
+                <div className="mb-6 rounded-lg border bg-white p-5">
+                    <h2 className="mb-4 text-lg font-semibold">Rekomendasi & Komentar</h2>
                     <select
-                        className="w-full border rounded p-2 mb-4"
+                        className="mb-4 w-full rounded border p-2"
                         value={data.recommendation}
-                        onChange={e => setData('recommendation', e.target.value)}
+                        onChange={(e) => setData('recommendation', e.target.value)}
                     >
                         <option value="">-- Pilih Rekomendasi --</option>
                         <option value="Accept">Accept</option>
@@ -100,27 +100,25 @@ export default function FormReview({ manuscript, reviewDecision }: Props) {
                         <option value="Reject">Reject</option>
                     </select>
                     <textarea
-                        className="w-full border rounded p-2 mb-4"
+                        className="mb-4 w-full rounded border p-2"
                         rows={4}
                         placeholder="Komentar untuk penulis..."
                         value={data.comments}
-                        onChange={e => setData('comments', e.target.value)}
+                        onChange={(e) => setData('comments', e.target.value)}
                     />
                     <textarea
-                        className="w-full border rounded p-2"
+                        className="w-full rounded border p-2"
                         rows={3}
                         placeholder="Komentar privat untuk editor..."
                         value={data.comments_private}
-                        onChange={e => setData('comments_private', e.target.value)}
+                        onChange={(e) => setData('comments_private', e.target.value)}
                     />
                 </div>
 
                 <button
                     onClick={handleSubmit}
                     disabled={processing}
-                    className={`w-full text-white py-2 rounded ${
-                        processing ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
+                    className={`w-full rounded py-2 text-white ${processing ? 'cursor-not-allowed bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}`}
                 >
                     {processing ? 'Memproses...' : 'Kirim Review'}
                 </button>

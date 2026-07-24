@@ -58,32 +58,29 @@ const ALLOWED_EXT = ['pdf', 'docx'];
 
 const STATUS_STYLE: Record<RevisionRoundItem['status'], string> = {
     Awaiting_Revision: 'bg-amber-50 text-amber-800 border-amber-200',
-    Submitted:         'bg-slate-100 text-slate-800 border-slate-200',
-    Approved:          'bg-emerald-50 text-emerald-800 border-emerald-200',
-    Rejected:          'bg-rose-50 text-rose-800 border-rose-200',
+    Submitted: 'bg-slate-100 text-slate-800 border-slate-200',
+    Approved: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    Rejected: 'bg-rose-50 text-rose-800 border-rose-200',
 };
 
 const STATUS_LABEL: Record<RevisionRoundItem['status'], string> = {
     Awaiting_Revision: 'Menunggu Revisi',
-    Submitted:         'Revisi Dikirim',
-    Approved:          'Disetujui',
-    Rejected:          'Ditolak',
+    Submitted: 'Revisi Dikirim',
+    Approved: 'Disetujui',
+    Rejected: 'Ditolak',
 };
 
 const CLOSED_MESSAGE: Record<string, string> = {
     Submitted: 'Revisi sudah dikirim. Menunggu keputusan editor.',
-    Approved:  'Revisi telah disetujui oleh editor.',
-    Rejected:  'Revisi ditolak. Hubungi editor untuk informasi lebih lanjut.',
+    Approved: 'Revisi telah disetujui oleh editor.',
+    Rejected: 'Revisi ditolak. Hubungi editor untuk informasi lebih lanjut.',
 };
 
 // ---------------------------------------------------------------------------
 // Helper: konversi file history ke format RevisionRoundItem[]
 // untuk DocumentVersionList
 // ---------------------------------------------------------------------------
-function buildVersionRounds(
-    currentRound: RevisionRoundItem,
-    fileHistory: SubmissionFileItem[],
-): RevisionRoundItem[] {
+function buildVersionRounds(currentRound: RevisionRoundItem, fileHistory: SubmissionFileItem[]): RevisionRoundItem[] {
     return [
         {
             ...currentRound,
@@ -107,14 +104,10 @@ function buildVersionRounds(
  *
  * Sisi kanan menampilkan riwayat versi berkas (DocumentVersionList).
  */
-export default function UploadRevision({
-    submission,
-    currentRound,
-    fileHistory,
-}: UploadRevisionProps) {
+export default function UploadRevision({ submission, currentRound, fileHistory }: UploadRevisionProps) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard',   href: '/dashboard' },
-        { title: 'Submission',  href: '/submissions' },
+        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Submission', href: '/submissions' },
         { title: submission.title ?? `Submission #${submission.id}`, href: `/submissions/${submission.id}` },
         { title: `Revisi — Ronde ${currentRound.round_number}`, href: '#' },
     ];
@@ -124,7 +117,7 @@ export default function UploadRevision({
         file: File | null;
         notes: string;
     }>({
-        file:  null,
+        file: null,
         notes: '',
     });
 
@@ -185,13 +178,11 @@ export default function UploadRevision({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Perbaikan Naskah (Revisi)" />
 
-            <div className="flex w-full max-w-7xl mx-auto flex-col gap-6 p-4 md:p-8">
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-8">
                 {/* ---- Header Halaman ---- */}
                 <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                            Perbaikan Naskah (Revisi)
-                        </h1>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Perbaikan Naskah (Revisi)</h1>
                         <p className="mt-1 text-sm text-muted-foreground">
                             Ronde Ke-{currentRound.round_number}
                             {submission.title ? ` · ${submission.title}` : ''}
@@ -234,17 +225,11 @@ export default function UploadRevision({
                                     >
                                         <UploadCloud className="h-8 w-8 text-muted-foreground" />
                                         {data.file ? (
-                                            <span className="text-sm font-medium text-foreground">
-                                                {data.file.name}
-                                            </span>
+                                            <span className="text-sm font-medium text-foreground">{data.file.name}</span>
                                         ) : (
                                             <>
-                                                <span className="text-sm font-medium text-foreground">
-                                                    Klik untuk memilih berkas
-                                                </span>
-                                                <span className="text-xs text-muted-foreground">
-                                                    Format PDF atau DOCX · Maks {MAX_FILE_MB} MB
-                                                </span>
+                                                <span className="text-sm font-medium text-foreground">Klik untuk memilih berkas</span>
+                                                <span className="text-xs text-muted-foreground">Format PDF atau DOCX · Maks {MAX_FILE_MB} MB</span>
                                             </>
                                         )}
                                         <input
@@ -259,12 +244,7 @@ export default function UploadRevision({
                                     {/* Error klien atau validasi server */}
                                     <InputError message={clientError ?? errors.file} />
 
-                                    <Button
-                                        id="btn-ajukan-revisi"
-                                        type="submit"
-                                        disabled={processing || !data.file}
-                                        className="w-full"
-                                    >
+                                    <Button id="btn-ajukan-revisi" type="submit" disabled={processing || !data.file} className="w-full">
                                         <Send className="mr-2 h-4 w-4" />
                                         {processing ? 'Mengunggah…' : 'Ajukan Revisi ke Editor'}
                                     </Button>

@@ -152,8 +152,8 @@ class AnnouncementController extends Controller
             'content' => $validated['content'],
             'description' => $validated['description'] ?? null,
             'thumbnail' => $thumbnailPath,
-            'published_at' => !empty($validated['published_at']) ? now()->parse($validated['published_at']) : null,
-            'expires_at' => !empty($validated['expires_at']) ? now()->parse($validated['expires_at']) : null,
+            'published_at' => ! empty($validated['published_at']) ? now()->parse($validated['published_at']) : null,
+            'expires_at' => ! empty($validated['expires_at']) ? now()->parse($validated['expires_at']) : null,
             'is_active' => $validated['is_active'],
             'is_featured' => $validated['is_featured'],
         ]);
@@ -271,8 +271,8 @@ class AnnouncementController extends Controller
             'content' => $validated['content'],
             'description' => $validated['description'] ?? null,
             'thumbnail' => $thumbnailPath,
-            'published_at' => !empty($validated['published_at']) ? now()->parse($validated['published_at']) : null,
-            'expires_at' => !empty($validated['expires_at']) ? now()->parse($validated['expires_at']) : null,
+            'published_at' => ! empty($validated['published_at']) ? now()->parse($validated['published_at']) : null,
+            'expires_at' => ! empty($validated['expires_at']) ? now()->parse($validated['expires_at']) : null,
             'is_active' => $validated['is_active'],
             'is_featured' => $validated['is_featured'],
         ]);

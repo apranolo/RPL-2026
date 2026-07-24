@@ -2,6 +2,7 @@
 
 /**
  * @file DashboardUserTest.php
+ *
  * @brief Feature tests for the User (Peneliti/Dosen) dashboard page.
  *
  * Verifies that the dashboard at GET /dashboard correctly renders the
@@ -19,6 +20,7 @@
  * @group user
  *
  * @author  RPL-2026 Kelas B
+ *
  * @since   2026-07-19
  */
 
@@ -39,9 +41,9 @@ beforeEach(function () {
     $this->university = University::factory()->create(['name' => 'Universitas Test']);
 
     // Create two researchers in the same university
-    $this->researcher  = User::factory()->user()->create(['university_id' => $this->university->id]);
+    $this->researcher = User::factory()->user()->create(['university_id' => $this->university->id]);
     $this->researcher2 = User::factory()->user()->create(['university_id' => $this->university->id]);
-    $this->superAdmin  = User::factory()->superAdmin()->create();
+    $this->superAdmin = User::factory()->superAdmin()->create();
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -51,27 +53,27 @@ beforeEach(function () {
 /**
  * Create a proposal row in the `proposals` table for the given researcher.
  *
- * @param  int     $userId          The `id_pengusul` (researcher user ID).
- * @param  string  $status          One of: draft, submitted, administrasi_valid, ditolak.
- * @param  float   $pendanaan       `total_pendanaan_disetujui` amount (IDR). Default 0.
- * @return int     Inserted proposal ID.
+ * @param  int  $userId  The `id_pengusul` (researcher user ID).
+ * @param  string  $status  One of: draft, submitted, administrasi_valid, ditolak.
+ * @param  float  $pendanaan  `total_pendanaan_disetujui` amount (IDR). Default 0.
+ * @return int Inserted proposal ID.
  */
 function createProposal(int $userId, string $status = 'draft', float $pendanaan = 0): int
 {
     return DB::table('proposals')->insertGetId([
-        'id_pengusul'               => $userId,
-        'id_skema_pendanaan'        => null,
-        'judul_penelitian'          => fake()->sentence(5),
-        'abstrak'                   => fake()->paragraph(),
-        'latar_belakang'            => fake()->paragraph(),
-        'file_dokumen_proposal'     => null,
-        'status_proposal'           => $status,
-        'tanggal_pengajuan'         => $status === 'submitted' ? now()->toDateString() : null,
+        'id_pengusul' => $userId,
+        'id_skema_pendanaan' => null,
+        'judul_penelitian' => fake()->sentence(5),
+        'abstrak' => fake()->paragraph(),
+        'latar_belakang' => fake()->paragraph(),
+        'file_dokumen_proposal' => null,
+        'status_proposal' => $status,
+        'tanggal_pengajuan' => $status === 'submitted' ? now()->toDateString() : null,
         'total_pendanaan_disetujui' => $status === 'administrasi_valid' ? $pendanaan : null,
-        'deleted_by'                => null,
-        'created_at'                => now(),
-        'updated_at'                => now(),
-        'deleted_at'                => null,
+        'deleted_by' => null,
+        'created_at' => now(),
+        'updated_at' => now(),
+        'deleted_at' => null,
     ]);
 }
 
@@ -104,15 +106,14 @@ describe('Empty Proposal State', function () {
     test('returns zero for all metrics when researcher has no proposals', function () {
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->component('Dashboard/User')
-                ->where('proposal_stats.total',           0)
-                ->where('proposal_stats.masuk',           0)
-                ->where('proposal_stats.lolos',           0)
-                ->where('proposal_stats.gagal',           0)
-                ->where('proposal_stats.draft',           0)
-                ->where('proposal_stats.success_rate',    0.0)
-                ->where('proposal_stats.total_pendanaan', 0.0)
+        $response->assertInertia(fn ($page) => $page->component('Dashboard/User')
+            ->where('proposal_stats.total', 0)
+            ->where('proposal_stats.masuk', 0)
+            ->where('proposal_stats.lolos', 0)
+            ->where('proposal_stats.gagal', 0)
+            ->where('proposal_stats.draft', 0)
+            ->where('proposal_stats.success_rate', 0.0)
+            ->where('proposal_stats.total_pendanaan', 0.0)
         );
     });
 });
@@ -128,13 +129,12 @@ describe('Proposal Status Counts', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->component('Dashboard/User')
-                ->where('proposal_stats.draft',  2)
-                ->where('proposal_stats.total',  2)
-                ->where('proposal_stats.masuk',  0)
-                ->where('proposal_stats.lolos',  0)
-                ->where('proposal_stats.gagal',  0)
+        $response->assertInertia(fn ($page) => $page->component('Dashboard/User')
+            ->where('proposal_stats.draft', 2)
+            ->where('proposal_stats.total', 2)
+            ->where('proposal_stats.masuk', 0)
+            ->where('proposal_stats.lolos', 0)
+            ->where('proposal_stats.gagal', 0)
         );
     });
 
@@ -145,10 +145,9 @@ describe('Proposal Status Counts', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->component('Dashboard/User')
-                ->where('proposal_stats.masuk', 3)
-                ->where('proposal_stats.total', 3)
+        $response->assertInertia(fn ($page) => $page->component('Dashboard/User')
+            ->where('proposal_stats.masuk', 3)
+            ->where('proposal_stats.total', 3)
         );
     });
 
@@ -158,10 +157,9 @@ describe('Proposal Status Counts', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->component('Dashboard/User')
-                ->where('proposal_stats.lolos', 2)
-                ->where('proposal_stats.total', 2)
+        $response->assertInertia(fn ($page) => $page->component('Dashboard/User')
+            ->where('proposal_stats.lolos', 2)
+            ->where('proposal_stats.total', 2)
         );
     });
 
@@ -170,10 +168,9 @@ describe('Proposal Status Counts', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->component('Dashboard/User')
-                ->where('proposal_stats.gagal', 1)
-                ->where('proposal_stats.total', 1)
+        $response->assertInertia(fn ($page) => $page->component('Dashboard/User')
+            ->where('proposal_stats.gagal', 1)
+            ->where('proposal_stats.total', 1)
         );
     });
 
@@ -185,13 +182,12 @@ describe('Proposal Status Counts', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->component('Dashboard/User')
-                ->where('proposal_stats.total', 4)
-                ->where('proposal_stats.draft', 1)
-                ->where('proposal_stats.masuk', 1)
-                ->where('proposal_stats.lolos', 1)
-                ->where('proposal_stats.gagal', 1)
+        $response->assertInertia(fn ($page) => $page->component('Dashboard/User')
+            ->where('proposal_stats.total', 4)
+            ->where('proposal_stats.draft', 1)
+            ->where('proposal_stats.masuk', 1)
+            ->where('proposal_stats.lolos', 1)
+            ->where('proposal_stats.gagal', 1)
         );
     });
 });
@@ -207,8 +203,7 @@ describe('Success Rate Calculation', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.success_rate', 0.0)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.success_rate', 0.0)
         );
     });
 
@@ -218,8 +213,7 @@ describe('Success Rate Calculation', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.success_rate', 100.0)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.success_rate', 100.0)
         );
     });
 
@@ -229,8 +223,7 @@ describe('Success Rate Calculation', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.success_rate', 50.0)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.success_rate', 50.0)
         );
     });
 
@@ -242,8 +235,7 @@ describe('Success Rate Calculation', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.success_rate', 33.3)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.success_rate', 33.3)
         );
     });
 
@@ -257,8 +249,7 @@ describe('Success Rate Calculation', function () {
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
         // 1 lolos / (1 lolos + 1 gagal) = 50%
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.success_rate', 50.0)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.success_rate', 50.0)
         );
     });
 });
@@ -275,8 +266,7 @@ describe('Funding Metrics', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.total_pendanaan', 500_000_000.0)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.total_pendanaan', 500_000_000.0)
         );
     });
 
@@ -286,8 +276,7 @@ describe('Funding Metrics', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.total_pendanaan', 200_000_000.0)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.total_pendanaan', 200_000_000.0)
         );
     });
 
@@ -296,8 +285,7 @@ describe('Funding Metrics', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.total_pendanaan', 0.0)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.total_pendanaan', 0.0)
         );
     });
 });
@@ -319,10 +307,9 @@ describe('Data Isolation', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.total', 2)
-                ->where('proposal_stats.masuk', 1)
-                ->where('proposal_stats.lolos', 1)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.total', 2)
+            ->where('proposal_stats.masuk', 1)
+            ->where('proposal_stats.lolos', 1)
         );
     });
 
@@ -339,9 +326,8 @@ describe('Data Isolation', function () {
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
         // Only 2 should be counted (soft-deleted one excluded)
-        $response->assertInertia(fn ($page) =>
-            $page->where('proposal_stats.total', 2)
-                ->where('proposal_stats.masuk', 2)
+        $response->assertInertia(fn ($page) => $page->where('proposal_stats.total', 2)
+            ->where('proposal_stats.masuk', 2)
         );
     });
 });
@@ -354,23 +340,21 @@ describe('Response Structure', function () {
     test('proposal_stats contains all required keys', function () {
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->component('Dashboard/User')
-                ->has('proposal_stats.total')
-                ->has('proposal_stats.masuk')
-                ->has('proposal_stats.lolos')
-                ->has('proposal_stats.gagal')
-                ->has('proposal_stats.draft')
-                ->has('proposal_stats.success_rate')
-                ->has('proposal_stats.total_pendanaan')
+        $response->assertInertia(fn ($page) => $page->component('Dashboard/User')
+            ->has('proposal_stats.total')
+            ->has('proposal_stats.masuk')
+            ->has('proposal_stats.lolos')
+            ->has('proposal_stats.gagal')
+            ->has('proposal_stats.draft')
+            ->has('proposal_stats.success_rate')
+            ->has('proposal_stats.total_pendanaan')
         );
     });
 
     test('stats prop is present in the page props', function () {
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $response->assertInertia(fn ($page) =>
-            $page->has('stats')
+        $response->assertInertia(fn ($page) => $page->has('stats')
         );
     });
 
@@ -379,8 +363,8 @@ describe('Response Structure', function () {
 
         $response = $this->actingAs($this->researcher)->get('/dashboard');
 
-        $page       = $response->viewData('page');
-        $stats      = $page['props']['proposal_stats'];
+        $page = $response->viewData('page');
+        $stats = $page['props']['proposal_stats'];
 
         expect($stats['total'])->toBeGreaterThanOrEqual(0);
         expect($stats['masuk'])->toBeGreaterThanOrEqual(0);
@@ -410,7 +394,7 @@ describe('Super Admin Scope', function () {
         $response = $this->actingAs($this->superAdmin)->get('/dashboard');
 
         // Super Admin should see all 5 proposals aggregated
-        $page  = $response->viewData('page');
+        $page = $response->viewData('page');
         $stats = $page['props']['proposal_stats'];
 
         expect($stats['total'])->toBe(5);

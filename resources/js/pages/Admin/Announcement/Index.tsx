@@ -11,13 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { JournalFilterCombobox } from '@/components/ui/journal-filter-combobox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { JournalFilterCombobox } from '@/components/ui/journal-filter-combobox';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Eye, Edit, Megaphone, Plus, Search, Trash2 } from 'lucide-react';
+import { Edit, Eye, Megaphone, Plus, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -210,7 +210,7 @@ export default function AnnouncementIndex({ announcements, journals, filters }: 
                         )}
                     </div>
 
-                    <div className="hidden overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:block">
+                    <div className="hidden overflow-hidden rounded-xl border border-sidebar-border/70 md:block dark:border-sidebar-border">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -236,7 +236,7 @@ export default function AnnouncementIndex({ announcements, journals, filters }: 
                                             <TableCell>
                                                 <div className="font-medium text-foreground">{announcement.title}</div>
                                                 {announcement.description ? (
-                                                    <div className="text-sm text-muted-foreground line-clamp-2">{announcement.description}</div>
+                                                    <div className="line-clamp-2 text-sm text-muted-foreground">{announcement.description}</div>
                                                 ) : null}
                                             </TableCell>
                                             <TableCell>
@@ -247,17 +247,35 @@ export default function AnnouncementIndex({ announcements, journals, filters }: 
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className={announcement.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'}>
+                                                <Badge
+                                                    className={
+                                                        announcement.is_active
+                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                                                    }
+                                                >
                                                     {announcement.is_active ? 'Active' : 'Inactive'}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className={announcement.published_at ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'}>
+                                                <Badge
+                                                    className={
+                                                        announcement.published_at
+                                                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                                                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+                                                    }
+                                                >
                                                     {announcement.published_at ? 'Published' : 'Unpublished'}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className={announcement.is_featured ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'}>
+                                                <Badge
+                                                    className={
+                                                        announcement.is_featured
+                                                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
+                                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                                                    }
+                                                >
                                                     {announcement.is_featured ? 'Featured' : 'Regular'}
                                                 </Badge>
                                             </TableCell>
@@ -290,7 +308,8 @@ export default function AnnouncementIndex({ announcements, journals, filters }: 
                                 <div className="flex items-center justify-between gap-4">
                                     <div className="text-sm text-muted-foreground">
                                         Showing {(announcements.current_page - 1) * announcements.per_page + 1} to{' '}
-                                        {Math.min(announcements.current_page * announcements.per_page, announcements.total)} of {announcements.total} results
+                                        {Math.min(announcements.current_page * announcements.per_page, announcements.total)} of {announcements.total}{' '}
+                                        results
                                     </div>
                                     <div className="flex flex-wrap items-center gap-2">
                                         {announcements.links.map((link, index) => {
@@ -331,9 +350,17 @@ export default function AnnouncementIndex({ announcements, journals, filters }: 
                                         <div className="flex items-start justify-between gap-4">
                                             <div>
                                                 <div className="font-semibold text-foreground">{announcement.title}</div>
-                                                <div className="text-sm text-muted-foreground line-clamp-2">{announcement.description || 'No description available.'}</div>
+                                                <div className="line-clamp-2 text-sm text-muted-foreground">
+                                                    {announcement.description || 'No description available.'}
+                                                </div>
                                             </div>
-                                            <Badge className={announcement.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'}>
+                                            <Badge
+                                                className={
+                                                    announcement.is_active
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                                                }
+                                            >
                                                 {announcement.is_active ? 'Active' : 'Inactive'}
                                             </Badge>
                                         </div>
@@ -356,7 +383,12 @@ export default function AnnouncementIndex({ announcements, journals, filters }: 
                                                     Edit
                                                 </Button>
                                             </Link>
-                                            <Button variant="ghost" size="sm" className="w-full sm:w-auto" onClick={() => confirmDelete(announcement.id)}>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="w-full sm:w-auto"
+                                                onClick={() => confirmDelete(announcement.id)}
+                                            >
                                                 <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                                                 Delete
                                             </Button>

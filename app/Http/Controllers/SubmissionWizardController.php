@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FinalSubmitRequest;
 use App\Models\Submission;
-use App\Models\SubmissionContributor;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -60,7 +59,7 @@ class SubmissionWizardController extends Controller
         }
 
         $submission->update([
-            'status' => 'Submitted'
+            'status' => 'Submitted',
         ]);
 
         return redirect()->route('submissions.index')

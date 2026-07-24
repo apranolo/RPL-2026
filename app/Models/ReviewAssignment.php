@@ -21,21 +21,21 @@ class ReviewAssignment extends Model
     ];
 
     // --- TAMBAHAN DARI REVIEWER (ACCESSORS & APPENDS) ---
-    
+
     // HAPUS 'decline_reason' DARI SINI
     protected $appends = ['id_submission', 'id_reviewer', 'reviewer_name'];
 
-    public function getIdSubmissionAttribute() 
+    public function getIdSubmissionAttribute()
     {
         return $this->submission_id;
     }
 
-    public function getIdReviewerAttribute() 
+    public function getIdReviewerAttribute()
     {
         return $this->reviewer_id;
     }
 
-    public function getReviewerNameAttribute() 
+    public function getReviewerNameAttribute()
     {
         return $this->reviewer ? $this->reviewer->name : '';
     }

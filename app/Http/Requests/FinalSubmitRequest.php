@@ -12,6 +12,7 @@ class FinalSubmitRequest extends FormRequest
     public function authorize(): bool
     {
         $submission = $this->route('submission');
+
         return $submission && $submission->author_id === auth()->id();
     }
 
@@ -33,8 +34,9 @@ class FinalSubmitRequest extends FormRequest
         $validator->after(function ($validator) {
             $submission = $this->route('submission');
 
-            if (!$submission) {
+            if (! $submission) {
                 $validator->errors()->add('submission', 'Naskah tidak ditemukan.');
+
                 return;
             }
 
@@ -52,13 +54,13 @@ class FinalSubmitRequest extends FormRequest
 
             // Check if main manuscript file exists
             $hasMainFile = $submission->files()->where('file_type', 'ManuscriptMain')->exists();
-            if (!$hasMainFile) {
+            if (! $hasMainFile) {
                 $validator->errors()->add('manuscript', 'File manuskrip utama wajib diunggah.');
             }
 
             // Check if co-author (contributors) exists
             $hasContributors = $submission->contributors()->exists();
-            if (!$hasContributors) {
+            if (! $hasContributors) {
                 $validator->errors()->add('contributors', 'Data co-author/penulis pendamping wajib diisi.');
             }
         });

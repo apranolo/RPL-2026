@@ -49,6 +49,9 @@ interface Issue {
 
 interface Props {
     issue: Issue;
+    readOnly?: boolean;
+    onEdit?: () => void;
+    onDelete?: () => void;
 }
 
 /** Fallback SVG placeholder for issues without a cover image. */
@@ -80,7 +83,7 @@ export default function ProductionIssueCard({ issue }: Props) {
     };
 
     return (
-        <div className="border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+        <div className="overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md">
             {/* Cover Image */}
             <div className="h-40 w-full overflow-hidden">
                 {issue.cover_image_url ? (
@@ -96,48 +99,43 @@ export default function ProductionIssueCard({ issue }: Props) {
 
             <div className="p-5">
                 {/* Header */}
-                <div className="flex justify-between items-start mb-3">
+                <div className="mb-3 flex items-start justify-between">
                     <div>
                         <h3 className="text-lg font-bold text-gray-800">
                             Vol. {issue.volume}, No. {issue.number} ({issue.year})
                         </h3>
-                        {issue.title && (
-                            <p className="text-sm text-gray-500 mt-0.5 italic">
-                                {issue.title}
-                            </p>
-                        )}
+                        {issue.title && <p className="mt-0.5 text-sm text-gray-500 italic">{issue.title}</p>}
                     </div>
 
-                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                        issue.status === 'Published'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-yellow-100 text-yellow-700'
-                    }`}>
+                    <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            issue.status === 'Published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}
+                    >
                         {issue.status === 'Published' ? '✓ Terbit' : '✎ Draft'}
                     </span>
                 </div>
 
-                {issue.description && (
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                        {issue.description}
-                    </p>
-                )}
+                {issue.description && <p className="mb-3 line-clamp-2 text-sm text-gray-600">{issue.description}</p>}
 
-                <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                <div className="mb-4 flex items-center gap-4 text-xs text-gray-500">
                     <span>📄 {issue.galleys_count ?? 0} artikel</span>
                     {issue.published_at && (
                         <span>
-                            📅 {new Date(issue.published_at).toLocaleDateString('id-ID', {
-                                day: 'numeric', month: 'long', year: 'numeric'
+                            📅{' '}
+                            {new Date(issue.published_at).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
                             })}
                         </span>
                     )}
                 </div>
 
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex flex-wrap gap-2">
                     <Link
                         href={route('production.issue.show', issue.id)}
-                        className="text-sm bg-primary text-white px-4 py-1.5 rounded hover:bg-primary/90"
+                        className="rounded bg-primary px-4 py-1.5 text-sm text-white hover:bg-primary/90"
                     >
                         Lihat
                     </Link>
@@ -146,16 +144,13 @@ export default function ProductionIssueCard({ issue }: Props) {
                         <>
                             <Link
                                 href={route('production.issue.edit', issue.id)}
-                                className="text-sm bg-gray-100 text-gray-700 px-4 py-1.5 rounded hover:bg-gray-200"
+                                className="rounded bg-gray-100 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-200"
                             >
                                 Edit
                             </Link>
 
                             {(issue.galleys_count ?? 0) === 0 && (
-                                <button
-                                    onClick={handleDelete}
-                                    className="text-sm bg-red-100 text-red-600 px-4 py-1.5 rounded hover:bg-red-200"
-                                >
+                                <button onClick={handleDelete} className="rounded bg-red-100 px-4 py-1.5 text-sm text-red-600 hover:bg-red-200">
                                     Hapus
                                 </button>
                             )}

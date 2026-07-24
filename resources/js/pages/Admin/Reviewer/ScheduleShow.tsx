@@ -1,4 +1,3 @@
-
 /**
  * @file ScheduleShow.tsx
  * @description Komponen halaman admin untuk menampilkan detail informasi dari jadwal penilaian review jurnal (Review Schedule).
@@ -206,7 +205,7 @@ export default function ScheduleShow({ schedule }: Props) {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="whitespace-pre-wrap text-sm">{schedule.notes}</p>
+                                <p className="text-sm whitespace-pre-wrap">{schedule.notes}</p>
                             </CardContent>
                         </Card>
                     )}

@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -23,7 +23,7 @@ return new class extends Migration
         // Migrate existing data: combine page_from and page_to into the pages column
         DB::table('galleys')->whereNotNull('page_from')->orWhereNotNull('page_to')->orderBy('id')->each(function ($galley) {
             $from = $galley->page_from;
-            $to   = $galley->page_to;
+            $to = $galley->page_to;
 
             if ($from !== null && $to !== null) {
                 $pages = ($from === $to) ? (string) $from : "{$from}-{$to}";
@@ -54,12 +54,12 @@ return new class extends Migration
         // Attempt to restore data from the pages string
         DB::table('galleys')->whereNotNull('pages')->each(function ($galley) {
             $parts = explode('-', $galley->pages, 2);
-            $from  = isset($parts[0]) && is_numeric($parts[0]) ? (int) $parts[0] : null;
-            $to    = isset($parts[1]) && is_numeric($parts[1]) ? (int) $parts[1] : $from;
+            $from = isset($parts[0]) && is_numeric($parts[0]) ? (int) $parts[0] : null;
+            $to = isset($parts[1]) && is_numeric($parts[1]) ? (int) $parts[1] : $from;
 
             DB::table('galleys')->where('id', $galley->id)->update([
                 'page_from' => $from,
-                'page_to'   => $to,
+                'page_to' => $to,
             ]);
         });
 

@@ -66,7 +66,7 @@ class IssueControllerTest extends TestCase
             'id_journal' => $journal->id,
             'status' => 'Draft',
         ]);
-        
+
         Galley::factory()->create([
             'id_issue' => $issue->id,
         ]);

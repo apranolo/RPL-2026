@@ -17,15 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import {
-    CheckCircle2,
-    ChevronLeft,
-    ChevronRight,
-    ClipboardCheck,
-    FileText,
-    Search,
-    XCircle,
-} from 'lucide-react';
+import { CheckCircle2, ChevronLeft, ChevronRight, ClipboardCheck, FileText, Search, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -143,11 +135,9 @@ export default function Index({ outputs, filters, kategoriOptions, statusOptions
                     <div className="mb-6 flex items-center justify-between">
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">Verifikasi Luaran Penelitian</h1>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Kelola dan verifikasi luaran penelitian yang diajukan oleh dosen.
-                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">Kelola dan verifikasi luaran penelitian yang diajukan oleh dosen.</p>
                         </div>
-                        <Badge variant="secondary" className="text-sm px-3 py-1">
+                        <Badge variant="secondary" className="px-3 py-1 text-sm">
                             {outputs.total} Luaran
                         </Badge>
                     </div>
@@ -174,7 +164,7 @@ export default function Index({ outputs, filters, kategoriOptions, statusOptions
                                 <div className="flex-1">
                                     <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Cari Judul</label>
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                         <Input
                                             id="search-output"
                                             placeholder="Cari berdasarkan judul luaran..."
@@ -189,10 +179,7 @@ export default function Index({ outputs, filters, kategoriOptions, statusOptions
                                 {/* Kategori Filter */}
                                 <div className="w-full sm:w-44">
                                     <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Kategori</label>
-                                    <Select
-                                        value={filters.kategori || '__all__'}
-                                        onValueChange={(v) => handleFilter('kategori', v)}
-                                    >
+                                    <Select value={filters.kategori || '__all__'} onValueChange={(v) => handleFilter('kategori', v)}>
                                         <SelectTrigger id="filter-kategori">
                                             <SelectValue placeholder="Semua Kategori" />
                                         </SelectTrigger>
@@ -210,10 +197,7 @@ export default function Index({ outputs, filters, kategoriOptions, statusOptions
                                 {/* Status Filter */}
                                 <div className="w-full sm:w-44">
                                     <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Status</label>
-                                    <Select
-                                        value={filters.status || 'submitted'}
-                                        onValueChange={(v) => handleFilter('status', v)}
-                                    >
+                                    <Select value={filters.status || 'submitted'} onValueChange={(v) => handleFilter('status', v)}>
                                         <SelectTrigger id="filter-status">
                                             <SelectValue placeholder="Status" />
                                         </SelectTrigger>
@@ -258,9 +242,7 @@ export default function Index({ outputs, filters, kategoriOptions, statusOptions
                                             <TableCell colSpan={7} className="py-16 text-center">
                                                 <div className="flex flex-col items-center gap-2">
                                                     <ClipboardCheck className="h-10 w-10 text-muted-foreground/40" />
-                                                    <p className="text-sm text-muted-foreground">
-                                                        Tidak ada luaran yang menunggu verifikasi.
-                                                    </p>
+                                                    <p className="text-sm text-muted-foreground">Tidak ada luaran yang menunggu verifikasi.</p>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -316,7 +298,11 @@ export default function Index({ outputs, filters, kategoriOptions, statusOptions
                                                             </Button>
                                                         ) : (
                                                             <Badge variant="outline" className={`text-xs ${statusConfig.class}`}>
-                                                                {output.status === 'approved' ? 'Disetujui' : output.status === 'rejected' ? 'Ditolak' : output.status}
+                                                                {output.status === 'approved'
+                                                                    ? 'Disetujui'
+                                                                    : output.status === 'rejected'
+                                                                      ? 'Ditolak'
+                                                                      : output.status}
                                                             </Badge>
                                                         )}
                                                     </TableCell>
@@ -377,12 +363,7 @@ export default function Index({ outputs, filters, kategoriOptions, statusOptions
             </div>
 
             {/* Verify Modal */}
-            <VerifyModal
-                open={modalOpen}
-                onOpenChange={setModalOpen}
-                output={selectedOutput}
-                verifyUrl="/admin/output-verify"
-            />
+            <VerifyModal open={modalOpen} onOpenChange={setModalOpen} output={selectedOutput} verifyUrl="/admin/output-verify" />
         </AppLayout>
     );
 }

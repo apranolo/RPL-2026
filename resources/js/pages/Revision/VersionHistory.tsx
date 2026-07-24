@@ -36,8 +36,8 @@ interface VersionHistoryProps extends PageProps {
  */
 export default function VersionHistory({ submission, revisionRounds }: VersionHistoryProps) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard',   href: '/dashboard' },
-        { title: 'Submission',  href: '/submissions' },
+        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'Submission', href: '/submissions' },
         { title: submission.title ?? `Submission #${submission.id}`, href: `/submissions/${submission.id}` },
         { title: 'Riwayat Versi Naskah', href: '#' },
     ];
@@ -50,34 +50,21 @@ export default function VersionHistory({ submission, revisionRounds }: VersionHi
                 {/* ---- Header ---- */}
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <h1 className="text-xl font-bold text-foreground">
-                            Riwayat Versi Naskah
-                        </h1>
+                        <h1 className="text-xl font-bold text-foreground">Riwayat Versi Naskah</h1>
                         <p className="mt-1 text-sm text-muted-foreground">
                             {submission.title ?? `Submission #${submission.id}`}
-                            {submission.journal?.name && (
-                                <span className="ml-2 text-xs text-muted-foreground">
-                                    &bull; {submission.journal.name}
-                                </span>
-                            )}
+                            {submission.journal?.name && <span className="ml-2 text-xs text-muted-foreground">&bull; {submission.journal.name}</span>}
                         </p>
                     </div>
 
-                    <Button
-                        id="btn-kembali-submission"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.visit(`/submissions/${submission.id}`)}
-                    >
+                    <Button id="btn-kembali-submission" variant="outline" size="sm" onClick={() => router.visit(`/submissions/${submission.id}`)}>
                         <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
                         Kembali
                     </Button>
                 </div>
 
                 {/* ---- Timeline versi per ronde (DocumentVersionList) ---- */}
-                <DocumentVersionList
-                    revisionRounds={revisionRounds}
-                />
+                <DocumentVersionList revisionRounds={revisionRounds} />
             </div>
         </AppLayout>
     );

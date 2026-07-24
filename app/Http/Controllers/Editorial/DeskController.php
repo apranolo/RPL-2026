@@ -5,16 +5,11 @@ namespace App\Http\Controllers\Editorial;
 use App\Http\Controllers\Controller;
 use App\Models\Submission;
 use Illuminate\Http\Request;
-
-
 use Inertia\Inertia;
-
-
 
 class DeskController extends Controller
 {
     /**
-
      * Update round tracking submission (ronde ke-N).
      *
      * SECURITY NOTE: akses rute ini WAJIB melewati middleware 'auth' dan
@@ -23,8 +18,6 @@ class DeskController extends Controller
      * di luar grup 'auth' sehingga bisa diakses guest — sudah diperbaiki
      * di sisi routing, bukan di controller ini.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Submission  $submission
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateRound(Request $request, Submission $submission)
@@ -32,7 +25,7 @@ class DeskController extends Controller
         // 1. Validasi input ronde
         $validated = $request->validate([
             'current_round' => 'required|integer|min:1',
-            'notes'         => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         try {
@@ -44,7 +37,7 @@ class DeskController extends Controller
             // 3. Kembali ke halaman sebelumnya dengan pesan sukses
             return redirect()->back()->with(
                 'success',
-                'Ronde tracking submission berhasil diperbarui ke ronde ' . $validated['current_round']
+                'Ronde tracking submission berhasil diperbarui ke ronde '.$validated['current_round']
             );
         } catch (\Exception $e) {
             // Jika terjadi error sistem
@@ -52,11 +45,10 @@ class DeskController extends Controller
         }
     }
 
-
-         /**
+    /**
      * Display the editorial desk inbox with tabs for different statuses.
      */
-            public function inbox(Request $request)
+    public function inbox(Request $request)
     {
         // Calculate counts for each tab
         $counts = [

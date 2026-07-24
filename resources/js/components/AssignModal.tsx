@@ -1,12 +1,6 @@
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 
 interface Props {
     open: boolean;
@@ -15,12 +9,7 @@ interface Props {
     loading?: boolean;
 }
 
-export default function AssignModal({
-    open,
-    onClose,
-    onConfirm,
-    loading = false,
-}: Props) {
+export default function AssignModal({ open, onClose, onConfirm, loading = false }: Props) {
     return (
         <Dialog
             open={open}
@@ -30,30 +19,18 @@ export default function AssignModal({
         >
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>
-                        Konfirmasi Penunjukan Reviewer
-                    </DialogTitle>
+                    <DialogTitle>Konfirmasi Penunjukan Reviewer</DialogTitle>
                 </DialogHeader>
 
-                <p className="text-sm text-muted-foreground">
-                    Apakah Anda yakin ingin menunjuk reviewer untuk proposal ini?
-                </p>
+                <p className="text-sm text-muted-foreground">Apakah Anda yakin ingin menunjuk reviewer untuk proposal ini?</p>
 
                 <DialogFooter>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onClose}
-                    >
+                    <Button type="button" variant="outline" onClick={onClose}>
                         Batal
                     </Button>
 
-                    <Button
-                        type="button"
-                        onClick={onConfirm}
-                        disabled={loading}
-                    >
-                        {loading ? "Memproses..." : "Ya, Tunjuk"}
+                    <Button type="button" onClick={onConfirm} disabled={loading}>
+                        {loading ? 'Memproses...' : 'Ya, Tunjuk'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

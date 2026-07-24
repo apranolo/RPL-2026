@@ -31,8 +31,8 @@ class ReportController extends Controller
         return Inertia::render('Admin/Report/Generator', [
             'filterOptions' => [
                 'tahun' => $years,
-                'status' => $statuses
-            ]
+                'status' => $statuses,
+            ],
         ]);
     }
 

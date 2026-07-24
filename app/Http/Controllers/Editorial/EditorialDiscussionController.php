@@ -72,7 +72,7 @@ class EditorialDiscussionController extends Controller
             'message' => 'required|string',
         ]);
 
-        if (!empty($validated['discussion_id'])) {
+        if (! empty($validated['discussion_id'])) {
             // Pastikan thread yang dibalas benar-benar milik submission ini
             $discussion = SubmissionDiscussion::where('submission_id', $submission->id)
                 ->findOrFail($validated['discussion_id']);

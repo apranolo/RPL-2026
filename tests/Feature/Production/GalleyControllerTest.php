@@ -32,7 +32,7 @@ class GalleyControllerTest extends TestCase
         $response = $this->actingAs($this->user)->patch(route('production.galley.updateMeta', $galley->id), [
             'page_from' => 10,
             'page_to' => 25,
-            'doi' => '10.1234/test.123'
+            'doi' => '10.1234/test.123',
         ]);
 
         $response->assertRedirect();

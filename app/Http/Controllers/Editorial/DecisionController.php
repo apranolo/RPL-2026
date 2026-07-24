@@ -66,8 +66,8 @@ class DecisionController extends Controller
         try {
             $payload = [
                 'assessment_id' => $assessment->id,
-                'decision'      => $validated['decision'],
-                'notes'         => $validated['notes'],
+                'decision' => $validated['decision'],
+                'notes' => $validated['notes'],
             ];
 
             EditorialDecision::create($payload);

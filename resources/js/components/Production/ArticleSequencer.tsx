@@ -1,21 +1,7 @@
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragEndEvent
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
-    useSortable
-} from '@dnd-kit/sortable';
+import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, FileText } from 'lucide-react';
+import { FileText, GripVertical } from 'lucide-react';
 
 export interface Galley {
     id: number;
@@ -49,14 +35,7 @@ interface SortableItemProps {
 }
 
 function SortableItem({ article }: SortableItemProps) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({ id: article.galley.id });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: article.galley.id });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -68,48 +47,36 @@ function SortableItem({ article }: SortableItemProps) {
         <div
             ref={setNodeRef}
             style={style}
-            className={`flex items-center gap-4 p-4 mb-3 rounded-xl border bg-card transition-all duration-200 ${
+            className={`mb-3 flex items-center gap-4 rounded-xl border bg-card p-4 transition-all duration-200 ${
                 isDragging
-                    ? 'shadow-2xl border-emerald-500 scale-[1.02] bg-emerald-50/50 dark:bg-emerald-950/20'
-                    : 'shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700'
+                    ? 'scale-[1.02] border-emerald-500 bg-emerald-50/50 shadow-2xl dark:bg-emerald-950/20'
+                    : 'shadow-sm hover:border-gray-300 hover:shadow-md dark:hover:border-gray-700'
             }`}
         >
             {/* Drag Handle */}
             <div
                 {...attributes}
                 {...listeners}
-                className="cursor-grab active:cursor-grabbing p-1.5 rounded hover:bg-muted text-muted-foreground transition-colors"
+                className="cursor-grab rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted active:cursor-grabbing"
                 title="Seret untuk memindahkan"
             >
                 <GripVertical size={20} />
             </div>
 
             {/* Icon */}
-            <div className="flex-shrink-0 p-2.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+            <div className="flex-shrink-0 rounded-lg bg-emerald-100 p-2.5 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
                 <FileText size={20} />
             </div>
 
             {/* Content */}
-            <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-foreground truncate pr-4">
-                    {article.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                    Penulis: {article.author?.name || 'Unknown Author'}
-                </p>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-muted-foreground">
-                    {article.galley.pages && (
-                        <span>Halaman: {article.galley.pages}</span>
-                    )}
-                    {article.galley.doi && (
-                        <span className="font-mono text-emerald-600 dark:text-emerald-400">
-                            DOI: {article.galley.doi}
-                        </span>
-                    )}
+            <div className="min-w-0 flex-1">
+                <h3 className="truncate pr-4 font-semibold text-foreground">{article.title}</h3>
+                <p className="text-sm text-muted-foreground">Penulis: {article.author?.name || 'Unknown Author'}</p>
+                <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    {article.galley.pages && <span>Halaman: {article.galley.pages}</span>}
+                    {article.galley.doi && <span className="font-mono text-emerald-600 dark:text-emerald-400">DOI: {article.galley.doi}</span>}
                     {article.galley.file_extension && (
-                        <span className="uppercase px-1.5 py-0.5 rounded text-[10px] font-bold bg-muted">
-                            {article.galley.file_extension}
-                        </span>
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase">{article.galley.file_extension}</span>
                     )}
                 </div>
             </div>
@@ -121,7 +88,7 @@ function SortableItem({ article }: SortableItemProps) {
                         href={article.galley.file_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:underline"
+                        className="text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
                     >
                         Lihat Berkas
                     </a>
@@ -131,10 +98,7 @@ function SortableItem({ article }: SortableItemProps) {
     );
 }
 
-export default function ArticleSequencer({
-    articles,
-    onOrderChange,
-}: ArticleSequencerProps) {
+export default function ArticleSequencer({ articles, onOrderChange }: ArticleSequencerProps) {
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -143,7 +107,7 @@ export default function ArticleSequencer({
         }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
-        })
+        }),
     );
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -160,15 +124,8 @@ export default function ArticleSequencer({
     };
 
     return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-        >
-            <SortableContext
-                items={articles.map((a) => a.galley.id)}
-                strategy={verticalListSortingStrategy}
-            >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={articles.map((a) => a.galley.id)} strategy={verticalListSortingStrategy}>
                 <div className="space-y-1">
                     {articles.map((article) => (
                         <SortableItem key={article.galley.id} article={article} />

@@ -111,14 +111,14 @@ class DashboardController extends Controller
 
         if ($roleName === 'User' || $roleName === 'Dosen') {
             return Inertia::render('Dashboard/User', [
-                'stats'          => $stats,
+                'stats' => $stats,
                 'proposal_stats' => $proposalStats,
             ]);
         }
 
         return Inertia::render('dashboard', [
-            'stats'          => $stats,
-            'statistics'     => $statistics,
+            'stats' => $stats,
+            'statistics' => $statistics,
             'proposal_stats' => $proposalStats,
         ]);
     }

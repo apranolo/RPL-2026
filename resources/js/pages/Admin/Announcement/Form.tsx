@@ -14,11 +14,10 @@
  */
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { JournalCombobox, type Journal } from '@/components/ui/journal-combobox';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { JournalCombobox, type Journal } from '@/components/ui/journal-combobox';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -107,13 +106,14 @@ export default function AnnouncementForm({ journals, announcement }: Props) {
                 <div className="mx-auto w-full max-w-5xl overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
                     <div className="mb-6 flex items-start justify-between gap-3">
                         <div>
-                            <Link href={route('admin.announcements.index')} className="mb-3 inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+                            <Link
+                                href={route('admin.announcements.index')}
+                                className="mb-3 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+                            >
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to form
                             </Link>
-                            <h1 className="text-2xl font-semibold text-foreground">
-                                {isEditing ? 'Edit Announcement' : 'Create Announcement'}
-                            </h1>
+                            <h1 className="text-2xl font-semibold text-foreground">{isEditing ? 'Edit Announcement' : 'Create Announcement'}</h1>
                             <p className="mt-1 text-sm text-muted-foreground">
                                 Isi informasi pengumuman dan atur tanggal kadaluarsa jika diperlukan.
                             </p>

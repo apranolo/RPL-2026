@@ -15,16 +15,9 @@
  */
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -63,28 +56,34 @@ export default function VerifyModal({ open, onOpenChange, output, verifyUrl }: V
 
     const handleApprove = () => {
         if (!output) return;
-        post(`${verifyUrl}/${output.id}`, {
-            data: { action: 'approved', keterangan: '' },
-            preserveScroll: true,
-            onSuccess: () => {
-                reset();
-                setMode('view');
-                onOpenChange(false);
+        router.post(
+            `${verifyUrl}/${output.id}`,
+            { action: 'approved', keterangan: '' },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    reset();
+                    setMode('view');
+                    onOpenChange(false);
+                },
             },
-        });
+        );
     };
 
     const handleReject = () => {
         if (!output) return;
-        post(`${verifyUrl}/${output.id}`, {
-            data: { action: 'rejected', keterangan: data.keterangan },
-            preserveScroll: true,
-            onSuccess: () => {
-                reset();
-                setMode('view');
-                onOpenChange(false);
+        router.post(
+            `${verifyUrl}/${output.id}`,
+            { action: 'rejected', keterangan: data.keterangan },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    reset();
+                    setMode('view');
+                    onOpenChange(false);
+                },
             },
-        });
+        );
     };
 
     const handleOpenChange = (newOpen: boolean) => {
@@ -112,49 +111,45 @@ export default function VerifyModal({ open, onOpenChange, output, verifyUrl }: V
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        {mode === 'view' ? 'Verifikasi Luaran' : 'Tolak Luaran'}
-                    </DialogTitle>
+                    <DialogTitle className="flex items-center gap-2">{mode === 'view' ? 'Verifikasi Luaran' : 'Tolak Luaran'}</DialogTitle>
                     <DialogDescription>
-                        {mode === 'view'
-                            ? 'Periksa detail luaran dan pilih tindakan verifikasi.'
-                            : 'Berikan alasan penolakan luaran penelitian ini.'}
+                        {mode === 'view' ? 'Periksa detail luaran dan pilih tindakan verifikasi.' : 'Berikan alasan penolakan luaran penelitian ini.'}
                     </DialogDescription>
                 </DialogHeader>
 
                 {/* Output Details */}
                 <div className="space-y-4 py-2">
-                    <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+                    <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
                         <div>
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Judul Luaran</p>
+                            <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Judul Luaran</p>
                             <p className="mt-1 text-sm font-semibold">{output.judul}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Kategori</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Kategori</p>
                                 <Badge variant="outline" className={`mt-1 ${getKategoriBadgeClass(output.kategori)}`}>
                                     {output.kategori.toUpperCase()}
                                 </Badge>
                             </div>
                             <div>
-                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pengusul</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Pengusul</p>
                                 <p className="mt-1 text-sm">{output.user.name}</p>
                             </div>
                         </div>
                         {output.proposal && (
                             <div>
-                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Proposal</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Proposal</p>
                                 <p className="mt-1 text-sm">{output.proposal.judul}</p>
                             </div>
                         )}
                         {output.file_path && (
                             <div>
-                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">File</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">File</p>
                                 <a
                                     href={`/storage/${output.file_path}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="mt-1 text-sm text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300"
+                                    className="mt-1 text-sm text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                                 >
                                     Lihat Dokumen →
                                 </a>
@@ -176,9 +171,7 @@ export default function VerifyModal({ open, onOpenChange, output, verifyUrl }: V
                                 rows={4}
                                 className={errors.keterangan ? 'border-destructive' : ''}
                             />
-                            {errors.keterangan && (
-                                <p className="text-xs text-destructive">{errors.keterangan}</p>
-                            )}
+                            {errors.keterangan && <p className="text-xs text-destructive">{errors.keterangan}</p>}
                         </div>
                     )}
                 </div>
@@ -203,11 +196,7 @@ export default function VerifyModal({ open, onOpenChange, output, verifyUrl }: V
                                 disabled={processing}
                                 className="bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600"
                             >
-                                {processing ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                                )}
+                                {processing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
                                 Setujui
                             </Button>
                         </>
@@ -231,11 +220,7 @@ export default function VerifyModal({ open, onOpenChange, output, verifyUrl }: V
                                 }}
                                 disabled={processing || !data.keterangan.trim()}
                             >
-                                {processing ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <XCircle className="mr-2 h-4 w-4" />
-                                )}
+                                {processing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <XCircle className="mr-2 h-4 w-4" />}
                                 Konfirmasi Tolak
                             </Button>
                         </>
