@@ -38,16 +38,16 @@ beforeEach(function () {
 
     // Super Admin — can access any contract
     $this->superAdmin = User::factory()->create([
-        'role_id'       => Role::where('name', Role::SUPER_ADMIN)->first()->id,
+        'role_id' => Role::where('name', Role::SUPER_ADMIN)->first()->id,
         'university_id' => $this->university->id,
-        'is_active'     => true,
+        'is_active' => true,
     ]);
 
     // Admin Kampus — should be blocked (non-super-admin)
     $this->adminKampus = User::factory()->create([
-        'role_id'       => Role::where('name', Role::ADMIN_KAMPUS)->first()->id,
+        'role_id' => Role::where('name', Role::ADMIN_KAMPUS)->first()->id,
         'university_id' => $this->university->id,
-        'is_active'     => true,
+        'is_active' => true,
     ]);
 });
 
@@ -58,18 +58,18 @@ beforeEach(function () {
 test('Super Admin can create a draft contract', function () {
     actingAs($this->superAdmin)
         ->post(route('admin.contracts.generate'), [
-            'title'          => 'Kontrak Riset Jurnal Nasional 2026',
-            'university_id'  => $this->university->id,
-            'start_date'     => '2026-06-01',
-            'end_date'       => '2026-12-31',
+            'title' => 'Kontrak Riset Jurnal Nasional 2026',
+            'university_id' => $this->university->id,
+            'start_date' => '2026-06-01',
+            'end_date' => '2026-12-31',
             'contract_value' => 150_000_000,
         ])
         ->assertRedirect();
 
     assertDatabaseHas('contracts', [
-        'title'          => 'Kontrak Riset Jurnal Nasional 2026',
-        'status'         => 'draft',
-        'university_id'  => $this->university->id,
+        'title' => 'Kontrak Riset Jurnal Nasional 2026',
+        'status' => 'draft',
+        'university_id' => $this->university->id,
         'contract_value' => 150_000_000,
     ]);
 });
@@ -104,7 +104,7 @@ test('generate sets created_by to the acting user', function () {
         ]);
 
     assertDatabaseHas('contracts', [
-        'title'      => 'Kontrak Audit Trail',
+        'title' => 'Kontrak Audit Trail',
         'created_by' => $this->superAdmin->id,
     ]);
 });
@@ -120,9 +120,9 @@ test('generate requires title field', function () {
 test('generate rejects end_date before start_date', function () {
     actingAs($this->superAdmin)
         ->post(route('admin.contracts.generate'), [
-            'title'      => 'Tanggal Salah',
+            'title' => 'Tanggal Salah',
             'start_date' => '2026-12-31',
-            'end_date'   => '2026-06-01',
+            'end_date' => '2026-06-01',
         ])
         ->assertSessionHasErrors('end_date');
 });
@@ -142,7 +142,7 @@ test('Non-Super Admin cannot create a contract', function () {
 test('Super Admin can view contract detail page', function () {
     $contract = Contract::factory()->create([
         'university_id' => $this->university->id,
-        'created_by'    => $this->superAdmin->id,
+        'created_by' => $this->superAdmin->id,
     ]);
 
     actingAs($this->superAdmin)
@@ -168,7 +168,7 @@ test('Non-Super Admin cannot view contract detail page', function () {
 test('show page exposes contract financial data', function () {
     $contract = Contract::factory()->withValue(200_000_000)->create([
         'university_id' => $this->university->id,
-        'created_by'    => $this->superAdmin->id,
+        'created_by' => $this->superAdmin->id,
     ]);
 
     actingAs($this->superAdmin)

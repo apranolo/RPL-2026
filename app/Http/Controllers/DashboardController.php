@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Journal;
+use App\Models\Proposal;
+use App\Services\StatsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +13,10 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly StatsService $statsService
+    ) {}
+
     /**
      * Show the dashboard page with statistics.
      */
@@ -68,18 +74,26 @@ class DashboardController extends Controller
             $stats['average_score'] = $avgScore ? round($avgScore, 2) : 0.0;
 
         } else {
-            // Regular user (Pengelola Jurnal) sees only their own journals
-            $stats['total_assessments'] = DB::table('journal_assessments')
-                ->join('journals', 'journal_assessments.journal_id', '=', 'journals.id')
-                ->where('journals.user_id', $user->id)
-                ->count();
+            // Regular user (Peneliti/Dosen) — Modul 6: show proposal riset stats only.
+            $uid = (int) $user->id;
 
-            $avgScore = DB::table('journal_assessments')
-                ->join('journals', 'journal_assessments.journal_id', '=', 'journals.id')
-                ->where('journals.user_id', $user->id)
-                ->whereNotNull('journal_assessments.total_score')
-                ->avg('journal_assessments.total_score');
-            $stats['average_score'] = $avgScore ? round($avgScore, 2) : 0.0;
+            $proposalCounts = DB::table('proposals')
+                ->whereNull('deleted_at')
+                ->where('user_id', $uid)
+                ->selectRaw("
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'submitted' THEN 1 ELSE 0 END) as masuk,
+                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as lolos,
+                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as gagal,
+                    SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draft
+                ")
+                ->first();
+
+            $stats['total_proposals'] = (int) ($proposalCounts->total ?? 0);
+            $stats['proposal_masuk'] = (int) ($proposalCounts->masuk ?? 0);
+            $stats['proposal_lolos'] = (int) ($proposalCounts->lolos ?? 0);
+            $stats['proposal_gagal'] = (int) ($proposalCounts->gagal ?? 0);
+            $stats['proposal_draft'] = (int) ($proposalCounts->draft ?? 0);
 
             // Add journal breakdown by approval status for User
             $stats['journals_by_status'] = $statistics['totals']['journals_by_status'] ?? [
@@ -89,10 +103,62 @@ class DashboardController extends Controller
             ];
         }
 
+        // Calculate proposal (riset) aggregate stats from the `proposals` table
+        $proposalStats = $this->getProposalStat($user);
+
+        // Route to role-specific dashboard views
+        $roleName = $user->role->name ?? '';
+
+        if ($roleName === 'User' || $roleName === 'Dosen') {
+            return Inertia::render('Dashboard/User', [
+                'stats' => $stats,
+                'proposal_stats' => $proposalStats,
+            ]);
+        }
+
         return Inertia::render('dashboard', [
             'stats' => $stats,
             'statistics' => $statistics,
+            'proposal_stats' => $proposalStats,
         ]);
+    }
+
+    /**
+     * Aggregate proposal riset stats from the `proposals` table (Modul 1 PRD).
+     *
+     * Returns a scope-aware summary for the given user role:
+     *  - Super Admin   → system-wide totals across all proposals
+     *  - Admin Kampus  → totals for proposals submitted by researchers
+     *                    belonging to the Admin Kampus's university
+     *  - User          → personal totals (only their own proposals)
+     *
+     * @param  \App\Models\User  $user
+     * @return array{
+     *     total: int,
+     *     masuk: int,
+     *     lolos: int,
+     *     gagal: int,
+     *     draft: int,
+     *     success_rate: float,
+     *     total_pendanaan: float
+     * }
+     */
+    public function getProposalStat($user): array
+    {
+        $roleName = $user->role->name ?? '';
+
+        if ($roleName === 'Super Admin') {
+            return $this->statsService->getProposalSummaryAll();
+        }
+
+        if ($roleName === 'Admin Kampus') {
+            return $this->statsService->getProposalSummaryForUniversity(
+                (int) $user->university_id
+            );
+        }
+
+        // Default: Peneliti/Dosen – personal proposal stats only
+        return $this->statsService->getProposalSummaryForUser((int) $user->id);
     }
 
     /**

@@ -5,97 +5,113 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Model ResearchOutput
+ *
+ * Merepresentasikan satu record luaran penelitian (jurnal, buku, HKI, produk/prototipe).
+ * Tabel: `outputs`
+ *
+ * RBAC CONTRACT: kolom `user_id` selalu diisi dari Auth::id() di controller,
+ * tidak pernah diterima dari raw request input.
+ *
+ * Kolom produk/prototipe yang disimpan langsung di tabel ini (flat schema):
+ *   tkt_level, version, year, url, cover_image, document
+ */
 class ResearchOutput extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'outputs';
+    protected $table = 'research_outputs';
 
     // Kategori statis
     const KATEGORI = [
-        'Jurnal' => 'Jurnal Ilmiah',
-        'Buku' => 'Buku / Modul',
-        'HKI' => 'HKI / Paten',
-        'Produk' => 'Produk / Prototipe',
+        'jurnal' => 'Jurnal',
+        'buku' => 'Buku',
+        'hki' => 'HKI',
+        'prosiding' => 'Prosiding',
+        'produk' => 'Produk/Prototipe',
     ];
 
     const STATUS = [
-        'Draft' => 'Draft',
-        'Menunggu_Verifikasi' => 'Menunggu Verifikasi',
-        'Terverifikasi_LPPM' => 'Terverifikasi LPPM',
-        'Ditolak' => 'Ditolak',
+        'draft' => 'Draft',
+        'submitted' => 'Submitted',
+        'approved' => 'Approved',
+        'rejected' => 'Rejected',
+        'published' => 'Published',
+        'patented' => 'Patented',
     ];
 
-    protected $appends = ['id_contract', 'doi', 'no_paten', 'isbn', 'tautan_publikasi'];
-
-    public function getIdContractAttribute()
-    {
-        return $this->contract_id;
-    }
-
-    public function getDoiAttribute()
-    {
-        return $this->jenis_luaran === 'Jurnal' && $this->outputable ? $this->outputable->doi : null;
-    }
-
-    public function getNoPatenAttribute()
-    {
-        return $this->jenis_luaran === 'HKI' && $this->outputable ? $this->outputable->patent_number : null;
-    }
-
-    public function getIsbnAttribute()
-    {
-        return $this->jenis_luaran === 'Buku' && $this->outputable ? $this->outputable->isbn : null;
-    }
-
-    public function getTautanPublikasiAttribute($value)
-    {
-        if ($this->jenis_luaran === 'Jurnal' && $this->outputable) {
-            return $this->outputable->url ?? $value;
-        }
-
-        return $value;
-    }
-
+    /**
+     * Mass-assignable attributes.
+     *
+     * Catatan: 'user_id' ada di sini agar create([...]) bisa berjalan,
+     * tapi nilai-nya selalu diikat ke Auth::id() di controller (RBAC).
+     */
     protected $fillable = [
-        'contract_id',
+        // ── Relasi ──────────────────────────────────────────────────────────
         'user_id',
+        'contract_id',
+        'proposal_id',
+
+        // ── Kolom Induk Luaran ───────────────────────────────────────────────
         'jenis_luaran',
         'judul_luaran',
         'tahun_capaian',
         'penulis_atau_pencipta',
+        'tautan_publikasi',
         'file_sertifikat_atau_cover',
         'status_verifikasi',
         'keterangan',
-        'tautan_publikasi',
+
+        // ── Kolom Dasar Legacy ───────────────────────────────────────────────
+        'kategori',
+        'judul',
+        'file_path',
+        'status',
+
+        // ── Kolom Produk / Prototipe ─────────────────────────────────────────
+        'tkt_level',    // integer 1–9 (Tingkat Kesiapan Teknologi)
+        'version',      // string, mis. "v1.0"
+        'year',         // integer, tahun capaian
+        'url',          // URL repositori / referensi
+        'cover_image',  // path relatif di public disk
+        'document',     // path relatif di public disk (bukti luaran)
+
+        // ── Polymorphic (HKI / Buku / Jurnal via morph) ──────────────────────
         'outputable_type',
         'outputable_id',
-        // Kolom tambahan untuk fitur report
-        'title',
-        'type', // Jurnal/Buku/HKI/Produk
-        'year',
-        'status', // Status verifikasi
     ];
 
-    // Relasi ke User
+    /**
+     * Attribute casting — pastikan tkt_level dan year selalu integer.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'tkt_level' => 'integer',
+        'year' => 'integer',
+    ];
+
+    // ── Relasi ────────────────────────────────────────────────────────────────
+
+    /** Pemilik luaran ini (User yang login saat create). */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relasi ke Contract
-    public function contract(): BelongsTo
+    /** Proposal riset yang menghasilkan luaran ini (nullable untuk produk mandiri). */
+    public function proposal(): BelongsTo
     {
-        return $this->belongsTo(Contract::class);
+        return $this->belongsTo(Proposal::class);
     }
 
     /**
-     * Relasi Polymorphic untuk mendapatkan detail spesifik tipe luaran.
+     * Polymorphic relation to specific output detail (JournalOutput, BookOutput, HkiOutput, ProductOutput)
      */
-    public function outputable(): MorphTo
+    public function outputable()
     {
         return $this->morphTo();
     }

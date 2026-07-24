@@ -124,7 +124,7 @@ export default function AssessmentIssueManager({ issues = [], onChange, readOnly
                             {issues.map((issue, index) => (
                                 <IssueCard
                                     key={issue.id}
-                                    issue={issue}
+                                    issue={issue as any}
                                     readOnly={readOnly}
                                     onEdit={() => openEditDialog(issue)}
                                     onDelete={() => openDeleteDialog(index)}

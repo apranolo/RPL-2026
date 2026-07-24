@@ -17,7 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Eye, FileText, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, FileText, Plus, Search } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -154,6 +154,12 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                         <h1 className="text-2xl font-bold tracking-tight">Laporan Kemajuan</h1>
                         <p className="text-muted-foreground">Daftar laporan kemajuan penelitian Anda</p>
                     </div>
+                    <Button asChild>
+                        <Link href={route('user.progress.create')}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Buat Laporan
+                        </Link>
+                    </Button>
                 </div>
 
                 {/* Filters */}
@@ -263,7 +269,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                             </TableCell>
                                             <TableCell className="text-center">
                                                 <Button variant="ghost" size="sm" asChild>
-                                                    <Link href={route('user.progress.index')}>
+                                                    <Link href={route('user.progress.show', report.id)}>
                                                         <Eye className="h-4 w-4" />
                                                     </Link>
                                                 </Button>

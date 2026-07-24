@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('galleys', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('submission_id')->nullable();
-            $table->foreignId('issue_id')->nullable()->constrained('issues')->nullOnDelete();
-            $table->string('label', 50); // e.g. PDF, HTML, XML
-            $table->string('file_path');
-            $table->integer('page_from')->nullable();
-            $table->integer('page_to')->nullable();
-            $table->string('doi')->nullable()->unique();
-            $table->integer('sequence')->default(0);
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('galleys')) {
+            Schema::create('galleys', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('submission_id')->nullable();
+                $table->foreignId('issue_id')->nullable()->constrained('issues')->nullOnDelete();
+                $table->string('label', 50); // e.g. PDF, HTML, XML
+                $table->string('file_path');
+                $table->integer('page_from')->nullable();
+                $table->integer('page_to')->nullable();
+                $table->string('doi')->nullable()->unique();
+                $table->integer('sequence')->default(0);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

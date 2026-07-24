@@ -1,9 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
-use App\Http\Controllers\ContractController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
 use App\Http\Controllers\Admin\CriteriaController;
@@ -19,6 +17,7 @@ use App\Http\Controllers\Admin\OutputReportController;
 use App\Http\Controllers\Admin\OutputVerifyCtrl;
 use App\Http\Controllers\Admin\PembinaanController as AdminPembinaanController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\SettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\AdminKampus\AssessmentController as AdminKampusAssessmentController;
@@ -42,6 +41,7 @@ use App\Http\Controllers\Editorial\DeskController;
 use App\Http\Controllers\Editorial\PlagiarismController;
 use App\Http\Controllers\FundingController;
 use App\Http\Controllers\OutputController;
+use App\Http\Controllers\OutputDocController;
 use App\Http\Controllers\Production\GalleyController;
 use App\Http\Controllers\Production\IssueController;
 use App\Http\Controllers\ProfileController;
@@ -49,15 +49,11 @@ use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
-use App\Http\Controllers\Revision\EditorRevisionController;
-use App\Http\Controllers\Revision\RevisionController;
-use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
 use App\Http\Controllers\User\JournalController as UserJournalController;
 use App\Http\Controllers\User\PembinaanController as UserPembinaanController;
-use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\User\ProfilController;
 use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
@@ -163,14 +159,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // revisi ded code
-    Route::get('/monev/cetak-rekap', [\App\Http\Controllers\MonevDocumentController::class, 'printRekap'])
-        ->name('monev.printRekap')
-        ->middleware('role:'.Role::SUPER_ADMIN.'|'.Role::ADMIN_KAMPUS.'|'.Role::USER);
-
-    // Author Submission Wizard Step 4 Routes
-    Route::get('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'step4'])->name('submissions.wizard.step4');
-    Route::post('submissions/wizard/{id}/step4', [SubmissionWizardController::class, 'saveStep4'])->name('submissions.wizard.save-step4');
+    // Dashboard Author (Submissions)
+    Route::get('/submission', function () {
+        return Inertia::render('Submission/Index');
+    })->name('submissions.index');
 
     // Dashboard Admin
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -208,6 +200,15 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:'.Role::SUPER_ADMIN])->prefix('admin')->name('admin.')->group(function () {
+
+        // Announcement Management
+        Route::match(['post', 'patch'], 'announcements/{announcement}/toggle-featured', [\App\Http\Controllers\Admin\AnnouncementController::class, 'toggleFeatured'])
+            ->name('announcements.toggle-featured');
+        Route::match(['post', 'patch'], 'announcements/{announcement}/toggle-active', [\App\Http\Controllers\Admin\AnnouncementController::class, 'toggleActive'])
+            ->name('announcements.toggle-active');
+        Route::post('announcements/{id}/restore', [\App\Http\Controllers\Admin\AnnouncementController::class, 'restore'])
+            ->name('announcements.restore');
+        Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);
 
         // Sistem Profil (Ubah Logo/Nama App)
         Route::get('settings/profile', [SettingsCtrl::class, 'index'])->name('settings.profile');
@@ -404,9 +405,6 @@ Route::middleware(['auth'])->group(function () {
             ->name('output.report');
         Route::get('output/export', [OutputReportController::class, 'export'])
             ->name('output.export');
-
->>>>>>> d3c50e3c57b483791ade8266241d3de6ffc0c52f
->>>>>>> 08ecd6946d5141206a1c8eeb38a7b7492cbf96a1
     });
 
     /*
@@ -718,6 +716,14 @@ Route::middleware(['auth'])->group(function () {
             });
         });
 
+        // Submission Wizard (Step 5: Confirm & Submit)
+        Route::prefix('submission-wizard')->name('submission-wizard.')->group(function () {
+            Route::get('{submission}/confirm', [SubmissionWizardController::class, 'confirm'])
+                ->name('confirm');
+            Route::post('{submission}/final-submit', [SubmissionWizardController::class, 'finalSubmit'])
+                ->name('final-submit');
+        });
+
         // Pembinaan Registration (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             // Category-specific routes
@@ -756,18 +762,55 @@ Route::middleware(['auth'])->group(function () {
         Route::get('progress', [ProgressController::class, 'index'])
             ->name('progress.index');
 
+        // ── Luaran Penelitian: CRUD ──────────────────────────────────────────
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
-        Route::post('/outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
-        Route::post('/outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
-        Route::delete('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'destroy'])->name('outputs.destroy');
-        Route::get('/outputs/{output}/edit', [\App\Http\Controllers\OutputController::class, 'edit'])->name('outputs.edit');
-        Route::put('/outputs/{output}', [\App\Http\Controllers\OutputController::class, 'update'])->name('outputs.update');
+        Route::get('outputs/create', [OutputController::class, 'create'])->name('outputs.create');
+        Route::post('outputs/journal', [OutputController::class, 'storeJournal'])->name('outputs.store-journal');
+        Route::get('outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
+        Route::put('outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
+        Route::delete('outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
+        Route::post('outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
+        Route::post('outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
 
+        // ── Luaran Penelitian: Produk / Prototipe ────────────────────────────
+        Route::prefix('outputs/products')->name('outputs.products.')->group(function () {
+            // Submit new product output
+            Route::post('/', [OutputController::class, 'storeProduct'])
+                ->name('store');
+
+            // Dedicated file upload endpoint (cover image or proof document)
+            Route::post('{product}/upload', [OutputDocController::class, 'upload'])
+                ->name('upload-doc');
+
+            // Delete a specific file (cover or document)
+            Route::delete('{product}/upload', [OutputDocController::class, 'destroy'])
+                ->name('delete-doc');
+        });
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
             //
             Route::post('{proposal}/documents', [\App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.store');
 
+        });
+    });
+
+    /*
+       |--------------------------------------------------------------------------
+       | Production Routes (Journal Issue Management)
+       |--------------------------------------------------------------------------
+       */
+    Route::middleware(['role:'.Role::PENGELOLA_JURNAL])->prefix('production')->name('production.')->group(function () {
+
+        // Issue Management
+        Route::prefix('issues')->name('issue.')->group(function () {
+            Route::get('create', [\App\Http\Controllers\Production\IssueController::class, 'create'])
+                ->name('create');
+            Route::post('/', [\App\Http\Controllers\Production\IssueController::class, 'store'])
+                ->name('store');
+            Route::get('{issue}/edit', [\App\Http\Controllers\Production\IssueController::class, 'edit'])
+                ->name('edit');
+            Route::put('{issue}', [\App\Http\Controllers\Production\IssueController::class, 'update'])
+                ->name('update');
         });
     });
 
@@ -797,12 +840,14 @@ Route::middleware(['auth'])->group(function () {
     | Editor Routes (v1.1 - Submission Editorial)
     |--------------------------------------------------------------------------
     */
-    // NOTE: Group ini akan diperbaiki lebih lanjut oleh ADITYA GAUTAMA
     Route::middleware(['role:Editor'])->prefix('editorial')->name('editorial.')->group(function () {
         // Activity Log per submission
         Route::get('submissions/{submission}/activity-logs', [ActivityLogController::class, 'index'])
             ->name('activity-logs.index');
+        Route::post('assessments/{assessment}/final-decision', [DecisionController::class, 'finalDecision'])
+            ->name('final-decision');
     });
+
     Route::middleware(['auth', 'role:Editor,Super Admin'])->group(function () {
         Route::get('/editorial/desk/{id}', [DeskController::class, 'show'])->name('editorial.desk.show');
 
@@ -828,6 +873,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('plagiarism-check', [PlagiarismController::class, 'store'])
                 ->name('plagiarism-check.store');
         });
+
     /*
     |--------------------------------------------------------------------------
     | Reviewer Routes (v1.1)
@@ -896,24 +942,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])
             ->name('funding.upload-bukti');
     });
-    /*
-    |--------------------------------------------------------------------------
-    | Finance & Funding Routes
-    |--------------------------------------------------------------------------
-    */
-    Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
-
-        Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
-            ->name('finance.funding.logs.index');
-
-        Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
-            ->name('finance.funding.print-kwitansi');
-
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    });
 
     /*
     |--------------------------------------------------------------------------
@@ -976,11 +1004,11 @@ Route::middleware(['auth'])->group(function () {
         ->name('proposal.review-history');
 
     // Notifications (Modul 7)
-    Route::prefix('notifications')->name('notifications.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
-        Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
-        Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
-    });
+    // Route::prefix('notifications')->name('notifications.')->group(function () {
+    //     Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    //     Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
+    //     Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
+    // });
 
     Route::resource('proposal', ProposalController::class);
 
@@ -1025,6 +1053,14 @@ Route::middleware(['auth'])->group(function () {
 
         });
 });
+Route::get('/editorial/desk/{submission}/review', [DeskController::class, 'show'])
+    ->name('editorial.desk.review');
+
+Route::post('/editorial/desk/{submission}/assign-editor', [DeskController::class, 'assignEditor'])
+    ->name('editorial.desk.assign-editor');
+
+Route::post('/editorial/desk/{submission}/desk-review', [DecisionController::class, 'deskReview'])
+    ->name('editorial.desk.desk-review');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

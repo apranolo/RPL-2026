@@ -13,28 +13,13 @@ return new class extends Migration
     {
         Schema::create('submission_files', function (Blueprint $table) {
             $table->id();
-
-            // Relasi ke tabel submissions
-            $table->foreignId('submission_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
-            $table->string('file_name'); // Nama asli berkas (misal: "revisi_naskah.docx")
-            $table->string('file_path'); // Path penyimpanan sistem (misal: "submissions/files/...")
-
-            // Kolom kategori berkas sesuai kebutuhan publikasi ilmiah
-            $table->enum('file_type', [
-                'manuscript',          // Naskah utama (tanpa identitas penulis / blind review)
-                'supplementary_file',  // Berkas pendukung (dataset, grafik tambahan, media)
-                'title_page',          // Halaman judul (terdapat identitas penulis)
-                'cover_letter',        // Surat pengantar untuk editor
-                'ethical_statement',   // Pernyataan etik atau orisinalitas
-                'revision_note',        // Catatan tanggapan atas masukan reviewer
-            ])->default('manuscript');
-
-            $table->string('mime_type')->nullable(); // Menyimpan tipe mime berkas (misal: application/pdf)
-            $table->bigInteger('file_size')->nullable(); // Ukuran berkas dalam satuan bytes
-
+            // Relasi ke tabel induk submissions
+            $table->foreignId('submission_id')->constrained()->onDelete('cascade');
+            $table->string('file_path');
+            $table->string('file_name');
+            $table->integer('file_size'); // Ukuran dalam bytes
+            $table->string('mime_type');  // Contoh: application/pdf, image/png
+            $table->string('file_type')->default('ManuscriptMain')->comment('ManuscriptMain, Supplementary');
             $table->timestamps();
             $table->softDeletes();
         });

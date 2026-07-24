@@ -11,8 +11,8 @@ export default function NotificationBell() {
     const { auth } = usePage<SharedData>().props;
 
     // Fallback to empty if not defined
-    const notifications = auth.notifications || [];
-    const unreadCount = auth.unread_notifications_count || 0;
+    const notifications = (auth as any)?.notifications || [];
+    const unreadCount = (auth as any)?.unread_notifications_count || 0;
 
     const handleMarkAsRead = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -48,16 +48,15 @@ export default function NotificationBell() {
         );
     };
 
-    const handleNotificationClick = (id: string, actionUrl?: string) => {
-        // Mark as read first
+    const handleNotificationClick = (id: string, url?: string) => {
         router.post(
             route('user.profil.notifications.read', id),
             {},
             {
                 preserveScroll: true,
-                onSuccess: () => {
-                    if (actionUrl) {
-                        router.visit(actionUrl);
+                onFinish: () => {
+                    if (url) {
+                        router.visit(url);
                     }
                 },
             },
@@ -78,22 +77,26 @@ export default function NotificationBell() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="group relative h-9 w-9 cursor-pointer">
-                    <Bell className="!size-5 opacity-80 transition-opacity group-hover:opacity-100" />
+                <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full">
+                    <Bell className="h-4 w-4" />
                     {unreadCount > 0 && (
-                        <>
-                            <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
-                            </span>
-                            <span className="sr-only">{unreadCount} unread notifications</span>
-                        </>
+                        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-sm ring-2 ring-background">
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
                     )}
+                    <span className="sr-only">Notifikasi</span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80 rounded-lg p-0 sm:w-96" align="end">
-                <div className="flex items-center justify-between border-b border-sidebar-border/50 px-4 py-3 dark:border-sidebar-border">
-                    <span className="text-sm font-semibold">Notifikasi</span>
+            <DropdownMenuContent align="end" className="w-80 p-0 sm:w-96">
+                <div className="flex items-center justify-between border-b border-sidebar-border px-4 py-3 dark:border-sidebar-border">
+                    <div className="flex items-center gap-2">
+                        <h4 className="font-semibold">Notifikasi</h4>
+                        {unreadCount > 0 && (
+                            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                                {unreadCount} baru
+                            </span>
+                        )}
+                    </div>
                     {unreadCount > 0 && (
                         <button
                             onClick={handleMarkAllAsRead}
@@ -107,7 +110,7 @@ export default function NotificationBell() {
 
                 <div className="max-h-80 divide-y divide-sidebar-border/50 overflow-y-auto dark:divide-sidebar-border">
                     {notifications.length > 0 ? (
-                        notifications.map((notif) => {
+                        notifications.map((notif: any) => {
                             const isRead = !!notif.read_at;
                             const timeAgo = formatDistanceToNow(new Date(notif.created_at), {
                                 addSuffix: true,

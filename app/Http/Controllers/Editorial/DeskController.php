@@ -10,6 +10,42 @@ use Inertia\Inertia;
 class DeskController extends Controller
 {
     /**
+     * Update round tracking submission (ronde ke-N).
+     *
+     * SECURITY NOTE: akses rute ini WAJIB melewati middleware 'auth' dan
+     * dibatasi peran Editor (lihat routes/web.php ->
+     * editorial.desk.update-round). Sebelumnya rute ini sempat terdaftar
+     * di luar grup 'auth' sehingga bisa diakses guest — sudah diperbaiki
+     * di sisi routing, bukan di controller ini.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateRound(Request $request, Submission $submission)
+    {
+        // 1. Validasi input ronde
+        $validated = $request->validate([
+            'current_round' => 'required|integer|min:1',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            // 2. Update kolom round tracking pada model Submission
+            $submission->update([
+                'current_round' => $validated['current_round'],
+            ]);
+
+            // 3. Kembali ke halaman sebelumnya dengan pesan sukses
+            return redirect()->back()->with(
+                'success',
+                'Ronde tracking submission berhasil diperbarui ke ronde '.$validated['current_round']
+            );
+        } catch (\Exception $e) {
+            // Jika terjadi error sistem
+            return redirect()->back()->with('error', 'Gagal memperbarui ronde tracking submission.');
+        }
+    }
+
+    /**
      * Display the editorial desk inbox with tabs for different statuses.
      */
     public function inbox(Request $request)
@@ -22,15 +58,12 @@ class DeskController extends Controller
             'archived' => Submission::where('status', 'archived')->count(),
         ];
 
-        // Determine active tab from query params, default to unassigned
         $activeTab = $request->query('tab', 'unassigned');
 
-        // Ensure valid tab
         if (! in_array($activeTab, array_keys($counts))) {
             $activeTab = 'unassigned';
         }
 
-        // Get submissions for the active tab
         $submissions = Submission::with(['author', 'journal'])
             ->where('status', $activeTab)
             ->latest()

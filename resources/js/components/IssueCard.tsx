@@ -1,112 +1,163 @@
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { AssessmentIssue } from '@/types';
-import { AlertCircle, AlertTriangle, Edit, Info, Trash2 } from 'lucide-react';
+/**
+ * ProductionIssueCard Component
+ *
+ * @description
+ * A card component that displays production issue (jurnal) information.
+ * Renders the issue's cover image (or a default journal placeholder when absent),
+ * volume/number/year, optional title, publication status badge, article count,
+ * publish date, and action buttons (Lihat, Edit, Hapus).
+ *
+ * @component
+ *
+ * @interface Issue
+ * @property {number} id - Unique issue identifier
+ * @property {number} volume - Volume number
+ * @property {number} number - Issue number within the volume
+ * @property {number} year - Publication year
+ * @property {string|null} title - Optional thematic title
+ * @property {string|null} description - Optional description
+ * @property {'Draft'|'Published'} status - Publication status
+ * @property {string|null} published_at - ISO date string of publication
+ * @property {string|null} cover_image_url - Public URL of cover image
+ * @property {number} [galleys_count] - Number of galley articles in this issue
+ *
+ * @interface Props
+ * @property {Issue} issue - The issue data to display
+ *
+ * @param {Props} props - Component props
+ * @param {Issue} props.issue - Issue whose card is rendered
+ *
+ * @returns The rendered issue card
+ *
+ * @author JurnalMU Team
+ * @filepath /resources/js/components/IssueCard.tsx
+ */
+import { Link, router } from '@inertiajs/react';
 
-interface IssueCardProps {
-    issue: AssessmentIssue;
+interface Issue {
+    id: number;
+    volume: number;
+    number: number;
+    year: number;
+    title: string | null;
+    description: string | null;
+    status: 'Draft' | 'Published';
+    published_at: string | null;
+    cover_image_url: string | null;
+    galleys_count?: number;
+}
+
+interface Props {
+    issue: Issue;
     readOnly?: boolean;
     onEdit?: () => void;
     onDelete?: () => void;
 }
 
-const categoryConfig = {
-    editorial: {
-        label: 'Editorial',
-        color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    },
-    technical: {
-        label: 'Technical',
-        color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-    },
-    content_quality: {
-        label: 'Content Quality',
-        color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    },
-    management: {
-        label: 'Management',
-        color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-    },
-};
+/** Fallback SVG placeholder for issues without a cover image. */
+const PLACEHOLDER_COVER = (
+    <div className="flex h-full w-full items-center justify-center bg-gray-100">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-10 w-10 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            aria-hidden="true"
+        >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
+            />
+        </svg>
+    </div>
+);
 
-const priorityConfig = {
-    high: {
-        label: 'High',
-        icon: AlertCircle,
-        color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-    },
-    medium: {
-        label: 'Medium',
-        icon: AlertTriangle,
-        color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    },
-    low: {
-        label: 'Low',
-        icon: Info,
-        color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
-    },
-};
-
-export default function IssueCard({ issue, readOnly = false, onEdit, onDelete }: IssueCardProps) {
-    const category = categoryConfig[issue.category];
-    const priority = priorityConfig[issue.priority];
-    const PriorityIcon = priority.icon;
+export default function ProductionIssueCard({ issue }: Props) {
+    const handleDelete = () => {
+        if (confirm('Yakin ingin menghapus Issue ini? Tindakan ini tidak dapat dibatalkan.')) {
+            router.delete(route('production.issue.destroy', issue.id));
+        }
+    };
 
     return (
-        <Card className="transition-shadow hover:shadow-md">
-            <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                        {/* Title */}
-                        <div className="flex items-start gap-2">
-                            <PriorityIcon
-                                className={cn(
-                                    'mt-0.5 h-5 w-5 flex-shrink-0',
-                                    priority.color.includes('red')
-                                        ? 'text-red-600'
-                                        : priority.color.includes('yellow')
-                                          ? 'text-yellow-600'
-                                          : 'text-gray-600',
-                                )}
-                            />
-                            <h4 className="text-base leading-tight font-semibold">{issue.title}</h4>
-                        </div>
+        <div className="overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md">
+            {/* Cover Image */}
+            <div className="h-40 w-full overflow-hidden">
+                {issue.cover_image_url ? (
+                    <img
+                        src={issue.cover_image_url}
+                        alt={`Cover Vol. ${issue.volume}, No. ${issue.number} (${issue.year})`}
+                        className="h-full w-full object-cover"
+                    />
+                ) : (
+                    PLACEHOLDER_COVER
+                )}
+            </div>
 
-                        {/* Description */}
-                        <p className="pl-7 text-sm leading-relaxed text-muted-foreground">{issue.description}</p>
-
-                        {/* Badges */}
-                        <div className="flex items-center gap-2 pl-7">
-                            <Badge variant="outline" className={cn('text-xs', category.color)}>
-                                {category.label}
-                            </Badge>
-                            <Badge variant="outline" className={cn('text-xs', priority.color)}>
-                                {priority.label} Priority
-                            </Badge>
-                        </div>
+            <div className="p-5">
+                {/* Header */}
+                <div className="mb-3 flex items-start justify-between">
+                    <div>
+                        <h3 className="text-lg font-bold text-gray-800">
+                            Vol. {issue.volume}, No. {issue.number} ({issue.year})
+                        </h3>
+                        {issue.title && <p className="mt-0.5 text-sm text-gray-500 italic">{issue.title}</p>}
                     </div>
 
-                    {/* Actions */}
-                    {!readOnly && (
-                        <div className="flex flex-shrink-0 items-center gap-1">
-                            {onEdit && (
-                                <Button variant="ghost" size="sm" onClick={onEdit} className="h-8 w-8 p-0">
-                                    <Edit className="h-4 w-4" />
-                                    <span className="sr-only">Edit</span>
-                                </Button>
-                            )}
-                            {onDelete && (
-                                <Button variant="ghost" size="sm" onClick={onDelete} className="h-8 w-8 p-0 text-destructive hover:text-destructive">
-                                    <Trash2 className="h-4 w-4" />
-                                    <span className="sr-only">Delete</span>
-                                </Button>
-                            )}
-                        </div>
+                    <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            issue.status === 'Published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}
+                    >
+                        {issue.status === 'Published' ? '✓ Terbit' : '✎ Draft'}
+                    </span>
+                </div>
+
+                {issue.description && <p className="mb-3 line-clamp-2 text-sm text-gray-600">{issue.description}</p>}
+
+                <div className="mb-4 flex items-center gap-4 text-xs text-gray-500">
+                    <span>📄 {issue.galleys_count ?? 0} artikel</span>
+                    {issue.published_at && (
+                        <span>
+                            📅{' '}
+                            {new Date(issue.published_at).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                            })}
+                        </span>
                     )}
                 </div>
-            </CardContent>
-        </Card>
+
+                <div className="flex flex-wrap gap-2">
+                    <Link
+                        href={route('production.issue.show', issue.id)}
+                        className="rounded bg-primary px-4 py-1.5 text-sm text-white hover:bg-primary/90"
+                    >
+                        Lihat
+                    </Link>
+
+                    {issue.status === 'Draft' && (
+                        <>
+                            <Link
+                                href={route('production.issue.edit', issue.id)}
+                                className="rounded bg-gray-100 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-200"
+                            >
+                                Edit
+                            </Link>
+
+                            {(issue.galleys_count ?? 0) === 0 && (
+                                <button onClick={handleDelete} className="rounded bg-red-100 px-4 py-1.5 text-sm text-red-600 hover:bg-red-200">
+                                    Hapus
+                                </button>
+                            )}
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
     );
 }

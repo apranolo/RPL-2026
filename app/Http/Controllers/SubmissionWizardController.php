@@ -1,181 +1,68 @@
 <?php
 
-/**
- * @file SubmissionWizardController.php
- *
- * @description Controller untuk menangani alur multi-step submission wizard naskah jurnal.
- *
- * @author Haryansyah Dwi Nugroho <@Haryansyah15>
- */
-
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FinalSubmitRequest;
 use App\Models\Submission;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SubmissionWizardController extends Controller
 {
-    // ==========================================
-    // STEP 1 - VIEW & STORE (Draft DB & License)
-    // ==========================================
-
-    public function step1()
-    {
-        return Inertia::render('Submission/Wizard/Step1Start', [
-            'journals' => [
-                ['id' => 1, 'title' => 'Jurnal Teknologi Informasi (JTI)'],
-                ['id' => 2, 'title' => 'Jurnal Rekayasa Perangkat Lunak (RPL)'],
-            ],
-        ]);
-    }
-
-    public function storeStep1(Request $request)
-    {
-        $validated = $request->validate([
-            'journal_id' => 'required|integer',
-            'agreement1' => 'required|accepted',
-            'agreement2' => 'required|accepted',
-            'agreement3' => 'required|accepted',
-            'agreement4' => 'required|accepted',
-        ], [
-            'journal_id.required' => 'Silakan pilih jurnal tujuan terlebih dahulu.',
-            'agreement1.accepted' => 'Anda harus menyetujui komitmen ke-1.',
-            'agreement2.accepted' => 'Anda harus menyetujui komitmen ke-2.',
-            'agreement3.accepted' => 'Anda harus menyetujui komitmen ke-3.',
-            'agreement4.accepted' => 'Anda harus menyetujui komitmen ke-4.',
-        ]);
-
-        $submission = Submission::updateOrCreate(
-            [
-                'id' => session('submission_id'),
-                'author_id' => Auth::id(),
-            ],
-            [
-                'journal_id' => $validated['journal_id'],
-                'title' => 'Draft Submission',
-                'status' => 'Draft',
-            ]
-        );
-
-        session(['submission_id' => $submission->id]);
-
-        return redirect()->route('submission.step2')
-            ->with('success', 'Draft submission berhasil disimpan.');
-    }
-
-    // ==========================================
-    // STEP 2 - VIEW & UPLOAD (Manuscript File)
-    // ==========================================
-
-    public function step2()
-    {
-        $submissionId = session('submission_id');
-        if (! $submissionId) {
-            return redirect()->route('submission.step1')
-                ->with('error', 'Silakan isi Step 1 terlebih dahulu.');
-        }
-
-        return Inertia::render('Submission/Wizard/Step2Upload');
-    }
-
-    public function step2Upload(Request $request)
-    {
-        $request->validate([
-            'manuscript' => 'required|file|mimes:pdf,doc,docx|max:10240',
-            'supplementary_files.*' => 'nullable|file|max:5120',
-        ]);
-
-        $submissionId = session('submission_id');
-        if (! $submissionId) {
-            return redirect()->route('submission.step1')->withErrors(['wizard' => 'Sesi draf tidak ditemukan.']);
-        }
-
-        $submission = Submission::find($submissionId);
-        if (! $submission) {
-            return redirect()->route('submission.step1')->withErrors(['wizard' => 'Draf submission tidak ditemukan.']);
-        }
-
-        if ($request->hasFile('manuscript')) {
-            $path = $request->file('manuscript')->store('submissions/manuscripts', 'public');
-
-            $submission->update([
-                'manuscript_path' => $path,
-            ]);
-
-            if ($request->hasFile('supplementary_files')) {
-                foreach ($request->file('supplementary_files') as $file) {
-                    $file->store('submissions/supplementary', 'public');
-                }
-            }
-
-            return redirect('/submissions/wizard/'.$submission->id.'/step3')
-                ->with('success', 'File manuskrip berhasil diunggah.');
-        }
-
-        return back()->withErrors(['manuscript' => 'Upload file gagal.']);
-    }
-
-    // ==========================================
-    // STEP 4 - CONTRIBUTORS
-    // ==========================================
-
     /**
-     * Display Step 4 (Contributors) of the submission wizard.
+     * Display the Wizard Step 5 — Confirm & Review page.
+     *
+     * Loads the submission data collected in steps 1-4 so the user
+     * can review everything before final submission.
+     *
+     * @route GET /user/submission-wizard/{submission}/confirm
      */
-    public function step4($id)
+    public function confirm(Request $request, Submission $submission)
     {
-        $submission = Submission::with('contributors')->findOrFail($id);
-
+        // Ensure the submission belongs to the current user
         if ($submission->author_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        return Inertia::render('Submission/Wizard/Step4Contributors', [
+        // Only draft submissions can go through the wizard
+        if ($submission->status !== 'Draft') {
+            return redirect()->route('submissions.index')
+                ->withErrors(['error' => 'Submission yang sudah dikirim tidak dapat diubah.']);
+        }
+
+        // Eager-load relationships needed for confirmation summary
+        $submission->load(['journal', 'contributors', 'files']);
+
+        return Inertia::render('Submission/Wizard/Step5Confirm', [
             'submission' => $submission,
         ]);
     }
 
     /**
-     * Save the contributors data and proceed to the next step.
+     * Handle the final submission from Wizard Step 5.
+     *
+     * Validates completion and marks the submission as Submitted.
+     *
+     * @route POST /user/submission-wizard/{submission}/final-submit
      */
-    public function saveStep4(Request $request, $id)
+    public function finalSubmit(FinalSubmitRequest $request, Submission $submission)
     {
-        $submission = Submission::findOrFail($id);
-
+        // Ensure the submission belongs to the current user
         if ($submission->author_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        $validated = $request->validate([
-            'contributors' => 'nullable|array',
-            'contributors.*.name' => 'required|string|max:255',
-            'contributors.*.email' => 'required|email|max:255',
-            'contributors.*.affiliation' => 'required|string|max:255',
-            'contributors.*.is_corresponding' => 'required|boolean',
-        ]);
-
-        DB::transaction(function () use ($submission, $validated) {
-            $submission->contributors()->delete();
-
-            if (! empty($validated['contributors'])) {
-                foreach ($validated['contributors'] as $contributorData) {
-                    $submission->contributors()->create([
-                        'name' => $contributorData['name'],
-                        'email' => $contributorData['email'],
-                        'affiliation' => $contributorData['affiliation'],
-                        'is_corresponding' => $contributorData['is_corresponding'],
-                    ]);
-                }
-            }
-        });
-
-        if ($request->input('action') === 'draft') {
-            return redirect()->back()->with('success', 'Draft saved successfully.');
+        // Only draft submissions can be submitted
+        if ($submission->status !== 'Draft') {
+            return redirect()->route('submissions.index')
+                ->withErrors(['error' => 'Submission yang sudah dikirim tidak dapat diubah.']);
         }
 
-        return redirect('/submissions/wizard/'.$submission->id.'/step5');
+        $submission->update([
+            'status' => 'Submitted',
+        ]);
+
+        return redirect()->route('submissions.index')
+            ->with('success', 'Naskah ilmiah berhasil diajukan dan sedang mengantre di meja editor!');
     }
 }

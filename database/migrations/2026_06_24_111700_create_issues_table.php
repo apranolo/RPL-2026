@@ -11,22 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('issues', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('journal_id')->constrained('journals')->cascadeOnDelete();
-            $table->integer('volume');
-            $table->integer('number');
-            $table->integer('year');
-            $table->string('title')->nullable();
-            $table->text('description')->nullable();
-            $table->date('publication_date')->nullable();
-            $table->enum('status', ['Draft', 'Published'])->default('Draft');
-            $table->string('cover_image_path')->nullable();
-            $table->timestamps();
+        if (! Schema::hasTable('issues')) {
+            Schema::create('issues', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('journal_id')->constrained('journals')->cascadeOnDelete();
+                $table->integer('volume');
+                $table->integer('number');
+                $table->integer('year');
+                $table->string('title')->nullable();
+                $table->text('description')->nullable();
+                $table->date('publication_date')->nullable();
+                $table->enum('status', ['Draft', 'Published'])->default('Draft');
+                $table->string('cover_image_path')->nullable();
+                $table->timestamps();
 
-            // Mencegah duplikasi volume, nomor, dan tahun issue pada jurnal yang sama
-            $table->unique(['journal_id', 'volume', 'number', 'year'], 'unique_issue_per_journal');
-        });
+                // Mencegah duplikasi volume, nomor, dan tahun issue pada jurnal yang sama
+                $table->unique(['journal_id', 'volume', 'number', 'year'], 'unique_issue_per_journal');
+            });
+        }
     }
 
     /**

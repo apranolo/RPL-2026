@@ -4,13 +4,177 @@ namespace App\Http\Controllers;
 
 use App\Models\BookOutput;
 use App\Models\HkiOutput;
+use App\Models\JournalOutput;
 use App\Models\ResearchOutput;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class OutputController extends Controller
 {
+    public function index()
+    {
+        $outputs = ResearchOutput::with('user')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
+
+        return Inertia::render('Output/Index', [
+            'outputs' => $outputs,
+        ]);
+    }
+
+    public function create()
+    {
+        abort_if(! auth()->check(), 403, 'Anda harus login untuk mengakses halaman ini.');
+
+        $outputTypes = [
+            'Jurnal' => 'Jurnal / Publikasi Ilmiah',
+            'HKI' => 'Hak Kekayaan Intelektual (HKI)',
+            'Buku' => 'Buku / Modul Ajar',
+            'Produk' => 'Produk / Prototipe',
+        ];
+
+        $journals = [];
+        if (class_exists(\App\Models\Journal::class)) {
+            $journals = \App\Models\Journal::select('id', 'title', 'issn', 'e_issn')->get()->toArray();
+        }
+
+        return Inertia::render('Output/Create', [
+            'outputTypes' => $outputTypes,
+            'journals' => $journals,
+        ]);
+    }
+
+    public function storeJournal(Request $request)
+    {
+        abort_if(! auth()->check(), 403, 'Anda harus login untuk menyimpan data Jurnal.');
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'authors' => 'required|string|max:255',
+            'journal_name' => 'required|string|max:255',
+            'year' => 'required|integer|min:1900|max:'.(date('Y') + 5),
+            'volume' => 'nullable|string|max:50',
+            'issue' => 'nullable|string|max:50',
+            'pages' => 'nullable|string|max:50',
+            'doi' => 'nullable|string|max:100',
+            'url' => 'nullable|url',
+            'issn' => 'nullable|string|max:50',
+            'e_issn' => 'nullable|string|max:50',
+            'publisher' => 'nullable|string|max:255',
+            'journal_id' => 'nullable|integer',
+            'file' => 'nullable|file|mimes:pdf|max:10240',
+        ]);
+
+        try {
+            $filePath = null;
+            if ($request->hasFile('file')) {
+                $filePath = $request->file('file')->store('luaran/jurnal', 'public');
+            }
+
+            $journalOutput = JournalOutput::create([
+                'doi' => $validated['doi'] ?? null,
+                'journal_name' => $validated['journal_name'],
+                'volume' => $validated['volume'] ?? null,
+                'number' => $validated['issue'] ?? null,
+                'url' => $validated['url'] ?? null,
+            ]);
+
+            $keteranganParts = [];
+            if (! empty($validated['issn'])) {
+                $keteranganParts[] = 'ISSN: '.$validated['issn'];
+            }
+            if (! empty($validated['e_issn'])) {
+                $keteranganParts[] = 'E-ISSN: '.$validated['e_issn'];
+            }
+            if (! empty($validated['publisher'])) {
+                $keteranganParts[] = 'Penerbit: '.$validated['publisher'];
+            }
+            if (! empty($validated['pages'])) {
+                $keteranganParts[] = 'Halaman: '.$validated['pages'];
+            }
+
+            $journalOutput->researchOutput()->create([
+                'user_id' => auth()->id(),
+                'contract_id' => $request->input('contract_id', 1),
+                'jenis_luaran' => 'Jurnal',
+                'judul_luaran' => $validated['title'],
+                'tahun_capaian' => $validated['year'],
+                'penulis_atau_pencipta' => $validated['authors'],
+                'tautan_publikasi' => $validated['url'] ?? null,
+                'file_sertifikat_atau_cover' => $filePath,
+                'status_verifikasi' => 'Draft',
+                'keterangan' => implode(' | ', $keteranganParts),
+            ]);
+
+            return redirect()->route('user.outputs.index')->with('success', 'Data Luaran Jurnal berhasil disimpan.');
+        } catch (\Exception $e) {
+            Log::error('Error storing Journal Output: '.$e->getMessage());
+
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data Jurnal: '.$e->getMessage());
+        }
+    }
+
+    public function edit(ResearchOutput $output)
+    {
+        $this->authorize('update', $output);
+
+        return Inertia::render('Output/Edit', [
+            'outputs' => $output,
+        ]);
+    }
+
+    public function update(Request $request, ResearchOutput $output)
+    {
+        // ── Otorisasi: hanya pemilik atau Super Admin yang boleh update (RBAC) ──
+        $this->authorize('update', $output);
+
+        $request->validate([
+            'proposal_id' => 'nullable|integer|exists:proposals,id',
+            'kategori' => 'nullable|string|max:255',
+            'jenis_luaran' => 'nullable|string|max:255',
+            'judul' => 'nullable|string|max:255',
+            'judul_luaran' => 'nullable|string|max:255',
+            'keterangan' => 'nullable|string',
+            'file_path' => 'nullable|string|max:255',
+            'status' => 'nullable|string',
+            'tkt_level' => 'nullable|integer|min:1|max:9',
+            'version' => 'nullable|string|max:50',
+            'year' => 'nullable|integer|min:2000|max:'.(date('Y') + 1),
+            'url' => 'nullable|url',
+        ]);
+
+        $output->update([
+            'jenis_luaran' => $request->input('jenis_luaran', $request->input('kategori', $output->jenis_luaran)),
+            'judul_luaran' => $request->input('judul_luaran', $request->input('judul', $output->judul_luaran)),
+            'tahun_capaian' => $request->input('tahun_capaian', $output->tahun_capaian),
+            'keterangan' => $request->input('keterangan', $output->keterangan),
+        ]);
+
+        return redirect()->route('user.outputs.index')->with('message', 'Output berhasil diperbarui.');
+    }
+
+    public function destroy(ResearchOutput $output)
+    {
+        $this->authorize('delete', $output);
+
+        // Hapus file terkait jika ada
+        if ($output->cover_image) {
+            Storage::disk('public')->delete($output->cover_image);
+        }
+
+        if ($output->document) {
+            Storage::disk('public')->delete($output->document);
+        }
+
+        $output->delete();
+
+        return redirect()->route('user.outputs.index')->with('message', 'Output deleted successfully');
+    }
+
     /**
      * Store a newly created HKI/Patent output in storage.
      *
@@ -79,7 +243,7 @@ class OutputController extends Controller
 
             return redirect()->back()->with([
                 'success' => 'Data HKI berhasil disimpan.',
-                'data' => array_merge($validated, ['file_path' => $filePath]),
+                'data' => array_merge(\Illuminate\Support\Arr::except($validated, ['file_sertifikat_atau_cover', 'file_cover_atau_halaman_hak_cipta']), ['file_path' => $filePath]),
             ]);
         } catch (\Exception $e) {
             Log::error('Error storing HKI: '.$e->getMessage());
@@ -156,12 +320,80 @@ class OutputController extends Controller
 
             return redirect()->back()->with([
                 'success' => 'Data Buku berhasil disimpan.',
-                'data' => array_merge($validated, ['file_path' => $filePath]),
+                'data' => array_merge(\Illuminate\Support\Arr::except($validated, ['file_sertifikat_atau_cover', 'file_cover_atau_halaman_hak_cipta']), ['file_path' => $filePath]),
             ]);
         } catch (\Exception $e) {
             Log::error('Error storing Book: '.$e->getMessage());
 
             return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data Buku: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Handle the submission of the Produk/Prototipe output form.
+     *
+     * Logika:
+     *  1. Validasi input.
+     *  2. Buat record ResearchOutput — user_id SELALU dari Auth::id() (RBAC).
+     *  3. Simpan file cover/dokumen (jika ada) lalu update path ke record yang sama.
+     */
+    public function storeProduct(Request $request)
+    {
+        $validated = $request->validate([
+            'proposal_id' => 'nullable|integer|exists:proposals,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'tkt_level' => 'required|integer|min:1|max:9',
+            'version' => 'nullable|string|max:50',
+            'year' => 'required|integer|min:2000|max:'.(date('Y') + 1),
+            'url' => 'nullable|url',
+            'status' => 'required|in:draft,published,patented',
+            'category' => 'required|string',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'document' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+        ]);
+
+        // ── Otorisasi: pastikan user yang login boleh membuat luaran baru ──
+        // Policy: ResearchOutputPolicy@create — hanya role 'User' yang aktif & approved.
+        $this->authorize('create', ResearchOutput::class);
+
+        // ── Simpan data ke DB — user_id selalu diikat ke user yang sedang login (RBAC) ──
+        $product = ResearchOutput::create([
+            'proposal_id' => $validated['proposal_id'] ?? null,
+            'user_id' => Auth::id(),   // ← RBAC: selalu dari sesi login, bukan dari input
+            'kategori' => 'produk',
+            'judul' => $validated['title'],
+            'keterangan' => $validated['description'],
+            'tkt_level' => $validated['tkt_level'],
+            'version' => $validated['version'] ?? null,
+            'year' => $validated['year'],
+            'url' => $validated['url'] ?? null,
+            'status' => $validated['status'],
+        ]);
+
+        // ── Upload cover image (jika ada) & simpan path ke record ──
+        if ($request->hasFile('cover_image')) {
+            $coverPath = $request->file('cover_image')
+                ->store("outputs/products/covers/{$product->id}", 'public');
+            $product->update(['cover_image' => $coverPath]);
+        }
+
+        // ── Upload dokumen bukti (jika ada) & simpan path ke record ──
+        if ($request->hasFile('document')) {
+            $originalName = $request->file('document')->getClientOriginalName();
+            $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
+            $timestamp = now()->format('YmdHis');
+
+            $docPath = $request->file('document')
+                ->storeAs(
+                    "outputs/products/documents/{$product->id}",
+                    "{$timestamp}_{$safeName}",
+                    'public'
+                );
+            $product->update(['document' => $docPath]);
+        }
+
+        return redirect()->route('user.outputs.index')
+            ->with('success', 'Data luaran Produk/Prototipe berhasil disimpan.');
     }
 }

@@ -20,15 +20,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -255,12 +247,7 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
                                             </div>
                                             <div className="space-y-2">
                                                 <Label htmlFor="time">Waktu</Label>
-                                                <Input
-                                                    id="time"
-                                                    type="time"
-                                                    value={data.time}
-                                                    onChange={(e) => setData('time', e.target.value)}
-                                                />
+                                                <Input id="time" type="time" value={data.time} onChange={(e) => setData('time', e.target.value)} />
                                                 {errors.time && <p className="mt-1 text-sm text-red-600">{errors.time}</p>}
                                             </div>
                                         </div>
@@ -292,9 +279,7 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
                     {/* Tabs */}
                     <Tabs value={activeTab} onValueChange={handleTabChange}>
                         <TabsList className="mb-4">
-                            <TabsTrigger value="schedules">
-                                Jadwal Monev
-                            </TabsTrigger>
+                            <TabsTrigger value="schedules">Jadwal Monev</TabsTrigger>
                             <TabsTrigger value="pending">
                                 Laporan Pending
                                 {pendingReports.length > 0 && (

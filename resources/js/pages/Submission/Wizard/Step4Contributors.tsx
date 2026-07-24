@@ -15,6 +15,7 @@ interface Contributor {
     email: string;
     affiliation: string;
     is_corresponding: boolean;
+    [key: string]: string | number | boolean | undefined;
 }
 
 interface Submission {
@@ -22,6 +23,14 @@ interface Submission {
     title: string;
     contributors?: Contributor[];
 }
+
+const wizardSteps = [
+    { label: 'Start', description: 'Pilih Jurnal', complete: true },
+    { label: 'Upload', description: 'Upload File', complete: true },
+    { label: 'Metadata', description: 'Informasi Artikel', complete: true },
+    { label: 'Contributor', description: 'Penulis', complete: true },
+    { label: 'Confirm', description: 'Final Submit', complete: false },
+];
 
 type Step4ContributorsProps = {
     submission: Submission;
@@ -42,7 +51,7 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
                   },
               ];
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm<{ contributors: Contributor[] }>({
         contributors: initialContributors,
     });
 
@@ -120,7 +129,7 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
             <div className="mx-auto max-w-4xl space-y-6 pb-12">
                 {/* Progress Bar */}
                 <Card className="border-none bg-transparent shadow-none">
-                    <WizardProgressBar currentStep={4} />
+                    <WizardProgressBar steps={wizardSteps} currentStep={3} />
                 </Card>
 
                 {/* Main Content Card */}
@@ -164,15 +173,20 @@ export default function Step4Contributors({ auth, submission }: PageProps<Step4C
                                             onChange={handleContributorChange}
                                             onRemove={handleRemoveContributor}
                                             errors={
-                                                (errors && errors[`contributors.${index}.name` as any]) ||
-                                                (errors && errors[`contributors.${index}.email` as any]) ||
-                                                (errors && errors[`contributors.${index}.affiliation` as any])
-                                                    ? {
-                                                          name: errors[`contributors.${index}.name` as any],
-                                                          email: errors[`contributors.${index}.email` as any],
-                                                          affiliation: errors[`contributors.${index}.affiliation` as any],
-                                                      }
-                                                    : undefined
+                                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                (() => {
+                                                    const e = errors as any;
+                                                    const nameKey = `contributors.${index}.name`;
+                                                    const emailKey = `contributors.${index}.email`;
+                                                    const affKey = `contributors.${index}.affiliation`;
+                                                    return e[nameKey] || e[emailKey] || e[affKey]
+                                                        ? {
+                                                              name: e[nameKey],
+                                                              email: e[emailKey],
+                                                              affiliation: e[affKey],
+                                                          }
+                                                        : undefined;
+                                                })()
                                             }
                                         />
                                     ))

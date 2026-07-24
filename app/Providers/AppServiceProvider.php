@@ -37,8 +37,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\EvaluationSubCategory::class, \App\Policies\EvaluationSubCategoryPolicy::class);
         Gate::policy(\App\Models\EvaluationIndicator::class, \App\Policies\EvaluationIndicatorPolicy::class);
         Gate::policy(\App\Models\EssayQuestion::class, \App\Policies\EssayQuestionPolicy::class);
-
+        Gate::policy(\App\Models\ResearchOutput::class, \App\Policies\ResearchOutputPolicy::class);
         Gate::policy(\App\Models\ResearchSchema::class, \App\Policies\SchemaPolicy::class);
+
+        // Research Output Policy
+        Gate::policy(\App\Models\ResearchOutput::class, \App\Policies\ResearchOutputPolicy::class);
 
         // Define additional gates if needed
         Gate::define('manage-universities', function ($user) {
@@ -51,6 +54,10 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('manage-users', function ($user) {
             return $user->isSuperAdmin() || $user->isAdminKampus();
+        });
+
+        Gate::define('manage-announcements', function ($user) {
+            return $user->isSuperAdmin();
         });
 
         Gate::define('view-all-journals', function ($user) {

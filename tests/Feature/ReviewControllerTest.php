@@ -65,7 +65,7 @@ describe('ReviewController', function () {
     /**
      * Helper: buat proposal dengan FK yang valid
      */
-    function createProposal(): Proposal
+    function createReviewProposal(): Proposal
     {
         $user = User::factory()->create();
         $schema = ResearchSchema::first();
@@ -84,7 +84,7 @@ describe('ReviewController', function () {
 
     it('allows a reviewer to store a new assessment', function () {
         $reviewer = createReviewerUser();
-        $proposal = createProposal();
+        $proposal = createReviewProposal();
 
         $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
@@ -107,7 +107,7 @@ describe('ReviewController', function () {
 
     it('rejects assessment from a non-reviewer user', function () {
         $user = createRegularUser();
-        $proposal = createProposal();
+        $proposal = createReviewProposal();
 
         $response = $this->actingAs($user)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
@@ -134,7 +134,7 @@ describe('ReviewController', function () {
 
     it('validates score must be between 0 and 100', function () {
         $reviewer = createReviewerUser();
-        $proposal = createProposal();
+        $proposal = createReviewProposal();
 
         $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
@@ -148,7 +148,7 @@ describe('ReviewController', function () {
 
     it('validates recommendation must be a valid value', function () {
         $reviewer = createReviewerUser();
-        $proposal = createProposal();
+        $proposal = createReviewProposal();
 
         $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
@@ -162,7 +162,7 @@ describe('ReviewController', function () {
 
     it('validates komponen_penilaian skor must be between 1 and 5', function () {
         $reviewer = createReviewerUser();
-        $proposal = createProposal();
+        $proposal = createReviewProposal();
 
         $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
@@ -178,7 +178,7 @@ describe('ReviewController', function () {
 
     it('requires comments when recommendation is revision or rejected', function () {
         $reviewer = createReviewerUser();
-        $proposal = createProposal();
+        $proposal = createReviewProposal();
 
         $response = $this->actingAs($reviewer)->post(route('reviewer.assessment.store'), [
             'proposal_id' => $proposal->id,
@@ -199,7 +199,7 @@ describe('ReviewController', function () {
 
     it('allows a reviewer to update their own assessment', function () {
         $reviewer = createReviewerUser();
-        $proposal = createProposal();
+        $proposal = createReviewProposal();
 
         $review = Review::create([
             'proposal_id' => $proposal->id,
@@ -231,7 +231,7 @@ describe('ReviewController', function () {
     it('prevents a reviewer from updating another reviewer assessment', function () {
         $reviewer1 = createReviewerUser();
         $reviewer2 = createReviewerUser();
-        $proposal = createProposal();
+        $proposal = createReviewProposal();
 
         $review = Review::create([
             'proposal_id' => $proposal->id,

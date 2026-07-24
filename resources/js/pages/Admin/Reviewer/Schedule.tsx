@@ -33,11 +33,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type PaginatedData, type PageProps } from '@/types';
+import { type BreadcrumbItem, type PageProps, type PaginatedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { CalendarDays, ChevronLeft, ChevronRight, Clock, Edit, Eye, ExternalLink, MapPin, Plus, Search, Trash2, User } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, Edit, ExternalLink, Eye, MapPin, Plus, Search, Trash2, User } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -83,20 +83,12 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
 
     const handleSearch = (value: string) => {
         setSearch(value);
-        router.get(
-            route('admin.schedules.index'),
-            { search: value, status },
-            { preserveState: true, replace: true },
-        );
+        router.get(route('admin.schedules.index'), { search: value, status }, { preserveState: true, replace: true });
     };
 
     const handleStatusFilter = (value: string) => {
         setStatus(value);
-        router.get(
-            route('admin.schedules.index'),
-            { search, status: value || undefined },
-            { preserveState: true, replace: true },
-        );
+        router.get(route('admin.schedules.index'), { search, status: value || undefined }, { preserveState: true, replace: true });
     };
 
     const handleDelete = () => {
@@ -121,11 +113,7 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
             completed: 'secondary',
             cancelled: 'destructive',
         };
-        return (
-            <Badge variant={(variants[status] as any) || 'outline'}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-            </Badge>
-        );
+        return <Badge variant={(variants[status] as any) || 'outline'}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>;
     };
 
     const formatDateTime = (date: string) => {
@@ -178,10 +166,7 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
                                 </div>
                             </div>
 
-                            <Select
-                                value={status || 'all'}
-                                onValueChange={(value) => handleStatusFilter(value === 'all' ? '' : value)}
-                            >
+                            <Select value={status || 'all'} onValueChange={(value) => handleStatusFilter(value === 'all' ? '' : value)}>
                                 <SelectTrigger className="w-full lg:w-48">
                                     <SelectValue placeholder="All Status" />
                                 </SelectTrigger>
@@ -243,13 +228,9 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
                                         >
                                             <TableCell>
                                                 <div>
-                                                    <div className="font-medium">
-                                                        {schedule.proposal?.journal?.title || 'N/A'}
-                                                    </div>
+                                                    <div className="font-medium">{schedule.proposal?.journal?.title || 'N/A'}</div>
                                                     {schedule.proposal?.journal?.issn && (
-                                                        <div className="text-xs text-muted-foreground">
-                                                            ISSN: {schedule.proposal.journal.issn}
-                                                        </div>
+                                                        <div className="text-xs text-muted-foreground">ISSN: {schedule.proposal.journal.issn}</div>
                                                     )}
                                                 </div>
                                             </TableCell>
@@ -265,9 +246,7 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
                                                     <span>{formatDateTime(schedule.scheduled_at)}</span>
                                                 </div>
                                                 {schedule.ended_at && (
-                                                    <div className="text-xs text-muted-foreground">
-                                                        until {formatDateTime(schedule.ended_at)}
-                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">until {formatDateTime(schedule.ended_at)}</div>
                                                 )}
                                             </TableCell>
                                             <TableCell>
@@ -339,9 +318,7 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
                                 <Card
                                     key={schedule.id}
                                     className={
-                                        isUpcoming(schedule.scheduled_at) && schedule.status === 'scheduled'
-                                            ? 'border-l-2 border-l-primary'
-                                            : ''
+                                        isUpcoming(schedule.scheduled_at) && schedule.status === 'scheduled' ? 'border-l-2 border-l-primary' : ''
                                     }
                                 >
                                     <CardContent className="space-y-4 p-4">
@@ -393,12 +370,7 @@ export default function ScheduleIndex({ schedules, filters }: Props) {
                                                 </Button>
                                             )}
                                             {isSuperAdmin && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => setDeleteId(schedule.id)}
-                                                    title="Delete Schedule"
-                                                >
+                                                <Button variant="ghost" size="icon" onClick={() => setDeleteId(schedule.id)} title="Delete Schedule">
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
                                             )}

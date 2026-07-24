@@ -3,24 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\Submission;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
-/**
- * Menangani alur naskah (submission) milik author: melihat detail
- * beserta riwayat status, dan membatalkan naskah yang masih berstatus draft.
- *
- * BLOCKER (belum diselesaikan pihak lain, di luar kendali PR ini):
- * Model Submission saat ini belum memiliki relasi reviewer() dan
- * statusHistories(). Method show() di bawah akan melempar
- * RelationNotFoundException sampai relasi tersebut ditambahkan ke
- * app/Models/Submission.php oleh pengembang yang bertanggung jawab
- * atas modul terkait. Jangan hapus pemanggilan relasi ini — ini adalah
- * kontrak data yang sudah disepakati di PR #107/#108 untuk halaman
- * detail & timeline; yang kurang hanya implementasinya di model.
- */
 class SubmissionController extends Controller
 {
+    /**
+     * Menampilkan daftar naskah milik user yang sedang login.
+     */
+    public function index(): Response
+    {
+        $submissions = Submission::where('user_id', Auth::id())
+            ->orWhere('author_id', Auth::id())
+            ->latest()
+            ->paginate(10);
+
+        return Inertia::render('Submission/Index', [
+            'submissions' => $submissions,
+            'flash' => [
+                'success' => session('success'),
+                'error' => session('error'),
+            ],
+        ]);
+    }
+
+    /**
+     * MENAMPILKAN FORMULIR UNTUK MEMBUAT PENGAJUAN BARU
+     */
+    public function create(): Response
+    {
+        return Inertia::render('Submission/Create');
+    }
+
+    /**
+     * MENYIMPAN DATA BARU DARI FORMULIR KE DATABASE
+     */
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'file' => 'required|file|mimes:pdf,doc,docx,zip|max:5120',
+        ]);
+
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('submissions', 'public');
+            $validatedData['file_path'] = $filePath;
+        }
+
+        Submission::create([
+            'user_id' => auth()->id(),
+            'title' => $validatedData['title'],
+            'description' => $validatedData['description'],
+            'file_path' => $validatedData['file_path'] ?? null,
+            'status' => 'pending',
+        ]);
+
+        return redirect()->route('submissions.index')->with('success', 'Pengajuan berhasil dikirim!');
+    }
+
     /**
      * Menampilkan halaman detail naskah beserta linimasa status.
      */
@@ -40,6 +84,55 @@ class SubmissionController extends Controller
             'submission' => $submission,
             'tracking' => $submission->statusHistories,
         ]);
+    }
+
+    /**
+     * MENAMPILKAN FORMULIR EDIT (Misal untuk admin merubah status)
+     */
+    public function edit($id)
+    {
+        $submission = Submission::findOrFail($id);
+
+        // Mengarahkan ke file React: resources/js/pages/Submission/Edit.tsx
+        return Inertia::render('Submission/Edit', [
+            'submission' => $submission,
+        ]);
+    }
+
+    /**
+     * MEMPROSES UPDATE/PERUBAHAN DATA DI DATABASE
+     */
+    public function update(Request $request, $id)
+    {
+        $submission = Submission::findOrFail($id);
+
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected',
+        ]);
+
+        $submission->update([
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('submissions.index')->with('success', 'Status pengajuan berhasil diperbarui!');
+    }
+
+    /**
+     * MENGHAPUS DATA PENGAJUAN
+     */
+    public function destroy($id)
+    {
+        $submission = Submission::findOrFail($id);
+
+        // Hapus file fisik jika ada
+        if ($submission->file_path && Storage::disk('public')->exists($submission->file_path)) {
+            Storage::disk('public')->delete($submission->file_path);
+        }
+
+        // Hapus data dari database
+        $submission->delete();
+
+        return redirect()->route('submissions.index')->with('success', 'Pengajuan berhasil dihapus!');
     }
 
     /**
@@ -63,9 +156,6 @@ class SubmissionController extends Controller
 
         $submission->delete();
 
-        // TODO: ganti ke route('submissions.index') begitu halaman
-        // daftar submission dibuat. Untuk saat ini rute itu belum ada
-        // di web.php, jadi redirect ke dashboard agar tidak 404.
         return redirect()
             ->route('dashboard')
             ->with(
