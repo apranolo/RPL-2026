@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('submission_contributors', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
-            $table->string('name');
-            $table->string('email');
-            $table->string('affiliation');
-            $table->boolean('is_corresponding')->default(false);
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('submission_contributors')) {
+            Schema::create('submission_contributors', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
+                $table->string('name');
+                $table->string('email');
+                $table->string('affiliation');
+                $table->boolean('is_corresponding')->default(false);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

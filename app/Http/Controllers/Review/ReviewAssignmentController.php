@@ -1,24 +1,11 @@
 <?php
 
-<<<<<<< HEAD
-namespace App\Http\Controllers\Review;
-
-use App\Http\Controllers\Controller;
-use App\Models\ReviewAssignment;
-use App\Models\Submission;
-=======
-/**
- * Controller untuk perpanjangan due date reviewer assignment pada Proposal.
- *
- * Authorization: Hanya SuperAdmin, AdminKampus, dan PengelolaJurnal
- * yang dapat memperpanjang due date via ProposalPolicy::extendDueDate.
- */
-
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
 use App\Models\ReviewAssignment;
 use App\Models\ReviewerAssignment;
+use App\Models\Submission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
