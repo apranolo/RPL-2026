@@ -327,6 +327,13 @@ Route::middleware(['auth'])->group(function () {
         // Schemas Management (v1.1)
         Route::resource('schema', SchemaController::class);
 
+        // Proposals Management (Admin)
+        Route::prefix('proposals')->name('proposals.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\ProposalController::class, 'index'])->name('index');
+            Route::post('{proposal}/approve', [\App\Http\Controllers\Admin\ProposalController::class, 'approve'])->name('approve');
+            Route::post('{proposal}/reject', [\App\Http\Controllers\Admin\ProposalController::class, 'reject'])->name('reject');
+        });
+
         // View all journals (read-only for monitoring)
         Route::get('journals', [\App\Http\Controllers\Admin\JournalController::class, 'index'])
             ->name('journals.index');
@@ -788,9 +795,8 @@ Route::middleware(['auth'])->group(function () {
         });
         // Proposal
         Route::prefix('proposal')->name('proposal.')->group(function () {
-            //
             Route::post('{proposal}/documents', [\App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.store');
-
+            Route::get('documents/{document}/download', [\App\Http\Controllers\DocumentController::class, 'download'])->name('documents.download');
         });
     });
 

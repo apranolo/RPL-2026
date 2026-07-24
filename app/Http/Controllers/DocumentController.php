@@ -78,4 +78,21 @@ class DocumentController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Download the specified proposal document.
+     */
+    public function download(ProposalDocument $document)
+    {
+        $proposal = $document->proposal;
+        if ($proposal) {
+            $this->authorize('view', $proposal);
+        }
+
+        if (! Storage::disk('public')->exists($document->file_path)) {
+            abort(404, 'Dokumen tidak ditemukan di penyimpanan.');
+        }
+
+        return Storage::disk('public')->download($document->file_path, $document->file_name);
+    }
 }
