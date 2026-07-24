@@ -2,125 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contract;
 use App\Models\ProgressReport;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class ProgressController extends Controller
 {
-    /**
-     * Show the form for creating a new laporan kemajuan.
-     *
-     * @route GET /dosen/progress/create
-     */
-    public function create(Request $request): Response
-    {
-        $user = $request->user();
-
-        return Inertia::render('Progress/Create', [
-            'user' => $user->only('id', 'name', 'email'),
-        ]);
-    }
-
-    /**
-     * Store a newly created laporan kemajuan in storage.
-     *
-     * Handles:
-     * - Validation of form fields (judul, deskripsi, periode, catatan, dll.)
-     * - Upload dokumen laporan (PDF/DOCX)
-     * - Upload file logbook (opsional)
-     * - Penyimpanan data ke tabel progress_reports
-     *
-     * @route POST /dosen/progress
-     */
-    public function store(\App\Http\Requests\StoreProgressReportRequest $request): RedirectResponse
-    {
-        $validated = $request->validated();
-
-        DB::beginTransaction();
-
-        try {
-            $user = $request->user();
-
-            // Upload dokumen laporan (opsional)
-            $dokumenLaporanPath = null;
-            if ($request->hasFile('dokumen_laporan')) {
-                $file = $request->file('dokumen_laporan');
-                $fileName = time().'_laporan_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
-                $dokumenLaporanPath = $file->storeAs('progress_reports/dokumen', $fileName, 'public');
-            }
-
-            // Upload file logbook (opsional)
-            $logbookPath = null;
-            if ($request->hasFile('logbook')) {
-                $file = $request->file('logbook');
-                $fileName = time().'_logbook_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
-                $logbookPath = $file->storeAs('progress_reports/logbook', $fileName, 'public');
-            }
-
-            // Buat record laporan kemajuan
-            $progress = ProgressReport::create([
-                'user_id' => $user->id,
-                'judul' => $validated['judul'],
-                'periode' => $validated['periode'],
-                'tanggal_laporan' => $validated['tanggal_laporan'],
-                'deskripsi' => $validated['deskripsi'],
-                'catatan' => $validated['catatan'] ?? null,
-                'status' => $validated['status'] ?? 'draft',
-                'dokumen_laporan' => $dokumenLaporanPath,
-                'logbook' => $logbookPath,
-            ]);
-
-            DB::commit();
-
-            return redirect()
-                ->route('progress.show', $progress->id)
-                ->with('success', 'Laporan kemajuan berhasil disimpan.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            // Hapus file yang sudah terupload jika terjadi error
-            if (isset($dokumenLaporanPath) && $dokumenLaporanPath) {
-                Storage::disk('public')->delete($dokumenLaporanPath);
-            }
-            if (isset($logbookPath) && $logbookPath) {
-                Storage::disk('public')->delete($logbookPath);
-            }
-
-            Log::error('Gagal menyimpan laporan kemajuan', [
-                'user_id' => $request->user()?->id,
-                'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Gagal menyimpan laporan kemajuan. Silakan coba lagi atau hubungi administrator.']);
-        }
-    }
-
-    /**
-     * Display the specified laporan kemajuan.
-     *
-     * @route GET /dosen/progress/{progress}
-     */
-    public function show(ProgressReport $progress): Response
-    {
-        $this->authorize('view', $progress);
-
-        return Inertia::render('Progress/Show', [
-            'progress' => $progress,
-        ]);
-    }
-
     /**
      * Display a listing of progress reports for the authenticated user (Dosen).
      */
@@ -154,6 +45,105 @@ class ProgressController extends Controller
         return Inertia::render('Progress/Index', [
             'progressReports' => $progressReports,
             'filters' => $request->only(['search', 'status', 'report_type']),
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new progress report.
+     */
+    public function create()
+    {
+        $proposals = Proposal::where('user_id', Auth::id())
+            ->orderBy('title')
+            ->get(['id', 'title']);
+
+        return Inertia::render('Progress/Create', [
+            'proposals' => $proposals,
+        ]);
+    }
+
+    /**
+     * Store a newly created progress report.
+     */
+    public function store(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'proposal_id' => [
+                'required',
+                Rule::exists('proposals', 'id')->where('user_id', $user->id),
+            ],
+            'title' => ['required', 'string', 'max:255'],
+            'content' => ['required', 'string'],
+            'report_type' => ['required', Rule::in(['logbook', 'laporan_kemajuan', 'laporan_akhir'])],
+            'report_date' => ['required', 'date'],
+            'progress_percentage' => ['required', 'integer', 'min:0', 'max:100'],
+            'report_period' => ['required', 'string', 'max:255'],
+            'attachment' => ['required_unless:report_type,logbook', 'nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'status' => ['required', Rule::in(['draft', 'submitted'])],
+        ], [
+            'proposal_id.required' => 'Proposal wajib dipilih.',
+            'title.required' => 'Judul laporan wajib diisi.',
+            'content.required' => 'Deskripsi kegiatan wajib diisi.',
+            'report_type.required' => 'Jenis laporan wajib dipilih.',
+            'report_date.required' => 'Tanggal pelaporan wajib diisi.',
+            'progress_percentage.min' => 'Nilai progres harus antara rentang 0 hingga 100.',
+            'progress_percentage.max' => 'Nilai progres harus antara rentang 0 hingga 100.',
+            'attachment.required_unless' => 'Bukti file dokumentasi laporan wajib dilampirkan.',
+            'attachment.max' => 'Dokumen lampiran maksimal 5MB.',
+        ]);
+
+        // Validasi logis (PRD Modul 4): progres tidak boleh mundur dari laporan sebelumnya
+        $lastPercentage = ProgressReport::where('user_id', $user->id)
+            ->where('proposal_id', $validated['proposal_id'])
+            ->max('progress_percentage');
+
+        if ($lastPercentage !== null && $validated['progress_percentage'] < $lastPercentage) {
+            return back()->withErrors([
+                'progress_percentage' => "Persentase progres tidak boleh lebih kecil dari laporan sebelumnya ({$lastPercentage}%).",
+            ])->withInput();
+        }
+
+        // Ambil kontrak yang terhubung dengan proposal (jika sudah ada)
+        $contract = Contract::where('proposal_id', $validated['proposal_id'])->first();
+
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('progress-attachments', 'public');
+        }
+
+        ProgressReport::create([
+            'proposal_id' => $validated['proposal_id'],
+            'contract_id' => $contract?->id,
+            'user_id' => $user->id,
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'report_type' => $validated['report_type'],
+            'report_date' => $validated['report_date'],
+            'progress_percentage' => $validated['progress_percentage'],
+            'report_period' => $validated['report_period'],
+            'attachment_path' => $attachmentPath,
+            'status' => $validated['status'],
+            'submitted_at' => $validated['status'] === 'submitted' ? now() : null,
+        ]);
+
+        return redirect()
+            ->route('user.progress.index')
+            ->with('success', 'Laporan kemajuan berhasil disimpan.');
+    }
+
+    /**
+     * Display the specified progress report.
+     */
+    public function show(ProgressReport $progressReport)
+    {
+        abort_if($progressReport->user_id !== Auth::id(), 403);
+
+        $progressReport->load(['proposal', 'contract', 'evaluations.reviewer']);
+
+        return Inertia::render('Progress/Show', [
+            'progressReport' => $progressReport,
         ]);
     }
 }
