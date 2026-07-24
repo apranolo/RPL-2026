@@ -116,13 +116,6 @@ class DashboardController extends Controller
             ]);
         }
 
-                'pending' => 0,
-                'approved' => 0,
-                'rejected' => 0,
-            ];
-        }
-
->>>>>>> 66bbcbefb8704a66a3933c918c0b46c842469e12
         return Inertia::render('dashboard', [
             'stats'          => $stats,
             'statistics'     => $statistics,

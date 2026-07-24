@@ -60,10 +60,6 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-<<<<<<< HEAD
-
-=======
->>>>>>> faa9e22e718366273d4a2c9cc8be50e329c9b9de
 
 /*
 |--------------------------------------------------------------------------
@@ -759,6 +755,8 @@ Route::middleware(['auth'])->group(function () {
 
         // ── Luaran Penelitian: CRUD ──────────────────────────────────────────
         Route::get('outputs', [OutputController::class, 'index'])->name('outputs.index');
+        Route::get('outputs/create', [OutputController::class, 'create'])->name('outputs.create');
+        Route::post('outputs/journal', [OutputController::class, 'storeJournal'])->name('outputs.store-journal');
         Route::get('outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
         Route::delete('outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');

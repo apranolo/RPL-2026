@@ -52,12 +52,22 @@ class ResearchOutput extends Model
     protected $fillable = [
         // ── Relasi ──────────────────────────────────────────────────────────
         'user_id',
+        'contract_id',
         'proposal_id',
 
-        // ── Kolom Dasar Luaran ───────────────────────────────────────────────
+        // ── Kolom Induk Luaran ───────────────────────────────────────────────
+        'jenis_luaran',
+        'judul_luaran',
+        'tahun_capaian',
+        'penulis_atau_pencipta',
+        'tautan_publikasi',
+        'file_sertifikat_atau_cover',
+        'status_verifikasi',
+        'keterangan',
+
+        // ── Kolom Dasar Legacy ───────────────────────────────────────────────
         'kategori',
         'judul',
-        'keterangan',
         'file_path',
         'status',
 
@@ -69,7 +79,7 @@ class ResearchOutput extends Model
         'cover_image',  // path relatif di public disk
         'document',     // path relatif di public disk (bukti luaran)
 
-        // ── Polymorphic (HKI / Buku via morph) ──────────────────────────────
+        // ── Polymorphic (HKI / Buku / Jurnal via morph) ──────────────────────
         'outputable_type',
         'outputable_id',
     ];
@@ -96,5 +106,13 @@ class ResearchOutput extends Model
     public function proposal(): BelongsTo
     {
         return $this->belongsTo(Proposal::class);
+    }
+
+    /**
+     * Polymorphic relation to specific output detail (JournalOutput, BookOutput, HkiOutput, ProductOutput)
+     */
+    public function outputable()
+    {
+        return $this->morphTo();
     }
 }

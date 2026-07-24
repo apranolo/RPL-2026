@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('research_outputs', function (Blueprint $table) {
-            $table->integer('tkt_level')->nullable()->after('keterangan');
-            $table->string('version', 50)->nullable()->after('tkt_level');
-            $table->integer('year')->nullable()->after('version');
-            $table->string('url')->nullable()->after('year');
-            $table->string('cover_image')->nullable()->after('url');
-            $table->string('document')->nullable()->after('cover_image');
-        });
+        if (Schema::hasTable('research_outputs')) {
+            Schema::table('research_outputs', function (Blueprint $table) {
+                $table->integer('tkt_level')->nullable()->after('keterangan');
+                $table->string('version', 50)->nullable()->after('tkt_level');
+                $table->integer('year')->nullable()->after('version');
+                $table->string('url')->nullable()->after('year');
+                $table->string('cover_image')->nullable()->after('url');
+                $table->string('document')->nullable()->after('cover_image');
+            });
+        }
     }
 
     /**

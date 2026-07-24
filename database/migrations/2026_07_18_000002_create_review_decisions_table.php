@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('review_decisions', function (Blueprint $table): void {
-            $table->id();
+        if (! Schema::hasTable('review_decisions')) {
+            Schema::create('review_decisions', function (Blueprint $table): void {
+                $table->id();
 
-            $table->foreignId('reviewer_assignment_id')->constrained('reviewer_assignments')->cascadeOnDelete();
-            $table->integer('score')->nullable();
-            $table->string('recommendation')->nullable();
-            $table->text('comment')->nullable();
+                $table->foreignId('reviewer_assignment_id')->constrained('reviewer_assignments')->cascadeOnDelete();
+                $table->integer('score')->nullable();
+                $table->string('recommendation')->nullable();
+                $table->text('comment')->nullable();
 
-            $table->timestamps();
-            $table->softDeletes();
-        });
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
     }
 
     /**

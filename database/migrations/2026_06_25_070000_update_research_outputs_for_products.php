@@ -14,11 +14,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // ── 1. Buat proposal_id nullable ──────────────────────────────────────
-        Schema::table('research_outputs', function (Blueprint $table) {
-            // Drop foreign key dulu sebelum mengubah kolom
-            $table->unsignedBigInteger('proposal_id')->nullable()->change();
-        });
+        if (Schema::hasTable('research_outputs')) {
+            // ── 1. Buat proposal_id nullable ──────────────────────────────────────
+            Schema::table('research_outputs', function (Blueprint $table) {
+                // Drop foreign key dulu sebelum mengubah kolom
+                $table->unsignedBigInteger('proposal_id')->nullable()->change();
+            });
+        }
 
         // ── 2. Perbarui enum status (MySQL tidak mendukung ALTER ENUM via Blueprint) ──
         // Gunakan raw SQL agar bisa mengubah nilai enum secara aman.
