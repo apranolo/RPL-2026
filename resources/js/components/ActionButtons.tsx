@@ -1,11 +1,10 @@
 /**
- * ActionButtons — Approve / Reject proposal
+ * ActionButtons — Detail / Approve (Setujui) / Reject (Tolak) proposal
  *
  * @description
- * Komponen tombol aksi untuk validasi administrasi proposal penelitian.
- * Hanya ditampilkan ketika status proposal adalah "Submitted".
- * Tombol "Validasi" langsung mengirim request approve, sedangkan tombol
- * "Tolak" membuka RejectModal untuk mengisi alasan penolakan.
+ * Komponen tombol aksi untuk verifikasi administrasi dan peninjauan proposal penelitian.
+ * Menampilkan tombol "Lihat Detail" untuk membuka rincian proposal, serta tombol
+ * "Setujui" dan "Tolak" ketika status proposal adalah "Submitted".
  *
  * @props
  * - proposalId   : ID proposal
@@ -25,8 +24,9 @@
  */
 
 import { Button } from '@/components/ui/button';
-import { router } from '@inertiajs/react';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { CheckCircle, Eye, XCircle } from 'lucide-react';
+import { route } from 'ziggy-js';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ interface ActionButtonsProps {
 // ─── Status Labels ────────────────────────────────────────────────────────────
 
 const STATUS_LABELS: Record<string, string> = {
-    Administrasi_Valid: '✓ Sudah divalidasi',
+    Administrasi_Valid: '✓ Sudah disetujui',
     Ditolak: '✗ Sudah ditolak',
     Draft: 'Belum disubmit',
 };
@@ -54,35 +54,58 @@ const STATUS_LABELS: Record<string, string> = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ActionButtons({ proposalId, proposalTitle, status, onReject, disabled = false }: ActionButtonsProps) {
-    // Hanya tampilkan tombol Validasi & Tolak jika status === 'Submitted'
-    if (status !== 'Submitted') {
-        return <span className="text-xs text-muted-foreground">{STATUS_LABELS[status] ?? '—'}</span>;
-    }
-
     const handleApprove = () => {
-        if (!confirm(`Validasi proposal "${proposalTitle}"?`)) return;
+        if (!confirm(`Setujui proposal "${proposalTitle}"?`)) return;
         router.post(route('admin.proposals.approve', { proposal: proposalId }));
     };
 
     return (
         <div className="flex items-center justify-end gap-2">
-            {/* Tombol Validasi (Approve) */}
-            <Button
-                id={`btn-approve-${proposalId}`}
-                size="sm"
-                disabled={disabled}
-                onClick={handleApprove}
-                className="gap-1.5 bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
-            >
-                <CheckCircle className="h-3.5 w-3.5" />
-                Validasi
-            </Button>
+            {/* Tombol Lihat Detail Proposal */}
+            <Link href={route('proposal.show', { proposal: proposalId })}>
+                <Button
+                    id={`btn-detail-${proposalId}`}
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5"
+                    title="Lihat Detail Proposal"
+                >
+                    <Eye className="h-3.5 w-3.5" />
+                    Detail
+                </Button>
+            </Link>
 
-            {/* Tombol Tolak (Reject) — membuka modal */}
-            <Button id={`btn-reject-${proposalId}`} size="sm" variant="destructive" disabled={disabled} onClick={onReject} className="gap-1.5">
-                <XCircle className="h-3.5 w-3.5" />
-                Tolak
-            </Button>
+            {/* Jika status Submitted, tampilkan tombol Setujui (Approve) & Tolak (Reject) */}
+            {status === 'Submitted' ? (
+                <>
+                    {/* Tombol Setujui (Approve) */}
+                    <Button
+                        id={`btn-approve-${proposalId}`}
+                        size="sm"
+                        disabled={disabled}
+                        onClick={handleApprove}
+                        className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50"
+                    >
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        Setujui
+                    </Button>
+
+                    {/* Tombol Tolak (Reject) — membuka modal penolakan */}
+                    <Button
+                        id={`btn-reject-${proposalId}`}
+                        size="sm"
+                        variant="destructive"
+                        disabled={disabled}
+                        onClick={onReject}
+                        className="gap-1.5"
+                    >
+                        <XCircle className="h-3.5 w-3.5" />
+                        Tolak
+                    </Button>
+                </>
+            ) : (
+                <span className="text-xs text-muted-foreground ml-1">{STATUS_LABELS[status] ?? '—'}</span>
+            )}
         </div>
     );
 }

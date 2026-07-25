@@ -176,7 +176,7 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                         <p className="mt-0.5 text-sm text-muted-foreground">Berikut ringkasan proposal riset dan pendanaan penelitian Anda.</p>
                     </div>
                     <Link
-                        href={route('user.pembinaan.akreditasi')}
+                        href={route('proposal.index')}
                         className="mt-3 inline-flex items-center gap-2 rounded-lg border border-sidebar-border/70 bg-white px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-muted sm:mt-0 dark:bg-neutral-950"
                     >
                         <FileText className="h-4 w-4" />

@@ -5,7 +5,7 @@
  * Halaman detail proposal penelitian.
  *
  * @features
- * - Informasi lengkap proposal (Judul, Skema, Status, Deskripsi, Tanggal)
+ * - Informasi lengkap proposal (Judul, Pengusul, Skema, Status, Deskripsi, Tanggal)
  * - Alasan penolakan (jika status Ditolak)
  * - Berkas utama & daftar dokumen pendukung beserta tombol unduh
  *
@@ -17,8 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
-import { AlertCircle, ArrowLeft, Download, Edit, FileText } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { AlertCircle, ArrowLeft, CheckCircle, Download, Edit, FileText, User as UserIcon, XCircle } from 'lucide-react';
 import { route } from 'ziggy-js';
 
 interface DocumentItem {
@@ -56,6 +56,9 @@ interface ShowProps {
 }
 
 export default function Show({ proposal }: ShowProps) {
+    const { auth } = usePage<any>().props;
+    const isOwner = auth?.user?.id === proposal.user?.id;
+
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
         { title: 'Proposal Penelitian', href: route('proposal.index') },
@@ -65,7 +68,7 @@ export default function Show({ proposal }: ShowProps) {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'Administrasi_Valid':
-                return <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white">Valid Administrasi</Badge>;
+                return <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white">Sudah Disetujui</Badge>;
             case 'Submitted':
                 return <Badge className="bg-blue-500 hover:bg-blue-600 text-white">Submitted</Badge>;
             case 'Ditolak':
@@ -75,6 +78,11 @@ export default function Show({ proposal }: ShowProps) {
         }
     };
 
+    const handleApprove = () => {
+        if (!confirm(`Setujui proposal "${proposal.title}"?`)) return;
+        router.post(route('admin.proposals.approve', { proposal: proposal.id }));
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Detail Proposal - ${proposal.title}`} />
@@ -82,11 +90,9 @@ export default function Show({ proposal }: ShowProps) {
             <div className="container mx-auto max-w-4xl p-4 sm:p-6 space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center space-x-3">
-                        <Link href={route('proposal.index')}>
-                            <Button variant="ghost" size="icon">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Button>
-                        </Link>
+                        <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
+                            <ArrowLeft className="h-4 w-4" />
+                        </Button>
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">Detail Proposal Penelitian</h1>
                             <p className="text-sm text-muted-foreground">
@@ -95,12 +101,14 @@ export default function Show({ proposal }: ShowProps) {
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                        <Link href={route('proposal.edit', proposal.id)}>
-                            <Button variant="outline">
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Proposal
-                            </Button>
-                        </Link>
+                        {isOwner && (
+                            <Link href={route('proposal.edit', proposal.id)}>
+                                <Button variant="outline">
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit Proposal
+                                </Button>
+                            </Link>
+                        )}
                     </div>
                 </div>
 
@@ -120,11 +128,19 @@ export default function Show({ proposal }: ShowProps) {
                 {/* Informasi Utama Proposal */}
                 <Card>
                     <CardHeader>
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start justify-between gap-4">
                             <div>
                                 <CardTitle className="text-xl leading-relaxed">{proposal.title}</CardTitle>
-                                <CardDescription className="mt-1">
-                                    Skema: <strong className="text-foreground">{proposal.research_schema?.name || 'Belum Ditentukan'}</strong>
+                                <CardDescription className="mt-2 space-y-1">
+                                    {proposal.user && (
+                                        <div className="flex items-center gap-1.5 text-sm text-foreground">
+                                            <UserIcon className="h-4 w-4 text-muted-foreground" />
+                                            <span>Pengusul: <strong>{proposal.user.name}</strong> ({proposal.user.email})</span>
+                                        </div>
+                                    )}
+                                    <div className="text-sm">
+                                        Skema Penelitian: <strong className="text-foreground">{proposal.research_schema?.name || 'Belum Ditentukan'}</strong>
+                                    </div>
                                 </CardDescription>
                             </div>
                             <div>{getStatusBadge(proposal.status_proposal)}</div>
