@@ -61,19 +61,14 @@ beforeEach(function () {
 function createProposal(int $userId, string $status = 'draft', float $pendanaan = 0): int
 {
     return DB::table('proposals')->insertGetId([
-        'id_pengusul' => $userId,
-        'id_skema_pendanaan' => null,
-        'judul_penelitian' => fake()->sentence(5),
-        'abstrak' => fake()->paragraph(),
-        'latar_belakang' => fake()->paragraph(),
+        'user_id' => $userId,
+        'research_schema_id' => null,
+        'title' => fake()->sentence(5),
+        'description' => fake()->paragraph(),
         'file_dokumen_proposal' => null,
         'status_proposal' => $status,
-        'tanggal_pengajuan' => $status === 'submitted' ? now()->toDateString() : null,
-        'total_pendanaan_disetujui' => $status === 'administrasi_valid' ? $pendanaan : null,
-        'deleted_by' => null,
         'created_at' => now(),
         'updated_at' => now(),
-        'deleted_at' => null,
     ]);
 }
 
