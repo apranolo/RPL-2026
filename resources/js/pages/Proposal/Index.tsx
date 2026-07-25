@@ -6,14 +6,13 @@
  *
  * @features
  * - Daftar proposal dosen dengan pencarian & filter status
- * - Status badge (Draft, Submitted, Administrasi Valid, Ditolak)
+ * - Badge status (Draft: kuning/amber, Submitted: biru, Administrasi Valid: hijau, Ditolak: merah)
  * - Navigasi ke halaman Buat Proposal Baru dan Detail/Edit Proposal
- * - Aksi hapus proposal (pemilik)
+ * - Aksi khusus "Edit", "Kirim / Submit", dan "Hapus" untuk proposal berstatus Draft
  *
  * @route GET /proposal
  */
 
-import ActionButtons from '@/components/ActionButtons';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,7 +22,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Eye, FileText, Plus, Search, Trash2 } from 'lucide-react';
+import { Eye, FileText, Plus, Search, Send, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
 
@@ -88,7 +87,7 @@ export default function Index({ proposals, filters }: IndexProps) {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Apakah Anda yakin ingin menghapus proposal ini?')) {
+        if (confirm('Apakah Anda yakin ingin menghapus draf proposal ini?')) {
             router.delete(route('proposal.destroy', id));
         }
     };
@@ -101,8 +100,13 @@ export default function Index({ proposals, filters }: IndexProps) {
                 return <Badge className="bg-blue-500 hover:bg-blue-600 text-white">Submitted</Badge>;
             case 'Ditolak':
                 return <Badge variant="destructive">Ditolak</Badge>;
+            case 'Draft':
             default:
-                return <Badge variant="outline">Draft</Badge>;
+                return (
+                    <Badge variant="outline" className="border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 font-medium">
+                        Draft
+                    </Badge>
+                );
         }
     };
 
@@ -115,7 +119,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Proposal Penelitian Saya</h1>
                         <p className="text-sm text-muted-foreground">
-                            Kelola pengajuan proposal penelitian Anda dalam sistem.
+                            Kelola draf dan pengajuan proposal penelitian Anda dalam sistem.
                         </p>
                     </div>
                     <Link href={route('proposal.create')}>
@@ -178,25 +182,43 @@ export default function Index({ proposals, filters }: IndexProps) {
                                                 <TableCell>{getStatusBadge(item.status_proposal)}</TableCell>
                                                 <TableCell className="text-right">
                                                     <div className="flex items-center justify-end space-x-2">
+                                                        {/* Detail View */}
                                                         <Link href={route('proposal.show', item.id)}>
-                                                            <Button size="icon" variant="ghost" title="Detail">
+                                                            <Button size="icon" variant="ghost" title="Detail Proposal">
                                                                 <Eye className="h-4 w-4" />
                                                             </Button>
                                                         </Link>
-                                                        <Link href={route('proposal.edit', item.id)}>
-                                                            <Button size="icon" variant="ghost" title="Edit">
-                                                                <FileText className="h-4 w-4" />
-                                                            </Button>
-                                                        </Link>
-                                                        <Button
-                                                            size="icon"
-                                                            variant="ghost"
-                                                            className="text-destructive hover:text-destructive"
-                                                            onClick={() => handleDelete(item.id)}
-                                                            title="Hapus"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
+
+                                                        {/* Aksi khusus untuk status Draft */}
+                                                        {item.status_proposal === 'Draft' && (
+                                                            <>
+                                                                {/* Edit Draf */}
+                                                                <Link href={route('proposal.edit', item.id)}>
+                                                                    <Button size="icon" variant="ghost" title="Edit Draf">
+                                                                        <FileText className="h-4 w-4 text-amber-600" />
+                                                                    </Button>
+                                                                </Link>
+
+                                                                {/* Kirim / Submit Proposal */}
+                                                                <Link href={route('proposal.edit', item.id)}>
+                                                                    <Button size="sm" variant="default" className="gap-1 text-xs h-8">
+                                                                        <Send className="h-3 w-3" />
+                                                                        Kirim
+                                                                    </Button>
+                                                                </Link>
+
+                                                                {/* Hapus Draf */}
+                                                                <Button
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    className="text-destructive hover:text-destructive"
+                                                                    onClick={() => handleDelete(item.id)}
+                                                                    title="Hapus Draf"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 </TableCell>
                                             </TableRow>

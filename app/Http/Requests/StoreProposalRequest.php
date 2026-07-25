@@ -36,11 +36,19 @@ class StoreProposalRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isSubmit = $this->input('action') === 'submit';
+
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'research_schema_id' => 'required|exists:research_schemas,id',
-            'file_dokumen_proposal' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'action' => 'nullable|string|in:draft,submit',
+            'file_dokumen_proposal' => [
+                $isSubmit ? 'required' : 'nullable',
+                'file',
+                'mimes:pdf,doc,docx',
+                'max:10240',
+            ],
         ];
     }
 
@@ -57,6 +65,8 @@ class StoreProposalRequest extends FormRequest
             'description.string' => 'Deskripsi proposal harus berupa teks.',
             'research_schema_id.required' => 'Skema penelitian wajib dipilih.',
             'research_schema_id.exists' => 'Skema penelitian yang dipilih tidak valid.',
+            'action.in' => 'Aksi proposal tidak valid.',
+            'file_dokumen_proposal.required' => 'Dokumen proposal wajib diunggah saat mengajukan proposal.',
             'file_dokumen_proposal.file' => 'Dokumen proposal harus berupa file.',
             'file_dokumen_proposal.mimes' => 'Format dokumen proposal harus PDF, DOC, atau DOCX.',
             'file_dokumen_proposal.max' => 'Ukuran berkas dokumen proposal maksimal 10 MB.',

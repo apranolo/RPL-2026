@@ -27,20 +27,20 @@ class ProposalPolicy
 
     /**
      * Tentukan apakah user boleh mengubah proposal.
-     * Hanya pemilik proposal berbasis kepemilikan user ID.
+     * Hanya pemilik proposal ketika status masih Draft.
      */
     public function update(User $user, Proposal $proposal): bool
     {
-        return $user->id === $proposal->user_id;
+        return $user->id === $proposal->user_id && $proposal->status_proposal === Proposal::STATUS_DRAFT;
     }
 
     /**
      * Tentukan apakah user boleh menghapus proposal.
-     * Hanya pemilik proposal berbasis kepemilikan user ID.
+     * Hanya pemilik proposal ketika status masih Draft.
      */
     public function delete(User $user, Proposal $proposal): bool
     {
-        return $user->id === $proposal->user_id;
+        return $user->id === $proposal->user_id && $proposal->status_proposal === Proposal::STATUS_DRAFT;
     }
 
     /**

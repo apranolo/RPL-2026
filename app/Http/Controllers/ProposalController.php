@@ -63,6 +63,7 @@ class ProposalController extends Controller
     public function store(StoreProposalRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        $action = $request->input('action', 'submit');
 
         $filePath = null;
         if ($request->hasFile('file_dokumen_proposal')) {
@@ -71,17 +72,23 @@ class ProposalController extends Controller
             $filePath = $file->storeAs('proposal_documents', $fileName, 'public');
         }
 
+        $status = ($action === 'draft') ? Proposal::STATUS_DRAFT : Proposal::STATUS_SUBMITTED;
+
         $proposal = Proposal::create([
             'title' => $validated['title'],
             'description' => $validated['description'],
             'user_id' => auth()->id(),
             'research_schema_id' => $validated['research_schema_id'],
-            'status_proposal' => Proposal::STATUS_SUBMITTED,
+            'status_proposal' => $status,
             'file_dokumen_proposal' => $filePath,
         ]);
 
+        $message = ($action === 'draft')
+            ? 'Proposal berhasil disimpan sebagai draf.'
+            : 'Proposal berhasil diajukan dan menunggu verifikasi admin.';
+
         return redirect()->route('proposal.index')
-            ->with('success', 'Proposal penelitian berhasil diajukan.');
+            ->with('success', $message);
     }
 
     /**
@@ -123,25 +130,56 @@ class ProposalController extends Controller
     {
         $this->authorize('update', $proposal);
 
+        $action = $request->input('action', 'submit');
+        $isSubmit = ($action === 'submit');
+
         $title = $request->input('title') ?? $request->input('judul');
         $description = $request->input('description') ?? $request->input('deskripsi');
 
-        $request->validate([
+        $rules = [
             'title' => 'required_without:judul|nullable|string|max:255',
             'judul' => 'required_without:title|nullable|string|max:255',
             'description' => 'required_without:deskripsi|nullable|string',
             'deskripsi' => 'required_without:description|nullable|string',
             'research_schema_id' => 'nullable|exists:research_schemas,id',
+            'action' => 'nullable|string|in:draft,submit',
+            'file_dokumen_proposal' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+        ];
+
+        if ($isSubmit && ! $proposal->file_dokumen_proposal) {
+            $rules['file_dokumen_proposal'] = 'required|file|mimes:pdf,doc,docx|max:10240';
+        }
+
+        $request->validate($rules, [
+            'file_dokumen_proposal.required' => 'Dokumen proposal wajib diunggah saat mengajukan proposal.',
         ]);
+
+        $filePath = $proposal->file_dokumen_proposal;
+        if ($request->hasFile('file_dokumen_proposal')) {
+            if ($proposal->file_dokumen_proposal) {
+                Storage::disk('public')->delete($proposal->file_dokumen_proposal);
+            }
+            $file = $request->file('file_dokumen_proposal');
+            $fileName = time().'_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
+            $filePath = $file->storeAs('proposal_documents', $fileName, 'public');
+        }
+
+        $status = ($action === 'draft') ? Proposal::STATUS_DRAFT : Proposal::STATUS_SUBMITTED;
 
         $proposal->update([
             'title' => $title,
             'description' => $description,
             'research_schema_id' => $request->input('research_schema_id', $proposal->research_schema_id),
+            'status_proposal' => $status,
+            'file_dokumen_proposal' => $filePath,
         ]);
 
+        $message = ($action === 'draft')
+            ? 'Proposal berhasil disimpan sebagai draf.'
+            : 'Proposal berhasil diajukan dan menunggu verifikasi admin.';
+
         return redirect()->route('proposal.index')
-            ->with('success', 'Proposal berhasil diupdate');
+            ->with('success', $message);
     }
 
     /**

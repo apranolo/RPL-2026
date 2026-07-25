@@ -16,13 +16,28 @@ class ProposalTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite();
+    }
+
+    protected function createUserWithRole(string $roleName = Role::USER): User
+    {
+        $role = Role::firstOrCreate(['name' => $roleName], ['display_name' => $roleName]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['role_id' => $role->id]);
+
+        return $user;
+    }
+
     /**
      * Menguji pengguna terautentikasi dapat mengakses halaman daftar proposal.
      */
     public function test_user_can_access_proposal_index_page()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-        $user = User::factory()->create();
+        $user = $this->createUserWithRole(Role::USER);
 
         $response = $this->actingAs($user)->get(route('proposal.index'));
 
@@ -34,8 +49,7 @@ class ProposalTest extends TestCase
      */
     public function test_user_can_access_create_proposal_page()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-        $user = User::factory()->create();
+        $user = $this->createUserWithRole(Role::USER);
 
         $response = $this->actingAs($user)->get(route('proposal.create'));
 
@@ -49,8 +63,7 @@ class ProposalTest extends TestCase
     {
         Storage::fake('public');
 
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-        $user = User::factory()->create();
+        $user = $this->createUserWithRole(Role::USER);
         $schema = ResearchSchema::factory()->create(['is_active' => true]);
 
         $file = UploadedFile::fake()->create('proposal.pdf', 500, 'application/pdf');
@@ -59,6 +72,7 @@ class ProposalTest extends TestCase
             'title' => 'Proposal Penelitian Baru',
             'description' => 'Deskripsi proposal penelitian baru.',
             'research_schema_id' => $schema->id,
+            'action' => 'submit',
             'file_dokumen_proposal' => $file,
         ];
 
@@ -75,12 +89,71 @@ class ProposalTest extends TestCase
     }
 
     /**
+     * Menguji Dosen dapat menyimpan proposal sebagai Draf tanpa mengunggah file PDF.
+     */
+    public function test_user_can_store_proposal_as_draft()
+    {
+        $user = $this->createUserWithRole(Role::USER);
+        $schema = ResearchSchema::factory()->create(['is_active' => true]);
+
+        $data = [
+            'title' => 'Proposal Draf Baru',
+            'description' => 'Deskripsi proposal draf tanpa dokumen.',
+            'research_schema_id' => $schema->id,
+            'action' => 'draft',
+        ];
+
+        $response = $this->actingAs($user)->post(route('proposal.store'), $data);
+
+        $response->assertRedirect(route('proposal.index'));
+
+        $this->assertDatabaseHas('proposals', [
+            'title' => 'Proposal Draf Baru',
+            'user_id' => $user->id,
+            'status_proposal' => Proposal::STATUS_DRAFT,
+            'file_dokumen_proposal' => null,
+        ]);
+    }
+
+    /**
+     * Menguji Dosen dapat mempublikasikan (mengirim) proposal dari Draf menjadi Submitted.
+     */
+    public function test_user_can_publish_draft_proposal()
+    {
+        Storage::fake('public');
+
+        $user = $this->createUserWithRole(Role::USER);
+        $proposal = Proposal::factory()->create([
+            'user_id' => $user->id,
+            'status_proposal' => Proposal::STATUS_DRAFT,
+        ]);
+
+        $file = UploadedFile::fake()->create('proposal_final.pdf', 500, 'application/pdf');
+
+        $updateData = [
+            'title' => 'Proposal Dipublikasikan',
+            'description' => 'Deskripsi proposal yang telah dilengkapi.',
+            'action' => 'submit',
+            'file_dokumen_proposal' => $file,
+        ];
+
+        $response = $this->actingAs($user)->put(route('proposal.update', $proposal), $updateData);
+
+        $response->assertRedirect(route('proposal.index'));
+
+        $this->assertDatabaseHas('proposals', [
+            'id' => $proposal->id,
+            'title' => 'Proposal Dipublikasikan',
+            'status_proposal' => Proposal::STATUS_SUBMITTED,
+        ]);
+    }
+
+    /**
      * Menguji pemilik dapat melihat halaman detail proposal.
      */
     public function test_user_can_view_proposal_detail_page()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-        $user = User::factory()->create();
+        $user = $this->createUserWithRole(Role::USER);
         $proposal = Proposal::factory()->create(['user_id' => $user->id]);
 
         $response = $this->actingAs($user)->get(route('proposal.show', $proposal));
@@ -89,13 +162,15 @@ class ProposalTest extends TestCase
     }
 
     /**
-     * Menguji pengguna terautentikasi dapat mengakses halaman edit proposal.
+     * Menguji pengguna terautentikasi dapat mengakses halaman edit proposal draf.
      */
     public function test_authenticated_user_can_access_edit_proposal_page()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-        $user = User::factory()->create();
-        $proposal = Proposal::factory()->create(['user_id' => $user->id]);
+        $user = $this->createUserWithRole(Role::USER);
+        $proposal = Proposal::factory()->create([
+            'user_id' => $user->id,
+            'status_proposal' => Proposal::STATUS_DRAFT,
+        ]);
 
         $response = $this->actingAs($user)->get(route('proposal.edit', $proposal));
 
@@ -103,17 +178,20 @@ class ProposalTest extends TestCase
     }
 
     /**
-     * Menguji pemilik dapat memperbarui proposal mereka sendiri.
+     * Menguji pemilik dapat memperbarui proposal Draf mereka sendiri.
      */
     public function test_user_can_update_their_own_proposal()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-        $user = User::factory()->create();
-        $proposal = Proposal::factory()->create(['user_id' => $user->id]);
+        $user = $this->createUserWithRole(Role::USER);
+        $proposal = Proposal::factory()->create([
+            'user_id' => $user->id,
+            'status_proposal' => Proposal::STATUS_DRAFT,
+        ]);
 
         $updatedData = [
             'judul' => 'Judul Baru Diubah',
             'deskripsi' => 'Deskripsi Baru Diubah',
+            'action' => 'draft',
         ];
 
         $response = $this->actingAs($user)->put(route('proposal.update', $proposal), $updatedData);
@@ -129,10 +207,12 @@ class ProposalTest extends TestCase
      */
     public function test_user_cannot_update_others_proposal()
     {
-        $user1 = User::factory()->create();
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user2 */
-        $user2 = User::factory()->create();
-        $proposal = Proposal::factory()->create(['user_id' => $user1->id]);
+        $user1 = $this->createUserWithRole(Role::USER);
+        $user2 = $this->createUserWithRole(Role::USER);
+        $proposal = Proposal::factory()->create([
+            'user_id' => $user1->id,
+            'status_proposal' => Proposal::STATUS_DRAFT,
+        ]);
 
         $updatedData = [
             'judul' => 'Mencoba Mengubah',
@@ -145,13 +225,15 @@ class ProposalTest extends TestCase
     }
 
     /**
-     * Menguji pemilik dapat menghapus proposal mereka sendiri.
+     * Menguji pemilik dapat menghapus proposal Draf mereka sendiri.
      */
     public function test_user_can_delete_their_own_proposal()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-        $user = User::factory()->create();
-        $proposal = Proposal::factory()->create(['user_id' => $user->id]);
+        $user = $this->createUserWithRole(Role::USER);
+        $proposal = Proposal::factory()->create([
+            'user_id' => $user->id,
+            'status_proposal' => Proposal::STATUS_DRAFT,
+        ]);
 
         $response = $this->actingAs($user)->delete(route('proposal.destroy', $proposal));
 
@@ -165,10 +247,12 @@ class ProposalTest extends TestCase
      */
     public function test_user_cannot_delete_others_proposal()
     {
-        $user1 = User::factory()->create();
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user2 */
-        $user2 = User::factory()->create();
-        $proposal = Proposal::factory()->create(['user_id' => $user1->id]);
+        $user1 = $this->createUserWithRole(Role::USER);
+        $user2 = $this->createUserWithRole(Role::USER);
+        $proposal = Proposal::factory()->create([
+            'user_id' => $user1->id,
+            'status_proposal' => Proposal::STATUS_DRAFT,
+        ]);
 
         $response = $this->actingAs($user2)->delete(route('proposal.destroy', $proposal));
 
@@ -183,9 +267,7 @@ class ProposalTest extends TestCase
      */
     public function test_super_admin_can_access_admin_proposals_page()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $admin */
-        $admin = User::factory()->create();
-        $admin->assignRole(Role::SUPER_ADMIN);
+        $admin = $this->createUserWithRole(Role::SUPER_ADMIN);
 
         $response = $this->actingAs($admin)->get(route('admin.proposals.index'));
 
@@ -197,9 +279,7 @@ class ProposalTest extends TestCase
      */
     public function test_super_admin_can_approve_proposal()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $admin */
-        $admin = User::factory()->create();
-        $admin->assignRole(Role::SUPER_ADMIN);
+        $admin = $this->createUserWithRole(Role::SUPER_ADMIN);
 
         $proposal = Proposal::factory()->create([
             'status_proposal' => Proposal::STATUS_SUBMITTED,
@@ -220,9 +300,7 @@ class ProposalTest extends TestCase
      */
     public function test_super_admin_can_reject_proposal()
     {
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $admin */
-        $admin = User::factory()->create();
-        $admin->assignRole(Role::SUPER_ADMIN);
+        $admin = $this->createUserWithRole(Role::SUPER_ADMIN);
 
         $proposal = Proposal::factory()->create([
             'status_proposal' => Proposal::STATUS_SUBMITTED,
@@ -248,8 +326,7 @@ class ProposalTest extends TestCase
     {
         Storage::fake('public');
 
-        /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-        $user = User::factory()->create();
+        $user = $this->createUserWithRole(Role::USER);
         $proposal = Proposal::factory()->create(['user_id' => $user->id]);
 
         $filePath = 'proposal_documents/test_doc.pdf';

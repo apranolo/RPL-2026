@@ -7,7 +7,8 @@
  * @features
  * - Input judul, deskripsi/abstrak proposal
  * - Pilihan skema penelitian (ResearchSchema)
- * - Unggah dokumen proposal (PDF/DOC/DOCX max 10MB)
+ * - Unggah dokumen proposal (PDF/DOC/DOCX max 10MB, wajib jika Submit, opsional jika Draf)
+ * - Tombol opsi: "Simpan sebagai Draf" (Draft) dan "Kirim Proposal" (Submit)
  * - Penanganan validasi error realtime via useForm Inertia
  *
  * @route GET /proposal/create
@@ -22,7 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft, Save, Send } from 'lucide-react';
 import { route } from 'ziggy-js';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -48,11 +49,23 @@ export default function Create({ schemas }: CreateProps) {
         description: '',
         research_schema_id: '',
         file_dokumen_proposal: null as File | null,
+        action: 'submit',
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        post(route('proposal.store'));
+    const handleSubmit = (actionType: 'draft' | 'submit') => {
+        if (actionType === 'submit') {
+            if (!confirm('Apakah Anda yakin ingin mengajukan proposal ini secara resmi?')) {
+                return;
+            }
+        }
+
+        // Post form data with selected action
+        post(route('proposal.store'), {
+            data: {
+                ...data,
+                action: actionType,
+            },
+        });
     };
 
     return (
@@ -69,7 +82,7 @@ export default function Create({ schemas }: CreateProps) {
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Formulir Pengajuan Proposal</h1>
                         <p className="text-sm text-muted-foreground">
-                            Lengkapi data di bawah ini untuk mengajukan proposal penelitian baru.
+                            Lengkapi data di bawah ini. Anda dapat menyimpan sebagai draf atau langsung mengirimkan proposal.
                         </p>
                     </div>
                 </div>
@@ -82,7 +95,7 @@ export default function Create({ schemas }: CreateProps) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                             {/* Judul Proposal */}
                             <div className="space-y-2">
                                 <Label htmlFor="title">Judul Proposal <span className="text-destructive">*</span></Label>
@@ -145,7 +158,12 @@ export default function Create({ schemas }: CreateProps) {
 
                             {/* File Upload */}
                             <div className="space-y-2">
-                                <Label htmlFor="file_dokumen_proposal">Dokumen Proposal (PDF/DOCX, Maks. 10MB)</Label>
+                                <Label htmlFor="file_dokumen_proposal">
+                                    Dokumen Proposal (PDF/DOCX, Maks. 10MB)
+                                    <span className="text-xs text-muted-foreground ml-1 font-normal">
+                                        (Wajib jika langsung Kirim Proposal, opsional untuk Draf)
+                                    </span>
+                                </Label>
                                 <div className="flex items-center space-x-3">
                                     <Input
                                         id="file_dokumen_proposal"
@@ -160,16 +178,33 @@ export default function Create({ schemas }: CreateProps) {
                                 )}
                             </div>
 
-                            {/* Submit Button */}
-                            <div className="flex justify-end space-x-3 pt-4">
+                            {/* Action Buttons: Draf vs Kirim */}
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t">
                                 <Link href={route('proposal.index')}>
-                                    <Button type="button" variant="outline">
+                                    <Button type="button" variant="ghost" className="w-full sm:w-auto">
                                         Batal
                                     </Button>
                                 </Link>
-                                <Button type="submit" disabled={processing}>
-                                    <Upload className="mr-2 h-4 w-4" />
-                                    {processing ? 'Menyimpan...' : 'Submit Proposal'}
+
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    disabled={processing}
+                                    onClick={() => handleSubmit('draft')}
+                                    className="w-full sm:w-auto"
+                                >
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Simpan sebagai Draf
+                                </Button>
+
+                                <Button
+                                    type="button"
+                                    disabled={processing}
+                                    onClick={() => handleSubmit('submit')}
+                                    className="w-full sm:w-auto"
+                                >
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Kirim Proposal
                                 </Button>
                             </div>
                         </form>
