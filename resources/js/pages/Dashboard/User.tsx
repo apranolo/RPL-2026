@@ -158,7 +158,7 @@ function SuccessRing({ rate }: { rate: number }) {
  * Renders KPI cards and analytics sourced from the `proposals` table per
  * Modul 6 – Dashboard dan Pelaporan specification (Kelas B).
  */
-export default function UserDashboard({ stats, proposal_stats }: UserDashboardProps) {
+export default function UserDashboard({ stats: _stats, proposal_stats }: UserDashboardProps) {
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
 

@@ -70,7 +70,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                 search,
                 status: statusFilter === 'all' ? '' : statusFilter,
             },
-            { preserveState: true }
+            { preserveState: true },
         );
     };
 
@@ -82,7 +82,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                 search,
                 status: val === 'all' ? '' : val,
             },
-            { preserveState: true }
+            { preserveState: true },
         );
     };
 
@@ -95,15 +95,18 @@ export default function Index({ proposals, filters }: IndexProps) {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'Administrasi_Valid':
-                return <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white">Valid Administrasi</Badge>;
+                return <Badge className="bg-emerald-500 text-white hover:bg-emerald-600">Valid Administrasi</Badge>;
             case 'Submitted':
-                return <Badge className="bg-blue-500 hover:bg-blue-600 text-white">Submitted</Badge>;
+                return <Badge className="bg-blue-500 text-white hover:bg-blue-600">Submitted</Badge>;
             case 'Ditolak':
                 return <Badge variant="destructive">Ditolak</Badge>;
             case 'Draft':
             default:
                 return (
-                    <Badge variant="outline" className="border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 font-medium">
+                    <Badge
+                        variant="outline"
+                        className="border-amber-500 bg-amber-50 font-medium text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
+                    >
                         Draft
                     </Badge>
                 );
@@ -114,13 +117,11 @@ export default function Index({ proposals, filters }: IndexProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Proposal Penelitian Saya" />
 
-            <div className="container mx-auto p-4 sm:p-6 space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="container mx-auto space-y-6 p-4 sm:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Proposal Penelitian Saya</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Kelola draf dan pengajuan proposal penelitian Anda dalam sistem.
-                        </p>
+                        <p className="text-sm text-muted-foreground">Kelola draf dan pengajuan proposal penelitian Anda dalam sistem.</p>
                     </div>
                     <Link href={route('proposal.create')}>
                         <Button className="w-full sm:w-auto">
@@ -131,10 +132,10 @@ export default function Index({ proposals, filters }: IndexProps) {
                 </div>
 
                 <Card>
-                    <CardContent className="p-4 sm:p-6 space-y-4">
-                        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+                    <CardContent className="space-y-4 p-4 sm:p-6">
+                        <form onSubmit={handleSearch} className="flex flex-col gap-3 sm:flex-row">
                             <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     placeholder="Cari judul proposal..."
                                     value={search}
@@ -159,7 +160,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                             </Button>
                         </form>
 
-                        <div className="rounded-md border overflow-x-auto">
+                        <div className="overflow-x-auto rounded-md border">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -173,12 +174,10 @@ export default function Index({ proposals, filters }: IndexProps) {
                                     {proposals.data && proposals.data.length > 0 ? (
                                         proposals.data.map((item) => (
                                             <TableRow key={item.id}>
-                                                <TableCell className="font-medium max-w-md">
+                                                <TableCell className="max-w-md font-medium">
                                                     <div className="line-clamp-2">{item.title}</div>
                                                 </TableCell>
-                                                <TableCell>
-                                                    {item.research_schema?.name || 'Belum dipilih'}
-                                                </TableCell>
+                                                <TableCell>{item.research_schema?.name || 'Belum dipilih'}</TableCell>
                                                 <TableCell>{getStatusBadge(item.status_proposal)}</TableCell>
                                                 <TableCell className="text-right">
                                                     <div className="flex items-center justify-end space-x-2">
@@ -201,7 +200,7 @@ export default function Index({ proposals, filters }: IndexProps) {
 
                                                                 {/* Kirim / Submit Proposal */}
                                                                 <Link href={route('proposal.edit', item.id)}>
-                                                                    <Button size="sm" variant="default" className="gap-1 text-xs h-8">
+                                                                    <Button size="sm" variant="default" className="h-8 gap-1 text-xs">
                                                                         <Send className="h-3 w-3" />
                                                                         Kirim
                                                                     </Button>
@@ -225,7 +224,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                                            <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
                                                 Belum ada proposal penelitian yang diajukan.
                                             </TableCell>
                                         </TableRow>

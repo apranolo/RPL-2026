@@ -63,13 +63,7 @@ export default function ActionButtons({ proposalId, proposalTitle, status, onRej
         <div className="flex items-center justify-end gap-2">
             {/* Tombol Lihat Detail Proposal */}
             <Link href={route('proposal.show', { proposal: proposalId })}>
-                <Button
-                    id={`btn-detail-${proposalId}`}
-                    size="sm"
-                    variant="outline"
-                    className="gap-1.5"
-                    title="Lihat Detail Proposal"
-                >
+                <Button id={`btn-detail-${proposalId}`} size="sm" variant="outline" className="gap-1.5" title="Lihat Detail Proposal">
                     <Eye className="h-3.5 w-3.5" />
                     Detail
                 </Button>
@@ -104,7 +98,7 @@ export default function ActionButtons({ proposalId, proposalTitle, status, onRej
                     </Button>
                 </>
             ) : (
-                <span className="text-xs text-muted-foreground ml-1">{STATUS_LABELS[status] ?? '—'}</span>
+                <span className="ml-1 text-xs text-muted-foreground">{STATUS_LABELS[status] ?? '—'}</span>
             )}
         </div>
     );

@@ -17,8 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { AlertCircle, ArrowLeft, CheckCircle, Download, Edit, FileText, User as UserIcon, XCircle } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { AlertCircle, ArrowLeft, Download, Edit, FileText, User as UserIcon } from 'lucide-react';
 import { route } from 'ziggy-js';
 
 interface DocumentItem {
@@ -68,9 +68,9 @@ export default function Show({ proposal }: ShowProps) {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'Administrasi_Valid':
-                return <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white">Sudah Disetujui</Badge>;
+                return <Badge className="bg-emerald-500 text-white hover:bg-emerald-600">Sudah Disetujui</Badge>;
             case 'Submitted':
-                return <Badge className="bg-blue-500 hover:bg-blue-600 text-white">Submitted</Badge>;
+                return <Badge className="bg-blue-500 text-white hover:bg-blue-600">Submitted</Badge>;
             case 'Ditolak':
                 return <Badge variant="destructive">Ditolak</Badge>;
             default:
@@ -78,26 +78,19 @@ export default function Show({ proposal }: ShowProps) {
         }
     };
 
-    const handleApprove = () => {
-        if (!confirm(`Setujui proposal "${proposal.title}"?`)) return;
-        router.post(route('admin.proposals.approve', { proposal: proposal.id }));
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Detail Proposal - ${proposal.title}`} />
 
-            <div className="container mx-auto max-w-4xl p-4 sm:p-6 space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="container mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center space-x-3">
                         <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">Detail Proposal Penelitian</h1>
-                            <p className="text-sm text-muted-foreground">
-                                Informasi lengkap pengajuan proposal penelitian.
-                            </p>
+                            <p className="text-sm text-muted-foreground">Informasi lengkap pengajuan proposal penelitian.</p>
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -114,12 +107,12 @@ export default function Show({ proposal }: ShowProps) {
 
                 {/* Status Penolakan Alert jika Ditolak */}
                 {proposal.status_proposal === 'Ditolak' && proposal.rejection_reason && (
-                    <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive space-y-1">
+                    <div className="space-y-1 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
                         <div className="flex items-center space-x-2 font-semibold">
                             <AlertCircle className="h-5 w-5" />
                             <span>Proposal Ditolak pada Tahap Administrasi</span>
                         </div>
-                        <p className="text-sm text-destructive/90 pl-7">
+                        <p className="pl-7 text-sm text-destructive/90">
                             <strong>Alasan Penolakan:</strong> {proposal.rejection_reason}
                         </p>
                     </div>
@@ -135,11 +128,14 @@ export default function Show({ proposal }: ShowProps) {
                                     {proposal.user && (
                                         <div className="flex items-center gap-1.5 text-sm text-foreground">
                                             <UserIcon className="h-4 w-4 text-muted-foreground" />
-                                            <span>Pengusul: <strong>{proposal.user.name}</strong> ({proposal.user.email})</span>
+                                            <span>
+                                                Pengusul: <strong>{proposal.user.name}</strong> ({proposal.user.email})
+                                            </span>
                                         </div>
                                     )}
                                     <div className="text-sm">
-                                        Skema Penelitian: <strong className="text-foreground">{proposal.research_schema?.name || 'Belum Ditentukan'}</strong>
+                                        Skema Penelitian:{' '}
+                                        <strong className="text-foreground">{proposal.research_schema?.name || 'Belum Ditentukan'}</strong>
                                     </div>
                                 </CardDescription>
                             </div>
@@ -148,10 +144,10 @@ export default function Show({ proposal }: ShowProps) {
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div>
-                            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                            <h3 className="mb-2 text-sm font-semibold tracking-wider text-muted-foreground uppercase">
                                 Ringkasan / Deskripsi Proposal
                             </h3>
-                            <p className="whitespace-pre-line text-sm leading-relaxed text-foreground bg-muted/30 p-4 rounded-md">
+                            <p className="rounded-md bg-muted/30 p-4 text-sm leading-relaxed whitespace-pre-line text-foreground">
                                 {proposal.description}
                             </p>
                         </div>
@@ -159,20 +155,13 @@ export default function Show({ proposal }: ShowProps) {
                         {/* File Dokumen Utama */}
                         {proposal.file_dokumen_proposal && (
                             <div>
-                                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                                    Berkas Utama Proposal
-                                </h3>
-                                <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                                <h3 className="mb-2 text-sm font-semibold tracking-wider text-muted-foreground uppercase">Berkas Utama Proposal</h3>
+                                <div className="flex items-center justify-between rounded-lg border bg-card p-3">
                                     <div className="flex items-center space-x-3">
                                         <FileText className="h-5 w-5 text-primary" />
                                         <span className="text-sm font-medium">Dokumen Utama Proposal</span>
                                     </div>
-                                    <a
-                                        href={`/storage/${proposal.file_dokumen_proposal}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        download
-                                    >
+                                    <a href={`/storage/${proposal.file_dokumen_proposal}`} target="_blank" rel="noopener noreferrer" download>
                                         <Button size="sm" variant="secondary">
                                             <Download className="mr-2 h-4 w-4" />
                                             Unduh Berkas
@@ -185,19 +174,15 @@ export default function Show({ proposal }: ShowProps) {
                         {/* Dokumen Pendukung */}
                         {proposal.documents && proposal.documents.length > 0 && (
                             <div>
-                                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                                    Dokumen Pendukung
-                                </h3>
+                                <h3 className="mb-2 text-sm font-semibold tracking-wider text-muted-foreground uppercase">Dokumen Pendukung</h3>
                                 <div className="space-y-2">
                                     {proposal.documents.map((doc) => (
-                                        <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                                        <div key={doc.id} className="flex items-center justify-between rounded-lg border bg-card p-3">
                                             <div className="flex items-center space-x-3">
                                                 <FileText className="h-5 w-5 text-muted-foreground" />
                                                 <div>
                                                     <p className="text-sm font-medium">{doc.file_name}</p>
-                                                    {doc.document_type && (
-                                                        <p className="text-xs text-muted-foreground">{doc.document_type}</p>
-                                                    )}
+                                                    {doc.document_type && <p className="text-xs text-muted-foreground">{doc.document_type}</p>}
                                                 </div>
                                             </div>
                                             <a href={route('proposal.documents.download', doc.id)}>

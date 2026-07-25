@@ -23,7 +23,6 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save, Send } from 'lucide-react';
-import React from 'react';
 import { route } from 'ziggy-js';
 
 interface SchemaOption {
@@ -50,7 +49,7 @@ interface EditProps {
 }
 
 export default function Edit({ proposal, schemas = [] }: EditProps) {
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, transform, processing, errors } = useForm({
         title: proposal?.title ?? proposal?.judul ?? '',
         description: proposal?.description ?? proposal?.deskripsi ?? '',
         research_schema_id: proposal?.research_schema_id ? String(proposal.research_schema_id) : '',
@@ -76,20 +75,18 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
             }
         }
 
-        // Use Inertia post with _method PUT to handle file upload along with PUT request
-        post(route('proposal.update', proposal.id), {
-            data: {
-                ...data,
-                action: actionType,
-            },
-        });
+        transform((formData) => ({
+            ...formData,
+            action: actionType,
+        }));
+        post(route('proposal.update', proposal.id));
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Proposal - ${data.title}`} />
 
-            <div className="container mx-auto max-w-3xl p-4 sm:p-6 space-y-6">
+            <div className="container mx-auto max-w-3xl space-y-6 p-4 sm:p-6">
                 <div className="flex items-center space-x-4">
                     <Link href={route('proposal.index')}>
                         <Button variant="ghost" size="icon">
@@ -98,9 +95,7 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                     </Link>
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Edit Proposal Penelitian</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Perbarui rincian proposal Anda sebelum diajukan secara resmi.
-                        </p>
+                        <p className="text-sm text-muted-foreground">Perbarui rincian proposal Anda sebelum diajukan secara resmi.</p>
                     </div>
                 </div>
 
@@ -115,7 +110,9 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                         <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                             {/* Judul Proposal */}
                             <div className="space-y-2">
-                                <Label htmlFor="title">Judul Proposal <span className="text-destructive">*</span></Label>
+                                <Label htmlFor="title">
+                                    Judul Proposal <span className="text-destructive">*</span>
+                                </Label>
                                 <Input
                                     id="title"
                                     type="text"
@@ -130,10 +127,7 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                             {schemas.length > 0 && (
                                 <div className="space-y-2">
                                     <Label htmlFor="research_schema_id">Skema Penelitian</Label>
-                                    <Select
-                                        value={data.research_schema_id}
-                                        onValueChange={(val) => setData('research_schema_id', val)}
-                                    >
+                                    <Select value={data.research_schema_id} onValueChange={(val) => setData('research_schema_id', val)}>
                                         <SelectTrigger className={errors.research_schema_id ? 'border-destructive' : ''}>
                                             <SelectValue placeholder="Pilih Skema Penelitian" />
                                         </SelectTrigger>
@@ -145,15 +139,15 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.research_schema_id && (
-                                        <p className="text-sm text-destructive">{errors.research_schema_id}</p>
-                                    )}
+                                    {errors.research_schema_id && <p className="text-sm text-destructive">{errors.research_schema_id}</p>}
                                 </div>
                             )}
 
                             {/* Deskripsi */}
                             <div className="space-y-2">
-                                <Label htmlFor="description">Deskripsi / Ringkasan <span className="text-destructive">*</span></Label>
+                                <Label htmlFor="description">
+                                    Deskripsi / Ringkasan <span className="text-destructive">*</span>
+                                </Label>
                                 <Textarea
                                     id="description"
                                     rows={5}
@@ -166,9 +160,7 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
 
                             {/* Berkas Dokumen Proposal */}
                             <div className="space-y-2">
-                                <Label htmlFor="file_dokumen_proposal">
-                                    Unggah Berkas Baru (PDF/DOCX, Maks. 10MB)
-                                </Label>
+                                <Label htmlFor="file_dokumen_proposal">Unggah Berkas Baru (PDF/DOCX, Maks. 10MB)</Label>
                                 <Input
                                     id="file_dokumen_proposal"
                                     type="file"
@@ -181,13 +173,11 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                                         Berkas saat ini sudah terunggah. Biarkan kosong jika tidak ingin mengubah berkas.
                                     </p>
                                 )}
-                                {errors.file_dokumen_proposal && (
-                                    <p className="text-sm text-destructive">{errors.file_dokumen_proposal}</p>
-                                )}
+                                {errors.file_dokumen_proposal && <p className="text-sm text-destructive">{errors.file_dokumen_proposal}</p>}
                             </div>
 
                             {/* Action Buttons: Draf vs Kirim */}
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t">
+                            <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-end">
                                 <Link href={route('proposal.index')}>
                                     <Button type="button" variant="ghost" className="w-full sm:w-auto">
                                         Batal
@@ -205,12 +195,7 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                                     Simpan sebagai Draf
                                 </Button>
 
-                                <Button
-                                    type="button"
-                                    disabled={processing}
-                                    onClick={() => handleSubmit('submit')}
-                                    className="w-full sm:w-auto"
-                                >
+                                <Button type="button" disabled={processing} onClick={() => handleSubmit('submit')} className="w-full sm:w-auto">
                                     <Send className="mr-2 h-4 w-4" />
                                     Kirim Proposal
                                 </Button>
