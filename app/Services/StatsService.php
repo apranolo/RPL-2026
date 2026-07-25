@@ -31,15 +31,14 @@ class StatsService
      */
     public function successRate(?int $userId = null, ?int $universityId = null): float
     {
-        $query = DB::table('proposals')
-            ->whereNull('deleted_at');
+        $query = DB::table('proposals');
 
         if ($userId !== null) {
-            $query->where('id_pengusul', $userId);
+            $query->where('user_id', $userId);
         }
 
         if ($universityId !== null) {
-            $query->whereIn('id_pengusul', function ($sub) use ($universityId) {
+            $query->whereIn('user_id', function ($sub) use ($universityId) {
                 $sub->select('id')
                     ->from('users')
                     ->where('university_id', $universityId);
@@ -47,11 +46,11 @@ class StatsService
         }
 
         $approved = (clone $query)
-            ->where('status_proposal', 'administrasi_valid')
+            ->whereIn('status_proposal', ['Administrasi_Valid', 'administrasi_valid', 'approved'])
             ->count();
 
         $decided = (clone $query)
-            ->whereIn('status_proposal', ['administrasi_valid', 'ditolak'])
+            ->whereIn('status_proposal', ['Administrasi_Valid', 'administrasi_valid', 'approved', 'Ditolak', 'ditolak', 'rejected'])
             ->count();
 
         if ($decided === 0) {
@@ -63,31 +62,17 @@ class StatsService
 
     /**
      * Get a full proposal statistics summary for a single researcher.
-     *
-     * Returns:
-     * - total:              all proposals ever submitted by this researcher
-     * - masuk:             proposals with status "submitted" (waiting admin review)
-     * - lolos:             proposals with status "administrasi_valid" (approved)
-     * - gagal:             proposals with status "ditolak" (rejected)
-     * - draft:             proposals still in draft state
-     * - success_rate:      percentage of lolos out of decided (lolos + gagal)
-     * - total_pendanaan:   sum of approved funding amounts (IDR)
-     *
-     * @return array{total: int, masuk: int, lolos: int, gagal: int, draft: int, success_rate: float, total_pendanaan: float}
      */
     public function getProposalSummaryForUser(int $userId): array
     {
         $counts = DB::table('proposals')
-            ->whereNull('deleted_at')
-            ->where('id_pengusul', $userId)
+            ->where('user_id', $userId)
             ->selectRaw("
                 COUNT(*) as total,
-                SUM(CASE WHEN status_proposal = 'submitted'          THEN 1 ELSE 0 END) as masuk,
-                SUM(CASE WHEN status_proposal = 'administrasi_valid' THEN 1 ELSE 0 END) as lolos,
-                SUM(CASE WHEN status_proposal = 'ditolak'            THEN 1 ELSE 0 END) as gagal,
-                SUM(CASE WHEN status_proposal = 'draft'              THEN 1 ELSE 0 END) as draft,
-                COALESCE(SUM(CASE WHEN status_proposal = 'administrasi_valid'
-                    THEN total_pendanaan_disetujui ELSE 0 END), 0) as total_pendanaan
+                SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
+                SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved') THEN 1 ELSE 0 END) as lolos,
+                SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
+                SUM(CASE WHEN status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft
             ")
             ->first();
 
@@ -96,7 +81,6 @@ class StatsService
         $lolos = (int) ($counts->lolos ?? 0);
         $gagal = (int) ($counts->gagal ?? 0);
         $draft = (int) ($counts->draft ?? 0);
-        $totalPendanaan = (float) ($counts->total_pendanaan ?? 0.0);
 
         return [
             'total' => $total,
@@ -105,33 +89,24 @@ class StatsService
             'gagal' => $gagal,
             'draft' => $draft,
             'success_rate' => $this->successRate(userId: $userId),
-            'total_pendanaan' => $totalPendanaan,
+            'total_pendanaan' => 0.0,
         ];
     }
 
     /**
      * Get a full proposal statistics summary scoped to a university.
-     *
-     * Scoped via the `id_pengusul` → `users.university_id` join so that
-     * only proposals submitted by researchers belonging to the given
-     * university are counted.
-     *
-     * @return array{total: int, masuk: int, lolos: int, gagal: int, draft: int, success_rate: float, total_pendanaan: float}
      */
     public function getProposalSummaryForUniversity(int $universityId): array
     {
         $counts = DB::table('proposals as p')
-            ->join('users', 'p.id_pengusul', '=', 'users.id')
-            ->whereNull('p.deleted_at')
+            ->join('users', 'p.user_id', '=', 'users.id')
             ->where('users.university_id', $universityId)
             ->selectRaw("
                 COUNT(*) as total,
-                SUM(CASE WHEN p.status_proposal = 'submitted'          THEN 1 ELSE 0 END) as masuk,
-                SUM(CASE WHEN p.status_proposal = 'administrasi_valid' THEN 1 ELSE 0 END) as lolos,
-                SUM(CASE WHEN p.status_proposal = 'ditolak'            THEN 1 ELSE 0 END) as gagal,
-                SUM(CASE WHEN p.status_proposal = 'draft'              THEN 1 ELSE 0 END) as draft,
-                COALESCE(SUM(CASE WHEN p.status_proposal = 'administrasi_valid'
-                    THEN p.total_pendanaan_disetujui ELSE 0 END), 0) as total_pendanaan
+                SUM(CASE WHEN p.status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
+                SUM(CASE WHEN p.status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved') THEN 1 ELSE 0 END) as lolos,
+                SUM(CASE WHEN p.status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
+                SUM(CASE WHEN p.status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft
             ")
             ->first();
 
@@ -140,7 +115,6 @@ class StatsService
         $lolos = (int) ($counts->lolos ?? 0);
         $gagal = (int) ($counts->gagal ?? 0);
         $draft = (int) ($counts->draft ?? 0);
-        $totalPendanaan = (float) ($counts->total_pendanaan ?? 0.0);
 
         return [
             'total' => $total,
@@ -149,27 +123,22 @@ class StatsService
             'gagal' => $gagal,
             'draft' => $draft,
             'success_rate' => $this->successRate(universityId: $universityId),
-            'total_pendanaan' => $totalPendanaan,
+            'total_pendanaan' => 0.0,
         ];
     }
 
     /**
      * Get system-wide proposal statistics (Super Admin view).
-     *
-     * @return array{total: int, masuk: int, lolos: int, gagal: int, draft: int, success_rate: float, total_pendanaan: float}
      */
     public function getProposalSummaryAll(): array
     {
         $counts = DB::table('proposals')
-            ->whereNull('deleted_at')
             ->selectRaw("
                 COUNT(*) as total,
-                SUM(CASE WHEN status_proposal = 'submitted'          THEN 1 ELSE 0 END) as masuk,
-                SUM(CASE WHEN status_proposal = 'administrasi_valid' THEN 1 ELSE 0 END) as lolos,
-                SUM(CASE WHEN status_proposal = 'ditolak'            THEN 1 ELSE 0 END) as gagal,
-                SUM(CASE WHEN status_proposal = 'draft'              THEN 1 ELSE 0 END) as draft,
-                COALESCE(SUM(CASE WHEN status_proposal = 'administrasi_valid'
-                    THEN total_pendanaan_disetujui ELSE 0 END), 0) as total_pendanaan
+                SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
+                SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved') THEN 1 ELSE 0 END) as lolos,
+                SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
+                SUM(CASE WHEN status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft
             ")
             ->first();
 
@@ -178,7 +147,6 @@ class StatsService
         $lolos = (int) ($counts->lolos ?? 0);
         $gagal = (int) ($counts->gagal ?? 0);
         $draft = (int) ($counts->draft ?? 0);
-        $totalPendanaan = (float) ($counts->total_pendanaan ?? 0.0);
 
         return [
             'total' => $total,
@@ -187,7 +155,7 @@ class StatsService
             'gagal' => $gagal,
             'draft' => $draft,
             'success_rate' => $this->successRate(),
-            'total_pendanaan' => $totalPendanaan,
+            'total_pendanaan' => 0.0,
         ];
     }
 }

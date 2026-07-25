@@ -1,16 +1,17 @@
 /**
- * Proposal/Edit — Dosen
+ * Proposal/Create — Dosen
  *
  * @description
- * Formulir pengubahan proposal penelitian bagi Dosen.
+ * Formulir pengajuan proposal penelitian baru bagi Dosen.
  *
  * @features
- * - Mengubah judul, deskripsi, dan skema penelitian
- * - Opsi unggah berkas proposal baru
+ * - Input judul, deskripsi/abstrak proposal
+ * - Pilihan skema penelitian (ResearchSchema)
+ * - Unggah dokumen proposal (PDF/DOC/DOCX max 10MB, wajib jika Submit, opsional jika Draf)
  * - Tombol opsi: "Simpan sebagai Draf" (Draft) dan "Kirim Proposal" (Submit)
  * - Penanganan validasi error realtime via useForm Inertia
  *
- * @route GET /proposal/{proposal}/edit
+ * @route GET /proposal/create
  */
 
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,12 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save, Send } from 'lucide-react';
 import { route } from 'ziggy-js';
 
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Proposal Penelitian', href: route('proposal.index') },
+    { title: 'Ajukan Proposal', href: route('proposal.create') },
+];
+
 interface SchemaOption {
     id: number;
     name: string;
@@ -32,45 +39,22 @@ interface SchemaOption {
     max_funding?: number;
 }
 
-interface ProposalData {
-    id: number;
-    title?: string;
-    judul?: string;
-    description?: string;
-    deskripsi?: string;
-    research_schema_id?: number;
-    file_dokumen_proposal?: string | null;
-    status_proposal?: string;
+interface CreateProps {
+    schemas: SchemaOption[];
 }
 
-interface EditProps {
-    proposal: ProposalData;
-    schemas?: SchemaOption[];
-}
-
-export default function Edit({ proposal, schemas = [] }: EditProps) {
+export default function Create({ schemas }: CreateProps) {
     const { data, setData, post, transform, processing, errors } = useForm({
-        title: proposal?.title ?? proposal?.judul ?? '',
-        description: proposal?.description ?? proposal?.deskripsi ?? '',
-        research_schema_id: proposal?.research_schema_id ? String(proposal.research_schema_id) : '',
+        title: '',
+        description: '',
+        research_schema_id: '',
         file_dokumen_proposal: null as File | null,
-        action: proposal?.status_proposal === 'Draft' ? 'draft' : 'submit',
-        _method: 'PUT',
+        action: 'submit',
     });
-
-    if (!proposal) {
-        return <div className="p-6">Data proposal tidak ditemukan.</div>;
-    }
-
-    const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Proposal', href: route('proposal.index') },
-        { title: 'Edit Proposal', href: '#' },
-    ];
 
     const handleSubmit = (actionType: 'draft' | 'submit') => {
         if (actionType === 'submit') {
-            if (!confirm('Apakah Anda yakin ingin mengirim proposal ini? Proposal yang sudah dikirim tidak dapat diubah kembali oleh Dosen.')) {
+            if (!confirm('Apakah Anda yakin ingin mengajukan proposal ini secara resmi?')) {
                 return;
             }
         }
@@ -79,12 +63,12 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
             ...formData,
             action: actionType,
         }));
-        post(route('proposal.update', proposal.id));
+        post(route('proposal.store'));
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Edit Proposal - ${data.title}`} />
+            <Head title="Ajukan Proposal Penelitian Baru" />
 
             <div className="container mx-auto max-w-3xl space-y-6 p-4 sm:p-6">
                 <div className="flex items-center space-x-4">
@@ -94,17 +78,17 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Edit Proposal Penelitian</h1>
-                        <p className="text-sm text-muted-foreground">Perbarui rincian proposal Anda sebelum diajukan secara resmi.</p>
+                        <h1 className="text-2xl font-bold tracking-tight">Formulir Pengajuan Proposal</h1>
+                        <p className="text-sm text-muted-foreground">
+                            Lengkapi data di bawah ini. Anda dapat menyimpan sebagai draf atau langsung mengirimkan proposal.
+                        </p>
                     </div>
                 </div>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Perbarui Informasi Proposal</CardTitle>
-                        <CardDescription>
-                            Anda dapat memperbarui judul, deskripsi, skema penelitian, atau mengunggah ulang berkas dokumen.
-                        </CardDescription>
+                        <CardTitle>Detail Proposal</CardTitle>
+                        <CardDescription>Isi judul, deskripsi, dan pilih skema penelitian yang sesuai.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
@@ -115,7 +99,7 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                                 </Label>
                                 <Input
                                     id="title"
-                                    type="text"
+                                    placeholder="Masukkan judul proposal penelitian..."
                                     value={data.title}
                                     onChange={(e) => setData('title', e.target.value)}
                                     className={errors.title ? 'border-destructive' : ''}
@@ -124,26 +108,32 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                             </div>
 
                             {/* Skema Penelitian */}
-                            {schemas.length > 0 && (
-                                <div className="space-y-2">
-                                    <Label htmlFor="research_schema_id">Skema Penelitian</Label>
-                                    <Select value={data.research_schema_id} onValueChange={(val) => setData('research_schema_id', val)}>
-                                        <SelectTrigger className={errors.research_schema_id ? 'border-destructive' : ''}>
-                                            <SelectValue placeholder="Pilih Skema Penelitian" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {schemas.map((s) => (
+                            <div className="space-y-2">
+                                <Label htmlFor="research_schema_id">
+                                    Skema Penelitian <span className="text-destructive">*</span>
+                                </Label>
+                                <Select value={data.research_schema_id} onValueChange={(val) => setData('research_schema_id', val)}>
+                                    <SelectTrigger className={errors.research_schema_id ? 'border-destructive' : ''}>
+                                        <SelectValue placeholder="Pilih Skema Penelitian" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {schemas && schemas.length > 0 ? (
+                                            schemas.map((s) => (
                                                 <SelectItem key={s.id} value={String(s.id)}>
                                                     {s.name}
                                                 </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.research_schema_id && <p className="text-sm text-destructive">{errors.research_schema_id}</p>}
-                                </div>
-                            )}
+                                            ))
+                                        ) : (
+                                            <SelectItem value="none" disabled>
+                                                Tidak ada skema aktif
+                                            </SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                                {errors.research_schema_id && <p className="text-sm text-destructive">{errors.research_schema_id}</p>}
+                            </div>
 
-                            {/* Deskripsi */}
+                            {/* Deskripsi Proposal */}
                             <div className="space-y-2">
                                 <Label htmlFor="description">
                                     Deskripsi / Ringkasan <span className="text-destructive">*</span>
@@ -151,6 +141,7 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                                 <Textarea
                                     id="description"
                                     rows={5}
+                                    placeholder="Tuliskan gambaran umum, latar belakang, dan tujuan penelitian..."
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
                                     className={errors.description ? 'border-destructive' : ''}
@@ -158,21 +149,23 @@ export default function Edit({ proposal, schemas = [] }: EditProps) {
                                 {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
                             </div>
 
-                            {/* Berkas Dokumen Proposal */}
+                            {/* File Upload */}
                             <div className="space-y-2">
-                                <Label htmlFor="file_dokumen_proposal">Unggah Berkas Baru (PDF/DOCX, Maks. 10MB)</Label>
-                                <Input
-                                    id="file_dokumen_proposal"
-                                    type="file"
-                                    accept=".pdf,.doc,.docx"
-                                    onChange={(e) => setData('file_dokumen_proposal', e.target.files?.[0] || null)}
-                                    className={errors.file_dokumen_proposal ? 'border-destructive' : ''}
-                                />
-                                {proposal.file_dokumen_proposal && !data.file_dokumen_proposal && (
-                                    <p className="text-xs text-muted-foreground">
-                                        Berkas saat ini sudah terunggah. Biarkan kosong jika tidak ingin mengubah berkas.
-                                    </p>
-                                )}
+                                <Label htmlFor="file_dokumen_proposal">
+                                    Dokumen Proposal (PDF/DOCX, Maks. 10MB)
+                                    <span className="ml-1 text-xs font-normal text-muted-foreground">
+                                        (Wajib jika langsung Kirim Proposal, opsional untuk Draf)
+                                    </span>
+                                </Label>
+                                <div className="flex items-center space-x-3">
+                                    <Input
+                                        id="file_dokumen_proposal"
+                                        type="file"
+                                        accept=".pdf,.doc,.docx"
+                                        onChange={(e) => setData('file_dokumen_proposal', e.target.files?.[0] || null)}
+                                        className={errors.file_dokumen_proposal ? 'border-destructive' : ''}
+                                    />
+                                </div>
                                 {errors.file_dokumen_proposal && <p className="text-sm text-destructive">{errors.file_dokumen_proposal}</p>}
                             </div>
 

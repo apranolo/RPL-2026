@@ -158,7 +158,7 @@ function SuccessRing({ rate }: { rate: number }) {
  * Renders KPI cards and analytics sourced from the `proposals` table per
  * Modul 6 – Dashboard dan Pelaporan specification (Kelas B).
  */
-export default function UserDashboard({ stats, proposal_stats }: UserDashboardProps) {
+export default function UserDashboard({ stats: _stats, proposal_stats }: UserDashboardProps) {
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
 
@@ -176,7 +176,7 @@ export default function UserDashboard({ stats, proposal_stats }: UserDashboardPr
                         <p className="mt-0.5 text-sm text-muted-foreground">Berikut ringkasan proposal riset dan pendanaan penelitian Anda.</p>
                     </div>
                     <Link
-                        href={route('user.pembinaan.akreditasi')}
+                        href={route('proposal.index')}
                         className="mt-3 inline-flex items-center gap-2 rounded-lg border border-sidebar-border/70 bg-white px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-muted sm:mt-0 dark:bg-neutral-950"
                     >
                         <FileText className="h-4 w-4" />

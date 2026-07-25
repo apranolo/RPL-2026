@@ -15,27 +15,27 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('research_outputs')) {
-            // ── 1. Buat proposal_id nullable ──────────────────────────────────────
-            Schema::table('research_outputs', function (Blueprint $table) {
-                // Drop foreign key dulu sebelum mengubah kolom
-                $table->unsignedBigInteger('proposal_id')->nullable()->change();
-            });
-        }
+            // ── 1. Buat proposal_id nullable jika kolom tersebut ada ────────────
+            if (Schema::hasColumn('research_outputs', 'proposal_id')) {
+                Schema::table('research_outputs', function (Blueprint $table) {
+                    $table->unsignedBigInteger('proposal_id')->nullable()->change();
+                });
+            }
 
-        // ── 2. Perbarui enum status (MySQL tidak mendukung ALTER ENUM via Blueprint) ──
-        // Gunakan raw SQL agar bisa mengubah nilai enum secara aman.
-        if (DB::getDriverName() !== 'sqlite') {
-            DB::statement("
-                ALTER TABLE research_outputs
-                MODIFY COLUMN status ENUM(
-                    'draft',
-                    'submitted',
-                    'approved',
-                    'rejected',
-                    'published',
-                    'patented'
-                ) NOT NULL DEFAULT 'draft'
-            ");
+            // ── 2. Perbarui enum status jika kolom tersebut ada ──────────────────
+            if (Schema::hasColumn('research_outputs', 'status') && DB::getDriverName() !== 'sqlite') {
+                DB::statement("
+                    ALTER TABLE research_outputs
+                    MODIFY COLUMN status ENUM(
+                        'draft',
+                        'submitted',
+                        'approved',
+                        'rejected',
+                        'published',
+                        'patented'
+                    ) NOT NULL DEFAULT 'draft'
+                ");
+            }
         }
     }
 

@@ -78,14 +78,13 @@ class DashboardController extends Controller
             $uid = (int) $user->id;
 
             $proposalCounts = DB::table('proposals')
-                ->whereNull('deleted_at')
                 ->where('user_id', $uid)
                 ->selectRaw("
                     COUNT(*) as total,
-                    SUM(CASE WHEN status = 'submitted' THEN 1 ELSE 0 END) as masuk,
-                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as lolos,
-                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as gagal,
-                    SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draft
+                    SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
+                    SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'approved') THEN 1 ELSE 0 END) as lolos,
+                    SUM(CASE WHEN status_proposal IN ('Ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
+                    SUM(CASE WHEN status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft
                 ")
                 ->first();
 
