@@ -49,10 +49,10 @@ export function AppSidebar() {
             },
             {
                 title: 'Manajemen Proposal',
-                href: route('admin.proposal.index'),
+                href: '/admin/proposals',
                 icon: FileText,
                 items: [
-                    { title: 'Daftar Proposal', href: route('admin.proposal.index') },
+                    { title: 'Daftar Proposal', href: '/admin/proposals' },
                     { title: 'Skema Penelitian', href: route('admin.schema.index') },
                 ],
             },
@@ -107,10 +107,10 @@ export function AppSidebar() {
         const adminKampusItems: NavItem[] = [
             {
                 title: 'Manajemen Proposal',
-                href: route('admin.proposal.index'),
+                href: '/admin/proposals',
                 icon: FileText,
                 items: [
-                    { title: 'Daftar Proposal', href: route('admin.proposal.index') },
+                    { title: 'Daftar Proposal', href: '/admin/proposals' },
                     { title: 'Skema Penelitian', href: route('admin.schema.index') },
                 ],
             },
