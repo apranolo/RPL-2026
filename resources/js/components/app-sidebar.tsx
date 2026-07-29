@@ -186,7 +186,7 @@ export function AppSidebar() {
             },
             ...commonNavItems,
         ];
-    } else if (user.role.name === ROLE_NAMES.USER) {
+    } else if (user.role.name === ROLE_NAMES.USER || user.role.name === 'Pengelola Jurnal' || user.role.name === 'Dosen') {
         roleNavItems = [
             {
                 title: 'Proposal Penelitian',

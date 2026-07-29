@@ -755,6 +755,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/resources', [ResourcesController::class, 'index'])
         ->name('resources');
 
+    // Review History (Modul 2)
+    Route::get('/proposal/history', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
+        ->name('proposal.history');
+    Route::get('/proposal/review-history/{dosen?}', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
+        ->name('proposal.review-history');
+
     Route::resource('proposal', ProposalController::class);
 
     /*
