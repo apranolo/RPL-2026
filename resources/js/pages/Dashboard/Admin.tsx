@@ -16,7 +16,7 @@ import PieChart from '@/components/Charts/PieChart';
 import FacultyTable from '@/components/FacultyTable';
 import TopLecturerList from '@/components/TopLecturerList';
 import TopResearchList from '@/components/TopResearchList';
-import ActivityLog from '@/components/ActivityLog';
+import ActivityLog, { type ActivityLogItem } from '@/components/ActivityLog';
 import { type BreadcrumbItem } from '@/types';
 import { FileText, DollarSign, Percent, CheckCircle, XCircle } from 'lucide-react';
 
@@ -43,14 +43,6 @@ interface ResearchItem {
 interface LecturerItem {
     name: string;
     score: number;
-}
-
-interface ActivityLogItem {
-    id: number;
-    action: string;
-    description: string;
-    created_at: string;
-    user: { name: string } | null;
 }
 
 interface Props {

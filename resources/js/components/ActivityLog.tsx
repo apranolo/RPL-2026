@@ -12,9 +12,9 @@ interface Loggable {
     // other properties depending on the polymorphic model
 }
 
-interface ActivityLogItem {
+export interface ActivityLogItem {
     id: number;
-    user?: User;
+    user?: { id?: number; name: string; email?: string } | null;
     action: string;
     description: string;
     created_at: string;

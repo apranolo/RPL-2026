@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarDays, MapPin, Clock, Search } from 'lucide-react';
+import { useState, useEffect, FormEvent } from 'react';
 import { PaginatedData } from '@/types';
-import { useState, FormEvent, useEffect } from 'react';
-import { Pagination } from '@/components/ui/pagination';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination';
 import { Progress } from '@/components/ui/progress';
 
 interface AgendaItem {
@@ -276,7 +276,7 @@ export default function Index({ agendas, filters, types = [] }: Props) {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
-                        {agendas.data.map((agenda) => (
+                        {agendas.data.map((agenda: AgendaItem) => (
                             <EventCard key={agenda.id} agenda={agenda} />
                         ))}
                     </div>
@@ -284,7 +284,19 @@ export default function Index({ agendas, filters, types = [] }: Props) {
 
                 {agendas.last_page > 1 && (
                     <div className="mt-12 flex justify-center">
-                         <Pagination links={agendas.links} />
+                        <Pagination>
+                            <PaginationContent>
+                                {agendas.links.map((link: { url: string | null; label: string; active: boolean }, i: number) => (
+                                    <PaginationItem key={i}>
+                                        <PaginationLink
+                                            href={link.url || '#'}
+                                            isActive={link.active}
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
+                                    </PaginationItem>
+                                ))}
+                            </PaginationContent>
+                        </Pagination>
                     </div>
                 )}
             </div>
