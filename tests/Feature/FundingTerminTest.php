@@ -16,6 +16,7 @@ class FundingTerminTest extends TestCase
     use RefreshDatabase;
 
     private User $adminKeuangan;
+
     private Contract $contract;
 
     protected function setUp(): void
@@ -80,7 +81,7 @@ class FundingTerminTest extends TestCase
             'status' => Funding::STATUS_PLANNED,
         ]);
 
-        $service = new FundingService();
+        $service = new FundingService;
         $sisa = $service->calculateSisa($this->contract);
 
         $this->assertEquals(100000000, $sisa['total_pendanaan']);
@@ -100,7 +101,7 @@ class FundingTerminTest extends TestCase
             'status' => Funding::STATUS_PLANNED,
         ]);
 
-        $service = new FundingService();
+        $service = new FundingService;
 
         $this->assertTrue($service->validateTerminPercentage($this->contract, 30));
         $this->assertFalse($service->validateTerminPercentage($this->contract, 31));

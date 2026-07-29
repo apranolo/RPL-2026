@@ -15,7 +15,9 @@ class EvaluationControllerTest extends TestCase
     use RefreshDatabase;
 
     private User $reviewer;
+
     private User $dosen;
+
     private Role $reviewerRole;
 
     protected function setUp(): void
@@ -49,6 +51,11 @@ class EvaluationControllerTest extends TestCase
             'role_id' => $dosenRole->id,
             'is_active' => true,
         ]);
+
+        $this->schema = \App\Models\ResearchSchema::create([
+            'name' => 'Skema Test',
+            'description' => 'Deskripsi skema test',
+        ]);
     }
 
     /**
@@ -68,21 +75,23 @@ class EvaluationControllerTest extends TestCase
     public function test_reviewer_tidak_dapat_mengakses_laporan_bukan_tugasnya(): void
     {
         $proposal = Proposal::create([
-            'user_id'            => $this->dosen->id,
-            'judul'              => 'Proposal Test',
-            'deskripsi'          => 'Deskripsi test',
-            'status_proposal'    => 'Draft',
+            'user_id' => $this->dosen->id,
+            'research_schema_id' => $this->schema->id,
+            'title' => 'Proposal Test',
+            'description' => 'Deskripsi test',
+            'status_proposal' => 'Draft',
         ]);
 
         $report = ProgressReport::create([
-            'proposal_id'         => $proposal->id,
-            'user_id'             => $this->dosen->id,
-            'title'               => 'Laporan Test',
-            'content'             => 'Isi laporan test',
-            'report_type'         => 'Laporan_Kemajuan',
-            'report_date'         => now(),
+            'proposal_id' => $proposal->id,
+            'user_id' => $this->dosen->id,
+            'title' => 'Laporan Test',
+            'content' => 'Isi laporan test',
+            'report_period' => '70%',
+            'report_type' => 'Laporan_Kemajuan',
+            'report_date' => now(),
             'progress_percentage' => 50,
-            'status'              => 'submitted',
+            'status' => 'submitted',
         ]);
 
         // Tidak ada Review assignment untuk reviewer ini
@@ -98,30 +107,32 @@ class EvaluationControllerTest extends TestCase
     public function test_reviewer_dapat_mengakses_laporan_yang_ditugaskan(): void
     {
         $proposal = Proposal::create([
-            'user_id'            => $this->dosen->id,
-            'judul'              => 'Proposal Test',
-            'deskripsi'          => 'Deskripsi test',
-            'status_proposal'    => 'Draft',
+            'user_id' => $this->dosen->id,
+            'research_schema_id' => $this->schema->id,
+            'title' => 'Proposal Test',
+            'description' => 'Deskripsi test',
+            'status_proposal' => 'Draft',
         ]);
 
         // Buat assignment untuk reviewer
         Review::create([
             'proposal_id' => $proposal->id,
             'reviewer_id' => $this->reviewer->id,
-            'status'      => 'assigned',
-            'start_date'  => now(),
-            'end_date'    => now()->addDays(7),
+            'status' => 'assigned',
+            'start_date' => now(),
+            'end_date' => now()->addDays(7),
         ]);
 
         $report = ProgressReport::create([
-            'proposal_id'         => $proposal->id,
-            'user_id'             => $this->dosen->id,
-            'title'               => 'Laporan Test',
-            'content'             => 'Isi laporan test',
-            'report_type'         => 'Laporan_Kemajuan',
-            'report_date'         => now(),
+            'proposal_id' => $proposal->id,
+            'user_id' => $this->dosen->id,
+            'title' => 'Laporan Test',
+            'content' => 'Isi laporan test',
+            'report_period' => '70%',
+            'report_type' => 'Laporan_Kemajuan',
+            'report_date' => now(),
             'progress_percentage' => 50,
-            'status'              => 'submitted',
+            'status' => 'submitted',
         ]);
 
         $response = $this->actingAs($this->reviewer)

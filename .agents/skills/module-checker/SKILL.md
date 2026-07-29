@@ -19,11 +19,12 @@ Saat melakukan pemeriksaan untuk modul tertentu, ikuti langkah-langkah terstrukt
   Pahami alur bisnis, fitur utama, dan kriteria penerimaan (acceptance criteria) dari modul tersebut.
 - **Rujuk Spesifikasi Detail**: Buka file spesifikasi visual terkait di folder `docs/guidence rpl 2026/specs/` (misalnya `kelas_b_modul_1_proposal_management.md`). Pahami rancangan wireframe, routing, props, dan komponen kustom yang diwajibkan.
 
-### 2. Fase Sinkronisasi Kode & Lingkungan Lokal
-- **Branch Terintegrasi**: Pastikan beralih ke branch tujuan integrasi (`development`) atau branch fitur yang bersangkutan jika kode belum di-merge.
-- **Database Refresh**: Jalankan perintah migrasi dan pengisian data dummy secara bersih untuk memastikan skema tidak bermasalah:
+### 2. Fase Sinkronisasi Kode & Lingkungan Lokal (Docker & Remote Sync)
+- **Container Status Check**: Periksa status container Docker dengan `docker ps`. Jika container `rpl_app` mati, jalankan `docker start rpl_app` atau `docker compose up -d`.
+- **Verifikasi Remote Branch**: Sebelum menyatakan file hilang atau tidak di-implementasi, lakukan `git fetch origin` dan periksa keberadaan berkas di branch remote (`origin/development`) dengan `git ls-tree -r origin/development --name-only`.
+- **Database Network & Refresh**: Pastikan `.env` mengarah ke container database (`DB_HOST=rpl_db`). Jalankan migrasi jika diperlukan:
   ```bash
-  php artisan migrate:fresh --seed
+  docker exec -e DB_HOST=rpl_db rpl_app php artisan migrate:fresh --seed
   ```
 
 ### 3. Fase Verifikasi Backend (Laravel)
@@ -44,29 +45,51 @@ Saat melakukan pemeriksaan untuk modul tertentu, ikuti langkah-langkah terstrukt
   - **Status Badges**: Warna status badge harus konsisten sesuai panduan global (Draft: Slate, In Review: Amber, Accepted: Emerald, Rejected: Rose).
   - **Larangan Kritis**: Dilarang menulis kueri Eloquent di dalam file `.tsx` dan dilarang melakukan fetch data manual menggunakan `axios.get` untuk data halaman utama (semua data wajib bersumber dari props controller).
 
-### 5. Pengujian Kualitas Kode (Code Quality Checking)
-Jalankan pengecekan kualitas kode berikut sebelum melaporkan modul siap deploy:
+### 5. Pengujian E2E Endpoint & Halaman View React Inertia (E2E Endpoint & View Page Testing)
+- **Verifikasi Routing Laravel**:
+  Jalankan `route:list` di container Docker untuk memastikan rute terdaftar tanpa masalah FQCN/nama rute:
+  ```bash
+  docker exec -e DB_HOST=rpl_db rpl_app php artisan route:list --path=<modul_prefix>
+  ```
+- **Verifikasi Ketersediaan & Pemetaan View React**:
+  - Memastikan method Controller memanggil `Inertia::render('Path/Page', $props)` yang cocok dengan nama berkas fisik di `resources/js/pages/Path/Page.tsx`.
+- **Pengujian Autentikasi & Otorisasi Peran (RBAC)**:
+  - Uji rute langsung di browser (`http://localhost:8085`) menggunakan kredensial aktor yang sesuai:
+    - **Super Admin / Admin Kampus**: `superadmin@ajm.ac.id` / `password123`
+    - **Dosen Pengusul**: `andi.prasetyo@uad.ac.id` / `password123`
+    - **Reviewer**: Akun reviewer terdaftar.
+  - Bebas dari error 403 (Forbidden) akibat ketiadaan middleware `role:...` yang selaras.
+- **Verifikasi Data Props & Render Visual**:
+  - Memastikan struktur data dari Controller cocok dengan TypeScript interface pada komponen React agar tidak terjadi blank white screen atau error runtime JS.
+
+### 6. Pengujian Kualitas Kode (Code Quality Checking)
+Jalankan pengecekan kualitas kode dalam container Docker:
 ```bash
 # Validasi format kode PHP
-./vendor/bin/pint --test
+docker exec rpl_app ./vendor/bin/pint --test
 
 # Pengecekan tipe data TypeScript
-npm run types
-
-# Pengecekan linting frontend
-npx eslint .
+npx tsc --noEmit
 
 # Menjalankan Pest test modul terkait
-./vendor/bin/pest --filter=[NamaModul]
+docker exec -e DB_HOST=rpl_db -e DB_PORT=3306 -e DB_DATABASE=rpl_2026 rpl_app ./vendor/bin/pest --filter=[NamaModul]
 ```
 
-### 6. Pembuatan Laporan Pengecekan Modul (Module Verification Report)
-Setelah melakukan pemeriksaan, buat laporan evaluasi lokal dan simpan di `.agents/reviews/Module-<NAMA_MODUL>-review.md`. 
+### 7. Pembuatan Laporan Pengecekan Modul & Diagram Mermaid
+Setelah melakukan pemeriksaan, buat laporan evaluasi lokal dan simpan di `.agents/reviews/Module-<NAMA_MODUL>-review.md`.
 
 **Aturan Penulisan Laporan (CRITICAL)**:
 - **Wajib** ditulis dalam **Bahasa Indonesia** secara profesional dan terstruktur.
-- **Dilarang keras** menggunakan kata **"penulis"** atau **"anda"**. Gantilah dengan kata ganti **"kamu"** atau sufiks kepemilikan **"-mu"** (contoh: *fiturmu*, *controller-mu*, *kamu perlu...*).
 - **Larangan Emoji**: Seluruh isi laporan **TIDAK BOLEH** menggunakan emoji apa pun. Semua indikator visual harus digantikan teks penjelas standar (contoh: mengganti 🔴 dengan [CRITICAL] atau [MUST FIX], mengganti 🟢/✅ dengan [PASSED] atau [SUKSES]).
+- **Diagram Mermaid**: Sertakan Diagram Flowchart Bisnis & Sequence Diagram untuk menjelaskan alur endpoint teknis jika diperlukan.
+
+### 8. Otomatisasi Alur Publikasi & Penutupan GitHub Issue/PR
+- Buat Issue atau berikan komentar pada Issue/PR terkait via GitHub CLI (`gh issue create` / `gh issue comment`).
+- Apabila hasil review **APPROVED** / **COMPLETE**, lakukan eksekusi sekuensial berikut:
+  1. Approve PR: `gh pr review <PR_NUMBER> --approve --body-file <FILE_PATH>`
+  2. Merge PR ke development: `gh pr merge <PR_NUMBER> --merge --admin`
+  3. Beri komentar penyelesaian pada Issue pelacak terkait (jika ada).
+  4. Tutup Issue tersebut: `gh issue close <ISSUE_NUMBER> --reason "completed"`
 
 ### Template Laporan Pengecekan Modul
 ```markdown

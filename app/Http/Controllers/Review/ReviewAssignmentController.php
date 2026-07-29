@@ -14,14 +14,14 @@ class ReviewAssignmentController extends Controller
     public function invite(Request $request)
     {
         // PERBAIKAN 5: Pengecekan Otorisasi (Hanya Editor yang boleh)
-        if (!auth()->user()->hasRole('Editor')) {
+        if (! auth()->user()->hasRole('Editor')) {
             abort(403, 'Akses ditolak: Hanya Editor yang berhak mengundang Reviewer.');
         }
 
         // 1. Validasi Input Keamanan
         $validated = $request->validate([
             'submission_id' => 'required|exists:submissions,id',
-            'reviewer_id'   => 'required|exists:users,id',
+            'reviewer_id' => 'required|exists:users,id',
         ]);
 
         // 2. Pencegahan Duplikasi Undangan
@@ -39,10 +39,10 @@ class ReviewAssignmentController extends Controller
         // PERBAIKAN 4: Ganti 'Invited' menjadi 'Pending' agar tidak SQL Crash
         ReviewAssignment::create([
             'submission_id' => $validated['submission_id'],
-            'reviewer_id'   => $validated['reviewer_id'],
-            'round'         => 1,
-            'status'        => 'Pending', // <--- SUDAH DIPERBAIKI
-            'due_date'      => now()->addDays(7), 
+            'reviewer_id' => $validated['reviewer_id'],
+            'round' => 1,
+            'status' => 'Pending', // <--- SUDAH DIPERBAIKI
+            'due_date' => now()->addDays(7),
         ]);
 
         // Catatan: Email notifikasi akan di-handle oleh Event/Observer dari Modul 7.

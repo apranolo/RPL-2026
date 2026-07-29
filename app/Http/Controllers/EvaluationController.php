@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProgressReport;
-use App\Models\Evaluation;
 use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -33,12 +32,12 @@ class EvaluationController extends Controller
             ->get()
             ->map(function ($report) {
                 return [
-                    'id_report'        => $report->id,
-                    'id_contract'      => $report->contract_id,
+                    'id_report' => $report->id,
+                    'id_contract' => $report->contract_id,
                     'judul_penelitian' => $report->proposal->judul ?? '-',
-                    'nama_dosen'       => $report->proposal->user->name ?? '-',
+                    'nama_dosen' => $report->proposal->user->name ?? '-',
                     'last_reported_at' => $report->report_date,
-                    'last_percentage'  => $report->progress_percentage,
+                    'last_percentage' => $report->progress_percentage,
                 ];
             });
 
@@ -60,7 +59,7 @@ class EvaluationController extends Controller
             ->where('proposal_id', $report->proposal_id)
             ->exists();
 
-        if (!$isAssigned) {
+        if (! $isAssigned) {
             abort(403, 'Anda tidak memiliki akses ke laporan ini.');
         }
 
@@ -71,7 +70,7 @@ class EvaluationController extends Controller
             ->get(['id', 'report_date', 'progress_percentage', 'report_type']);
 
         return Inertia::render('Reviewer/Evaluation/Show', [
-            'report'     => $report,
+            'report' => $report,
             'allReports' => $allReports,
         ]);
     }

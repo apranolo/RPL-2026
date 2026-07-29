@@ -53,7 +53,7 @@ class DiscussionController extends Controller
     {
         // Otorisasi keamanan (Critical): memastikan user berhak (terlibat) dalam diskusi
         $submissionDiscussion = $parentMessage->discussion;
-        if (!$submissionDiscussion || !$submissionDiscussion->submission) {
+        if (! $submissionDiscussion || ! $submissionDiscussion->submission) {
             abort(404, 'Diskusi tidak ditemukan.');
         }
 
@@ -64,7 +64,7 @@ class DiscussionController extends Controller
         $isAuthor = $submission->author_id === $user->id;
         $isEditor = $user->hasRole('Editor') || $user->hasRole('Super Admin') || $user->hasRole('Reviewer') || $user->hasRole('Admin Kampus');
 
-        if (!$isAuthor && !$isEditor) {
+        if (! $isAuthor && ! $isEditor) {
             abort(403, 'Anda tidak memiliki hak akses untuk membalas diskusi ini.');
         }
 
@@ -101,7 +101,7 @@ class DiscussionController extends Controller
     {
         // Otorisasi keamanan (Critical): memastikan user berhak (terlibat) dalam diskusi
         $submissionDiscussion = $message->discussion;
-        if (!$submissionDiscussion || !$submissionDiscussion->submission) {
+        if (! $submissionDiscussion || ! $submissionDiscussion->submission) {
             abort(404, 'Diskusi tidak ditemukan.');
         }
 
@@ -111,7 +111,7 @@ class DiscussionController extends Controller
         $isAuthor = $submission->author_id === $user->id;
         $isEditor = $user->hasRole('Editor') || $user->hasRole('Super Admin') || $user->hasRole('Reviewer') || $user->hasRole('Admin Kampus');
 
-        if (!$isAuthor && !$isEditor) {
+        if (! $isAuthor && ! $isEditor) {
             abort(403, 'Anda tidak memiliki hak akses untuk mengunggah berkas pada diskusi ini.');
         }
 

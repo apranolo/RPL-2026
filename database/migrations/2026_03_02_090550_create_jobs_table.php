@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (! Schema::hasTable('jobs')) {
             Schema::create('jobs', function (Blueprint $table) {
-                $table->bigIncrements('id');
+                $table->id();
                 $table->string('queue')->index();
                 $table->longText('payload');
                 $table->unsignedTinyInteger('attempts');

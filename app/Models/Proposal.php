@@ -11,12 +11,12 @@ use Illuminate\Database\Eloquent\Model;
  * Merepresentasikan proposal penelitian yang diajukan oleh Dosen (User).
  * Kolom mengikuti skema migrasi 2026_05_13_182810_create_proposals_table.php
  *
- * @property int         $id
- * @property string      $title
- * @property string      $description
- * @property int         $user_id
- * @property int         $research_schema_id
- * @property string      $status_proposal  Draft|Submitted|Administrasi_Valid|Ditolak
+ * @property int $id
+ * @property string $title
+ * @property string $description
+ * @property int $user_id
+ * @property int $research_schema_id
+ * @property string $status_proposal Draft|Submitted|Administrasi_Valid|Ditolak
  * @property string|null $rejection_reason
  * @property string|null $file_dokumen_proposal
  * @property \Carbon\Carbon $created_at
@@ -28,10 +28,13 @@ class Proposal extends Model
 
     // ─── Status Constants ────────────────────────────────────────────────────
 
-    public const STATUS_DRAFT              = 'Draft';
-    public const STATUS_SUBMITTED          = 'Submitted';
+    public const STATUS_DRAFT = 'Draft';
+
+    public const STATUS_SUBMITTED = 'Submitted';
+
     public const STATUS_ADMINISTRASI_VALID = 'Administrasi_Valid';
-    public const STATUS_DITOLAK            = 'Ditolak';
+
+    public const STATUS_DITOLAK = 'Ditolak';
 
     // ─── Fillable ────────────────────────────────────────────────────────────
 
