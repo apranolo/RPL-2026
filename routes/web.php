@@ -331,6 +331,17 @@ Route::middleware(['auth'])->group(function () {
         ->prefix('admin')
         ->name('admin.')
         ->group(function () {
+            // Proposals Management (Admin Kampus & Super Admin)
+            Route::prefix('proposals')->name('proposals.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\ProposalController::class, 'index'])->name('index');
+                Route::post('{proposal}/approve', [\App\Http\Controllers\Admin\ProposalController::class, 'approve'])->name('approve');
+                Route::post('{proposal}/reject', [\App\Http\Controllers\Admin\ProposalController::class, 'reject'])->name('reject');
+            });
+
+            // Reviewer Assignment (Admin Kampus & Super Admin)
+            Route::post('assign', [\App\Http\Controllers\Admin\AssignController::class, 'assign'])->name('assign.store');
+            Route::delete('assign/{id}', [\App\Http\Controllers\Admin\AssignController::class, 'unassign'])->name('assign.unassign');
+
             // Penentuan Keputusan Diterima/Ditolak (Decision)
             Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
                 ->name('decision.decide');
