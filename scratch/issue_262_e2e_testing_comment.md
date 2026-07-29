@@ -12,7 +12,7 @@ Pengujian E2E Endpoint dilakukan dengan memverifikasi pemetaan rute HTTP, penang
 
 | Method | Endpoint URI | Controller & Method | Middleware Hak Akses | Status E2E Verification |
 | :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/admin/reviewer/assign` | `Admin\AssignController@index` | `auth`, `role:Super Admin,Admin Kampus` | **[PASSED]** |
+| `GET` | `/admin/proposals` | `Admin\ProposalController@index` | `auth`, `role:Super Admin,Admin Kampus` | **[PASSED]** |
 | `POST` | `/admin/assign` | `Admin\AssignController@assign` | `auth`, `role:Super Admin,Admin Kampus` | **[PASSED]** |
 | `DELETE` | `/admin/assign/{id}` | `Admin\AssignController@unassign` | `auth`, `role:Super Admin,Admin Kampus` | **[PASSED]** |
 | `GET` | `/reviewer/assignments` | `ReviewerController@index` | `auth`, `role:Reviewer` | **[PASSED]** |
@@ -44,7 +44,7 @@ Pengujian E2E Endpoint dilakukan dengan memverifikasi pemetaan rute HTTP, penang
 
 ### Skenario 1: Penunjukan Reviewer oleh Admin Kampus / LPPM
 1. **Login**: Masuk sebagai **Super Admin / Admin Kampus** (`superadmin@ajm.ac.id` / `password123`).
-2. **Navigasi**: Buka menu **Penunjukan Reviewer** di sidebar atau akses `http://localhost:8085/admin/reviewer/assign`.
+2. **Navigasi**: Buka menu **Daftar Proposal Admin** di sidebar atau akses `http://localhost:8085/admin/proposals`.
 3. **Verifikasi UI**:
    - Pastikan daftar proposal berstatus `Administrasi_Valid` tampil pada tabel.
    - Klik tombol **"Tunjuk Reviewer"** pada salah satu baris proposal.
