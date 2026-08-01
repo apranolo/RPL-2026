@@ -121,7 +121,7 @@ class SchemaController extends Controller
         $this->authorize('update', $schema);
 
         return Inertia::render('Admin/Schema/Edit', [
-            'schema' => new SchemaResource($schema),
+            'schema' => (new SchemaResource($schema))->resolve(),
         ]);
     }
 
