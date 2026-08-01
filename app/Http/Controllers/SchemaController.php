@@ -109,7 +109,6 @@ class SchemaController extends Controller
                 'status' => $request->status ?? '',
                 'sort_by' => $sortBy,
                 'sort_dir' => $sortDir,
->>>>>>> 725b339aa70cfd2cdba61ece528275e2de962698
             ],
         ]);
     }

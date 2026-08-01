@@ -127,6 +127,5 @@ class Review extends Model
                 $model->reviewed_at = now();
             }
         });
->>>>>>> 725b339aa70cfd2cdba61ece528275e2de962698
     }
 }

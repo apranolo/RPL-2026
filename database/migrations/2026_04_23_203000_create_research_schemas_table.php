@@ -29,7 +29,6 @@ return new class extends Migration
                     $table->boolean('is_active')->default(true)->after('max_funding');
                 }
             });
->>>>>>> 725b339aa70cfd2cdba61ece528275e2de962698
         }
     }
 
