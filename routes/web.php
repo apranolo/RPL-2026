@@ -1119,6 +1119,5 @@ Route::post('/editorial/desk/{submission}/assign-editor', [DeskController::class
 Route::post('/editorial/desk/{submission}/desk-review', [DecisionController::class, 'deskReview'])
     ->name('editorial.desk.desk-review');
 
->>>>>>> 725b339aa70cfd2cdba61ece528275e2de962698
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
