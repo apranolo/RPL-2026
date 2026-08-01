@@ -25,7 +25,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Link, router } from '@inertiajs/react';
-import { CheckCircle, Eye, XCircle } from 'lucide-react';
+import { CheckCircle, Eye, UserCheck, XCircle } from 'lucide-react';
 import { route } from 'ziggy-js';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -39,6 +39,8 @@ interface ActionButtonsProps {
     status: string;
     /** Callback yang dipicu saat tombol "Tolak" diklik */
     onReject: () => void;
+    /** Callback yang dipicu saat tombol "Tunjuk Reviewer" diklik (opsional) */
+    onAssign?: () => void;
     /** Nonaktifkan tombol saat sedang memproses (opsional) */
     disabled?: boolean;
 }
@@ -46,14 +48,14 @@ interface ActionButtonsProps {
 // ─── Status Labels ────────────────────────────────────────────────────────────
 
 const STATUS_LABELS: Record<string, string> = {
-    Administrasi_Valid: '✓ Sudah disetujui',
+    Administrasi_Valid: '✓ Valid Administrasi',
     Ditolak: '✗ Sudah ditolak',
     Draft: 'Belum disubmit',
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function ActionButtons({ proposalId, proposalTitle, status, onReject, disabled = false }: ActionButtonsProps) {
+export default function ActionButtons({ proposalId, proposalTitle, status, onReject, onAssign, disabled = false }: ActionButtonsProps) {
     const handleApprove = () => {
         if (!confirm(`Setujui proposal "${proposalTitle}"?`)) return;
         router.post(route('admin.proposals.approve', { proposal: proposalId }));
@@ -68,6 +70,22 @@ export default function ActionButtons({ proposalId, proposalTitle, status, onRej
                     Detail
                 </Button>
             </Link>
+
+            {/* Tombol Tunjuk Reviewer (untuk status Administrasi_Valid) */}
+            {(status === 'Administrasi_Valid' || onAssign) && (
+                <Button
+                    id={`btn-assign-${proposalId}`}
+                    size="sm"
+                    variant="outline"
+                    disabled={disabled}
+                    onClick={onAssign ? onAssign : () => router.get('/admin/reviewer/assign?proposal_id=' + proposalId)}
+                    className="gap-1.5 border-blue-500/30 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950"
+                    title="Tunjuk Reviewer"
+                >
+                    <UserCheck className="h-3.5 w-3.5" />
+                    Tunjuk Reviewer
+                </Button>
+            )}
 
             {/* Jika status Submitted, tampilkan tombol Setujui (Approve) & Tolak (Reject) */}
             {status === 'Submitted' ? (
@@ -98,7 +116,7 @@ export default function ActionButtons({ proposalId, proposalTitle, status, onRej
                     </Button>
                 </>
             ) : (
-                <span className="ml-1 text-xs text-muted-foreground">{STATUS_LABELS[status] ?? '—'}</span>
+                status !== 'Administrasi_Valid' && <span className="ml-1 text-xs text-muted-foreground">{STATUS_LABELS[status] ?? '—'}</span>
             )}
         </div>
     );

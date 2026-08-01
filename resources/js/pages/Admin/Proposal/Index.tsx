@@ -19,6 +19,7 @@
  * @route GET /admin/proposals
  */
 import ActionButtons from '@/components/ActionButtons';
+import AssignModal from '@/components/AssignModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -185,6 +186,7 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
     const [search, setSearch] = useState(filters.search ?? '');
     const [statusFilter, setStatusFilter] = useState(filters.status ?? '');
     const [rejectTarget, setRejectTarget] = useState<Proposal | null>(null);
+    const [assignTarget, setAssignTarget] = useState<Proposal | null>(null);
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     useEffect(() => {
@@ -204,6 +206,13 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
         setSearch('');
         setStatusFilter('');
         router.get(route('admin.proposals.index'));
+    };
+
+    const handleConfirmAssign = () => {
+        if (!assignTarget) return;
+        const targetId = assignTarget.id;
+        setAssignTarget(null);
+        router.get('/admin/reviewer/assign', { proposal_id: targetId });
     };
 
     const hasActiveFilters = !!(search || statusFilter);
@@ -228,6 +237,14 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
 
             {/* Reject Modal */}
             {rejectTarget && <RejectModal proposal={rejectTarget} onClose={() => setRejectTarget(null)} />}
+
+            {/* Assign Modal */}
+            <AssignModal
+                open={!!assignTarget}
+                onClose={() => setAssignTarget(null)}
+                onConfirm={handleConfirmAssign}
+                proposalTitle={assignTarget?.title}
+            />
 
             <div className="flex flex-col gap-6 p-6">
                 {/* Header */}
@@ -343,6 +360,7 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                                     proposalTitle={proposal.title}
                                                     status={proposal.status_proposal}
                                                     onReject={() => setRejectTarget(proposal)}
+                                                    onAssign={() => setAssignTarget(proposal)}
                                                 />
                                             </TableCell>
                                         </TableRow>
