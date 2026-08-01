@@ -34,7 +34,7 @@ class ReviewHistoryController extends Controller
             'reviewer',
         ])
             ->byReviewer($reviewerId)
-            ->orderBy('reviewed_at', 'desc');
+            ->latest();
 
         // Riwayat Jadwal/Penugasan Review (Schedules)
         $reviewSchedulesQuery = ReviewSchedule::with([
@@ -43,7 +43,7 @@ class ReviewHistoryController extends Controller
             'reviewer',
         ])
             ->forReviewer($reviewerId)
-            ->orderBy('assigned_at', 'desc');
+            ->latest();
 
         // Ambil data dengan pagination
         $reviews = $reviewsQuery->paginate(10, ['*'], 'reviews_page')->withQueryString();

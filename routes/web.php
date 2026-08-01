@@ -191,9 +191,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('data-master', [DataMasterController::class, 'index'])
             ->name('data-master.index');
 
-        // Skema Penelitian Management
-        Route::resource('schema', SchemaController::class);
-
         // Borang Indikator (Using Accreditation Templates System)
         Route::get('borang-indikator', [AccreditationTemplateController::class, 'index'])
             ->name('borang-indikator.index');
@@ -331,6 +328,9 @@ Route::middleware(['auth'])->group(function () {
         ->prefix('admin')
         ->name('admin.')
         ->group(function () {
+            // Skema Penelitian Management (Super Admin & Admin Kampus)
+            Route::resource('schema', SchemaController::class);
+
             // Proposals Management (Admin Kampus & Super Admin)
             Route::prefix('proposals')->name('proposals.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\Admin\ProposalController::class, 'index'])->name('index');
@@ -760,6 +760,11 @@ Route::middleware(['auth'])->group(function () {
         ->name('proposal.history');
     Route::get('/proposal/review-history/{dosen?}', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
         ->name('proposal.review-history');
+
+    Route::get('/proposal/documents/{id}/download', [ProposalController::class, 'downloadDocument'])
+        ->name('proposal.documents.download');
+    Route::get('/proposal/{proposal}/download', [ProposalController::class, 'downloadDocument'])
+        ->name('proposal.download');
 
     Route::resource('proposal', ProposalController::class);
 

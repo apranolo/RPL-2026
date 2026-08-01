@@ -34,7 +34,13 @@ class ProposalController extends Controller
         $this->authorize('viewAny', Proposal::class);
 
         $query = Proposal::query()
-            ->with(['user:id,name,email', 'researchSchema:id,name']);
+            ->with(['user:id,name,email,university_id', 'researchSchema:id,name']);
+
+        if ($request->user()->isAdminKampus()) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('university_id', $request->user()->university_id);
+            });
+        }
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%'.$request->search.'%');

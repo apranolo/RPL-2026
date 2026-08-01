@@ -21,7 +21,7 @@ class ProposalPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin();
+        return $user->isSuperAdmin() || $user->isAdminKampus();
     }
 
     /**
@@ -33,32 +33,46 @@ class ProposalPolicy
             return true;
         }
 
+        if ($user->isAdminKampus()) {
+            return $proposal->user && $proposal->user->university_id === $user->university_id;
+        }
+
         return $user->id === $proposal->user_id;
     }
 
     /**
      * Tentukan apakah user dapat meng-approve (validasi administrasi) proposal.
-     * Hanya Super Admin, hanya untuk proposal berstatus Submitted.
+     * Super Admin dan Admin Kampus (pada universitas yang sama), untuk proposal berstatus Submitted.
      */
     public function approve(User $user, Proposal $proposal): bool
     {
-        if (! $user->isSuperAdmin()) {
+        if (! ($user->isSuperAdmin() || $user->isAdminKampus())) {
             return false;
         }
 
-        return $proposal->status_proposal === Proposal::STATUS_SUBMITTED;
+        if ($user->isAdminKampus() && $proposal->user && $proposal->user->university_id !== $user->university_id) {
+            return false;
+        }
+
+        $status = strtolower($proposal->status_proposal ?? '');
+        return $status === 'submitted';
     }
 
     /**
      * Tentukan apakah user dapat menolak proposal.
-     * Hanya Super Admin, hanya untuk proposal berstatus Submitted.
+     * Super Admin dan Admin Kampus (pada universitas yang sama), untuk proposal berstatus Submitted.
      */
     public function reject(User $user, Proposal $proposal): bool
     {
-        if (! $user->isSuperAdmin()) {
+        if (! ($user->isSuperAdmin() || $user->isAdminKampus())) {
             return false;
         }
 
-        return $proposal->status_proposal === Proposal::STATUS_SUBMITTED;
+        if ($user->isAdminKampus() && $proposal->user && $proposal->user->university_id !== $user->university_id) {
+            return false;
+        }
+
+        $status = strtolower($proposal->status_proposal ?? '');
+        return $status === 'submitted';
     }
 }

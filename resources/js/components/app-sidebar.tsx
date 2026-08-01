@@ -186,16 +186,16 @@ export function AppSidebar() {
             },
             ...commonNavItems,
         ];
-    } else if (user.role.name === ROLE_NAMES.USER || user.role.name === 'Pengelola Jurnal' || user.role.name === 'Dosen') {
+    } else if (user.role?.name === ROLE_NAMES.USER || user.role?.name === ROLE_NAMES.PENGELOLA_JURNAL || user.role?.name === 'Pengelola Jurnal' || user.role?.name === 'Dosen') {
         roleNavItems = [
             {
                 title: 'Proposal Penelitian',
-                href: '/proposal',
+                href: route('proposal.index'),
                 icon: FileText,
                 items: [
-                    { title: 'Daftar Proposal', href: '/proposal' },
-                    { title: 'Pengajuan Baru', href: '/proposal/create' },
-                    { title: 'Riwayat Review', href: '/proposal/history' },
+                    { title: 'Daftar Proposal', href: route('proposal.index') },
+                    { title: 'Pengajuan Baru', href: route('proposal.create') },
+                    { title: 'Riwayat Review', href: route('proposal.history') },
                 ],
             },
             {

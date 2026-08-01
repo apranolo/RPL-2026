@@ -34,4 +34,14 @@ class Review extends Model
     {
         return $this->hasMany(AssessmentCriteria::class, 'review_id');
     }
+
+    public function scopeByReviewer($query, int $reviewerId)
+    {
+        return $query->where('reviewer_id', $reviewerId);
+    }
+
+    public function scopeForReviewer($query, int $reviewerId)
+    {
+        return $query->where('reviewer_id', $reviewerId);
+    }
 }
