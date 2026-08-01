@@ -29,6 +29,12 @@ return new class extends Migration
 
                 $table->timestamps();
             });
+        } else {
+            Schema::table('proposals', function (Blueprint $table) {
+                if (! Schema::hasColumn('proposals', 'file_dokumen_proposal')) {
+                    $table->string('file_dokumen_proposal')->nullable();
+                }
+            });
         }
     }
 
@@ -37,6 +43,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('proposals');
+        if (Schema::hasTable('proposals')) {
+            if (Schema::hasColumn('proposals', 'file_dokumen_proposal')) {
+                Schema::table('proposals', function (Blueprint $table) {
+                    $table->dropColumn('file_dokumen_proposal');
+                });
+            }
+        }
     }
 };

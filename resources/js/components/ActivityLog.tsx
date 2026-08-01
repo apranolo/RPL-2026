@@ -2,9 +2,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 interface User {
-    id: number;
+    id?: number;
     name: string;
-    email: string;
+    email?: string;
 }
 
 interface Loggable {
@@ -12,9 +12,9 @@ interface Loggable {
     // other properties depending on the polymorphic model
 }
 
-export interface ActivityLogItem {
+interface ActivityLogItem {
     id: number;
-    user?: { id?: number; name: string; email?: string } | null;
+    user?: User | null;
     action: string;
     description: string;
     created_at: string;

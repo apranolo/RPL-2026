@@ -1,8 +1,16 @@
 /**
- * Log Perubahan Termin Pendanaan
+ * @file Logs.tsx
+ * @description Halaman Log Perubahan Termin Pendanaan.
+ * Bertugas menampilkan riwayat perubahan termin beserta fitur cetak PDF kwitansi.
  *
  * @author MUHAMAD BURHANUDIN AL BACHTIAR
  */
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -15,7 +23,6 @@ interface FundingLog {
     contract?: {
         title: string;
     };
-    // updated_by sudah dihapus dari sini
 }
 
 interface PaginationLink {
@@ -48,156 +55,168 @@ export default function Logs({ logs }: Props) {
     };
 
     return (
-        <>
+        <AppLayout>
             <Head title="Log Perubahan Termin" />
 
-            <div className="mx-auto max-w-7xl p-8 font-sans text-black">
-                {/* Header */}
-                <div className="mb-8 flex items-end justify-between">
-                    <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight uppercase">Riwayat Termin</h1>
-                        <p className="mt-1 text-sm font-medium">LOG PERUBAHAN DAN CETAK KWITANSI PENDANAAN</p>
-                    </div>
+            <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+                {/* --- Breadcrumbs Manual --- */}
+                <div className="mb-4 text-sm font-medium text-gray-500">
+                    <Link href="/finance" className="transition-colors hover:text-gray-900">
+                        Finance
+                    </Link>
+                    <span className="mx-2 text-gray-400">/</span>
+                    <span className="text-gray-900">Funding Logs</span>
                 </div>
+                {/* -------------------------- */}
 
-                {/* Panel Pengaturan Cetak (Control Bar) */}
-                <div className="mb-4 flex flex-wrap items-center gap-4 border-2 border-black bg-gray-50 p-4">
-                    <div className="text-xs font-bold uppercase">⚙️ Pengaturan Kertas:</div>
+                <Card className="shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="text-2xl font-bold tracking-tight">Riwayat Termin</CardTitle>
+                        <CardDescription>Log perubahan dan cetak kwitansi pendanaan.</CardDescription>
+                    </CardHeader>
 
-                    {/* Pilih Ukuran Kertas */}
-                    <select
-                        value={paperSize}
-                        onChange={(e) => setPaperSize(e.target.value)}
-                        className="cursor-pointer border border-black bg-white px-3 py-1 text-xs font-bold uppercase outline-none"
-                    >
-                        <option value="A4">A4</option>
-                        <option value="legal">Legal</option>
-                        <option value="letter">Letter</option>
-                        <option value="custom">Custom (PT)</option>
-                    </select>
+                    <CardContent>
+                        {/* Panel Pengaturan Cetak (Control Bar) */}
+                        <div className="mb-6 flex flex-wrap items-center gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4">
+                            <span className="text-sm font-semibold text-gray-700">⚙️ Pengaturan Kertas:</span>
 
-                    {/* Pilih Orientasi (Sembunyikan jika mode Custom) */}
-                    {paperSize !== 'custom' && (
-                        <select
-                            value={orientation}
-                            onChange={(e) => setOrientation(e.target.value)}
-                            className="cursor-pointer border border-black bg-white px-3 py-1 text-xs font-bold uppercase outline-none"
-                        >
-                            <option value="landscape">Landscape</option>
-                            <option value="portrait">Portrait</option>
-                        </select>
-                    )}
+                            <Select value={paperSize} onValueChange={setPaperSize}>
+                                <SelectTrigger className="w-[140px] bg-white">
+                                    <SelectValue placeholder="Pilih Kertas" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="A4">A4</SelectItem>
+                                    <SelectItem value="legal">Legal</SelectItem>
+                                    <SelectItem value="letter">Letter</SelectItem>
+                                    <SelectItem value="custom">Custom (PT)</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                    {/* Input untuk mode Custom */}
-                    {paperSize === 'custom' && (
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold uppercase">W:</span>
-                            <input
-                                type="number"
-                                value={customWidth}
-                                onChange={(e) => setCustomWidth(Number(e.target.value))}
-                                className="w-20 border border-black px-2 py-1 text-xs outline-none"
-                                placeholder="Width"
-                            />
-                            <span className="text-xs font-bold uppercase">H:</span>
-                            <input
-                                type="number"
-                                value={customHeight}
-                                onChange={(e) => setCustomHeight(Number(e.target.value))}
-                                className="w-20 border border-black px-2 py-1 text-xs outline-none"
-                                placeholder="Height"
-                            />
-                        </div>
-                    )}
-                </div>
-
-                {/* Tabel Data */}
-                <div className="mb-8 w-full overflow-x-auto">
-                    <table className="w-full border-collapse text-left text-sm">
-                        <thead>
-                            <tr className="border-y-2 border-black text-xs tracking-wider uppercase">
-                                <th className="px-2 py-4">Judul Kontrak</th>
-                                <th className="px-2 py-4">Termin</th>
-                                <th className="px-2 py-4">Nominal</th>
-                                <th className="px-2 py-4">Status</th>
-                                {/* Kolom Updated By sudah dihapus dari sini */}
-                                <th className="px-2 py-4">Updated At</th>
-                                <th className="px-2 py-4 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {logs.data.map((log) => (
-                                <tr key={log.id} className="border-b border-black transition-colors hover:bg-gray-50">
-                                    <td className="px-2 py-4 font-medium">{log.contract?.title ?? '-'}</td>
-                                    <td className="px-2 py-4">{log.termin_number}</td>
-                                    <td className="px-2 py-4 font-mono text-base">Rp {Number(log.amount).toLocaleString('id-ID')}</td>
-                                    <td className="px-2 py-4">
-                                        <span className="border border-black px-2 py-1 text-xs font-bold uppercase">{log.status}</span>
-                                    </td>
-                                    {/* Data Updated By sudah dihapus dari sini */}
-                                    <td className="px-2 py-4">
-                                        {new Date(log.updated_at).toLocaleString('id-ID', {
-                                            day: '2-digit',
-                                            month: 'short',
-                                            year: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        })}
-                                    </td>
-                                    <td className="px-2 py-4 text-right">
-                                        <a
-                                            href={getPrintUrl(log.id)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-block bg-black px-4 py-2 text-xs font-bold tracking-wider text-white uppercase transition-all hover:bg-transparent hover:text-black hover:ring-2 hover:ring-black hover:ring-inset"
-                                        >
-                                            Cetak PDF
-                                        </a>
-                                    </td>
-                                </tr>
-                            ))}
-
-                            {logs.data.length === 0 && (
-                                <tr>
-                                    {/* colSpan diubah menjadi 6 karena jumlah kolom sisa 6 */}
-                                    <td colSpan={6} className="border-b border-black py-8 text-center text-sm font-medium uppercase">
-                                        Tidak ada riwayat termin ditemukan.
-                                    </td>
-                                </tr>
+                            {paperSize !== 'custom' && (
+                                <Select value={orientation} onValueChange={setOrientation}>
+                                    <SelectTrigger className="w-[140px] bg-white">
+                                        <SelectValue placeholder="Orientasi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="landscape">Landscape</SelectItem>
+                                        <SelectItem value="portrait">Portrait</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             )}
-                        </tbody>
-                    </table>
-                </div>
 
-                {/* Navigasi Paginasi */}
-                {logs.links && logs.links.length > 3 && (
-                    <div className="flex flex-wrap justify-end gap-2">
-                        {logs.links.map((link, index) => {
-                            if (link.url === null) {
-                                return (
-                                    <div
-                                        key={index}
-                                        className="cursor-not-allowed border border-gray-300 px-4 py-2 text-sm font-bold text-gray-400 uppercase"
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                    />
-                                );
-                            }
+                            {paperSize === 'custom' && (
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium text-gray-600">W:</span>
+                                        <Input
+                                            type="number"
+                                            value={customWidth}
+                                            onChange={(e) => setCustomWidth(Number(e.target.value))}
+                                            className="w-24 bg-white"
+                                            placeholder="Width"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium text-gray-600">H:</span>
+                                        <Input
+                                            type="number"
+                                            value={customHeight}
+                                            onChange={(e) => setCustomHeight(Number(e.target.value))}
+                                            className="w-24 bg-white"
+                                            placeholder="Height"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
-                            return (
-                                <Link
-                                    key={index}
-                                    href={link.url}
-                                    className={`border border-black px-4 py-2 text-sm font-bold uppercase transition-colors ${
-                                        link.active ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'
-                                    }`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            );
-                        })}
-                    </div>
-                )}
+                        {/* Tabel Data */}
+                        <div className="overflow-hidden rounded-md border border-gray-200">
+                            <table className="w-full text-left text-sm text-gray-600">
+                                <thead className="border-b border-gray-200 bg-gray-50/80 text-xs text-gray-700 uppercase">
+                                    <tr>
+                                        <th className="px-4 py-3 font-semibold">Judul Kontrak</th>
+                                        <th className="px-4 py-3 font-semibold">Termin</th>
+                                        <th className="px-4 py-3 font-semibold">Nominal</th>
+                                        <th className="px-4 py-3 font-semibold">Status</th>
+                                        <th className="px-4 py-3 font-semibold">Updated At</th>
+                                        <th className="px-4 py-3 text-right font-semibold">Aksi</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody className="divide-y divide-gray-200">
+                                    {logs.data.map((log) => (
+                                        <tr key={log.id} className="bg-white transition-colors hover:bg-gray-50/50">
+                                            <td className="px-4 py-4 font-medium text-gray-900">{log.contract?.title ?? '-'}</td>
+                                            <td className="px-4 py-4">{log.termin_number}</td>
+                                            <td className="px-4 py-4 font-mono text-gray-900">Rp {Number(log.amount).toLocaleString('id-ID')}</td>
+                                            <td className="px-4 py-4">
+                                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset">
+                                                    {log.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-4 text-gray-500">
+                                                {new Date(log.updated_at).toLocaleString('id-ID', {
+                                                    day: '2-digit',
+                                                    month: 'short',
+                                                    year: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                })}
+                                            </td>
+                                            <td className="px-4 py-4 text-right">
+                                                <Button asChild size="sm">
+                                                    <a href={getPrintUrl(log.id)} target="_blank" rel="noopener noreferrer">
+                                                        Cetak PDF
+                                                    </a>
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+
+                                    {logs.data.length === 0 && (
+                                        <tr>
+                                            <td colSpan={6} className="py-8 text-center text-sm font-medium text-gray-500">
+                                                Tidak ada riwayat termin ditemukan.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Navigasi Paginasi */}
+                        {logs.links && logs.links.length > 3 && (
+                            <div className="mt-6 flex flex-wrap items-center justify-end gap-1">
+                                {logs.links.map((link, index) => {
+                                    if (link.url === null) {
+                                        return (
+                                            <span
+                                                key={index}
+                                                className="cursor-not-allowed rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400"
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                            />
+                                        );
+                                    }
+
+                                    return (
+                                        <Link
+                                            key={index}
+                                            href={link.url}
+                                            className={`rounded-md border px-3 py-2 text-sm transition-colors ${
+                                                link.active
+                                                    ? 'border-gray-900 bg-gray-900 font-medium text-white'
+                                                    : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                            }`}
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
-        </>
+        </AppLayout>
     );
 }

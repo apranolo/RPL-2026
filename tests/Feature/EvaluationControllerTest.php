@@ -51,11 +51,6 @@ class EvaluationControllerTest extends TestCase
             'role_id' => $dosenRole->id,
             'is_active' => true,
         ]);
-
-        $this->schema = \App\Models\ResearchSchema::create([
-            'name' => 'Skema Test',
-            'description' => 'Deskripsi skema test',
-        ]);
     }
 
     /**
@@ -76,9 +71,8 @@ class EvaluationControllerTest extends TestCase
     {
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
-            'research_schema_id' => $this->schema->id,
-            'title' => 'Proposal Test',
-            'description' => 'Deskripsi test',
+            'judul' => 'Proposal Test',
+            'deskripsi' => 'Deskripsi test',
             'status_proposal' => 'Draft',
         ]);
 
@@ -87,7 +81,6 @@ class EvaluationControllerTest extends TestCase
             'user_id' => $this->dosen->id,
             'title' => 'Laporan Test',
             'content' => 'Isi laporan test',
-            'report_period' => '70%',
             'report_type' => 'Laporan_Kemajuan',
             'report_date' => now(),
             'progress_percentage' => 50,
@@ -108,9 +101,8 @@ class EvaluationControllerTest extends TestCase
     {
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
-            'research_schema_id' => $this->schema->id,
-            'title' => 'Proposal Test',
-            'description' => 'Deskripsi test',
+            'judul' => 'Proposal Test',
+            'deskripsi' => 'Deskripsi test',
             'status_proposal' => 'Draft',
         ]);
 
@@ -128,7 +120,6 @@ class EvaluationControllerTest extends TestCase
             'user_id' => $this->dosen->id,
             'title' => 'Laporan Test',
             'content' => 'Isi laporan test',
-            'report_period' => '70%',
             'report_type' => 'Laporan_Kemajuan',
             'report_date' => now(),
             'progress_percentage' => 50,

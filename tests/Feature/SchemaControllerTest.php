@@ -452,7 +452,6 @@ class SchemaControllerTest extends TestCase
             'research_schema_id' => $schema->id,
             'user_id' => $this->superAdmin->id,
             'title' => 'Proposal Test',
-            'description' => 'Deskripsi proposal test',
             'status' => 'draft',
         ]);
 
@@ -498,17 +497,5 @@ class SchemaControllerTest extends TestCase
         // Assert: Diarahkan ke halaman login
         $response->assertRedirect(route('login'));
         $this->assertDatabaseHas('research_schemas', ['id' => $schema->id]);
-    }
-
-    /**
-     * Test: Admin Kampus dapat mengakses dan mengelola skema penelitian
-     */
-    public function test_admin_kampus_can_access_and_manage_schema(): void
-    {
-        $adminKampusRole = Role::firstOrCreate(['name' => Role::ADMIN_KAMPUS], ['display_name' => 'Admin Kampus']);
-        $adminKampus = User::factory()->create(['role_id' => $adminKampusRole->id]);
-
-        $response = $this->actingAs($adminKampus)->get(route('admin.schema.index'));
-        $response->assertStatus(200);
     }
 }

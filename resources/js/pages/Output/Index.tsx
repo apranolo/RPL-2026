@@ -1,27 +1,26 @@
 import AppLayout from '@/layouts/app-layout';
-import { PageProps } from '@/types';
-import { Head } from '@inertiajs/react';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link } from '@inertiajs/react';
 
 interface ResearchOutput {
     id: number;
-    judul_luaran: string;
-    jenis_luaran: string;
-    status_verifikasi: string;
-    file_sertifikat_atau_cover: string | null;
+    judul: string;
+    kategori: string;
+    status: string;
     keterangan: string | null;
+    cover_image: string | null;
     created_at: string;
     user: {
         id: number;
         name: string;
     };
-    id_contract?: number;
-    doi?: string | null;
-    no_paten?: string | null;
-    isbn?: string | null;
-    tautan_publikasi?: string | null;
+    tkt_level?: number | null;
+    version?: string | null;
+    year?: number | null;
+    url?: string | null;
 }
 
-interface Props extends PageProps {
+interface Props {
     outputs: {
         data: ResearchOutput[];
         current_page: number;
@@ -31,35 +30,80 @@ interface Props extends PageProps {
     };
 }
 
+// Breadcrumbs dinamis sesuai standar AppLayout
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: route('dashboard') },
+    { title: 'Luaran Penelitian', href: route('user.outputs.index') },
+];
+
 export default function Index({ outputs }: Props) {
     const getStatusBadge = (status: string) => {
         const colors: Record<string, string> = {
-            'Draft': 'bg-gray-200 text-gray-800',
-            'Menunggu_Verifikasi': 'bg-yellow-200 text-yellow-800',
-            'Terverifikasi_LPPM': 'bg-green-200 text-green-800',
-            'Ditolak': 'bg-red-200 text-red-800',
+            draft: 'bg-gray-100 text-gray-700',
+            Draft: 'bg-gray-100 text-gray-700',
+            submitted: 'bg-yellow-100 text-yellow-800',
+            Menunggu_Verifikasi: 'bg-yellow-100 text-yellow-800',
+            approved: 'bg-green-100 text-green-800',
+            Terverifikasi_LPPM: 'bg-green-100 text-green-800',
+            rejected: 'bg-red-100 text-red-800',
+            Ditolak: 'bg-red-100 text-red-800',
+            published: 'bg-blue-100 text-blue-800',
+            patented: 'bg-purple-100 text-purple-800',
         };
-        return colors[status] || 'bg-gray-200 text-gray-800';
+        return colors[status] ?? 'bg-gray-100 text-gray-700';
+    };
+
+    const getStatusLabel = (status: string) => {
+        const labels: Record<string, string> = {
+            draft: 'Draft',
+            Draft: 'Draft',
+            submitted: 'Diajukan',
+            Menunggu_Verifikasi: 'Menunggu Verifikasi',
+            approved: 'Disetujui',
+            Terverifikasi_LPPM: 'Terverifikasi LPPM',
+            rejected: 'Ditolak',
+            Ditolak: 'Ditolak',
+            published: 'Dipublikasi',
+            patented: 'Dipatenkan',
+        };
+        return labels[status] ?? status;
     };
 
     const getKategoriBadge = (kategori: string) => {
         const colors: Record<string, string> = {
-            'Jurnal': 'bg-blue-200 text-blue-800',
-            'Buku': 'bg-purple-200 text-purple-800',
-            'HKI': 'bg-green-200 text-green-800',
-            'Produk': 'bg-pink-200 text-pink-800',
+            jurnal: 'bg-blue-100 text-blue-800',
+            Jurnal: 'bg-blue-100 text-blue-800',
+            buku: 'bg-purple-100 text-purple-800',
+            Buku: 'bg-purple-100 text-purple-800',
+            hki: 'bg-green-100 text-green-800',
+            HKI: 'bg-green-100 text-green-800',
+            prosiding: 'bg-orange-100 text-orange-800',
+            produk: 'bg-pink-100 text-pink-800',
+            Produk: 'bg-pink-100 text-pink-800',
         };
-        return colors[kategori] || 'bg-gray-200 text-gray-800';
+        return colors[kategori] ?? 'bg-gray-100 text-gray-700';
+    };
+
+    const getKategoriLabel = (kategori: string) => {
+        const labels: Record<string, string> = {
+            jurnal: 'Jurnal',
+            buku: 'Buku',
+            hki: 'HKI',
+            prosiding: 'Prosiding',
+            produk: 'Produk/Prototipe',
+        };
+        return labels[kategori] ?? kategori;
     };
 
     return (
-        <AppLayout>
-            <Head title="Daftar Luaran Penelitian" />
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Luaran Penelitian" />
 
             <div className="py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="mb-6">
+                    <div className="mb-6 flex items-center justify-between">
                         <h1 className="text-2xl font-bold text-gray-900">Daftar Luaran Penelitian Saya</h1>
+                        <span className="text-sm text-gray-500">Total: {outputs.total} luaran</span>
                     </div>
 
                     <div className="overflow-hidden rounded-lg bg-white shadow">
@@ -82,23 +126,30 @@ export default function Index({ outputs }: Props) {
                                     </tr>
                                 ) : (
                                     outputs.data.map((output) => (
-                                        <tr key={output.id}>
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{output.judul_luaran}</td>
+                                        <tr key={output.id} className="transition-colors hover:bg-gray-50">
+                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{output.judul}</td>
                                             <td className="px-6 py-4 text-sm">
-                                                <span className={`rounded-full px-2 py-1 text-xs ${getKategoriBadge(output.jenis_luaran)}`}>
-                                                    {output.jenis_luaran.toUpperCase()}
+                                                <span className={`rounded-full px-2 py-1 text-xs font-medium ${getKategoriBadge(output.kategori)}`}>
+                                                    {getKategoriLabel(output.kategori)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm">
-                                                <span className={`rounded-full px-2 py-1 text-xs ${getStatusBadge(output.status_verifikasi)}`}>
-                                                    {output.status_verifikasi.replace('_', ' ')}
+                                                <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(output.status)}`}>
+                                                    {getStatusLabel(output.status)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-500">
                                                 {new Date(output.created_at).toLocaleDateString('id-ID')}
                                             </td>
                                             <td className="px-6 py-4 text-sm">
-                                                <span className="text-gray-400">Detail</span>
+                                                {output.status === 'draft' && (
+                                                    <Link
+                                                        href={route('user.outputs.edit', output.id)}
+                                                        className="mr-3 text-indigo-600 hover:text-indigo-800"
+                                                    >
+                                                        Edit
+                                                    </Link>
+                                                )}
                                             </td>
                                         </tr>
                                     ))

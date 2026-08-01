@@ -45,11 +45,19 @@ return new class extends Migration
             ELSE 'non_sinta'
         END");
 
+        // Drop sinta_rank index first (SQLite requires index to be dropped before column)
+        if (Schema::hasIndex('journals', 'journals_sinta_rank_index')) {
+            try {
+                Schema::table('journals', function (Blueprint $table) {
+                    $table->dropIndex('journals_sinta_rank_index');
+                });
+            } catch (\Throwable) {
+                // Index already absent — safe to continue.
+            }
+        }
+
         // Drop old column and rename new one
         Schema::table('journals', function (Blueprint $table) {
-            if (DB::getDriverName() === 'sqlite') {
-                $table->dropIndex(['sinta_rank']);
-            }
             $table->dropColumn('sinta_rank');
         });
 

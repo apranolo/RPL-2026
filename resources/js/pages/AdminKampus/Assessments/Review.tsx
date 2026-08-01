@@ -216,7 +216,7 @@ export default function AssessmentReview({ assessment }: Props) {
                         <CardContent>
                             <div className="grid gap-4">
                                 {assessment.issues.map((issue) => (
-                                    <IssueCard key={issue.id} issue={issue} readOnly />
+                                    <IssueCard key={issue.id} issue={issue as any} readOnly />
                                 ))}
                             </div>
                         </CardContent>
