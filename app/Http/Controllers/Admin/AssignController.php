@@ -63,7 +63,7 @@ class AssignController extends Controller
             'reviewer_id' => $validated['reviewer_id'],
         ]);
 
-        return back()->with(
+        return redirect()->route('admin.proposals.index')->with(
             'success',
             'Reviewer berhasil ditugaskan.'
         );

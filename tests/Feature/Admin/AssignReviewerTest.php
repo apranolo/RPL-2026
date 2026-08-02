@@ -38,7 +38,7 @@ class AssignReviewerTest extends TestCase
             ]);
 
         $response
-            ->assertRedirect()
+            ->assertRedirect(route('admin.proposals.index'))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('reviews', [
