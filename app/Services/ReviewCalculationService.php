@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\EvaluationCategory;
 use App\Models\JournalAssessment;
+use App\Models\Proposal;
+use App\Models\Review;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
