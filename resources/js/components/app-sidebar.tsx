@@ -78,7 +78,8 @@ export function AppSidebar() {
                 href: route('admin.reviews.summary'),
                 icon: UserCheck,
                 items: [
-                    { title: 'Penunjukan & Rekap Review', href: route('admin.reviews.summary') },
+                    { title: 'Rekap Review Proposal', href: route('admin.reviews.summary') },
+                    { title: 'Rekap Assessment Jurnal', href: route('admin.assessments.summary') },
                     { title: 'Kriteria Penilaian', href: route('admin.criteria.index') },
                     { title: 'Daftar Reviewer', href: route('admin.reviewers.index') },
                 ],
@@ -136,7 +137,8 @@ export function AppSidebar() {
                 href: route('admin.reviews.summary'),
                 icon: UserCheck,
                 items: [
-                    { title: 'Penunjukan & Rekap Review', href: route('admin.reviews.summary') },
+                    { title: 'Rekap Review Proposal', href: route('admin.reviews.summary') },
+                    { title: 'Rekap Assessment Jurnal', href: route('admin.assessments.summary') },
                 ],
             },
             {

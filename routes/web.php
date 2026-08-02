@@ -440,9 +440,13 @@ Route::middleware(['auth'])->group(function () {
             Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
                 ->name('decision.decide');
 
-            // Rekap Hasil Penilaian (Summary) - Super Admin & Admin Kampus
+            // Rekap Hasil Penilaian Proposal Riset (Modul 2) - Super Admin & Admin Kampus
             Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
                 ->name('reviews.summary');
+
+            // Rekap Assessment Jurnal (JurnalMu) - Super Admin & Admin Kampus
+            Route::get('assessments/summary', [AdminReviewController::class, 'journalSummary'])
+                ->name('assessments.summary');
 
             // Admin Dashboard (LPPM)
             Route::get('dashboard', [AdminDashboardController::class, 'index'])
