@@ -11,32 +11,34 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
+        if (! Schema::hasTable('reviews')) {
+            Schema::create('reviews', function (Blueprint $table) {
+                $table->id();
 
-            // Foreign keys
-            $table->foreignId('proposal_id')
-                ->constrained('proposals')
-                ->cascadeOnDelete();
-            $table->foreignId('reviewer_id')
-                ->constrained('users')
-                ->cascadeOnDelete();
+                // Foreign keys
+                $table->foreignId('proposal_id')
+                    ->constrained('proposals')
+                    ->cascadeOnDelete();
+                $table->foreignId('reviewer_id')
+                    ->constrained('users')
+                    ->cascadeOnDelete();
 
-            // Review details
-            $table->decimal('score', 5, 2)->default(0);
-            $table->text('feedback')->nullable();
-            $table->string('recommendation')->nullable(); // Diterima, Ditolak, Revisi
+                // Review details
+                $table->decimal('score', 5, 2)->default(0);
+                $table->text('feedback')->nullable();
+                $table->string('recommendation')->nullable(); // Diterima, Ditolak, Revisi
 
-            // Timeline
-            $table->timestamp('reviewed_at')->nullable();
+                // Timeline
+                $table->timestamp('reviewed_at')->nullable();
 
-            $table->timestamps();
+                $table->timestamps();
 
-            // Indexes
-            $table->index('proposal_id');
-            $table->index('reviewer_id');
-            $table->index('reviewed_at');
-        });
+                // Indexes
+                $table->index('proposal_id');
+                $table->index('reviewer_id');
+                $table->index('reviewed_at');
+            });
+        }
     }
 
     /**
