@@ -113,7 +113,7 @@ class ProposalController extends Controller
         $proposal->load([
             'user:id,name,email,university_id',
             'user.university:id,name',
-            'researchSchema:id,name,min_budget,max_budget',
+            'researchSchema:id,name,description,max_funding',
             'reviews.reviewer:id,name,email',
             'documents',
         ]);
@@ -148,8 +148,8 @@ class ProposalController extends Controller
                 'research_schema' => $proposal->researchSchema ? [
                     'id' => $proposal->researchSchema->id,
                     'name' => $proposal->researchSchema->name,
-                    'min_budget' => $proposal->researchSchema->min_budget,
-                    'max_budget' => $proposal->researchSchema->max_budget,
+                    'description' => $proposal->researchSchema->description,
+                    'max_funding' => $proposal->researchSchema->max_funding,
                 ] : null,
                 'documents' => $proposal->documents ?? [],
                 'reviews' => $proposal->reviews->map(fn ($r) => [
