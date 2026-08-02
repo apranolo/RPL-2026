@@ -8,20 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('issues', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_journal')->constrained('journals')->cascadeOnDelete();
-            $table->integer('volume');
-            $table->integer('number');
-            $table->year('year');
-            $table->string('title')->nullable();
-            $table->text('description')->nullable();
-            $table->timestamp('published_at')->nullable();
-            $table->enum('status', ['Draft', 'Published'])->default('Draft');
-            $table->timestamps();
+        if (! Schema::hasTable('issues')) {
+            Schema::create('issues', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('id_journal')->constrained('journals')->cascadeOnDelete();
+                $table->integer('volume');
+                $table->integer('number');
+                $table->year('year');
+                $table->string('title')->nullable();
+                $table->text('description')->nullable();
+                $table->timestamp('published_at')->nullable();
+                $table->enum('status', ['Draft', 'Published'])->default('Draft');
+                $table->timestamps();
 
-            $table->unique(['id_journal', 'volume', 'number', 'year'], 'unique_issue_per_journal');
-        });
+                $table->unique(['id_journal', 'volume', 'number', 'year'], 'unique_issue_per_journal');
+            });
+        }
     }
 
     public function down(): void
