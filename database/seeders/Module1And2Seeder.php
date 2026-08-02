@@ -147,17 +147,6 @@ class Module1And2Seeder extends Seeder
             'status' => 'in_progress',
         ]);
 
-        if (\Illuminate\Support\Facades\Schema::hasTable('notifications')) {
-            DB::table('notifications')->insert([
-                'user_id' => $reviewer1->id,
-                'title' => 'Penugasan Reviewer Proposal Baru',
-                'message' => "Anda telah ditunjuk sebagai reviewer untuk proposal: {$p4->title}",
-                'is_read' => false,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-
         // Proposal 5: Administrasi_Valid (Modul 2 - Selesai Direview oleh Reviewer 1 & 2)
         $p5 = Proposal::create([
             'title' => 'Sintesis Nanomaterial Graphene untuk Baterai Generasi Masa Depan',
