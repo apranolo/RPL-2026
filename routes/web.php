@@ -435,6 +435,7 @@ Route::middleware(['auth'])->group(function () {
             });
 
             // Reviewer Assignment (Admin Kampus & Super Admin)
+            Route::get('reviewer/assign', [\App\Http\Controllers\Admin\AssignController::class, 'index'])->name('reviewer.assign');
             Route::post('assign', [\App\Http\Controllers\Admin\AssignController::class, 'assign'])->name('assign.store');
             Route::delete('assign/{id}', [\App\Http\Controllers\Admin\AssignController::class, 'unassign'])->name('assign.unassign');
 

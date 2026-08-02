@@ -30,6 +30,7 @@ interface Reviewer {
 interface Props {
     proposals: Proposal[];
     reviewers: Reviewer[];
+    selectedProposalId?: string | number;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -47,9 +48,12 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function AssignReviewer({ proposals = [], reviewers = [] }: Props) {
+export default function AssignReviewer({ proposals = [], reviewers = [], selectedProposalId }: Props) {
+    const queryParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const initialProposalId = selectedProposalId ? String(selectedProposalId) : (queryParams?.get('proposal_id') || '');
+
     const { data, setData, post, processing, errors } = useForm({
-        proposal_id: '',
+        proposal_id: initialProposalId,
         reviewer_id: '',
     });
 
