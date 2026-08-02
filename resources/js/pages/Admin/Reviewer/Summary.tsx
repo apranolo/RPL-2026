@@ -192,14 +192,18 @@ const GRADE_BG_COLORS: Record<string, string> = {
     E: 'bg-red-50 dark:bg-red-950/30',
 };
 
-function formatPct(value: number | null, decimals = 1): string {
-    if (value === null || value === undefined) return '–';
-    return `${value.toFixed(decimals)}%`;
+function formatPct(value: number | string | null | undefined, decimals = 1): string {
+    if (value === null || value === undefined || value === '') return '–';
+    const num = Number(value);
+    if (isNaN(num)) return '–';
+    return `${num.toFixed(decimals)}%`;
 }
 
-function formatScore(value: number | null, decimals = 2): string {
-    if (value === null || value === undefined) return '–';
-    return value.toFixed(decimals);
+function formatScore(value: number | string | null | undefined, decimals = 2): string {
+    if (value === null || value === undefined || value === '') return '–';
+    const num = Number(value);
+    if (isNaN(num)) return '–';
+    return num.toFixed(decimals);
 }
 
 function getGradeBadge(grade: string) {
@@ -222,12 +226,14 @@ function getStatusBadge(status: string, label: string) {
     return <Badge variant={variants[status] ?? 'outline'}>{label}</Badge>;
 }
 
-function getPctColor(pct: number | null): string {
-    if (pct === null) return 'text-muted-foreground';
-    if (pct >= 90) return 'text-emerald-600 dark:text-emerald-400 font-semibold';
-    if (pct >= 80) return 'text-blue-600 dark:text-blue-400 font-semibold';
-    if (pct >= 70) return 'text-amber-600 dark:text-amber-400 font-semibold';
-    if (pct >= 60) return 'text-orange-600 dark:text-orange-400 font-semibold';
+function getPctColor(pct: number | string | null | undefined): string {
+    if (pct === null || pct === undefined || pct === '') return 'text-muted-foreground';
+    const num = Number(pct);
+    if (isNaN(num)) return 'text-muted-foreground';
+    if (num >= 90) return 'text-emerald-600 dark:text-emerald-400 font-semibold';
+    if (num >= 80) return 'text-blue-600 dark:text-blue-400 font-semibold';
+    if (num >= 70) return 'text-amber-600 dark:text-amber-400 font-semibold';
+    if (num >= 60) return 'text-orange-600 dark:text-orange-400 font-semibold';
     return 'text-red-600 dark:text-red-400 font-semibold';
 }
 
@@ -287,7 +293,7 @@ function GradeRow({ item }: { item: GradeItem }) {
             </div>
 
             {/* Percentage */}
-            <div className={`w-14 text-right text-sm font-semibold tabular-nums ${textColor}`}>{item.percentage.toFixed(1)}%</div>
+            <div className={`w-14 text-right text-sm font-semibold tabular-nums ${textColor}`}>{formatPct(item.percentage, 1)}</div>
         </div>
     );
 }
@@ -776,7 +782,7 @@ export default function ReviewSummary({
                                                                 <div className="flex items-center justify-end gap-2">
                                                                     <Progress value={completion} className="h-1.5 w-16" />
                                                                     <span className="w-10 text-right text-xs text-muted-foreground tabular-nums">
-                                                                        {completion.toFixed(0)}%
+                                                                        {formatPct(completion, 0)}
                                                                     </span>
                                                                 </div>
                                                             </TableCell>
@@ -832,7 +838,7 @@ export default function ReviewSummary({
                                                         </TableCell>
                                                         <TableCell className="font-medium">{cat.category_name}</TableCell>
                                                         <TableCell className="text-right text-muted-foreground tabular-nums">
-                                                            {cat.category_weight.toFixed(0)}%
+                                                            {formatPct(cat.category_weight, 0)}
                                                         </TableCell>
                                                         <TableCell className="text-right tabular-nums">{formatScore(cat.avg_score)}</TableCell>
                                                         <TableCell className="text-right text-muted-foreground tabular-nums">
@@ -848,9 +854,9 @@ export default function ReviewSummary({
                                                         </TableCell>
                                                         <TableCell>
                                                             <div className="flex items-center gap-2">
-                                                                <Progress value={cat.avg_percentage ?? 0} className="h-2 flex-1" />
+                                                                <Progress value={Number(cat.avg_percentage ?? 0)} className="h-2 flex-1" />
                                                                 <span className="w-10 shrink-0 text-right text-xs text-muted-foreground tabular-nums">
-                                                                    {cat.avg_percentage !== null ? `${cat.avg_percentage.toFixed(0)}%` : '–'}
+                                                                    {formatPct(cat.avg_percentage, 0)}
                                                                 </span>
                                                             </div>
                                                         </TableCell>
