@@ -212,6 +212,109 @@ class ReviewCalculationService
     }
 
     /**
+     * Menghitung kalkulasi statistik dan rata-rata skor review untuk proposal penelitian (Modul 2).
+     *
+     * @param Builder|Collection|null $source
+     * @return array
+     */
+    public function calculateProposalSummary($source = null): array
+    {
+        $query = $source instanceof Builder ? $source : Proposal::query();
+
+        $proposals = (clone $query)
+            ->with(['user.university', 'researchSchema', 'reviews.reviewer'])
+            ->get();
+
+        $totalProposals = $proposals->count();
+        $approvedCount = $proposals->filter(fn ($p) => strtolower($p->status_proposal ?? '') === 'diterima')->count();
+        $rejectedCount = $proposals->filter(fn ($p) => strtolower($p->status_proposal ?? '') === 'ditolak')->count();
+        $pendingCount = max(0, $totalProposals - $approvedCount - $rejectedCount);
+
+        $allCompletedScores = [];
+        $proposalRows = $proposals->map(function (Proposal $proposal) use (&$allCompletedScores) {
+            $calc = $this->calculateProposalSingle($proposal);
+            if ($calc['avg_score'] !== null) {
+                $allCompletedScores[] = $calc['avg_score'];
+            }
+
+            return [
+                'id' => $proposal->id,
+                'judul' => $proposal->judul ?? $proposal->title ?? 'Proposal Tanpa Judul',
+                'status_proposal' => $proposal->status_proposal ?? 'Submitted',
+                'rejection_reason' => $proposal->rejection_reason ?? null,
+                'author_name' => $proposal->user?->name ?? 'Dosen Pengusul',
+                'university_name' => $proposal->user?->university?->name ?? 'Universitas',
+                'schema_name' => $proposal->researchSchema?->name ?? 'Skema Penelitian',
+                'total_reviews' => $calc['total_reviews'],
+                'completed_reviews' => $calc['completed_reviews'],
+                'avg_score' => $calc['avg_score'],
+                'recommendations' => $calc['recommendations'],
+                'reviewers' => $proposal->reviews->map(fn ($r) => [
+                    'id' => $r->id,
+                    'reviewer_name' => $r->reviewer?->name ?? 'Reviewer',
+                    'status' => $r->status ?? 'pending',
+                    'score' => $r->total_score ?? $r->score ?? null,
+                    'recommendation' => $r->recommendation ?? null,
+                    'notes' => $r->notes ?? $r->feedback ?? null,
+                ]),
+            ];
+        });
+
+        $avgGlobalScore = count($allCompletedScores) > 0
+            ? round(array_sum($allCompletedScores) / count($allCompletedScores), 2)
+            : null;
+
+        return [
+            'total' => $totalProposals,
+            'approved' => $approvedCount,
+            'rejected' => $rejectedCount,
+            'pending' => $pendingCount,
+            'avg_score' => $avgGlobalScore,
+            'proposals' => $proposalRows,
+        ];
+    }
+
+    /**
+     * Menghitung rata-rata skor dari seluruh reviewer untuk satu proposal.
+     *
+     * @param Proposal $proposal
+     * @return array{avg_score: float|null, total_reviews: int, completed_reviews: int, recommendations: array}
+     */
+    public function calculateProposalSingle(Proposal $proposal): array
+    {
+        $reviews = $proposal->reviews ?? collect();
+        $totalReviews = $reviews->count();
+
+        $completedReviews = $reviews->filter(function ($r) {
+            $status = strtolower($r->status ?? '');
+            return ($status === 'completed' || $status === 'selesai') && ($r->total_score !== null || $r->score !== null);
+        });
+
+        $scores = $completedReviews->map(fn ($r) => (float) ($r->total_score ?? $r->score));
+        $avgScore = $scores->count() > 0 ? round($scores->average(), 2) : null;
+
+        $recs = [
+            'Diterima' => 0,
+            'Revisi' => 0,
+            'Ditolak' => 0,
+        ];
+
+        foreach ($reviews as $r) {
+            $rec = $r->recommendation ?? '';
+            if (isset($recs[$rec])) {
+                $recs[$rec]++;
+            }
+        }
+
+        return [
+            'avg_score' => $avgScore,
+            'total_reviews' => $totalReviews,
+            'completed_reviews' => $completedReviews->count(),
+            'recommendations' => $recs,
+        ];
+    }
+
+    /**
      * Menghitung distribusi grade dari query yang diberikan.
      */
     private function calculateGradeDistribution(Builder $query): array

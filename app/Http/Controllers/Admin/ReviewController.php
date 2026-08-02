@@ -39,22 +39,15 @@ class ReviewController extends Controller
         'D' => 60,
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Public Actions
-    |--------------------------------------------------------------------------
-    */
+    protected \App\Services\ReviewCalculationService $calculationService;
+
+    public function __construct(\App\Services\ReviewCalculationService $calculationService)
+    {
+        $this->calculationService = $calculationService;
+    }
 
     /**
-     * Menampilkan rekap hasil penilaian secara keseluruhan (Super Admin).
-     *
-     * Halaman ini menyajikan dashboard rekap komprehensif yang meliputi:
-     * - Statistik global (total, per-status, rata-rata skor)
-     * - Distribusi grade (A/B/C/D/E) dari semua penilaian yang sudah disubmit
-     * - Rekap per-program pembinaan beserta ringkasan skor
-     * - Rekap per-universitas (jumlah penilaian & rata-rata skor)
-     * - Rekap per-kategori evaluasi (kontribusi skor rata-rata per kategori)
-     * - Filter: pembinaan_id, university_id, status, period, search
+     * Menampilkan rekap hasil penilaian secara keseluruhan (Super Admin & Admin Kampus).
      *
      * @route GET /admin/reviews/summary
      */
@@ -165,12 +158,30 @@ class ReviewController extends Controller
 
         /*
         |----------------------------------------------------------------------
-        | 8. Filter options
+        | 8. Proposal Research Summary (Modul 2 PRD requirement)
+        |----------------------------------------------------------------------
+        */
+        $proposalQuery = \App\Models\Proposal::query();
+        if ($request->user()->isAdminKampus()) {
+            $proposalQuery->whereHas('user', function ($q) use ($request) {
+                $q->where('university_id', $request->user()->university_id);
+            });
+        }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $proposalQuery->where('judul', 'like', "%{$search}%");
+        }
+        $proposalSummary = $this->calculationService->calculateProposalSummary($proposalQuery);
+
+        /*
+        |----------------------------------------------------------------------
+        | 9. Filter options & render
         |----------------------------------------------------------------------
         */
         $filterOptions = $this->buildFilterOptions();
 
         return Inertia::render('Admin/Reviewer/Summary', [
+            'proposalSummary' => $proposalSummary,
             'globalStats' => $globalStats,
             'gradeDistribution' => $gradeDistribution,
             'pembinaanSummary' => $pembinaanSummary,
