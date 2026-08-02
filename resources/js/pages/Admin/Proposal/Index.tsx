@@ -68,6 +68,7 @@ interface Proposal {
     research_schema: ResearchSchema | null;
     has_reviewer?: boolean;
     reviewers?: ProposalReviewer[];
+    reviews?: { id: number; reviewer_id: number; reviewer_name?: string }[];
     created_at: string;
 }
 
@@ -220,6 +221,16 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
         const targetId = assignTarget.id;
         setAssignTarget(null);
         router.get('/admin/reviewer/assign', { proposal_id: targetId });
+    };
+
+    const handleUnassign = (proposal: Proposal) => {
+        if (!proposal.reviews || proposal.reviews.length === 0) return;
+        const reviewId = proposal.reviews[0].id;
+        if (confirm(`Hapus penunjukan reviewer untuk proposal "${proposal.title}"?`)) {
+            router.delete(route('admin.assign.unassign', { id: reviewId }), {
+                preserveScroll: true,
+            });
+        }
     };
 
     const hasActiveFilters = !!(search || statusFilter);
@@ -393,8 +404,10 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                                     proposalId={proposal.id}
                                                     proposalTitle={proposal.title}
                                                     status={proposal.status_proposal}
+                                                    hasReviewer={!!proposal.has_reviewer}
                                                     onReject={() => setRejectTarget(proposal)}
                                                     onAssign={() => setAssignTarget(proposal)}
+                                                    onUnassign={() => handleUnassign(proposal)}
                                                 />
                                             </TableCell>
                                         </TableRow>

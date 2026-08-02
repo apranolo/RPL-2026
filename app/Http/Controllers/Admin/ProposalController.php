@@ -66,6 +66,11 @@ class ProposalController extends Controller
                 'rejection_reason' => $proposal->rejection_reason,
                 'file_dokumen_proposal' => $proposal->file_dokumen_proposal,
                 'has_reviewer' => $proposal->reviews->isNotEmpty(),
+                'reviews' => $proposal->reviews->map(fn ($r) => [
+                    'id' => $r->id,
+                    'reviewer_id' => $r->reviewer_id,
+                    'reviewer_name' => $r->reviewer?->name,
+                ])->values(),
                 'reviewers' => $proposal->reviews->map(fn ($r) => [
                     'id' => $r->reviewer?->id,
                     'name' => $r->reviewer?->name,
@@ -93,6 +98,75 @@ class ProposalController extends Controller
             'proposals' => $proposals,
             'filters' => $request->only(['search', 'status']),
             'statusOptions' => $statusOptions,
+        ]);
+    }
+
+    /**
+     * Tampilkan detail proposal penelitian (Show/Detail view).
+     *
+     * @route GET /admin/proposals/{proposal}
+     */
+    public function show(Proposal $proposal): Response
+    {
+        $this->authorize('view', $proposal);
+
+        $proposal->load([
+            'user:id,name,email,university_id',
+            'user.university:id,name',
+            'researchSchema:id,name,min_budget,max_budget',
+            'reviews.reviewer:id,name,email',
+            'documents',
+        ]);
+
+        $reviewerRole = \App\Models\Role::where('name', \App\Models\Role::REVIEWER)->first();
+
+        $reviewersQuery = \App\Models\User::query();
+        if ($reviewerRole) {
+            $reviewersQuery->where(function ($q) use ($reviewerRole) {
+                $q->where('role_id', $reviewerRole->id)
+                  ->orWhereHas('roles', fn ($r) => $r->where('name', \App\Models\Role::REVIEWER));
+            });
+        }
+        $availableReviewers = $reviewersQuery->select('id', 'name', 'email')->get();
+
+        return Inertia::render('Admin/Proposal/Show', [
+            'proposal' => [
+                'id' => $proposal->id,
+                'title' => $proposal->title,
+                'description' => $proposal->description,
+                'status_proposal' => $proposal->status_proposal,
+                'rejection_reason' => $proposal->rejection_reason,
+                'file_dokumen_proposal' => $proposal->file_dokumen_proposal,
+                'created_at' => $proposal->created_at->format('Y-m-d H:i'),
+                'updated_at' => $proposal->updated_at->format('Y-m-d H:i'),
+                'user' => $proposal->user ? [
+                    'id' => $proposal->user->id,
+                    'name' => $proposal->user->name,
+                    'email' => $proposal->user->email,
+                    'university' => $proposal->user->university?->name,
+                ] : null,
+                'research_schema' => $proposal->researchSchema ? [
+                    'id' => $proposal->researchSchema->id,
+                    'name' => $proposal->researchSchema->name,
+                    'min_budget' => $proposal->researchSchema->min_budget,
+                    'max_budget' => $proposal->researchSchema->max_budget,
+                ] : null,
+                'documents' => $proposal->documents ?? [],
+                'reviews' => $proposal->reviews->map(fn ($r) => [
+                    'id' => $r->id,
+                    'proposal_id' => $r->proposal_id,
+                    'reviewer_id' => $r->reviewer_id,
+                    'reviewed_at' => $r->reviewed_at?->format('Y-m-d H:i'),
+                    'score' => $r->score,
+                    'feedback' => $r->feedback,
+                    'reviewer' => $r->reviewer ? [
+                        'id' => $r->reviewer->id,
+                        'name' => $r->reviewer->name,
+                        'email' => $r->reviewer->email,
+                    ] : null,
+                ])->values(),
+            ],
+            'availableReviewers' => $availableReviewers,
         ]);
     }
 

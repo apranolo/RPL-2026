@@ -25,7 +25,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Link, router } from '@inertiajs/react';
-import { CheckCircle, Eye, UserCheck, XCircle } from 'lucide-react';
+import { CheckCircle, Eye, UserCheck, UserX, XCircle } from 'lucide-react';
 import { route } from 'ziggy-js';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -39,8 +39,12 @@ interface ActionButtonsProps {
     status: string;
     /** Callback yang dipicu saat tombol "Tolak" diklik */
     onReject: () => void;
-    /** Callback yang dipicu saat tombol "Tunjuk Reviewer" diklik (opsional) */
+    /** Callback yang dipicu saat tombol "Tunjuk/Ubah Reviewer" diklik (opsional) */
     onAssign?: () => void;
+    /** Apakah proposal sudah memiliki reviewer */
+    hasReviewer?: boolean;
+    /** Callback yang dipicu saat tombol "Hapus Reviewer" diklik (opsional) */
+    onUnassign?: () => void;
     /** Nonaktifkan tombol saat sedang memproses (opsional) */
     disabled?: boolean;
 }
@@ -55,36 +59,73 @@ const STATUS_LABELS: Record<string, string> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function ActionButtons({ proposalId, proposalTitle, status, onReject, onAssign, disabled = false }: ActionButtonsProps) {
+export default function ActionButtons({
+    proposalId,
+    proposalTitle,
+    status,
+    onReject,
+    onAssign,
+    hasReviewer = false,
+    onUnassign,
+    disabled = false,
+}: ActionButtonsProps) {
     const handleApprove = () => {
         if (!confirm(`Setujui proposal "${proposalTitle}"?`)) return;
         router.post(route('admin.proposals.approve', { proposal: proposalId }));
     };
 
+    const getDetailHref = () => {
+        try {
+            return route('admin.proposals.show', { proposal: proposalId });
+        } catch {
+            return `/admin/proposals/${proposalId}`;
+        }
+    };
+
     return (
         <div className="flex items-center justify-end gap-2">
             {/* Tombol Lihat Detail Proposal */}
-            <Link href={route('proposal.show', { proposal: proposalId })}>
+            <Link href={getDetailHref()}>
                 <Button id={`btn-detail-${proposalId}`} size="sm" variant="outline" className="gap-1.5" title="Lihat Detail Proposal">
                     <Eye className="h-3.5 w-3.5" />
                     Detail
                 </Button>
             </Link>
 
-            {/* Tombol Tunjuk Reviewer (untuk status Administrasi_Valid) */}
-            {(status === 'Administrasi_Valid' || onAssign) && (
-                <Button
-                    id={`btn-assign-${proposalId}`}
-                    size="sm"
-                    variant="outline"
-                    disabled={disabled}
-                    onClick={onAssign ? onAssign : () => router.get('/admin/reviewer/assign?proposal_id=' + proposalId)}
-                    className="gap-1.5 border-blue-500/30 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950"
-                    title="Tunjuk Reviewer"
-                >
-                    <UserCheck className="h-3.5 w-3.5" />
-                    Tunjuk Reviewer
-                </Button>
+            {/* Tombol Tunjuk / Ubah Reviewer (untuk status Administrasi_Valid) */}
+            {status === 'Administrasi_Valid' && (
+                <div className="flex items-center gap-1">
+                    <Button
+                        id={`btn-assign-${proposalId}`}
+                        size="sm"
+                        variant="outline"
+                        disabled={disabled}
+                        onClick={onAssign ? onAssign : () => router.get('/admin/reviewer/assign?proposal_id=' + proposalId)}
+                        className={`gap-1.5 ${
+                            hasReviewer
+                                ? 'border-green-500/40 text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950'
+                                : 'border-blue-500/30 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950'
+                        }`}
+                        title={hasReviewer ? 'Ubah Reviewer' : 'Tunjuk Reviewer'}
+                    >
+                        <UserCheck className="h-3.5 w-3.5" />
+                        {hasReviewer ? 'Ubah Reviewer' : 'Tunjuk Reviewer'}
+                    </Button>
+
+                    {hasReviewer && onUnassign && (
+                        <Button
+                            id={`btn-unassign-${proposalId}`}
+                            size="sm"
+                            variant="ghost"
+                            disabled={disabled}
+                            onClick={onUnassign}
+                            className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            title="Hapus Penunjukan Reviewer"
+                        >
+                            <UserX className="h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
             )}
 
             {/* Jika status Submitted, tampilkan tombol Setujui (Approve) & Tolak (Reject) */}

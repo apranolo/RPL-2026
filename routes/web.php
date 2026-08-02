@@ -430,6 +430,7 @@ Route::middleware(['auth'])->group(function () {
             // Proposals Management (Admin Kampus & Super Admin)
             Route::prefix('proposals')->name('proposals.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\Admin\ProposalController::class, 'index'])->name('index');
+                Route::get('{proposal}', [\App\Http\Controllers\Admin\ProposalController::class, 'show'])->name('show');
                 Route::post('{proposal}/approve', [\App\Http\Controllers\Admin\ProposalController::class, 'approve'])->name('approve');
                 Route::post('{proposal}/reject', [\App\Http\Controllers\Admin\ProposalController::class, 'reject'])->name('reject');
             });
