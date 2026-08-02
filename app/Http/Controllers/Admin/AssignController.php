@@ -58,7 +58,7 @@ class AssignController extends Controller
             'reviewer_id' => 'required|integer',
         ]);
 
-        PembinaanReview::create([
+        \App\Models\Review::create([
             'proposal_id' => $validated['proposal_id'],
             'reviewer_id' => $validated['reviewer_id'],
         ]);
@@ -77,7 +77,7 @@ class AssignController extends Controller
             abort(403);
         }
 
-        $review = PembinaanReview::findOrFail($id);
+        $review = \App\Models\Review::findOrFail($id);
 
         $review->delete();
 
