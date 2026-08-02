@@ -126,7 +126,7 @@ test('super admin can access review summary page', function () {
 test('admin kampus can access review summary page', function () {
     $data = seedDecisionTestData();
 
-    $response = $this->actingAs($data['adminKampus1'])
+    $response = $this->actingAs($data['adminKampus'])
         ->get(route('admin.reviews.summary'));
 
     $response->assertOk();
