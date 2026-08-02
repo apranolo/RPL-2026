@@ -29,7 +29,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, FileText, Search, X, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, FileText, Search, UserCheck, UserX, X, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 // ─── Breadcrumbs ─────────────────────────────────────────────────────────────
@@ -52,6 +52,11 @@ interface ResearchSchema {
     name: string;
 }
 
+interface ProposalReviewer {
+    id: number;
+    name: string;
+}
+
 interface Proposal {
     id: number;
     title: string;
@@ -61,6 +66,8 @@ interface Proposal {
     file_dokumen_proposal: string | null;
     user: ProposalUser | null;
     research_schema: ResearchSchema | null;
+    has_reviewer?: boolean;
+    reviewers?: ProposalReviewer[];
     created_at: string;
 }
 
@@ -313,10 +320,11 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                         <Table>
                             <TableHeader>
                                 <TableRow className="border-border hover:bg-transparent">
-                                    <TableHead className="w-[32%] text-muted-foreground">Judul Proposal</TableHead>
+                                    <TableHead className="w-[30%] text-muted-foreground">Judul Proposal</TableHead>
                                     <TableHead className="text-muted-foreground">Pengusul</TableHead>
                                     <TableHead className="text-muted-foreground">Skema Penelitian</TableHead>
                                     <TableHead className="text-muted-foreground">Status</TableHead>
+                                    <TableHead className="text-muted-foreground">Reviewer</TableHead>
                                     <TableHead className="text-muted-foreground">Tanggal</TableHead>
                                     <TableHead className="text-right text-muted-foreground">Aksi</TableHead>
                                 </TableRow>
@@ -324,7 +332,7 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                             <TableBody>
                                 {proposals.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
+                                        <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
                                             <FileText className="mx-auto mb-2 h-8 w-8 opacity-40" />
                                             <p className="text-sm">Tidak ada proposal ditemukan.</p>
                                         </TableCell>
@@ -352,6 +360,32 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                             </TableCell>
                                             <TableCell>
                                                 <StatusBadge status={proposal.status_proposal} />
+                                            </TableCell>
+                                            <TableCell>
+                                                {proposal.status_proposal === 'Administrasi_Valid' ? (
+                                                    proposal.has_reviewer && proposal.reviewers && proposal.reviewers.length > 0 ? (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="w-fit gap-1 border-green-500/40 bg-green-500/10 font-normal text-green-700 dark:text-green-400"
+                                                            title={proposal.reviewers.map((r) => r.name).join(', ')}
+                                                        >
+                                                            <UserCheck className="h-3 w-3 shrink-0 text-green-600 dark:text-green-400" />
+                                                            <span className="max-w-[130px] truncate">
+                                                                {proposal.reviewers.map((r) => r.name).join(', ')}
+                                                            </span>
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="w-fit gap-1 border-amber-500/40 bg-amber-500/10 font-normal text-amber-700 dark:text-amber-400"
+                                                        >
+                                                            <UserX className="h-3 w-3 shrink-0 text-amber-600 dark:text-amber-400" />
+                                                            Belum Ditunjuk
+                                                        </Badge>
+                                                    )
+                                                ) : (
+                                                    <span className="text-xs text-muted-foreground">—</span>
+                                                )}
                                             </TableCell>
                                             <TableCell className="text-sm text-muted-foreground">{proposal.created_at}</TableCell>
                                             <TableCell className="text-right">

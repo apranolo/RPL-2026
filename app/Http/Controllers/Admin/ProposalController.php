@@ -34,7 +34,11 @@ class ProposalController extends Controller
         $this->authorize('viewAny', Proposal::class);
 
         $query = Proposal::query()
-            ->with(['user:id,name,email,university_id', 'researchSchema:id,name']);
+            ->with([
+                'user:id,name,email,university_id',
+                'researchSchema:id,name',
+                'reviews.reviewer:id,name',
+            ]);
 
         if ($request->user()->isAdminKampus()) {
             $query->whereHas('user', function ($q) use ($request) {
@@ -61,6 +65,11 @@ class ProposalController extends Controller
                 'status_proposal' => $proposal->status_proposal,
                 'rejection_reason' => $proposal->rejection_reason,
                 'file_dokumen_proposal' => $proposal->file_dokumen_proposal,
+                'has_reviewer' => $proposal->reviews->isNotEmpty(),
+                'reviewers' => $proposal->reviews->map(fn ($r) => [
+                    'id' => $r->reviewer?->id,
+                    'name' => $r->reviewer?->name,
+                ])->filter(fn ($r) => ! empty($r['name']))->values(),
                 'user' => $proposal->user ? [
                     'id' => $proposal->user->id,
                     'name' => $proposal->user->name,
