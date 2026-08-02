@@ -83,6 +83,13 @@ class ReviewController extends Controller
             });
         }
 
+        // Scoping per-universitas jika user adalah Admin Kampus
+        if ($request->user()->isAdminKampus()) {
+            $query->whereHas('journal', function ($q) use ($request) {
+                $q->where('university_id', $request->user()->university_id);
+            });
+        }
+
         // Filter: university (through journal relationship)
         if ($request->filled('university_id')) {
             $query->whereHas('journal', function ($q) use ($request) {

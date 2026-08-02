@@ -356,10 +356,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
             ->name('monev.decide-action');
 
-        // Rekap Hasil Penilaian (Summary)
-        Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
-            ->name('reviews.summary');
-
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             Route::get('/', [AdminPembinaanController::class, 'index'])
@@ -443,6 +439,10 @@ Route::middleware(['auth'])->group(function () {
             // Penentuan Keputusan Diterima/Ditolak (Decision)
             Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
                 ->name('decision.decide');
+
+            // Rekap Hasil Penilaian (Summary) - Super Admin & Admin Kampus
+            Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
+                ->name('reviews.summary');
 
             // Admin Dashboard (LPPM)
             Route::get('dashboard', [AdminDashboardController::class, 'index'])

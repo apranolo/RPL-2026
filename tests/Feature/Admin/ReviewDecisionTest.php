@@ -123,6 +123,21 @@ test('super admin can access review summary page', function () {
     );
 });
 
+test('admin kampus can access review summary page', function () {
+    $data = seedDecisionTestData();
+
+    $response = $this->actingAs($data['adminKampus1'])
+        ->get(route('admin.reviews.summary'));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('Admin/Reviewer/Summary')
+        ->has('globalStats')
+        ->has('gradeDistribution')
+        ->has('filterOptions')
+    );
+});
+
 test('regular user cannot access review summary page', function () {
     $data = seedDecisionTestData();
 
