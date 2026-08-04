@@ -68,13 +68,20 @@ class ReviewController extends Controller
             $proposalQuery->where('judul', 'like', "%{$search}%");
         }
 
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $proposalQuery->whereBetween('created_at', [
+                $request->start_date . ' 00:00:00',
+                $request->end_date . ' 23:59:59',
+            ]);
+        }
+
         $proposalSummary = $this->calculationService->calculateProposalSummary($proposalQuery);
         $filterOptions = $this->buildFilterOptions();
 
         return Inertia::render('Admin/Reviewer/Summary', [
             'proposalSummary' => $proposalSummary,
             'filterOptions' => $filterOptions,
-            'filters' => $request->only(['search', 'university_id', 'status']),
+            'filters' => $request->only(['search', 'university_id', 'status', 'start_date', 'end_date', 'preset']),
         ]);
     }
 
@@ -130,6 +137,13 @@ class ReviewController extends Controller
             });
         }
 
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('submitted_at', [
+                $request->start_date . ' 00:00:00',
+                $request->end_date . ' 23:59:59',
+            ]);
+        }
+
         $globalStats = $this->buildGlobalStats(clone $query);
         $gradeDistribution = $this->buildGradeDistribution(clone $query);
         $pembinaanSummary = $this->buildPembinaanSummary($request);
@@ -159,6 +173,9 @@ class ReviewController extends Controller
                 'status',
                 'period',
                 'search',
+                'start_date',
+                'end_date',
+                'preset',
             ]),
         ]);
     }
