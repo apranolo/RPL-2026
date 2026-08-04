@@ -23,7 +23,7 @@ class ReviewFactory extends Factory
             'proposal_id' => Proposal::factory(),
             'reviewer_id' => User::factory(),
             'score' => $this->faker->randomFloat(2, 0, 100),
-            'comments' => $this->faker->paragraph(),
+            'notes' => $this->faker->paragraph(),
             'recommendation' => $this->faker->randomElement(['accepted', 'revision', 'rejected']),
         ];
     }

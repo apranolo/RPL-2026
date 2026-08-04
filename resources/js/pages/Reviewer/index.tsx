@@ -48,11 +48,23 @@ import React, { useEffect, useState, type FormEvent } from 'react';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
-interface AssessmentCriteria {
+export interface MasterCriterion {
     id: number;
+    code: string;
+    question: string;
+    description?: string;
+    weight: number;
+    answer_type: string;
+    requires_attachment: boolean;
+}
+
+interface AssessmentCriteria {
+    id?: number;
     criterion: string;
     score: number;
     notes?: string | null;
+    answer_type?: string;
+    weight?: number;
 }
 
 interface Proposal {
@@ -97,6 +109,7 @@ interface Props {
         status?: string;
         search?: string;
     };
+    masterCriteria?: MasterCriterion[];
 }
 
 // ─── Breadcrumbs ─────────────────────────────────────────────────────────────
@@ -106,7 +119,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Tugas Reviewer', href: '/reviewer/assignments' },
 ];
 
-// ─── Status Badge Helper ──────────────────────────────────────────────────────
+// ─── Badge Helpers ────────────────────────────────────────────────────────────
 
 function ReviewStatusBadge({ status }: { status: string }) {
     const normStatus = (status ?? '').toLowerCase();
@@ -134,9 +147,39 @@ function ReviewStatusBadge({ status }: { status: string }) {
     );
 }
 
+function AnswerTypeBadge({ answerType }: { answerType?: string }) {
+    const norm = (answerType ?? '').toLowerCase();
+    if (norm === 'yes_no' || norm === 'ya_tidak') {
+        return (
+            <Badge variant="outline" className="border-blue-500/40 bg-blue-500/10 text-xs font-normal text-blue-700 dark:text-blue-400">
+                Ya / Tidak
+            </Badge>
+        );
+    }
+    if (norm === 'scale_1_5' || norm === 'skala_1_5') {
+        return (
+            <Badge variant="outline" className="border-purple-500/40 bg-purple-500/10 text-xs font-normal text-purple-700 dark:text-purple-400">
+                Skala 1-5
+            </Badge>
+        );
+    }
+    if (norm === 'text' || norm === 'teks') {
+        return (
+            <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-xs font-normal text-amber-700 dark:text-amber-400">
+                Teks
+            </Badge>
+        );
+    }
+    return (
+        <Badge variant="outline" className="border-slate-500/40 bg-slate-500/10 text-xs font-normal text-slate-700 dark:text-slate-400">
+            {answerType || 'Skala 0-100'}
+        </Badge>
+    );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ReviewerIndex({ tasks, assignments, progressReports, selectedReview, filters }: Props) {
+export default function ReviewerIndex({ tasks, assignments, progressReports, selectedReview, filters, masterCriteria = [] }: Props) {
     const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
     const taskData = tasks ?? assignments ?? progressReports;
 
@@ -150,6 +193,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
     const [feedbackInput, setFeedbackInput] = useState('');
     const [recommendationInput, setRecommendationInput] = useState('');
     const [statusInput, setStatusInput] = useState('completed');
+    const [criteriaInputs, setCriteriaInputs] = useState<AssessmentCriteria[]>([]);
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     const getProposalTitle = (proposal?: Proposal | null) => proposal?.title ?? proposal?.judul ?? 'Proposal Tanpa Judul';
@@ -157,6 +201,40 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
         proposal?.description ?? proposal?.deskripsi ?? 'Belum ada deskripsi proposal.';
     const getProposalDoc = (proposal?: Proposal | null) =>
         proposal?.file_dokumen_proposal ?? proposal?.proposal_doc_path ?? null;
+
+    const calculateAverageScore = (items: AssessmentCriteria[]) => {
+        if (!items || items.length === 0) return 0;
+        const sum = items.reduce((acc, curr) => acc + (Number(curr.score) || 0), 0);
+        return Math.round((sum / items.length) * 100) / 100;
+    };
+
+    const initializeCriteria = (task: Review): AssessmentCriteria[] => {
+        if (task.assessment_criteria && task.assessment_criteria.length > 0) {
+            return task.assessment_criteria.map((item) => ({
+                id: item.id,
+                criterion: item.criterion,
+                score: Number(item.score ?? 0),
+                notes: item.notes ?? '',
+                answer_type: item.answer_type,
+                weight: item.weight,
+            }));
+        }
+        if (masterCriteria && masterCriteria.length > 0) {
+            return masterCriteria.map((item) => ({
+                criterion: item.code ? `${item.code} - ${item.question}` : item.question,
+                score: 0,
+                notes: '',
+                answer_type: item.answer_type,
+                weight: item.weight,
+            }));
+        }
+        return [
+            { criterion: 'Orisinalitas & Kebaruan Topik', score: 0, notes: '', answer_type: 'scale_1_5', weight: 25 },
+            { criterion: 'Metodologi Penelitian & Kesesuaian Rencana', score: 0, notes: '', answer_type: 'scale_1_5', weight: 35 },
+            { criterion: 'Potensi Dampak & Luaran Penelitian', score: 0, notes: '', answer_type: 'scale_1_5', weight: 25 },
+            { criterion: 'Kelayakan Anggaran & Jadwal', score: 0, notes: '', answer_type: 'scale_1_5', weight: 15 },
+        ];
+    };
 
     useEffect(() => {
         if (flash?.success) setFlashMessage({ type: 'success', text: flash.success });
@@ -170,8 +248,17 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
         if (selectedReview) {
             setActiveReview(selectedReview);
             setIsDialogOpen(true);
+            const initialCriteria = initializeCriteria(selectedReview);
+            setCriteriaInputs(initialCriteria);
+
             const scoreVal = selectedReview.total_score ?? selectedReview.score;
-            setScoreInput(scoreVal?.toString() ?? '');
+            if (scoreVal !== null && scoreVal !== undefined) {
+                setScoreInput(scoreVal.toString());
+            } else {
+                const avg = calculateAverageScore(initialCriteria);
+                setScoreInput(avg.toString());
+            }
+
             setFeedbackInput(selectedReview.notes ?? selectedReview.feedback ?? '');
             setRecommendationInput(selectedReview.recommendation ?? '');
             setStatusInput(selectedReview.status ?? 'completed');
@@ -181,8 +268,17 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
     const openReviewDetails = (review: Review) => {
         setActiveReview(review);
         setIsDialogOpen(true);
+        const initialCriteria = initializeCriteria(review);
+        setCriteriaInputs(initialCriteria);
+
         const scoreVal = review.total_score ?? review.score;
-        setScoreInput(scoreVal?.toString() ?? '');
+        if (scoreVal !== null && scoreVal !== undefined) {
+            setScoreInput(scoreVal.toString());
+        } else {
+            const avg = calculateAverageScore(initialCriteria);
+            setScoreInput(avg.toString());
+        }
+
         setFeedbackInput(review.notes ?? review.feedback ?? '');
         setRecommendationInput(review.recommendation ?? '');
         setStatusInput(review.status ?? 'completed');
@@ -191,6 +287,25 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
     const closeReviewDetails = () => {
         setIsDialogOpen(false);
         setActiveReview(null);
+    };
+
+    const handleCriterionScoreChange = (index: number, valueStr: string) => {
+        const numScore = Math.max(0, Math.min(100, Number(valueStr) || 0));
+        setCriteriaInputs((prev) => {
+            const next = [...prev];
+            next[index] = { ...next[index], score: numScore };
+            const avg = calculateAverageScore(next);
+            setScoreInput(avg.toString());
+            return next;
+        });
+    };
+
+    const handleCriterionNoteChange = (index: number, value: string) => {
+        setCriteriaInputs((prev) => {
+            const next = [...prev];
+            next[index] = { ...next[index], notes: value };
+            return next;
+        });
     };
 
     const handleFilterChange = (val: string) => {
@@ -230,6 +345,11 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                 notes: feedbackInput,
                 recommendation: recommendationInput,
                 status: statusInput,
+                assessment_criteria: criteriaInputs.map((item) => ({
+                    criterion: item.criterion,
+                    score: Number(item.score) || 0,
+                    notes: item.notes || null,
+                })),
             },
             {
                 preserveScroll: true,
@@ -542,12 +662,127 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                             </div>
 
                             {/* Evaluation Form */}
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div className="grid gap-4 md:grid-cols-2">
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                {/* Dynamic Rubric Criteria Section */}
+                                <div className="space-y-3 pt-1">
+                                    <div className="flex items-center justify-between border-b border-border pb-2">
+                                        <div className="flex items-center gap-2">
+                                            <Award className="h-4 w-4 text-primary" />
+                                            <h3 className="text-sm font-semibold text-foreground">Rincian Penilaian Rubrik Kriteria</h3>
+                                        </div>
+                                        <span className="text-xs text-muted-foreground">
+                                            {criteriaInputs.length} Indikator • Rata-rata Otomatis: <strong className="text-primary">{scoreInput || 0}</strong>
+                                        </span>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        {criteriaInputs.map((item, idx) => {
+                                            const parts = item.criterion.split(' - ');
+                                            const code = parts.length > 1 ? parts[0] : null;
+                                            const titleText = parts.length > 1 ? parts.slice(1).join(' - ') : item.criterion;
+
+                                            return (
+                                                <Card key={idx} className="border-border bg-card/60 shadow-none">
+                                                    <CardContent className="p-3.5 space-y-3">
+                                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                                            <div className="flex items-center gap-2">
+                                                                {code && (
+                                                                    <Badge variant="secondary" className="font-mono text-xs">
+                                                                        {code}
+                                                                    </Badge>
+                                                                )}
+                                                                <span className="text-sm font-medium text-foreground">{titleText}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <AnswerTypeBadge answerType={item.answer_type} />
+                                                                {item.weight !== undefined && item.weight !== null && (
+                                                                    <Badge variant="outline" className="text-xs text-muted-foreground">
+                                                                        Bobot: {item.weight}%
+                                                                    </Badge>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="grid gap-3 sm:grid-cols-12">
+                                                            <div className="sm:col-span-4 space-y-1">
+                                                                <Label htmlFor={`score-${idx}`} className="text-xs text-muted-foreground">
+                                                                    Skor Kriteria (0 - 100)
+                                                                </Label>
+                                                                <Input
+                                                                    id={`score-${idx}`}
+                                                                    type="number"
+                                                                    min="0"
+                                                                    max="100"
+                                                                    value={item.score}
+                                                                    onChange={(e) => handleCriterionScoreChange(idx, e.target.value)}
+                                                                    className="h-9 text-sm border-border bg-background"
+                                                                />
+                                                                {(item.answer_type === 'scale_1_5' || item.answer_type === 'skala_1_5') && (
+                                                                    <div className="flex gap-1 pt-1">
+                                                                        {[1, 2, 3, 4, 5].map((val) => (
+                                                                            <Button
+                                                                                key={val}
+                                                                                type="button"
+                                                                                size="sm"
+                                                                                variant={item.score === val * 20 ? 'default' : 'outline'}
+                                                                                className="h-6 w-full text-xs px-0"
+                                                                                onClick={() => handleCriterionScoreChange(idx, (val * 20).toString())}
+                                                                            >
+                                                                                {val}
+                                                                            </Button>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                                {(item.answer_type === 'yes_no' || item.answer_type === 'ya_tidak') && (
+                                                                    <div className="flex gap-1 pt-1">
+                                                                        <Button
+                                                                            type="button"
+                                                                            size="sm"
+                                                                            variant={item.score === 100 ? 'default' : 'outline'}
+                                                                            className="h-6 w-1/2 text-xs"
+                                                                            onClick={() => handleCriterionScoreChange(idx, '100')}
+                                                                        >
+                                                                            Ya (100)
+                                                                        </Button>
+                                                                        <Button
+                                                                            type="button"
+                                                                            size="sm"
+                                                                            variant={item.score === 0 ? 'default' : 'outline'}
+                                                                            className="h-6 w-1/2 text-xs"
+                                                                            onClick={() => handleCriterionScoreChange(idx, '0')}
+                                                                        >
+                                                                            Tidak (0)
+                                                                        </Button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            <div className="sm:col-span-8 space-y-1">
+                                                                <Label htmlFor={`notes-${idx}`} className="text-xs text-muted-foreground">
+                                                                    Catatan / Ulasan Kriteria
+                                                                </Label>
+                                                                <Input
+                                                                    id={`notes-${idx}`}
+                                                                    type="text"
+                                                                    placeholder="Catatan khusus untuk kriteria ini..."
+                                                                    value={item.notes ?? ''}
+                                                                    onChange={(e) => handleCriterionNoteChange(idx, e.target.value)}
+                                                                    className="h-9 text-sm border-border bg-background"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-4 md:grid-cols-2 pt-2 border-t border-border">
                                     {/* Score Input */}
                                     <div className="space-y-1.5">
                                         <Label htmlFor="score" className="text-sm font-medium text-foreground">
-                                            Skor Evaluasi (0 - 100) <span className="text-destructive">*</span>
+                                            Skor Evaluasi Final (0 - 100) <span className="text-destructive">*</span>
                                         </Label>
                                         <Input
                                             id="score"
@@ -631,3 +866,4 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
         </AppLayout>
     );
 }
+

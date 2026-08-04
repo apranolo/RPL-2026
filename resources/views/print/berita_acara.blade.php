@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berita Acara Review Proposal - {{ $proposal->title ?? 'Proposal' }}</title>
+    <link rel="icon" href="{{ asset('logo_dark.png') }}" type="image/png">
     <style>
         /* General styling for screen and print */
         body {
@@ -308,6 +309,25 @@
             $carbonDate = \Carbon\Carbon::parse($review->reviewed_at ?? now())->locale('id');
             $hari = $hariIndo[$carbonDate->format('l')] ?? $carbonDate->isoFormat('dddd');
             $tanggal = $carbonDate->isoFormat('D MMMM YYYY');
+
+            // Map English recommendation status to Indonesian
+            $rekomendasiRaw = strtolower($review->recommendation ?? '');
+            $rekomendasiIndo = match($rekomendasiRaw) {
+                'accepted', 'diterima' => 'DITERIMA',
+                'revision', 'revisi' => 'REVISI',
+                'rejected', 'ditolak' => 'DITOLAK',
+                default => strtoupper($review->recommendation ?? '-')
+            };
+
+            // Calculate Predikat Kelayakan based on score
+            $scoreVal = (float) ($review->score ?? 0);
+            if ($scoreVal >= 80) {
+                $predikat = 'Sangat Layak';
+            } elseif ($scoreVal >= 60) {
+                $predikat = 'Layak / Perlu Revisi';
+            } else {
+                $predikat = 'Kurang Layak';
+            }
         @endphp
 
         <!-- Preamble -->
@@ -329,7 +349,7 @@
                 <td>{{ $proposal->researchSchema->name ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">Universitas / Penerbit</td>
+                <td class="label">Universitas / Institusi</td>
                 <td class="colon">:</td>
                 <td>{{ $proposal->user->university->name ?? '-' }}</td>
             </tr>
@@ -339,7 +359,7 @@
                 <td>{{ $proposal->user->name ?? '-' }}</td>
             </tr>
             <tr>
-                <td class="label">NIDN / NIP / Posisi</td>
+                <td class="label">Jabatan / Fungsional</td>
                 <td class="colon">:</td>
                 <td>{{ $proposal->user->position ?? '-' }}</td>
             </tr>
@@ -365,24 +385,56 @@
             </tr>
         </table>
 
-        <!-- Section 3: Hasil Penilaian -->
-        <div class="section-title">III. Hasil Evaluasi Akhir</div>
-        <table class="table-bordered">
+        <!-- Section 3: Hasil Penilaian Rinci -->
+        <div class="section-title">III. Rincian Hasil Penilaian Kriteria</div>
+        <table class="table-bordered" style="margin-bottom: 15px;">
+            <thead>
+                <tr>
+                    <th style="width: 8%; text-align: center;">No.</th>
+                    <th style="width: 50%;">Kriteria / Parameter Penilaian</th>
+                    <th style="width: 17%; text-align: center;">Skor (0 - 100)</th>
+                    <th style="width: 25%;">Catatan Parameter</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($review->assessmentCriteria as $index => $criteria)
+                    <tr>
+                        <td style="text-align: center;">{{ $index + 1 }}</td>
+                        <td>{{ $criteria->criterion }}</td>
+                        <td style="text-align: center; font-weight: bold;">{{ number_format($criteria->score, 2) }}</td>
+                        <td>{{ $criteria->notes ?? '-' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #555;">Tidak ada rincian kriteria penilaian spesifik.</td>
+                    </tr>
+                @endforelse
+                <tr style="background-color: #f9f9f9; font-weight: bold;">
+                    <td colspan="2" style="text-align: right; padding-right: 15px;">TOTAL RATA-RATA SKOR AKHIR:</td>
+                    <td style="text-align: center; font-size: 12pt; color: #000;">{{ number_format($review->score, 2) }}</td>
+                    <td style="font-size: 10pt;">Predikat: {{ $predikat }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Section 4: Hasil Evaluasi Akhir -->
+        <div class="section-title">IV. Keputusan Rekomendasi Akhir</div>
+        <table class="table-bordered" style="margin-bottom: 20px;">
             <thead>
                 <tr>
                     <th style="width: 50%;">Parameter Penilaian</th>
-                    <th style="width: 25%;">Skor Kelayakan (0 - 100)</th>
-                    <th style="width: 25%;">Rekomendasi</th>
+                    <th style="width: 25%;">Skor Kelayakan</th>
+                    <th style="width: 25%;">Status Rekomendasi</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>Penilaian Substansi dan Rekomendasi Reviewer</td>
-                    <td style="text-align: center; font-size: 13pt; font-weight: bold;">
+                    <td style="text-align: center; font-size: 12pt; font-weight: bold;">
                         {{ number_format($review->score, 2) }}
                     </td>
-                    <td style="text-align: center; font-weight: bold; font-size: 12pt;">
-                        {{ $review->recommendation ?? '-' }}
+                    <td style="text-align: center; font-weight: bold; font-size: 11pt; color: {{ $rekomendasiRaw === 'rejected' || $rekomendasiRaw === 'ditolak' ? '#dc2626' : ($rekomendasiRaw === 'revision' || $rekomendasiRaw === 'revisi' ? '#d97706' : '#16a34a') }};">
+                        {{ $rekomendasiIndo }}
                     </td>
                 </tr>
             </tbody>
@@ -392,13 +444,18 @@
         <div class="section-title">Catatan Masukan Dan Uraian Evaluasi Reviewer:</div>
         <div class="feedback-content">{!! nl2br(e($review->feedback ?? 'Tidak ada catatan tambahan.')) !!}</div>
 
+        <!-- Place and Date of Report -->
+        <div style="text-align: right; margin-top: 30px; font-size: 11pt; font-family: 'Times New Roman', Times, serif;">
+            {{ $proposal->user->university->city ?? 'Yogyakarta' }}, {{ $tanggal }}
+        </div>
+
         <!-- Signatures -->
         <div class="signatures">
             <div class="signature-col">
                 <div class="signature-title">
-                    Reviewer/Penilai,
+                    Reviewer / Penilai,
                 </div>
-                <div>
+                <div style="margin-top: 60px;">
                     <div class="signature-name">{{ $review->reviewer?->name ?? 'Reviewer' }}</div>
                     <div class="signature-id">NIDN/NIP: {{ $review->reviewer?->position ?? '-' }}</div>
                 </div>
@@ -408,7 +465,7 @@
                 <div class="signature-title">
                     Pengusul Proposal,
                 </div>
-                <div>
+                <div style="margin-top: 60px;">
                     <div class="signature-name">
                         {{ $proposal->user?->name ?? '-' }}
                     </div>
