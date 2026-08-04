@@ -216,8 +216,7 @@ class ReviewCalculationService
     /**
      * Menghitung kalkulasi statistik dan rata-rata skor review untuk proposal penelitian (Modul 2).
      *
-     * @param Builder|Collection|null $source
-     * @return array
+     * @param  Builder|Collection|null  $source
      */
     public function calculateProposalSummary($source = null): array
     {
@@ -279,7 +278,6 @@ class ReviewCalculationService
     /**
      * Menghitung rata-rata skor dari seluruh reviewer untuk satu proposal.
      *
-     * @param Proposal $proposal
      * @return array{avg_score: float|null, total_reviews: int, completed_reviews: int, recommendations: array}
      */
     public function calculateProposalSingle(Proposal $proposal): array
@@ -289,6 +287,7 @@ class ReviewCalculationService
 
         $completedReviews = $reviews->filter(function ($r) {
             $status = strtolower($r->status ?? '');
+
             return ($status === 'completed' || $status === 'selesai') && ($r->total_score !== null || $r->score !== null);
         });
 

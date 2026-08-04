@@ -20,9 +20,21 @@ class EvaluationControllerTest extends TestCase
 
     private Role $reviewerRole;
 
+    private \App\Models\ResearchSchema $schema;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->schema = \App\Models\ResearchSchema::create([
+            'name' => 'Skema Dasar',
+            'code' => 'SKM-DSR',
+            'strata' => 'S1',
+            'min_fund' => 10000000,
+            'max_fund' => 50000000,
+            'duration_months' => 12,
+            'is_active' => true,
+        ]);
 
         $this->reviewerRole = Role::create([
             'name' => 'Reviewer',
@@ -71,6 +83,7 @@ class EvaluationControllerTest extends TestCase
     {
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
+            'research_schema_id' => $this->schema->id,
             'judul' => 'Proposal Test',
             'deskripsi' => 'Deskripsi test',
             'status_proposal' => 'Draft',
@@ -82,6 +95,7 @@ class EvaluationControllerTest extends TestCase
             'title' => 'Laporan Test',
             'content' => 'Isi laporan test',
             'report_type' => 'Laporan_Kemajuan',
+            'report_period' => 'Kemajuan',
             'report_date' => now(),
             'progress_percentage' => 50,
             'status' => 'submitted',
@@ -101,6 +115,7 @@ class EvaluationControllerTest extends TestCase
     {
         $proposal = Proposal::create([
             'user_id' => $this->dosen->id,
+            'research_schema_id' => $this->schema->id,
             'judul' => 'Proposal Test',
             'deskripsi' => 'Deskripsi test',
             'status_proposal' => 'Draft',
@@ -121,6 +136,7 @@ class EvaluationControllerTest extends TestCase
             'title' => 'Laporan Test',
             'content' => 'Isi laporan test',
             'report_type' => 'Laporan_Kemajuan',
+            'report_period' => 'Kemajuan',
             'report_date' => now(),
             'progress_percentage' => 50,
             'status' => 'submitted',

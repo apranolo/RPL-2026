@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Reviewer;
 
-use App\Models\AssessmentCriteria;
 use App\Models\EvaluationIndicator;
 use App\Models\Proposal;
 use App\Models\Review;

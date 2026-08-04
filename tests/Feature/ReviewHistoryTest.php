@@ -230,5 +230,3 @@ test('logged in user with dual roles (author and reviewer) can access their own 
         ->where('isReviewer', false) // must be false because it is proposal.history route
     );
 });
-
-

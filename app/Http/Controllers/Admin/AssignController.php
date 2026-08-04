@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\PembinaanReview;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -23,8 +22,8 @@ class AssignController extends Controller
             'Submitted',
             'Administrasi_Valid',
         ])
-        ->select('id', 'title')
-        ->get();
+            ->select('id', 'title')
+            ->get();
 
         $reviewerRole = \App\Models\Role::where('name', \App\Models\Role::REVIEWER)->first();
 
@@ -32,7 +31,7 @@ class AssignController extends Controller
         if ($reviewerRole) {
             $reviewersQuery->where(function ($q) use ($reviewerRole) {
                 $q->where('role_id', $reviewerRole->id)
-                  ->orWhereHas('roles', fn ($r) => $r->where('name', \App\Models\Role::REVIEWER));
+                    ->orWhereHas('roles', fn ($r) => $r->where('name', \App\Models\Role::REVIEWER));
             });
         }
 

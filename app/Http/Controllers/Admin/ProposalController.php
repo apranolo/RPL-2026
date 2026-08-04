@@ -124,7 +124,7 @@ class ProposalController extends Controller
         if ($reviewerRole) {
             $reviewersQuery->where(function ($q) use ($reviewerRole) {
                 $q->where('role_id', $reviewerRole->id)
-                  ->orWhereHas('roles', fn ($r) => $r->where('name', \App\Models\Role::REVIEWER));
+                    ->orWhereHas('roles', fn ($r) => $r->where('name', \App\Models\Role::REVIEWER));
             });
         }
         $availableReviewers = $reviewersQuery->select('id', 'name', 'email')->get();

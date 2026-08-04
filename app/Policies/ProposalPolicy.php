@@ -74,6 +74,7 @@ class ProposalPolicy
         }
 
         $status = strtolower($proposal->status_proposal ?? '');
+
         return $status === 'submitted';
     }
 
@@ -92,6 +93,7 @@ class ProposalPolicy
         }
 
         $status = strtolower($proposal->status_proposal ?? '');
+
         return $status === 'submitted';
     }
 

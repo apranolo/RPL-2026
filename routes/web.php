@@ -4,7 +4,6 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
-use App\Http\Controllers\Admin\CriteriaController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataMasterController;
 use App\Http\Controllers\Admin\EmailTemplateController;
@@ -48,7 +47,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
-use App\Http\Controllers\Review\ReviewAssignmentController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
 use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\SubmissionWizardController;
@@ -896,43 +894,43 @@ Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS.','.Role::PE
         Route::post('plagiarism-check', [PlagiarismController::class, 'store'])
             ->name('plagiarism-check.store');
     });
-    /*
-    |--------------------------------------------------------------------------
-    | Shared Routes (All Roles)
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| Shared Routes (All Roles)
+|--------------------------------------------------------------------------
+*/
 
-    // Support (Placeholder)
-    Route::get('/support', [SupportController::class, 'index'])
-        ->name('support');
+// Support (Placeholder)
+Route::get('/support', [SupportController::class, 'index'])
+    ->name('support');
 
-    // Resources (Placeholder)
-    Route::get('/resources', [ResourcesController::class, 'index'])
-        ->name('resources');
+// Resources (Placeholder)
+Route::get('/resources', [ResourcesController::class, 'index'])
+    ->name('resources');
 
-    // Review History (Modul 2)
-    Route::get('/proposal/history', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
-        ->name('proposal.history');
-    Route::get('/proposal/review-history/{dosen?}', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
-        ->name('proposal.review-history');
+// Review History (Modul 2)
+Route::get('/proposal/history', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
+    ->name('proposal.history');
+Route::get('/proposal/review-history/{dosen?}', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
+    ->name('proposal.review-history');
 
-    Route::get('/proposal/documents/{id}/download', [ProposalController::class, 'downloadDocument'])
-        ->name('proposal.documents.download');
-    Route::get('/proposal/{proposal}/download', [ProposalController::class, 'downloadDocument'])
-        ->name('proposal.download');
+Route::get('/proposal/documents/{id}/download', [ProposalController::class, 'downloadDocument'])
+    ->name('proposal.documents.download');
+Route::get('/proposal/{proposal}/download', [ProposalController::class, 'downloadDocument'])
+    ->name('proposal.download');
 
-    Route::resource('proposal', ProposalController::class);
+Route::resource('proposal', ProposalController::class);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Author Profile Routes
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| Author Profile Routes
+|--------------------------------------------------------------------------
+*/
 
-    Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [ProfileController::class, 'show'])
-            ->name('show');
-    });
+Route::prefix('profile')->name('profile.')->group(function () {
+    Route::get('/', [ProfileController::class, 'show'])
+        ->name('show');
+});
 
 /*
 |--------------------------------------------------------------------------

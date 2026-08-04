@@ -9,9 +9,7 @@ use App\Models\Review;
 use App\Models\ReviewSchedule;
 use App\Models\Role;
 use App\Models\User;
-
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class Module1And2Seeder extends Seeder

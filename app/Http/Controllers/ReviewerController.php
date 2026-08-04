@@ -105,7 +105,7 @@ class ReviewerController extends Controller
             $sumScore = 0;
             $count = 0;
             foreach ($request->assessment_criteria as $item) {
-                if (!empty($item['criterion'])) {
+                if (! empty($item['criterion'])) {
                     $review->assessmentCriteria()->create([
                         'criterion' => $item['criterion'],
                         'score' => (float) ($item['score'] ?? 0),
