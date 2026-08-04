@@ -14,6 +14,11 @@ class ReviewDocumentController extends Controller
      */
     public function print(Request $request, string $type, int $id)
     {
+        // --- AUTHENTICATION CHECK ---
+        if (! $request->user()) {
+            return redirect()->route('login');
+        }
+
         $user = $request->user();
         $review = null;
         $proposal = null;
@@ -25,6 +30,7 @@ class ReviewDocumentController extends Controller
                 'proposal.user.university',
                 'proposal.researchSchema',
                 'reviewer',
+                'assessmentCriteria',
             ])->findOrFail($id);
 
             $proposal = $review->proposal;

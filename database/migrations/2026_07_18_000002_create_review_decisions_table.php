@@ -23,6 +23,24 @@ return new class extends Migration
                 $table->timestamps();
                 $table->softDeletes();
             });
+        } else {
+            Schema::table('review_decisions', function (Blueprint $table): void {
+                if (! Schema::hasColumn('review_decisions', 'reviewer_assignment_id')) {
+                    $table->foreignId('reviewer_assignment_id')->nullable()->constrained('reviewer_assignments')->cascadeOnDelete();
+                }
+                if (! Schema::hasColumn('review_decisions', 'score')) {
+                    $table->integer('score')->nullable();
+                }
+                if (! Schema::hasColumn('review_decisions', 'recommendation')) {
+                    $table->string('recommendation')->nullable();
+                }
+                if (! Schema::hasColumn('review_decisions', 'comment')) {
+                    $table->text('comment')->nullable();
+                }
+                if (! Schema::hasColumn('review_decisions', 'deleted_at')) {
+                    $table->softDeletes();
+                }
+            });
         }
     }
 

@@ -39,9 +39,11 @@ class SchemaController extends Controller
         $allowedSorts = ['name', 'created_at', 'max_funding', 'is_active', 'proposals_count'];
         if (in_array($sortBy, $allowedSorts)) {
             $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->latest();
         }
 
-        $schemas = $query->paginate($request->input('per_page', 10))->withQueryString();
+        $schemas = $query->withCount('proposals')->paginate($request->input('per_page', 10))->withQueryString();
 
         return Inertia::render('Admin/Schema/Index', [
             'schemas' => SchemaResource::collection($schemas),
@@ -119,7 +121,7 @@ class SchemaController extends Controller
         $this->authorize('update', $schema);
 
         return Inertia::render('Admin/Schema/Edit', [
-            'schema' => new SchemaResource($schema),
+            'schema' => (new SchemaResource($schema))->resolve(),
         ]);
     }
 
@@ -155,11 +157,13 @@ class SchemaController extends Controller
         $this->authorize('update', $schema);
 
         $validated = $request->validate([
-
             'name' => 'required|string|max:255|unique:research_schemas,name,'.$schema->id,
-
             'description' => 'nullable|string|max:1000',
-
+        ], [
+            'name.required' => 'Nama skema wajib diisi.',
+            'name.unique' => 'Nama skema sudah digunakan, silakan gunakan nama lain.',
+            'name.max' => 'Nama skema maksimal 255 karakter.',
+            'description.max' => 'Deskripsi maksimal 1000 karakter.',
         ]);
 
         $schema->update($validated);

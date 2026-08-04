@@ -117,8 +117,21 @@ test('super admin can access review summary page', function () {
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('Admin/Reviewer/Summary')
-        ->has('globalStats')
-        ->has('gradeDistribution')
+        ->has('proposalSummary')
+        ->has('filterOptions')
+    );
+});
+
+test('admin kampus can access review summary page', function () {
+    $data = seedDecisionTestData();
+
+    $response = $this->actingAs($data['adminKampus'])
+        ->get(route('admin.reviews.summary'));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('Admin/Reviewer/Summary')
+        ->has('proposalSummary')
         ->has('filterOptions')
     );
 });
@@ -130,6 +143,36 @@ test('regular user cannot access review summary page', function () {
         ->get(route('admin.reviews.summary'));
 
     $response->assertForbidden();
+});
+
+test('super admin can access journal assessment summary page', function () {
+    $data = seedDecisionTestData();
+
+    $response = $this->actingAs($data['superAdmin'])
+        ->get(route('admin.assessments.summary'));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('Admin/Reviewer/JournalSummary')
+        ->has('globalStats')
+        ->has('gradeDistribution')
+        ->has('filterOptions')
+    );
+});
+
+test('admin kampus can access journal assessment summary page', function () {
+    $data = seedDecisionTestData();
+
+    $response = $this->actingAs($data['adminKampus'])
+        ->get(route('admin.assessments.summary'));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('Admin/Reviewer/JournalSummary')
+        ->has('globalStats')
+        ->has('gradeDistribution')
+        ->has('filterOptions')
+    );
 });
 
 /*

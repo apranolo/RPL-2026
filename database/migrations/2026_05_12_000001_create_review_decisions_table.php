@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_submission')->nullable()->constrained('articles')->nullOnDelete();
             $table->foreignId('id_reviewer')->nullable()->constrained('users')->nullOnDelete();
-            $table->enum('recommendation', ['Accept', 'Revise', 'Reject'])->nullable();
+            $table->string('recommendation')->nullable();
             $table->text('comments')->nullable();
             $table->text('comments_private')->nullable();
             $table->integer('score_originality')->nullable();
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('score_aggregate', 4, 2)->nullable();
             $table->enum('status', ['Pending', 'Submitted'])->default('Pending');
             $table->date('date_decided')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

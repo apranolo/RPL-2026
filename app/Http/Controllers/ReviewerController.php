@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EvaluationIndicator;
 use App\Models\Review;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,11 +29,14 @@ class ReviewerController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        $masterCriteria = EvaluationIndicator::active()->ordered()->get();
+
         return Inertia::render('Reviewer/index', [
             'tasks' => $reviews,
             'filters' => [
                 'status' => $request->status,
             ],
+            'masterCriteria' => $masterCriteria,
         ]);
     }
 
@@ -44,12 +48,15 @@ class ReviewerController extends Controller
         $review = $this->findOwnReview($request, $reviewId);
         $review->load(['proposal', 'assessmentCriteria']);
 
+        $masterCriteria = EvaluationIndicator::active()->ordered()->get();
+
         return Inertia::render('Reviewer/index', [
             'tasks' => $this->reviewerReviewsQuery($request)
                 ->latest('created_at')
                 ->paginate(15)
                 ->withQueryString(),
             'selectedReview' => $review,
+            'masterCriteria' => $masterCriteria,
         ]);
     }
 
@@ -61,12 +68,15 @@ class ReviewerController extends Controller
         $review = $this->findOwnReview($request, $reviewId);
         $review->load(['proposal', 'assessmentCriteria']);
 
+        $masterCriteria = EvaluationIndicator::active()->ordered()->get();
+
         return Inertia::render('Reviewer/index', [
             'tasks' => $this->reviewerReviewsQuery($request)
                 ->latest('created_at')
                 ->paginate(15)
                 ->withQueryString(),
             'selectedReview' => $review,
+            'masterCriteria' => $masterCriteria,
         ]);
     }
 
@@ -84,7 +94,33 @@ class ReviewerController extends Controller
             'notes' => 'nullable|string|max:2000',
             'status' => 'nullable|string|max:50',
             'recommendation' => 'nullable|string|max:1000',
+            'assessment_criteria' => 'nullable|array',
+            'assessment_criteria.*.criterion' => 'required|string',
+            'assessment_criteria.*.score' => 'required|numeric|min:0|max:100',
+            'assessment_criteria.*.notes' => 'nullable|string',
         ]);
+
+        if ($request->has('assessment_criteria') && is_array($request->assessment_criteria)) {
+            $review->assessmentCriteria()->delete();
+            $sumScore = 0;
+            $count = 0;
+            foreach ($request->assessment_criteria as $item) {
+                if (! empty($item['criterion'])) {
+                    $review->assessmentCriteria()->create([
+                        'criterion' => $item['criterion'],
+                        'score' => (float) ($item['score'] ?? 0),
+                        'notes' => $item['notes'] ?? null,
+                    ]);
+                    $sumScore += (float) ($item['score'] ?? 0);
+                    $count++;
+                }
+            }
+            if ($count > 0 && empty($validated['score']) && empty($validated['total_score'])) {
+                $calculatedAverage = round($sumScore / $count, 2);
+                $review->score = $calculatedAverage;
+                $review->total_score = $calculatedAverage;
+            }
+        }
 
         $review->fill([
             'status' => $validated['status'] ?? 'completed',

@@ -14,7 +14,8 @@ return new class extends Migration
         if (! Schema::hasTable('contracts')) {
             Schema::create('contracts', function (Blueprint $table) {
                 $table->id();
-                $table->string('contract_number')->unique();
+                $table->string('title');
+                $table->text('description')->nullable();
                 $table->timestamps();
             });
         }

@@ -88,6 +88,11 @@ class Review extends Model
         return $query->where('reviewer_id', $reviewerId);
     }
 
+    public function scopeForReviewer($query, int $reviewerId)
+    {
+        return $query->where('reviewer_id', $reviewerId);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Accessors & Helper Methods

@@ -125,3 +125,108 @@ test('admin kampus cannot access review history of reviewer from a different uni
 
     $response->assertStatus(403);
 });
+
+test('logged in user (author) can access review history of their own proposals', function () {
+    $university = University::factory()->create();
+    $author = User::factory()->create([
+        'role_id' => Role::where('name', Role::USER)->value('id'),
+        'university_id' => $university->id,
+        'is_reviewer' => false,
+    ]);
+
+    // Create research schema
+    $schema = ResearchSchema::create([
+        'name' => 'Skema Penelitian Unggulan 2',
+        'description' => 'Description here',
+    ]);
+
+    // Create proposal
+    $proposal = Proposal::create([
+        'title' => 'Proposal Saya',
+        'description' => 'Deskripsi proposal saya',
+        'user_id' => $author->id,
+        'research_schema_id' => $schema->id,
+    ]);
+
+    $reviewer = User::factory()->create([
+        'role_id' => Role::where('name', Role::REVIEWER)->value('id'),
+        'university_id' => $university->id,
+        'is_reviewer' => true,
+    ]);
+
+    // Create mock review
+    Review::create([
+        'proposal_id' => $proposal->id,
+        'reviewer_id' => $reviewer->id,
+        'score' => 85.00,
+        'feedback' => 'Bagus sekali.',
+        'recommendation' => 'Diterima',
+        'reviewed_at' => now(),
+    ]);
+
+    $response = $this->actingAs($author)->get(route('proposal.review-history'));
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn ($page) => $page
+        ->component('Proposal/ReviewHistory')
+        ->has('reviews')
+        ->has('reviewSchedules')
+        ->has('isReviewer')
+        ->where('isReviewer', false)
+    );
+});
+
+test('logged in user with dual roles (author and reviewer) can access their own proposal review history when visiting proposal history route', function () {
+    $university = University::factory()->create();
+    $dualUser = User::factory()->create([
+        'role_id' => Role::where('name', Role::USER)->value('id'),
+        'university_id' => $university->id,
+        'is_reviewer' => true, // acts as reviewer too
+    ]);
+
+    // Attach Reviewer role as well
+    $reviewerRole = Role::firstOrCreate(['name' => Role::REVIEWER]);
+    $dualUser->roles()->syncWithoutDetaching([$reviewerRole->id]);
+
+    // Create research schema
+    $schema = ResearchSchema::create([
+        'name' => 'Skema Penelitian Dual Role',
+        'description' => 'Description here',
+    ]);
+
+    // Create proposal owned by dual user
+    $proposal = Proposal::create([
+        'title' => 'Proposal Dual Role',
+        'description' => 'Deskripsi proposal dual role',
+        'user_id' => $dualUser->id,
+        'research_schema_id' => $schema->id,
+    ]);
+
+    $anotherReviewer = User::factory()->create([
+        'role_id' => Role::where('name', Role::REVIEWER)->value('id'),
+        'university_id' => $university->id,
+        'is_reviewer' => true,
+    ]);
+
+    // Create mock review on dual user's proposal
+    Review::create([
+        'proposal_id' => $proposal->id,
+        'reviewer_id' => $anotherReviewer->id,
+        'score' => 90.00,
+        'feedback' => 'Sangat bagus.',
+        'recommendation' => 'Diterima',
+        'reviewed_at' => now(),
+    ]);
+
+    // If visiting proposal.history (author context)
+    $response = $this->actingAs($dualUser)->get(route('proposal.history'));
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn ($page) => $page
+        ->component('Proposal/ReviewHistory')
+        ->has('reviews')
+        ->has('reviewSchedules')
+        ->has('isReviewer')
+        ->where('isReviewer', false) // must be false because it is proposal.history route
+    );
+});

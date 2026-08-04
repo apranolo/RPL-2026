@@ -4,7 +4,6 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AccreditationTemplateController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
-use App\Http\Controllers\Admin\CriteriaController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataMasterController;
 use App\Http\Controllers\Admin\EmailTemplateController;
@@ -49,6 +48,7 @@ use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\ReviewerController as MainReviewerController;
+use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\SubmissionWizardController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\AssessmentController;
@@ -224,7 +224,6 @@ Route::middleware(['auth'])->group(function () {
 
         Route::put('email-template/{emailTemplate}', [EmailTemplateController::class, 'update'])
             ->name('email-template.update');
-
         // Borang Indikator (Using Accreditation Templates System)
         Route::get('borang-indikator', [AccreditationTemplateController::class, 'index'])
             ->name('borang-indikator.index');
@@ -277,7 +276,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('indicators.reorder');
 
         // Kriteria Penilaian Management (CRUD for Assessment Criteria)
-        Route::resource('criteria', CriteriaController::class)
+        Route::resource('criteria', \App\Http\Controllers\Admin\CriteriaController::class)
             ->parameters(['criteria' => 'criterion']);
 
         /*
@@ -355,10 +354,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('monev/decide-action', [\App\Http\Controllers\Admin\MonevReportController::class, 'decideAction'])
             ->name('monev.decide-action');
 
-        // Rekap Hasil Penilaian (Summary)
-        Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
-            ->name('reviews.summary');
-
         // Pembinaan Management (v1.1)
         Route::prefix('pembinaan')->name('pembinaan.')->group(function () {
             Route::get('/', [AdminPembinaanController::class, 'index'])
@@ -423,9 +418,33 @@ Route::middleware(['auth'])->group(function () {
         ->prefix('admin')
         ->name('admin.')
         ->group(function () {
+            // Skema Penelitian Management (Super Admin & Admin Kampus)
+            Route::resource('schema', SchemaController::class);
+
+            // Proposals Management (Admin Kampus & Super Admin)
+            Route::prefix('proposals')->name('proposals.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\ProposalController::class, 'index'])->name('index');
+                Route::get('{proposal}', [\App\Http\Controllers\Admin\ProposalController::class, 'show'])->name('show');
+                Route::post('{proposal}/approve', [\App\Http\Controllers\Admin\ProposalController::class, 'approve'])->name('approve');
+                Route::post('{proposal}/reject', [\App\Http\Controllers\Admin\ProposalController::class, 'reject'])->name('reject');
+            });
+
+            // Reviewer Assignment (Admin Kampus & Super Admin)
+            Route::get('reviewer/assign', [\App\Http\Controllers\Admin\AssignController::class, 'index'])->name('reviewer.assign');
+            Route::post('assign', [\App\Http\Controllers\Admin\AssignController::class, 'assign'])->name('assign.store');
+            Route::delete('assign/{id}', [\App\Http\Controllers\Admin\AssignController::class, 'unassign'])->name('assign.unassign');
+
             // Penentuan Keputusan Diterima/Ditolak (Decision)
             Route::post('decision/decide', [\App\Http\Controllers\Admin\DecisionController::class, 'decide'])
                 ->name('decision.decide');
+
+            // Rekap Hasil Penilaian Proposal Riset (Modul 2) - Super Admin & Admin Kampus
+            Route::get('reviews/summary', [AdminReviewController::class, 'summary'])
+                ->name('reviews.summary');
+
+            // Rekap Assessment Jurnal (JurnalMu) - Super Admin & Admin Kampus
+            Route::get('assessments/summary', [AdminReviewController::class, 'journalSummary'])
+                ->name('assessments.summary');
 
             // Admin Dashboard (LPPM)
             Route::get('dashboard', [AdminDashboardController::class, 'index'])
@@ -875,6 +894,43 @@ Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS.','.Role::PE
         Route::post('plagiarism-check', [PlagiarismController::class, 'store'])
             ->name('plagiarism-check.store');
     });
+/*
+|--------------------------------------------------------------------------
+| Shared Routes (All Roles)
+|--------------------------------------------------------------------------
+*/
+
+// Support (Placeholder)
+Route::get('/support', [SupportController::class, 'index'])
+    ->name('support');
+
+// Resources (Placeholder)
+Route::get('/resources', [ResourcesController::class, 'index'])
+    ->name('resources');
+
+// Review History (Modul 2)
+Route::get('/proposal/history', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
+    ->name('proposal.history');
+Route::get('/proposal/review-history/{dosen?}', [\App\Http\Controllers\ReviewHistoryController::class, 'index'])
+    ->name('proposal.review-history');
+
+Route::get('/proposal/documents/{id}/download', [ProposalController::class, 'downloadDocument'])
+    ->name('proposal.documents.download');
+Route::get('/proposal/{proposal}/download', [ProposalController::class, 'downloadDocument'])
+    ->name('proposal.download');
+
+Route::resource('proposal', ProposalController::class);
+
+/*
+|--------------------------------------------------------------------------
+| Author Profile Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('profile')->name('profile.')->group(function () {
+    Route::get('/', [ProfileController::class, 'show'])
+        ->name('show');
+});
 
 /*
 |--------------------------------------------------------------------------

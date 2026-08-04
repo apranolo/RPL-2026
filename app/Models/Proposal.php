@@ -142,4 +142,12 @@ class Proposal extends Model
     {
         return $this->hasMany(ProposalDocument::class);
     }
+
+    /**
+     * Relasi ke Review (penunjukan/penilaian reviewer).
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'proposal_id');
+    }
 }

@@ -8,6 +8,9 @@ export const ROLE_NAMES = {
     ADMIN_KAMPUS: 'Admin Kampus',
     ADMIN_KEUANGAN: 'Admin Keuangan',
     USER: 'User',
+    PENGELOLA_JURNAL: 'Pengelola Jurnal',
+    REVIEWER: 'Reviewer',
+    DOSEN: 'Dosen',
 } as const;
 
 /**

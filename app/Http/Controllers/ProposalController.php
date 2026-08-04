@@ -47,10 +47,7 @@ class ProposalController extends Controller
      */
     public function create(): Response
     {
-        $schemas = ResearchSchema::where('is_active', true)
-            ->orWhereNull('is_active')
-            ->select('id', 'name', 'description', 'max_funding')
-            ->get();
+        $schemas = ResearchSchema::select('id', 'name', 'description')->get();
 
         return Inertia::render('Proposal/Create', [
             'schemas' => $schemas,
@@ -112,10 +109,7 @@ class ProposalController extends Controller
     {
         $this->authorize('update', $proposal);
 
-        $schemas = ResearchSchema::where('is_active', true)
-            ->orWhereNull('is_active')
-            ->select('id', 'name', 'description', 'max_funding')
-            ->get();
+        $schemas = ResearchSchema::select('id', 'name', 'description')->get();
 
         return Inertia::render('Proposal/Edit', [
             'proposal' => $proposal,
@@ -197,5 +191,30 @@ class ProposalController extends Controller
 
         return redirect()->route('proposal.index')
             ->with('success', 'Proposal berhasil dihapus');
+    }
+
+    /**
+     * Download the specified proposal document.
+     */
+    public function downloadDocument($id)
+    {
+        $proposal = Proposal::find($id);
+        $filePath = null;
+
+        if (! $proposal) {
+            $document = \App\Models\ProposalDocument::findOrFail($id);
+            $proposal = $document->proposal;
+            $filePath = $document->file_path;
+        } else {
+            $filePath = $proposal->file_dokumen_proposal;
+        }
+
+        $this->authorize('view', $proposal);
+
+        if (! $filePath || ! Storage::disk('public')->exists($filePath)) {
+            abort(404, 'Dokumen proposal tidak ditemukan.');
+        }
+
+        return Storage::disk('public')->download($filePath);
     }
 }

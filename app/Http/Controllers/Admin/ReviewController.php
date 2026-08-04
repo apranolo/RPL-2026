@@ -39,22 +39,15 @@ class ReviewController extends Controller
         'D' => 60,
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Public Actions
-    |--------------------------------------------------------------------------
-    */
+    protected \App\Services\ReviewCalculationService $calculationService;
+
+    public function __construct(\App\Services\ReviewCalculationService $calculationService)
+    {
+        $this->calculationService = $calculationService;
+    }
 
     /**
-     * Menampilkan rekap hasil penilaian secara keseluruhan (Super Admin).
-     *
-     * Halaman ini menyajikan dashboard rekap komprehensif yang meliputi:
-     * - Statistik global (total, per-status, rata-rata skor)
-     * - Distribusi grade (A/B/C/D/E) dari semua penilaian yang sudah disubmit
-     * - Rekap per-program pembinaan beserta ringkasan skor
-     * - Rekap per-universitas (jumlah penilaian & rata-rata skor)
-     * - Rekap per-kategori evaluasi (kontribusi skor rata-rata per kategori)
-     * - Filter: pembinaan_id, university_id, status, period, search
+     * Menampilkan rekapitulasi penilaian proposal riset & penetapan keputusan LPPM (Modul 2).
      *
      * @route GET /admin/reviews/summary
      */
@@ -62,11 +55,38 @@ class ReviewController extends Controller
     {
         $this->authorize('viewAny', JournalAssessment::class);
 
-        /*
-        |----------------------------------------------------------------------
-        | 1. Build filtered base query
-        |----------------------------------------------------------------------
-        */
+        $proposalQuery = \App\Models\Proposal::query();
+
+        if ($request->user()->isAdminKampus()) {
+            $proposalQuery->whereHas('user', function ($q) use ($request) {
+                $q->where('university_id', $request->user()->university_id);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $proposalQuery->where('judul', 'like', "%{$search}%");
+        }
+
+        $proposalSummary = $this->calculationService->calculateProposalSummary($proposalQuery);
+        $filterOptions = $this->buildFilterOptions();
+
+        return Inertia::render('Admin/Reviewer/Summary', [
+            'proposalSummary' => $proposalSummary,
+            'filterOptions' => $filterOptions,
+            'filters' => $request->only(['search', 'university_id', 'status']),
+        ]);
+    }
+
+    /**
+     * Menampilkan rekapitulasi assessment jurnal secara keseluruhan (JurnalMu).
+     *
+     * @route GET /admin/assessments/summary
+     */
+    public function journalSummary(Request $request): Response
+    {
+        $this->authorize('viewAny', JournalAssessment::class);
+
         $query = JournalAssessment::query()
             ->with([
                 'journal:id,title,issn,university_id',
@@ -74,7 +94,6 @@ class ReviewController extends Controller
                 'user:id,name,email',
             ]);
 
-        // Filter: pembinaan program
         if ($request->filled('pembinaan_id')) {
             $query->where('pembinaan_registration_id', function ($sub) use ($request) {
                 $sub->select('id')
@@ -83,24 +102,26 @@ class ReviewController extends Controller
             });
         }
 
-        // Filter: university (through journal relationship)
+        if ($request->user()->isAdminKampus()) {
+            $query->whereHas('journal', function ($q) use ($request) {
+                $q->where('university_id', $request->user()->university_id);
+            });
+        }
+
         if ($request->filled('university_id')) {
             $query->whereHas('journal', function ($q) use ($request) {
                 $q->where('university_id', $request->university_id);
             });
         }
 
-        // Filter: status (draft | submitted | reviewed)
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter: period (tahun penilaian)
         if ($request->filled('period')) {
             $query->where('period', $request->period);
         }
 
-        // Filter: search (judul jurnal atau ISSN)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('journal', function ($q) use ($search) {
@@ -109,46 +130,12 @@ class ReviewController extends Controller
             });
         }
 
-        /*
-        |----------------------------------------------------------------------
-        | 2. Global statistics (menggunakan query ter-filter)
-        |----------------------------------------------------------------------
-        */
         $globalStats = $this->buildGlobalStats(clone $query);
-
-        /*
-        |----------------------------------------------------------------------
-        | 3. Grade distribution (hanya dari assessment yang sudah disubmit)
-        |----------------------------------------------------------------------
-        */
         $gradeDistribution = $this->buildGradeDistribution(clone $query);
-
-        /*
-        |----------------------------------------------------------------------
-        | 4. Rekap per-program pembinaan
-        |----------------------------------------------------------------------
-        */
         $pembinaanSummary = $this->buildPembinaanSummary($request);
-
-        /*
-        |----------------------------------------------------------------------
-        | 5. Rekap per-universitas
-        |----------------------------------------------------------------------
-        */
         $universitySummary = $this->buildUniversitySummary(clone $query);
-
-        /*
-        |----------------------------------------------------------------------
-        | 6. Rekap per-kategori evaluasi (kontribusi skor rata-rata)
-        |----------------------------------------------------------------------
-        */
         $categorySummary = $this->buildCategorySummary(clone $query);
 
-        /*
-        |----------------------------------------------------------------------
-        | 7. Daftar penilaian (paginated) untuk tabel detail
-        |----------------------------------------------------------------------
-        */
         $assessments = $query
             ->orderBy('submitted_at', 'desc')
             ->orderBy('created_at', 'desc')
@@ -156,14 +143,9 @@ class ReviewController extends Controller
             ->withQueryString()
             ->through(fn ($assessment) => $this->formatAssessmentRow($assessment));
 
-        /*
-        |----------------------------------------------------------------------
-        | 8. Filter options
-        |----------------------------------------------------------------------
-        */
         $filterOptions = $this->buildFilterOptions();
 
-        return Inertia::render('Admin/Reviewer/Summary', [
+        return Inertia::render('Admin/Reviewer/JournalSummary', [
             'globalStats' => $globalStats,
             'gradeDistribution' => $gradeDistribution,
             'pembinaanSummary' => $pembinaanSummary,

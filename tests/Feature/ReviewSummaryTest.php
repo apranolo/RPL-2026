@@ -37,7 +37,7 @@ beforeEach(function () {
         'role_id' => $superRole->id,
         'is_active' => true,
     ]);
-    $this->superAdmin->roles()->attach($superRole->id);
+    $this->superAdmin->roles()->syncWithoutDetaching($superRole->id);
 
     // Admin Kampus
     $adminRole = Role::where('name', Role::ADMIN_KAMPUS)->first();
@@ -45,7 +45,7 @@ beforeEach(function () {
         'role_id' => $adminRole->id,
         'is_active' => true,
     ]);
-    $this->adminKampus->roles()->attach($adminRole->id);
+    $this->adminKampus->roles()->syncWithoutDetaching($adminRole->id);
 
     // User biasa (Pengelola Jurnal)
     $userRole = Role::where('name', Role::USER)->first();
@@ -53,7 +53,7 @@ beforeEach(function () {
         'role_id' => $userRole->id,
         'is_active' => true,
     ]);
-    $this->regularUser->roles()->attach($userRole->id);
+    $this->regularUser->roles()->syncWithoutDetaching($userRole->id);
 
     // Reviewer (is_reviewer = true, tidak ada role khusus)
     $this->reviewerUser = User::factory()->create([

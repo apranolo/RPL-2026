@@ -65,6 +65,26 @@ export function AppSidebar() {
                 icon: BookType,
             },
             {
+                title: 'Manajemen Proposal',
+                href: '/admin/proposals',
+                icon: FileText,
+                items: [
+                    { title: 'Daftar Proposal', href: '/admin/proposals' },
+                    { title: 'Skema Penelitian', href: route('admin.schema.index') },
+                ],
+            },
+            {
+                title: 'Manajemen Reviewer',
+                href: route('admin.reviews.summary'),
+                icon: UserCheck,
+                items: [
+                    { title: 'Rekap Review Proposal', href: route('admin.reviews.summary') },
+                    { title: 'Rekap Assessment Jurnal', href: route('admin.assessments.summary') },
+                    { title: 'Kriteria Penilaian', href: route('admin.criteria.index') },
+                    { title: 'Daftar Reviewer', href: route('admin.reviewers.index') },
+                ],
+            },
+            {
                 title: 'Borang Indikator',
                 href: route('admin.borang-indikator.index'),
                 icon: ClipboardList,
@@ -98,16 +118,29 @@ export function AppSidebar() {
                 href: route('admin.pembinaan.index'),
                 icon: Award,
             },
-            {
-                title: 'Reviewer Assignment',
-                href: route('dikti.assessments.index'),
-                icon: UserCheck,
-            },
             ...commonNavItems,
         ];
     } else if (user.role.name === ROLE_NAMES.ADMIN_KAMPUS) {
         // Build Admin Kampus menu items
         const adminKampusItems: NavItem[] = [
+            {
+                title: 'Manajemen Proposal',
+                href: '/admin/proposals',
+                icon: FileText,
+                items: [
+                    { title: 'Daftar Proposal', href: '/admin/proposals' },
+                    { title: 'Skema Penelitian', href: route('admin.schema.index') },
+                ],
+            },
+            {
+                title: 'Manajemen Reviewer',
+                href: route('admin.reviews.summary'),
+                icon: UserCheck,
+                items: [
+                    { title: 'Rekap Review Proposal', href: route('admin.reviews.summary') },
+                    { title: 'Rekap Assessment Jurnal', href: route('admin.assessments.summary') },
+                ],
+            },
             {
                 title: 'Pengelola Jurnal',
                 href: route('admin-kampus.users.index'),
@@ -147,9 +180,14 @@ export function AppSidebar() {
     } else if (user.role.name === 'Reviewer') {
         roleNavItems = [
             {
-                title: 'Penugasan',
+                title: 'Penugasan Review',
                 href: route('reviewer.assignments.index'),
                 icon: ClipboardList,
+            },
+            {
+                title: 'Evaluasi Monev',
+                href: '/reviewer/evaluations',
+                icon: FileText,
             },
             {
                 title: 'Profil Reviewer',
@@ -167,8 +205,18 @@ export function AppSidebar() {
             },
             ...commonNavItems,
         ];
-    } else if (user.role.name === ROLE_NAMES.USER) {
+    } else if (user.role?.name === ROLE_NAMES.USER || user.role?.name === ROLE_NAMES.PENGELOLA_JURNAL || user.role?.name === 'Pengelola Jurnal' || user.role?.name === 'Dosen') {
         roleNavItems = [
+            {
+                title: 'Proposal Penelitian',
+                href: route('proposal.index'),
+                icon: FileText,
+                items: [
+                    { title: 'Daftar Proposal', href: route('proposal.index') },
+                    { title: 'Pengajuan Baru', href: route('proposal.create') },
+                    { title: 'Riwayat Review', href: route('proposal.history') },
+                ],
+            },
             {
                 title: 'Profil',
                 href: route('user.profil.index'),

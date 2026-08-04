@@ -18,6 +18,7 @@ export interface Review {
     proposal_id: number;
     reviewer_id: number;
     score?: number;
+    total_score?: number;
     feedback?: string;
     recommendation?: string;
     reviewed_at: string;
@@ -65,9 +66,10 @@ interface Props {
     dosen: User | null;
     reviews: PaginatedData<Review>;
     reviewSchedules: PaginatedData<ReviewSchedule>;
+    isReviewer?: boolean;
 }
 
-export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props) {
+export default function ReviewHistory({ dosen, reviews, reviewSchedules, isReviewer = true }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Dashboard',
@@ -123,9 +125,13 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                     Riwayat Review
                                 </h1>
                                 <p className="mt-1 text-muted-foreground">
-                                    {dosen
-                                        ? `Menampilkan riwayat review dari dosen: ${dosen.name}`
-                                        : 'Menampilkan riwayat review yang telah Anda lakukan'}
+                                    {isReviewer
+                                        ? (dosen
+                                            ? `Menampilkan riwayat review dari dosen: ${dosen.name}`
+                                            : 'Menampilkan riwayat review yang telah Anda lakukan')
+                                        : (dosen
+                                            ? `Menampilkan riwayat review untuk dosen: ${dosen.name}`
+                                            : 'Menampilkan riwayat review untuk proposal penelitian Anda')}
                                 </p>
                             </div>
                         </div>
@@ -134,28 +140,30 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                     {/* Tabs */}
                     <div className="space-y-6">
                         <Tabs defaultValue="reviews" className="w-full space-y-6">
-                            <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                                <TabsList className="inline-flex w-max min-w-full sm:grid sm:grid-cols-2">
-                                    <TabsTrigger value="reviews" className="gap-2">
-                                        <Award className="h-4 w-4" />
-                                        Riwayat Review Selesai
-                                        {reviews.total > 0 && (
-                                            <Badge variant="secondary" className="ml-1">
-                                                {reviews.total}
-                                            </Badge>
-                                        )}
-                                    </TabsTrigger>
-                                    <TabsTrigger value="schedules" className="gap-2">
-                                        <Calendar className="h-4 w-4" />
-                                        Jadwal / Penugasan Review
-                                        {reviewSchedules.total > 0 && (
-                                            <Badge variant="secondary" className="ml-1">
-                                                {reviewSchedules.total}
-                                            </Badge>
-                                        )}
-                                    </TabsTrigger>
-                                </TabsList>
-                            </div>
+                            {isReviewer && (
+                                <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                                    <TabsList className="inline-flex w-max min-w-full sm:grid sm:grid-cols-2">
+                                        <TabsTrigger value="reviews" className="gap-2">
+                                            <Award className="h-4 w-4" />
+                                            Riwayat Review Selesai
+                                            {reviews.total > 0 && (
+                                                <Badge variant="secondary" className="ml-1">
+                                                    {reviews.total}
+                                                </Badge>
+                                            )}
+                                        </TabsTrigger>
+                                        <TabsTrigger value="schedules" className="gap-2">
+                                            <Calendar className="h-4 w-4" />
+                                            Jadwal / Penugasan Review
+                                            {reviewSchedules.total > 0 && (
+                                                <Badge variant="secondary" className="ml-1">
+                                                    {reviewSchedules.total}
+                                                </Badge>
+                                            )}
+                                        </TabsTrigger>
+                                    </TabsList>
+                                </div>
+                            )}
 
                             {/* Reviews Tab */}
                             <TabsContent value="reviews" className="space-y-4">
@@ -170,78 +178,85 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules }: Props
                                 ) : (
                                     <>
                                         <div className="grid gap-4 md:grid-cols-2">
-                                            {reviews.data.map((review) => (
-                                                <Card key={review.id} className="flex flex-col">
-                                                    <CardHeader>
-                                                        <div className="flex items-start justify-between gap-2">
-                                                            <div className="flex-1">
-                                                                <CardTitle className="line-clamp-2 text-lg font-bold">
-                                                                    {review.proposal?.title || 'Proposal Penelitian'}
-                                                                </CardTitle>
-                                                                <CardDescription className="mt-1 flex items-center gap-2">
-                                                                    <BookOpen className="h-3 w-3" />
-                                                                    {review.proposal?.research_schema?.name || 'Skema Penelitian'}
-                                                                </CardDescription>
-                                                            </div>
-                                                            {review.score !== undefined && (
-                                                                <Badge variant={getScoreBadgeVariant(review.score) as any} className="text-sm">
-                                                                    Nilai: {review.score}
-                                                                </Badge>
-                                                            )}
-                                                        </div>
-                                                    </CardHeader>
-                                                    <CardContent className="flex-1 space-y-4">
-                                                        <div className="space-y-2 text-sm">
-                                                            <div className="flex justify-between">
-                                                                <span className="text-muted-foreground">Tanggal Review:</span>
-                                                                <span className="flex items-center gap-1">
-                                                                    <Calendar className="h-3 w-3" />
-                                                                    {formatDate(review.reviewed_at)}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex justify-between">
-                                                                <span className="text-muted-foreground">Pengusul:</span>
-                                                                <span className="flex items-center gap-1">
-                                                                    <UserIcon className="h-3 w-3" />
-                                                                    {review.proposal?.user?.name || '-'}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-
-                                                        {review.recommendation && (
-                                                            <div className="rounded-lg bg-muted p-3 text-sm">
-                                                                <span className="font-semibold">Rekomendasi: </span>
-                                                                <Badge variant="outline" className="ml-1 capitalize">
-                                                                    {review.recommendation}
-                                                                </Badge>
-                                                                {review.feedback && (
-                                                                    <p className="mt-2 line-clamp-3 text-xs text-muted-foreground italic">
-                                                                        "{review.feedback}"
-                                                                    </p>
+                                            {reviews.data.map((review) => {
+                                                const scoreToShow = review.score !== undefined && review.score !== null ? review.score : review.total_score;
+                                                return (
+                                                    <Card key={review.id} className="flex flex-col">
+                                                        <CardHeader>
+                                                            <div className="flex items-start justify-between gap-2">
+                                                                <div className="flex-1">
+                                                                    <CardTitle className="line-clamp-2 text-lg font-bold">
+                                                                        {review.proposal?.title || 'Proposal Penelitian'}
+                                                                    </CardTitle>
+                                                                    <CardDescription className="mt-1 flex items-center gap-2">
+                                                                        <BookOpen className="h-3 w-3" />
+                                                                        {review.proposal?.research_schema?.name || 'Skema Penelitian'}
+                                                                    </CardDescription>
+                                                                </div>
+                                                                {scoreToShow !== undefined && scoreToShow !== null && (
+                                                                    <Badge variant={getScoreBadgeVariant(Number(scoreToShow)) as any} className="text-sm">
+                                                                        Nilai: {scoreToShow}
+                                                                    </Badge>
                                                                 )}
                                                             </div>
-                                                        )}
-                                                    </CardContent>
-                                                    <CardFooter className="mt-auto grid grid-cols-2 gap-2 pt-4">
-                                                        <Button variant="outline" size="sm" asChild className="w-full">
-                                                            <Link href={route('proposal.show', review.proposal_id)}>
-                                                                <Eye className="mr-2 h-4 w-4" />
-                                                                Detail
-                                                            </Link>
-                                                        </Button>
-                                                        <Button variant="default" size="sm" asChild className="w-full">
-                                                            <a
-                                                                href={route('review.print', { type: 'proposal', id: review.id })}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                            >
-                                                                <FileText className="mr-2 h-4 w-4" />
-                                                                Cetak BA
-                                                            </a>
-                                                        </Button>
-                                                    </CardFooter>
-                                                </Card>
-                                            ))}
+                                                        </CardHeader>
+                                                        <CardContent className="flex-1 space-y-4">
+                                                            <div className="space-y-2 text-sm">
+                                                                <div className="flex justify-between">
+                                                                    <span className="text-muted-foreground">Tanggal Review:</span>
+                                                                    <span className="flex items-center gap-1">
+                                                                        <Calendar className="h-3 w-3" />
+                                                                        {formatDate(review.reviewed_at)}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex justify-between">
+                                                                    <span className="text-muted-foreground">
+                                                                        {isReviewer ? 'Pengusul:' : 'Reviewer:'}
+                                                                    </span>
+                                                                    <span className="flex items-center gap-1">
+                                                                        <UserIcon className="h-3 w-3" />
+                                                                        {isReviewer
+                                                                            ? (review.proposal?.user?.name || '-')
+                                                                            : (review.reviewer?.name || '-')}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            {review.recommendation && (
+                                                                <div className="rounded-lg bg-muted p-3 text-sm">
+                                                                    <span className="font-semibold">Rekomendasi: </span>
+                                                                    <Badge variant="outline" className="ml-1 capitalize">
+                                                                        {review.recommendation}
+                                                                    </Badge>
+                                                                    {review.feedback && (
+                                                                        <p className="mt-2 line-clamp-3 text-xs text-muted-foreground italic">
+                                                                            "{review.feedback}"
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </CardContent>
+                                                        <CardFooter className="mt-auto grid grid-cols-2 gap-2 pt-4">
+                                                            <Button variant="outline" size="sm" asChild className="w-full">
+                                                                <Link href={route('proposal.show', review.proposal_id)}>
+                                                                    <Eye className="mr-2 h-4 w-4" />
+                                                                    Detail
+                                                                </Link>
+                                                            </Button>
+                                                            <Button variant="default" size="sm" asChild className="w-full">
+                                                                <a
+                                                                    href={route('review.print', { type: 'proposal', id: review.id })}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                >
+                                                                    <FileText className="mr-2 h-4 w-4" />
+                                                                    Cetak BA
+                                                                </a>
+                                                            </Button>
+                                                        </CardFooter>
+                                                    </Card>
+                                                );
+                                            })}
                                         </div>
 
                                         {/* Pagination for Reviews */}
