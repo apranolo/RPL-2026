@@ -5,7 +5,7 @@ import { ROLE_NAMES } from '@/constants/roles';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
-import {
+    import {
     Award,
     BookOpen,
     BookType,
@@ -13,6 +13,7 @@ import {
     Building2,
     CalendarDays,
     ClipboardList,
+    CreditCard,
     FileText,
     GraduationCap,
     LayoutGrid,
@@ -20,6 +21,7 @@ import {
     LifeBuoy,
     UserCheck,
     Users,
+    Wallet,
 } from 'lucide-react';
 
 import AppLogo from './app-logo';
@@ -114,6 +116,16 @@ export function AppSidebar() {
                 icon: Library,
             },
             {
+                title: 'Kontrak & Pendanaan',
+                href: route('finance.contracts.index'),
+                icon: CreditCard,
+                items: [
+                    { title: 'Daftar Kontrak', href: route('finance.contracts.index') },
+                    { title: 'Laporan Keuangan', href: route('finance.report.index') },
+                    { title: 'Log Pendanaan', href: route('finance.funding.logs.index') },
+                ],
+            },
+            {
                 title: 'Pembinaan',
                 href: route('admin.pembinaan.index'),
                 icon: Award,
@@ -139,6 +151,16 @@ export function AppSidebar() {
                 items: [
                     { title: 'Rekap Review Proposal', href: route('admin.reviews.summary') },
                     { title: 'Rekap Assessment Jurnal', href: route('admin.assessments.summary') },
+                ],
+            },
+            {
+                title: 'Kontrak & Pendanaan',
+                href: route('finance.contracts.index'),
+                icon: CreditCard,
+                items: [
+                    { title: 'Daftar Kontrak', href: route('finance.contracts.index') },
+                    { title: 'Laporan Keuangan', href: route('finance.report.index') },
+                    { title: 'Log Pendanaan', href: route('finance.funding.logs.index') },
                 ],
             },
             {
@@ -199,9 +221,14 @@ export function AppSidebar() {
     } else if (user.role.name === ROLE_NAMES.ADMIN_KEUANGAN) {
         roleNavItems = [
             {
-                title: 'Kontrak',
+                title: 'Kontrak & Pendanaan',
                 href: route('finance.contracts.index'),
-                icon: FileText,
+                icon: CreditCard,
+                items: [
+                    { title: 'Daftar Kontrak', href: route('finance.contracts.index') },
+                    { title: 'Laporan Keuangan', href: route('finance.report.index') },
+                    { title: 'Log Pendanaan', href: route('finance.funding.logs.index') },
+                ],
             },
             ...commonNavItems,
         ];
@@ -215,6 +242,15 @@ export function AppSidebar() {
                     { title: 'Daftar Proposal', href: route('proposal.index') },
                     { title: 'Pengajuan Baru', href: route('proposal.create') },
                     { title: 'Riwayat Review', href: route('proposal.history') },
+                ],
+            },
+            {
+                title: 'Pendanaan Penelitian',
+                href: route('user.funding.index'),
+                icon: Wallet,
+                items: [
+                    { title: 'Informasi Pendanaan', href: route('user.funding.index') },
+                    { title: 'Rekening Bank', href: '/profile/bank' },
                 ],
             },
             {

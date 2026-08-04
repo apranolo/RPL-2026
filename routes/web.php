@@ -1003,6 +1003,10 @@ Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])->group(fun
 
 Route::middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS.','.Role::SUPER_ADMIN])->group(function () {
 
+    // Rute untuk menampilkan halaman laporan audit keuangan
+    Route::get('/finance/report', [\App\Http\Controllers\FinanceReportController::class, 'index'])
+        ->name('finance.report.index');
+
     // Rute untuk menampilkan halaman log perubahan termin
     Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
         ->name('finance.funding.logs.index');
