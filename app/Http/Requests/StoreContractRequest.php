@@ -12,7 +12,7 @@ class StoreContractRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasRole('super_admin') || $this->user()->hasRole('admin_kampus');
+        return $this->user()?->hasAnyRole([\App\Models\Role::SUPER_ADMIN, \App\Models\Role::ADMIN_KAMPUS, \App\Models\Role::ADMIN_KEUANGAN]) ?? false;
     }
 
     /**

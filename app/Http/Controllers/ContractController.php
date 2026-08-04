@@ -160,19 +160,21 @@ class ContractController extends Controller
                     $validated['pembinaan_registration_id']
                 );
                 $validated['university_id'] = $registration?->journal?->university_id;
+            } else {
+                $validated['university_id'] = $request->user()->university_id ?? University::first()?->id ?? 1;
             }
         }
 
         $contract = DB::transaction(function () use ($validated, $request) {
             $year = date('Y');
-            $prefix = "KTR/{$year}/";
+            $prefix = "KON-{$year}-";
             $lastContract = Contract::where('contract_number', 'like', "{$prefix}%")
                 ->lockForUpdate()
                 ->orderByDesc('id')
                 ->first();
 
             $nextSequence = 1;
-            if ($lastContract && preg_match('/\/(\d+)$/', $lastContract->contract_number, $matches)) {
+            if ($lastContract && preg_match('/-(\d+)$/', $lastContract->contract_number, $matches)) {
                 $nextSequence = (int) $matches[1] + 1;
             }
             $contractNumber = sprintf('%s%04d', $prefix, $nextSequence);
@@ -182,7 +184,7 @@ class ContractController extends Controller
                 'title' => $validated['title'],
                 'pembinaan_registration_id' => $validated['pembinaan_registration_id'] ?? null,
                 'journal_id' => $validated['journal_id'] ?? null,
-                'university_id' => $validated['university_id'] ?? null,
+                'university_id' => $validated['university_id'],
                 'start_date' => $validated['start_date'] ?? null,
                 'end_date' => $validated['end_date'] ?? null,
                 'terms' => $validated['terms'] ?? null,
@@ -224,7 +226,7 @@ class ContractController extends Controller
                 'end_date' => $contract->end_date?->format('Y-m-d'),
                 'terms' => $contract->terms,
                 'notes' => $contract->notes,
-                'contract_value' => $contract->contract_value,
+                'contract_value' => (float) $contract->contract_value,
                 'university' => $contract->university ? [
                     'id' => $contract->university->id,
                     'name' => $contract->university->name,
@@ -253,6 +255,14 @@ class ContractController extends Controller
             'status' => ['required', 'string', 'in:draft,active,selesai,dibatalkan'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
+
+        if (in_array($contract->status, ['selesai', 'dibatalkan', 'completed', 'cancelled'])) {
+            return back()->with('error', 'Kontrak dalam status terminal tidak dapat diubah lagi.');
+        }
+
+        if ($contract->status === 'draft' && $validated['status'] === 'selesai') {
+            return back()->with('error', 'Draft kontrak tidak dapat langsung diubah menjadi selesai.');
+        }
 
         $contract->update([
             'status' => $validated['status'],

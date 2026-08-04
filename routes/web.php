@@ -1001,13 +1001,7 @@ Route::middleware(['role:'.Role::SUPER_ADMIN.','.Role::ADMIN_KAMPUS])->group(fun
         ->name('funding.upload-bukti');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Finance & Funding Routes
-|--------------------------------------------------------------------------
-| Akses untuk Keuangan dan Admin Kampus
-*/
-Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
+Route::middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS.','.Role::SUPER_ADMIN])->group(function () {
 
     // Rute untuk menampilkan halaman log perubahan termin
     Route::get('/finance/funding/logs', [\App\Http\Controllers\FundingLogController::class, 'index'])
@@ -1017,6 +1011,11 @@ Route::middleware(['role:Keuangan|'.Role::ADMIN_KAMPUS])->group(function () {
     Route::get('/finance/funding/{id}/print', [\App\Http\Controllers\FundingController::class, 'printKwitansi'])
         ->name('finance.funding.print-kwitansi');
 
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('user-bank/update', [\App\Http\Controllers\UserBankController::class, 'update'])
+        ->name('user-bank.update');
 });
 
 /*

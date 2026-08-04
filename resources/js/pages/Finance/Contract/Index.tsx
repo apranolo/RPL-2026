@@ -1,3 +1,9 @@
+/**
+ * @file Index.tsx
+ * @description Halaman sentral manajemen dan monitoring daftar kontrak penelitian untuk Admin Keuangan & LPPM
+ * @route GET /finance/contracts atau GET /admin/contracts
+ * @features Daftar tabular kontrak, filter universitas & status, pencarian nomor/judul kontrak, pagination
+ */
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

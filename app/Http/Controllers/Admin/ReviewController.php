@@ -70,8 +70,8 @@ class ReviewController extends Controller
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $proposalQuery->whereBetween('created_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59',
+                $request->start_date.' 00:00:00',
+                $request->end_date.' 23:59:59',
             ]);
         }
 
@@ -139,8 +139,8 @@ class ReviewController extends Controller
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('submitted_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59',
+                $request->start_date.' 00:00:00',
+                $request->end_date.' 23:59:59',
             ]);
         }
 

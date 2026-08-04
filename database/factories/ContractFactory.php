@@ -64,4 +64,16 @@ class ContractFactory extends Factory
     {
         return $this->state(['status' => 'selesai']);
     }
+
+    /** State: contract that is dibatalkan. */
+    public function dibatalkan(): static
+    {
+        return $this->state(['status' => 'dibatalkan']);
+    }
+
+    /** Set contract_value explicitly. */
+    public function withValue(float|int $value): static
+    {
+        return $this->state(['contract_value' => $value]);
+    }
 }

@@ -1,3 +1,10 @@
+/**
+ * @file Upload.tsx
+ * @description Halaman unggah berkas fisik dokumen kontrak yang sudah ditandatangani basah
+ * @route GET /finance/contracts/upload
+ * @features Form upload dokumen PDF kontrak, validasi ukuran file, notification flash alert
+ */
+import InputError from '@/components/input-error';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,15 +19,15 @@ import { FormEvent } from 'react';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Keuangan',
-        href: '/keuangan/dashboard',
+        href: '/finance/contracts',
     },
     {
         title: 'Kontrak',
-        href: '/keuangan/contracts',
+        href: '/finance/contracts',
     },
     {
         title: 'Unggah Arsip',
-        href: '/keuangan/contracts/upload',
+        href: '/finance/contracts/upload',
     },
 ];
 
@@ -38,7 +45,7 @@ export default function Upload({ contractId }: Props) {
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        form.post(route('keuangan.contracts.documents.store'), {
+        form.post(route('finance.contracts.documents.store'), {
             forceFormData: true,
             onSuccess: () => {
                 form.reset('document');
@@ -56,7 +63,7 @@ export default function Upload({ contractId }: Props) {
                         <h1 className="text-3xl font-semibold text-foreground">Unggah Arsip Kontrak</h1>
                         <p className="text-sm text-muted-foreground">Unggah file PDF kontrak yang telah ditandatangani untuk keperluan arsip.</p>
                     </div>
-                    <Link href="/keuangan/dashboard">
+                    <Link href="/finance/contracts">
                         <Button variant="outline" className="gap-2">
                             <ArrowLeft className="h-4 w-4" />
                             Kembali
@@ -95,7 +102,7 @@ export default function Upload({ contractId }: Props) {
                                         form.setData('document', file);
                                     }}
                                 />
-                                {form.errors.document && <p className="text-sm text-destructive">{form.errors.document}</p>}
+                                <InputError message={form.errors.document} />
                                 <p className="text-sm text-muted-foreground">Hanya file PDF, maksimal 5MB.</p>
                             </div>
 

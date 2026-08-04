@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('university_id')->constrained('universities')->cascadeOnDelete();
             $table->foreignId('pembinaan_id')->nullable()->constrained('pembinaan')->nullOnDelete();
-            $table->foreignId('proposal_id')->unique()->constrained('proposals')->cascadeOnDelete();
+            $table->foreignId('proposal_id')->nullable()->constrained('proposals')->cascadeOnDelete();
 
             $table->string('contract_number')->unique();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['draft', 'active', 'completed', 'cancelled'])->default('draft');
+            $table->string('status')->default('draft');
             $table->decimal('contract_value', 15, 2)->default(0);
-            $table->string('party_1');
-            $table->string('party_2');
+            $table->string('party_1')->nullable();
+            $table->string('party_2')->nullable();
 
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

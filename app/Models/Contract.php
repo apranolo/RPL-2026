@@ -84,9 +84,19 @@ class Contract extends Model
         return $this->belongsTo(Pembinaan::class);
     }
 
+    public function pembinaanRegistration(): BelongsTo
+    {
+        return $this->belongsTo(PembinaanRegistration::class, 'pembinaan_registration_id');
+    }
+
     public function proposal(): BelongsTo
     {
         return $this->belongsTo(Proposal::class);
+    }
+
+    public function journal(): BelongsTo
+    {
+        return $this->belongsTo(Journal::class);
     }
 
     public function fundings(): HasMany
