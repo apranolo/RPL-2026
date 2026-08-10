@@ -295,6 +295,14 @@ class User extends Authenticatable
         return $this->hasMany(SystemLog::class);
     }
 
+    /**
+     * Get all activity logs for this user.
+     */
+    public function activityLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Scopes
