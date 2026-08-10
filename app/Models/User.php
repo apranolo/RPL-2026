@@ -243,6 +243,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all monev schedules assigned to this user as evaluator.
+     */
+    public function monevSchedules(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(MonevSchedule::class, 'evaluator_id');
+    }
+
+    /**
      * Get all assessments created by this user
      */
     public function assessments()
