@@ -12,6 +12,7 @@ class SystemLog extends Model
     use HasFactory;
 
     protected $fillable = [
+        'university_id',
         'user_id',
         'loggable_type',
         'loggable_id',
@@ -22,9 +23,21 @@ class SystemLog extends Model
         'user_agent',
     ];
 
+    protected $appends = [
+        'actor_name',
+    ];
+
     protected $casts = [
         'changes' => 'array',
     ];
+
+    /**
+     * Accessor for actor_name.
+     */
+    public function getActorNameAttribute(): string
+    {
+        return $this->user ? $this->user->name : 'System';
+    }
 
     /**
      * Get the user that triggered the log.
@@ -32,6 +45,14 @@ class SystemLog extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the university that owns the log.
+     */
+    public function university(): BelongsTo
+    {
+        return $this->belongsTo(University::class);
     }
 
     /**
