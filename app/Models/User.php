@@ -286,6 +286,15 @@ class User extends Authenticatable
     {
         return $this->hasOne(ReviewerProfile::class);
     }
+
+    /**
+     * Get all system logs triggered by this user.
+     */
+    public function systemLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SystemLog::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Scopes
