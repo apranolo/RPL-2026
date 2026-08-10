@@ -47,6 +47,7 @@ class ProposalObserver
     {
         SystemLog::create([
             'user_id' => Auth::id(),
+            'university_id' => Auth::user()?->university_id ?? $model->university_id ?? null,
             'loggable_type' => get_class($model),
             'loggable_id' => $model->id,
             'action' => $action,
