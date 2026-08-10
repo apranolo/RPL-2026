@@ -99,6 +99,14 @@ class Contract extends Model
         return $this->hasMany(ContractDocument::class);
     }
 
+    /**
+     * Get all monev schedules for this contract.
+     */
+    public function monevSchedules(): HasMany
+    {
+        return $this->hasMany(MonevSchedule::class, 'contract_id');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
